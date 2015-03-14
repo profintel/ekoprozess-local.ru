@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component>
+  
+  <information>
+    <title>Разграничение доступа</title>
+    <version>1.0</version>
+    <description>Настроки доступа к компонентам и их функциям</description>
+  </information>
+  
+  <install>
+    <requirement>components</requirement>
+    <menu>secondary</menu>
+  </install>
+  
+</component>

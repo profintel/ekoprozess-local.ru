@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component>
+  
+  <information>
+    <title>Меню</title>
+    <version>1.0</version>
+    <description>Создание и формирование навигационных меню</description>
+  </information>
+  
+  <install>
+    <menu>secondary</menu>
+    <requirement>projects</requirement>
+    <requirement>templates</requirement>
+  </install>
+  
+</component>

@@ -1,0 +1,202 @@
+/* Generated 14.03.2015 14:34:54 */
+
+/* components */
+
+.components-installed-icon {
+  background-image: url(/components/components/media/installed.png);
+}
+.components-uninstalled-icon {
+  background-image: url(/components/components/media/uninstalled.png);
+}
+.components-installed,
+.components-uninstalled {
+  margin-left: 44px;
+}
+
+.components-refresher {
+  display: block;
+  float: right;
+  margin-left: 14px;
+}
+
+/* projects */
+
+.projects-title {
+  background-image: url(/components/projects/media/www_page.png);
+}
+.projects-page-container {
+  margin-left: 20px;
+}
+.world_link_icon {
+  background-image: url(/components/projects/media/world_link.png);
+}
+.projects-icon-small {
+  background-image: url(/components/projects/media/www_page_small.png);
+  display: block;
+  padding-left: 30px;
+}
+#home {
+  float: right;
+  line-height: 40px;
+  margin-right: 40px;
+  color: #fff;
+  font-size: 15px;
+}
+
+/* templates */
+
+.templates-title {
+  background-image: url(/components/templates/media/layout.png);
+}
+
+/* gallery */
+
+.gallery-title {
+  background-image: url(/components/gallery/media/icon.png);
+}
+
+.panel.selection.folder .left a {
+  display:block;
+  background:transparent url(/components/gallery/media/folder_24.png) left top no-repeat;
+  padding:2px 0 0 30px;
+  height:22px;
+}
+.panel.selection.folder .right {
+  padding-top:2px;
+}
+
+.panel.image {
+  float:left;
+  margin-right:15px;
+  margin-bottom:10px;
+  width:185px;
+  height:155px;
+}
+.panel.image .img {
+  width:185px;
+  height:135px;
+  overflow:hidden;
+  margin-bottom:5px;
+}
+.panel.image .right {
+  width: 100%;
+}
+.panel.image.video {
+  width:310px;
+}
+.panel.image.video .item {
+  width:310px;
+  height:135px;
+  margin-bottom:3px;
+}
+.reference {
+  background:transparent url(/components/gallery/media/reference.png) left top no-repeat;
+}
+
+/* languages */
+
+.languages-title {
+  background-image: url(/components/languages/media/locate.png);
+}
+
+/* forms */
+
+.forms-title {
+  background-image: url(/components/forms/media/form.png);
+}
+
+.forms-field_i_s {
+  background-image: url(/components/forms/media/field-small.png);
+}
+
+.fields-title {
+  background-image: url(/components/forms/media/field.png);
+}
+
+.forms-types-title {
+  background-image: url(/components/forms/media/form-type.png);
+}
+
+.chzn-results li {
+  background-repeat: no-repeat;
+  background-position: 1px 5px;
+}
+
+.option-text,
+.option-text.highlighted {
+  padding-left: 20px !important;
+  background-image: url(/components/forms/media/option-text.png);
+}
+
+.option-textarea,
+.option-textarea.highlighted {
+  padding-left: 20px !important;
+  background-image: url(/components/forms/media/option-textarea.png);
+}
+
+.option-password,
+.option-password.highlighted {
+  padding-left: 20px !important;
+  background-image: url(/components/forms/media/option-password.png);
+}
+
+.option-captcha,
+.option-captcha.highlighted {
+  padding-left: 20px !important;
+  background-image: url(/components/forms/media/option-captcha.png);
+}
+
+.option-hidden,
+.option-hidden.highlighted {
+  padding-left: 20px !important;
+  background-image: url(/components/forms/media/option-hidden.png);
+}
+
+.option-file,
+.option-file.highlighted {
+  padding-left: 20px !important;
+  background-image: url(/components/forms/media/option-file.png);
+}
+
+.option-checkbox,
+.option-checkbox.highlighted {
+  padding-left: 20px !important;
+  background-image: url(/components/forms/media/option-checkbox.png);
+}
+
+.option-radio,
+.option-radio.highlighted {
+  padding-left: 20px !important;
+  background-image: url(/components/forms/media/option-radio.png);
+}
+
+.option-select,
+.option-select.highlighted {
+  padding-left: 20px !important;
+  background-image: url(/components/forms/media/option-select.png);
+}
+
+.option-submit,
+.option-submit.highlighted {
+  padding-left: 20px !important;
+  background-image: url(/components/forms/media/option-submit.png);
+}
+
+/* messages */
+
+.messages-title{
+	background:transparent url("/components/messages/media/icon.png") left top no-repeat;
+}
+.date {
+	color:#999999;
+	font-size:13px;
+}
+.user {
+	font-size:13px;
+}
+
+/* menus */
+
+.menus-title {
+  background-image: url(/components/menus/media/hierarchy.png);
+}

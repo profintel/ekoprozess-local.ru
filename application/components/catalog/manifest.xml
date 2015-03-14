@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component>
+  
+  <information>
+    <title>Каталог</title>
+    <description>Управление каталогом</description>
+  </information>
+  
+  <install>
+    <menu>secondary</menu>
+  </install>
+
+    <template>
+        <title>Каталог - Категория</title>
+        <path>templates/catalog_category</path>
+    </template>
+
+  <template>
+    <title>Каталог - Вложение</title>
+    <path>templates/catalog_one</path>
+  </template>
+
+</component>

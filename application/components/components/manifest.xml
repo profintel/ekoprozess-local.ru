@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component>
+  
+  <information>
+    <title>Компоненты</title>
+    <version>1.0</version>
+    <description>Работа с компонентами системы</description>
+  </information>
+  
+  <install>
+    <menu>primary</menu>
+  </install>
+  
+</component>

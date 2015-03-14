@@ -1,0 +1,41 @@
+.gallery-title {
+  background-image: url(/components/gallery/media/icon.png);
+}
+
+.panel.selection.folder .left a {
+  display:block;
+  background:transparent url(/components/gallery/media/folder_24.png) left top no-repeat;
+  padding:2px 0 0 30px;
+  height:22px;
+}
+.panel.selection.folder .right {
+  padding-top:2px;
+}
+
+.panel.image {
+  float:left;
+  margin-right:15px;
+  margin-bottom:10px;
+  width:185px;
+  height:155px;
+}
+.panel.image .img {
+  width:185px;
+  height:135px;
+  overflow:hidden;
+  margin-bottom:5px;
+}
+.panel.image .right {
+  width: 100%;
+}
+.panel.image.video {
+  width:310px;
+}
+.panel.image.video .item {
+  width:310px;
+  height:135px;
+  margin-bottom:3px;
+}
+.reference {
+  background:transparent url(/components/gallery/media/reference.png) left top no-repeat;
+}

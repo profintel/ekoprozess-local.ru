@@ -1,0 +1,15 @@
+RewriteEngine on
+Options +FollowSymlinks
+RewriteBase /
+
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !^/index.php
+RewriteCond %{REQUEST_URI} (/|\.php|\.html|\.feed|\.pdf|\.raw|/[^.]*)$  [NC]
+RewriteRule (.*) index.php?$1
+
+#RewriteRule (/php.php) index.php
+#RewriteRule ^(.*)$ index.php?$1
+
+AddDefaultCharset UTF-8

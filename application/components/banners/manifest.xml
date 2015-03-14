@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component>
+  
+  <information>
+    <title>Баннеры</title>
+  </information>
+  
+  <install>
+    <menu>secondary</menu>
+  </install>
+    
+  <template>
+    <title>Баннер</title>
+    <path>templates/site_banner</path>
+  </template>
+</component>
