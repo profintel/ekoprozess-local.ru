@@ -22,7 +22,7 @@ $(function() {
     }
   });
   
-  $('div.projects-page-container a.toggle').live('click', function() {
+  $('div.projects-page-container a.toggle').on('click', function() {
     if ($(this).hasClass('toggle_plus_i_s')) {
       var container = $(this).parent().next();
       if (container.hasClass('projects-page-container')) {

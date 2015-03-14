@@ -11,10 +11,7 @@
   <link rel="stylesheet" type="text/css" href="/adm/chosen/chosen.css" />
   <link rel="stylesheet" type="text/css" href="/components/tp_admin.css?<?=time();?>" />
   
-  <script type="text/javascript" src="/components/tp_admin.js?<?=time();?>"></script>
-  <script type="text/javascript" src="/adm/ckeditor/ckeditor.js"></script>
-  
-	<title>Profectum - Панель администратора</title>
+	<title>ЭКО-процессинг - Панель администратора</title>
 </head>
 <body>
   
@@ -22,7 +19,7 @@
     
     <div id="header">
       <div class="logo">
-        <a href="<?=$_lang_prefix;?>/admin/"><img src="/adm/images/logo.png" border="0" alt="" title="" /></a>
+        <a href="<?=$_lang_prefix;?>/admin/"><img src="/adm/images/logo.png" border="0" alt="ЭКО-процессинг" title="ЭКО-процессинг" /></a>
       </div>
       
       <div class="menu">
@@ -95,6 +92,12 @@
     <div class="inner"></div>
     <div class="buttons"></div>
   </div>
+  
+  <script type="text/javascript" src="/components/tp_admin.js?<?=time();?>"></script>
+  <script type="text/javascript" src="/adm/ckeditor/ckeditor.js"></script>
+  <script type="text/javascript" src="/adm/lightbox/js/jquery.lightbox-0.5.js"></script>
+  <script type="text/javascript" src="/adm/flowplayer/flowplayer-3.2.4.min.js"></script>
+  <script type="text/javascript" src="/adm/chosen/chosen.jquery.js"></script>
   
 </body>
 </html>

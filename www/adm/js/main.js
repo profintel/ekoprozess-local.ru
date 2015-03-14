@@ -40,7 +40,7 @@ $(function() {
   };
   $.timepicker.setDefaults($.timepicker.regional['ru']);
   
-  $("a.confirm").live('click', function() {
+  $("a.confirm").on('click', function() {
     if (confirm('Вы уверены?')) {
       return true;
     }

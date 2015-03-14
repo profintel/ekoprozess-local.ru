@@ -341,17 +341,21 @@ class Components_admin extends CI_Component {
         }
       }
       
+      if ($type == 'admin') {
+        $css = $this->_read_recursive(FCPATH .'adm/css', 'css');
+      }
       if ($type == 'site') {
         $css = $this->_read_recursive(FCPATH .'css', 'css');
-        if ($css === FALSE) {
-          $error = 'Не удалось обработать директорию стилей';
-          if (!$returning) {
-            send_answer(array('errors' => array($error)));
-          }
-          return $error;
-        }
-        $data .= $css;
       }
+      
+      if ($css === FALSE) {
+        $error = 'Не удалось обработать директорию стилей';
+        if (!$returning) {
+          send_answer(array('errors' => array($error)));
+        }
+        return $error;
+      }
+      $data .= $css;
       
       if (!@file_put_contents(FCPATH .'components/tp_'. $type .'.css', $data)) {
         $error = 'Не удалось записать файл tp_'. $type .'.css';
@@ -383,15 +387,18 @@ class Components_admin extends CI_Component {
       
       if ($type == 'site') {
         $js = $this->_read_recursive(FCPATH .'js', 'js');
-        if ($js === FALSE) {
-          $error = 'Не удалось обработать директорию скриптов';
-          if (!$returning) {
-            send_answer(array('errors' => array($error)));
-          }
-          return $error;
-        }
-        $data .= $js;
       }
+      if ($type == 'admin') {
+        $js = $this->_read_recursive(FCPATH .'adm/js', 'js');
+      }
+      if ($js === FALSE) {
+        $error = 'Не удалось обработать директорию скриптов';
+        if (!$returning) {
+          send_answer(array('errors' => array($error)));
+        }
+        return $error;
+      }
+      $data .= $js;
       
       foreach ($components as $component) {
         if (file_exists(APPPATH .'components/'. $component['name'] .'/js/'. $type .'.js')) {

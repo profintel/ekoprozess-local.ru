@@ -1,4 +1,4 @@
-<a href="javascript:void();"
+<a href="javascript:void(0);"
   onClick="send_request('<?=$_lang_prefix;?>/admin<?=$_component['path'];?>refresh/');"
   class="components-refresher icon_small arrow_refresh_i_s"
 >
