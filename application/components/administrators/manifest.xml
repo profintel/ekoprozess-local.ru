@@ -7,6 +7,7 @@
   
   <install>
     <menu>secondary</menu>
+    <icon>glyphicon-user</icon>
   </install>
   
 </component>

@@ -122,6 +122,9 @@ class Components_admin extends CI_Component {
     if (isset($manifest->install->menu)) {
       $component['menu'] = (string)$manifest->install->menu;
     }
+    if (isset($manifest->install->icon)) {
+      $component['icon'] = (string)$manifest->install->icon;
+    }
     if (isset($manifest->install->requirement)) {
       $component['requirement'] = array();
       foreach ($manifest->install->requirement as $requirement) {
@@ -196,12 +199,12 @@ class Components_admin extends CI_Component {
         }
       }
     }
-    
     $component_params = array(
       'parent'      => ($parent ? $parent['name'] : NULL),
       'name'        => $component['name'],
       'path'        => ($parent ? $parent['path'] : '/') . $component['name'] .'/',
       'menu'        => (isset($component['menu']) ? $component['menu'] : NULL),
+      'icon'        => (isset($component['icon']) ? $component['icon'] : NULL),
       'title'       => $component['title'],
       'author'      => (isset($component['author']) ? $component['author'] : NULL),
       'version'     => (isset($component['version']) ? $component['version'] : NULL),

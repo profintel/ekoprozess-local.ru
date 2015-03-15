@@ -1,6 +1,8 @@
 var search_timeout;
 
 $(function() {
+  $('.el-tooltip').tooltip();
+  
   $('#autorization').keyup(function(event) {
     if (event.keyCode == 13 && $('#username').val() && $('#password').val()) {
       $('#autorization-submit').click();

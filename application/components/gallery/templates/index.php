@@ -1,5 +1,3 @@
-<script type="text/javascript" src="/adm/js/jquery.flash.js"></script>
-
 <h1 class="icon_big gallery-title"><?=$_component['title'];?></h1>
 <? if (!$parent_id) { ?>
   <div class="links">

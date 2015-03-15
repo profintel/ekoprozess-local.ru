@@ -6,6 +6,7 @@ CREATE TABLE `pr_components` (
   `name` varchar(100) NOT NULL,
   `path` text NOT NULL,
   `menu` varchar(10) default NULL,
+  `icon` varchar(100) default NULL,
   `title` varchar(100) NOT NULL,
   `author` varchar(100) default NULL,
   `version` float unsigned default NULL,

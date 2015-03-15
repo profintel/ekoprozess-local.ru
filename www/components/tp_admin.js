@@ -1,4 +1,4 @@
-/*** Generated 14.03.2015 19:56:16 ***/
+/*** Generated 15.03.2015 22:20:01 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -3501,6 +3501,8 @@ function log() {
 var search_timeout;
 
 $(function() {
+  $('.el-tooltip').tooltip();
+  
   $('#autorization').keyup(function(event) {
     if (event.keyCode == 13 && $('#username').val() && $('#password').val()) {
       $('#autorization-submit').click();

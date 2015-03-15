@@ -1,98 +1,82 @@
-<a href="javascript:void(0);"
-  onClick="send_request('<?=$_lang_prefix;?>/admin<?=$_component['path'];?>refresh/');"
-  class="components-refresher icon_small arrow_refresh_i_s"
->
-  Обновить кэш
-</a>
-
-<div class="clear"></div>
-
-<h1 class="icon_big components-installed-icon">Установленные компоненты</h1>
-
-<div class="components-installed">
-  <? foreach ($installed as $item) { ?>
-    <div class="panel selection">
-      <div class="left">
-        <div class="icon"><img src="/admin<?=$_component['path'];?>icon/<?=$item['name'];?>/" /></div>
-        
-        <div><a href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>installed/<?=$item['id'];?>/" class="title"><?=$item['title'];?></a></div>
-        
-        <div class="clear"></div>
-      </div>
-      
-      <div class="right">
-        <?=($item['version'] ? 'v. '. sprintf('%.2f', $item['version']) : '');?>
-        <?=($item['author'] ? '| &copy; '. $item['author'] : '');?>
-        
-        <div class="buttons">
-          <a href="#"
-            onClick="return send_request('<?=$_lang_prefix;?>/admin<?=$_component['path'];?>refresh/<?=$item['id'];?>/');"
-            class="arrow_refresh_i_s"
-            title="Обновить кэш"
-          ></a>
-          <a href="#"
-            onClick="return send_confirm(
-              'Вы уверены, что хотите удалить компонент?',
-              '<?=$_lang_prefix;?>/admin<?=$_component['path'];?>delete/<?=$item['id'];?>/',
-              {},
-              '<?=$_lang_prefix;?>/admin<?=$_component['path'];?>'
-            );"
-            class="cross_i_s"
-            title="Удалить компонент"
-          ></a>
-          <div class="clear"></div>
+<h1 class="h3 pull-left"><span class="glyphicon <?=($_component['icon']?$_component['icon']:'glyphicon-ok');?>"></span>
+  Управление компонентами
+</h1>
+<div class="well-sm clearfix">
+  <a class="pull-right btn btn-success btn-sm" href="javascript:void(0);" onClick="send_request('<?=$_lang_prefix;?>/admin<?=$_component['path'];?>refresh/');">
+    <span class="glyphicon glyphicon-refresh font-bold"></span> Обновить кэш
+  </a>
+</div>
+<div class="row">
+  <div class="<?=(!$uninstalled ?:"col-md-6");?>">
+    <div class="panel">
+      <div class="panel-heading">
+        <div class="panel-heading-title">
+          <span class="glyphicon <?=($_component['icon']?$_component['icon']:'glyphicon-ok');?>"></span> Установленные компоненты
         </div>
       </div>
-      
-      <div class="clear"></div>
+      <table class="table table-hover table-striped">
+        <? foreach ($installed as $item) { ?>
+          <tr>
+            <td width="5%"><span class="glyphicon text-success <?=($item['icon']?$item['icon']:'glyphicon-ok');?>"></span></td>
+            <td width="80%"><a href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>installed/<?=$item['id'];?>/"><?=$item['title'];?></a></td>
+            <td width="15%">
+              <div class="table-btn-group text-right">
+                <a href="#"
+                  onClick="return send_request('<?=$_lang_prefix;?>/admin<?=$_component['path'];?>refresh/<?=$item['id'];?>/');"
+                  class="glyphicon glyphicon-refresh text-success font-bold btn"
+                  title="Обновить кэш"
+                ></a>
+                <a href="#"
+                  onClick="return send_confirm(
+                    'Вы уверены, что хотите удалить компонент?',
+                    '<?=$_lang_prefix;?>/admin<?=$_component['path'];?>delete/<?=$item['id'];?>/',
+                    {},
+                    '<?=$_lang_prefix;?>/admin<?=$_component['path'];?>'
+                  );"
+                  class="glyphicon glyphicon-remove text-danger font-bold btn"
+                  title="Удалить компонент"
+                ></a>
+              </div>
+
+            </td>
+          </tr>
+        <? } ?>
+      </table>
+    </div>
+  </div>
+  <? if ($uninstalled) { ?>
+    <div class="col-md-6">
+      <div class="panel">
+        <div class="panel-heading">
+          <div class="panel-heading-title">
+            <span class="glyphicon <?=($_component['icon']?$_component['icon']:'glyphicon-ok');?>"></span> Доступные компоненты
+          </div>
+        </div>
+
+        <table class="table table-hover table-striped">
+          <? foreach ($uninstalled as $item) { ?>
+            <tr>
+              <td width="5%"><span class="glyphicon text-success <?=(@$item['icon']?$item['icon']:'glyphicon-ok');?>"></span></td>
+              <td width="80%"><a href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>uninstalled/<?=$item['name'];?>/"><?=$item['title'];?></a></td>
+              <td width="15%">
+                <div class="table-btn-group text-right">
+                  <? if (!$item['errors']) { ?>
+                    <a href="#"
+                      onClick="return send_request(
+                        '<?=$_lang_prefix;?>/admin<?=$_component['path'];?>install/<?=$item['name'];?>/',
+                        {},
+                        '<?=$_lang_prefix;?>/admin<?=$_component['path'];?>'
+                      );"
+                      class="glyphicon glyphicon-plus btn"
+                      title="Установить компонент"
+                    ></a>
+                  <? } ?>
+                </div>
+              </td>
+            </tr>
+          <? } ?>
+        </table>
+      </div>
     </div>
   <? } ?>
 </div>
-
-<? if ($uninstalled) { ?>
-  <h1 class="icon_big components-uninstalled-icon">Доступные компоненты</h1>
-
-  <div class="components-uninstalled">
-    <? foreach ($uninstalled as $item) { ?>
-      <div class="panel selection">
-        <div class="left">
-          <div class="icon"><img src="/admin<?=$_component['path'];?>icon/<?=$item['name'];?>/" /></div>
-          
-          <div>
-            <a href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>uninstalled/<?=$item['name'];?>/" class="title">
-              <?=(isset($item['title']) && $item['title'] ? $item['title'] : $item['name']);?>
-            </a>
-          </div>
-          
-          <div class="clear"></div>
-        </div>
-        
-        <div class="right">
-          <?=(isset($item['version']) && $item['version'] ? 'v. '. sprintf('%.2f', $item['version']) : '');?>
-          <?=(isset($item['author']) && $item['author'] ? '| &copy; '. $item['author'] : '');?>
-          
-          <div class="buttons">
-            <? if (!$item['errors']) { ?>
-              <a href="#"
-                onClick="return send_request(
-                  '<?=$_lang_prefix;?>/admin<?=$_component['path'];?>install/<?=$item['name'];?>/',
-                  {},
-                  '<?=$_lang_prefix;?>/admin<?=$_component['path'];?>'
-                );"
-                class="add_i_s"
-                title="Установить компонент"
-              ></a>
-            <? } ?>
-            <div class="clear"></div>
-          </div>
-        </div>
-        
-        <div class="clear"></div>
-        
-        <? if ($item['errors']) { ?>
-          <div class="errors"><?=implode('<br />', $item['errors']);?></div>
-        <? } ?>
-      </div>
-    <? } ?>
-  </div>
-<? } ?>

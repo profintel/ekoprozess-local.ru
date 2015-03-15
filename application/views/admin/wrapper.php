@@ -1,103 +1,118 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="robots" content="noindex,nofollow" />
   
-  <link rel="stylesheet" type="text/css" href="/adm/jquery-ui/css/jquery-ui-1.9.2.custom.css" />
-  <link rel="stylesheet" type="text/css" href="/adm/lightbox/css/jquery.lightbox-0.5.css" />
-  <link rel="stylesheet" type="text/css" href="/adm/css/main.css" />
-  <link rel="stylesheet" type="text/css" href="/adm/css/icons.css" />
-  <link rel="stylesheet" type="text/css" href="/adm/chosen/chosen.css" />
+  <!-- <link rel="stylesheet" type="text/css" href="/adm/chosen/chosen.css" /> -->
   <link rel="stylesheet" type="text/css" href="/components/tp_admin.css?<?=time();?>" />
   
-	<title>ЭКО-процессинг - Панель администратора</title>
+  <title>ЭКО-процессинг - Панель администратора</title>
 </head>
-<body>
-  
-  <div id="wrapper">
-    
-    <div id="header">
-      <div class="logo">
-        <a href="<?=$_lang_prefix;?>/admin/"><img src="/adm/images/logo.png" border="0" alt="ЭКО-процессинг" title="ЭКО-процессинг" /></a>
-      </div>
-      
-      <div class="menu">
-        <? foreach ($_menu_primary as $item) { ?>
-          <a href="<?=$_lang_prefix;?>/admin<?=$item['path'];?>"<?=($item['name'] == $_component['name'] ? ' class="active"' : '');?>>
-            <?=$item['title'];?>
-          </a>
-        <? } ?>
-      </div>
-      
-      <div class="user">
-        <a href="" class="name"><?=$_admin['username'];?></a>
-        | <a href="/autorization/close/" class="logout">Выйти</a>
-      </div>
-      
-      <div id="home">
-        <a href="/" title="Перейти на сайт" target="_blank" class="icon_small projects-icon-small">
-          Перейти на сайт
-        </a>
-      </div>
-      
-      <div class="clear"></div>
-    </div>
-    
-    <div id="body">
-      
-      <div id="content">
-        <div class="inner">
-          
-          <?=$_html;?>
-          
-        </div>
-      </div>
-      
-      <div id="right_panel">
-        <div class="inner">
-          
-          <div class="rounded bg_dark white menu">
-            <h1>Инструменты</h1>
-            <? foreach ($_menu_secondary as $item) { ?>
-              <a href="<?=$_lang_prefix;?>/admin<?=$item['path'];?>"<?=($item['name'] == $_component['name'] ? ' class="active"' : '');?>>
-                <img src="/admin/components/icon/<?=$item['name'];?>/" /><?=$item['title'];?>
+<body class="gray-bg">
+  <div id="wrapper" class="">
+    <nav role="navigation" class="navbar-default navbar-static-side">
+      <div class="sidebar-collapse">
+        <ul id="side-menu" class="nav">
+          <li class="nav-header">
+            <div class="visible-lg-block">
+              <a href="/admin/" class="logo-element">
+                <? if (isset($_admin['image']) && $_admin['image']) { ?>
+                  <img src="/adm/images/logo.png" class="img-circle" alt="<?=$_admin['username'];?>">
+                <? } else { ?>
+                  <img src="/components/accounts/media/user.png" class="img-circle" alt="<?=$_admin['username'];?>">
+                <? } ?>
+              </a>              
+              <div class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                  <? if (isset($_admin['params']['name']) && $_admin['params']['name']) { ?>
+                    <div class="font-bold"><?=$_admin['params']['name'];?></div>
+                  <? } ?>
+                  <div class="font-bold">
+                    <? if (isset($_admin['params']['post']) && $_admin['params']['post']) { ?>
+                      <span><?=$_admin['params']['post'];?></span>
+                    <? } else { ?>
+                      <span><?=$_admin['username'];?></span>
+                    <? } ?>
+                    <b class="caret"></b>
+                  </div>
+                </a>
+                <ul class="dropdown-menu">
+                  <li><a href="/admin/administrators/profile/">Сменить пароль</a></li>
+                  <li class="divider"></li>
+                  <li><a href="/autorization/close/"><span class="glyphicon glyphicon-log-out"></span> Выйти</a></li>
+                </ul>
+              </div>
+            </div>
+            <div class="menu-primary-element hidden-lg">
+              <div class="dropdown">
+                <a href="#" class="dropdown-toggle btn btn-success" data-toggle="dropdown">
+                  <span class="glyphicon glyphicon-align-justify"></span>
+                </a>
+                <ul class="dropdown-menu">
+                  <? foreach ($_menu_primary as $item) { ?>
+                    <li class="<?=($item['name'] == $_component['name'] ? 'active' : '');?>">
+                      <a href="<?=$_lang_prefix;?>/admin<?=$item['path'];?>">
+                        <?=$item['title'];?>
+                      </a>
+                    </li>
+                  <? } ?>
+                  <li class="divider"></li>
+                  <li><a href="/autorization/close/"><span class="glyphicon glyphicon-log-out"></span> Выйти</a></li>
+                </ul>
+              </div>
+            </div>
+          </li>
+          <? foreach ($_menu_secondary as $item) { ?>
+            <li class="visible-lg-block <?=($item['name'] == $_component['name'] ? 'active' : '');?>">
+              <a href="<?=$_lang_prefix;?>/admin<?=$item['path'];?>">
+                <span class="glyphicon <?=($item['icon']?$item['icon']:'glyphicon-chevron-right');?>"></span><?=$item['title'];?>
               </a>
-            <? } ?>
-          </div>
-          
-        </div>
+            </li>
+            <li class="hidden-lg el-tooltip <?=($item['name'] == $_component['name'] ? 'active' : '');?>" data-toggle="tooltip" data-placement="right" title="<?=$item['title'];?>">
+              <a href="<?=$_lang_prefix;?>/admin<?=$item['path'];?>">
+                <span class="glyphicon <?=($item['icon']?$item['icon']:'glyphicon-chevron-right');?>"></span>
+              </a>
+            </li>
+          <? } ?>
+        </ul>
       </div>
-      
-      <div class="clear"></div>
+    </nav>
+    <div id="page-wrapper">
+      <div id="header">
+      <nav class="navbar-default">
+        <div class="collapse navbar-collapse">
+          <ul class="nav nav-pills navbar-left">
+            <? foreach ($_menu_primary as $item) { ?>
+              <li class="<?=($item['name'] == $_component['name'] ? 'active' : '');?>">
+                <a href="<?=$_lang_prefix;?>/admin<?=$item['path'];?>">
+                  <?=$item['title'];?>
+                </a>
+              </li>
+            <? } ?>
+          </ul>
+          <ul class="nav navbar-right">
+            <li>
+              <a href="/autorization/close/"><span class="glyphicon glyphicon-log-out"></span> Выйти</a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+      </div>
+      <div id="content" class="container-fluid">
+        <?=$_html;?>
+      </div>
     </div>
-    
-    <div class="rasporka"></div>
-    
   </div>
-  
-  <div id="footer" class="green">
-    <div class="version">Версия <?=$pr_version;?></div>
-    
-    <div class="etime">Страница сгенерирована за {elapsed_time} сек.</div>
-    
-    <div class="clear"></div>
-  </div>
-  
-  <div id="sheet_loading"></div>
-  <div id="sheet"></div>
-  
   <div id="modal">
     <div class="title"></div>
     <div class="inner"></div>
     <div class="buttons"></div>
   </div>
-  
   <script type="text/javascript" src="/components/tp_admin.js?<?=time();?>"></script>
   <script type="text/javascript" src="/adm/ckeditor/ckeditor.js"></script>
   <script type="text/javascript" src="/adm/lightbox/js/jquery.lightbox-0.5.js"></script>
   <script type="text/javascript" src="/adm/flowplayer/flowplayer-3.2.4.min.js"></script>
-  <script type="text/javascript" src="/adm/chosen/chosen.jquery.js"></script>
-  
+  <script type="text/javascript" src="/adm/chosen/chosen.jquery.js"></script>  
 </body>
 </html>
