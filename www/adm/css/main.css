@@ -107,6 +107,10 @@ body {
 .panel .panel-heading{
   border-bottom: 1px solid #ecf0f1;
 }
+#autorization{
+  width: 352px;
+  margin: 0 auto;
+}
 
 @media (max-width: 992px) {
   .navbar-static-side {

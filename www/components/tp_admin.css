@@ -1,4 +1,4 @@
-/* Generated 15.03.2015 22:20:01 */
+/* Generated 15.03.2015 22:49:45 */
 
 /* components */
 
@@ -413,6 +413,10 @@ body {
 }
 .panel .panel-heading{
   border-bottom: 1px solid #ecf0f1;
+}
+#autorization{
+  width: 352px;
+  margin: 0 auto;
 }
 
 @media (max-width: 992px) {

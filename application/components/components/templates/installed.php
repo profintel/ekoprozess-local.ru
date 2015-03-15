@@ -41,7 +41,7 @@
         <? } else { ?>
           <p>
             <a href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>set_main/<?=$item['id'];?>/" class="icon_small tick_i_s">
-              Сделать компонентом по умолчанию
+              <span class="glyphicon glyphicon-ok"></span> Сделать компонентом по умолчанию
             </a>
           </p>
         <? } ?>

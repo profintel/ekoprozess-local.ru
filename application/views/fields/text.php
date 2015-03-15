@@ -1,7 +1,7 @@
-<div class="input_block">
-  <div class="name">
+<div class="form-group">
+  <div class="col-sm-2">
     <? if (isset($vars['title']) && $vars['title']) { ?>
-      <div class="title">
+      <label for="<?=(isset($vars['id']) ? $vars['id'] : (isset($vars['name']) ? $vars['name'] : ''));?>" class="title">
         <? if (isset($vars['icon'])) { ?>
           <img src="<?=$vars['icon'];?>" class="icon" />
         <? } ?>
@@ -11,15 +11,14 @@
         <? if (isset($vars['req']) && $vars['req']) { ?>
           <span class="red"> *</span>
         <? } ?>
-      </div>
+      </label>
     <? } ?>
     
     <? if (isset($vars['description']) && $vars['description']) { ?>
-      <div class="description"><?=$vars['description'];?></div>
+      <p class="help-block"><?=$vars['description'];?></p>
     <? } ?>
   </div>
-  
-  <div class="input">
+  <div class="col-sm-10">
     <? if (isset($vars['languages'])) { ?>
       <? foreach ($vars['languages'] as $language) { ?>
         <? if (count($vars['languages']) > 1) { ?>
@@ -51,6 +50,4 @@
       />
     <? } ?>
   </div>
-  
-  <div class="clear"></div>
 </div>

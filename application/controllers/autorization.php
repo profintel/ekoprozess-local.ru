@@ -23,7 +23,7 @@ class Autorization extends PR_Controller {
         'action' => '/autorization/process/',
         'blocks' => array(
           array(
-            'title'  => 'Авторизация',
+            'title'  => '',
             'fields' => array(
               array(
                 'view'      => 'fields/text',

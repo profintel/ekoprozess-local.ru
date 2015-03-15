@@ -1,5 +1,5 @@
-<div class="input_block">
-  <div class="name">
+<div class="form-group">
+  <div class="col-sm-2">
     <? if (isset($vars['title']) && $vars['title']) { ?>
       <div class="title">
         <? if (isset($vars['icon'])) { ?>
@@ -15,13 +15,13 @@
     <? } ?>
     
     <? if (isset($vars['description']) && $vars['description']) { ?>
-      <div class="description"><?=$vars['description'];?></div>
+      <div class="help-block"><?=$vars['description'];?></div>
     <? } ?>
   </div>
   
-  <div class="input">
+  <div class="col-sm-10">
     <input type="password"
-      class="default-generated<?=(isset($vars['class']) ? ' '. $vars['class'] : '');?>"
+      class="form-control default-generated<?=(isset($vars['class']) ? ' '. $vars['class'] : '');?>"
       <?=(isset($vars['tabindex']) ? 'tabindex="'. (int)$vars['tabindex'] .'"' : '');?>
       <?=(isset($vars['name']) ? 'name="'. $vars['name'] .'"' : '');?>
       <?=(isset($vars['id']) ? 'id="'. $vars['id'] .'"' : (isset($vars['name']) ? 'id="'. $vars['name'] .'"' : ''));?>
@@ -32,5 +32,5 @@
     />
   </div>
   
-  <div class="clear"></div>
+  <div class="clearfix"></div>
 </div>

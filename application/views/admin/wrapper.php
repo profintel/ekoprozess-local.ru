@@ -111,7 +111,6 @@
   </div>
   <script type="text/javascript" src="/components/tp_admin.js?<?=time();?>"></script>
   <script type="text/javascript" src="/adm/ckeditor/ckeditor.js"></script>
-  <script type="text/javascript" src="/adm/lightbox/js/jquery.lightbox-0.5.js"></script>
   <script type="text/javascript" src="/adm/flowplayer/flowplayer-3.2.4.min.js"></script>
   <script type="text/javascript" src="/adm/chosen/chosen.jquery.js"></script>  
 </body>
