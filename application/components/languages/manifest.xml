@@ -9,6 +9,7 @@
   
   <install>
     <menu>secondary</menu>
+    <icon>glyphicon-flag</icon>
   </install>
   
   <template>

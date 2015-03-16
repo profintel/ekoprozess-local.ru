@@ -1,5 +1,5 @@
 <form
-  class="form-horizontal"
+  class="form-horizontal panel"
   action="<?=$vars['action'];?>"
   method="<?=$vars['method'];?>"
   target="<?=$vars['target'];?>"
@@ -9,9 +9,9 @@
   <? foreach ($vars['blocks'] as $block) { ?>
     <div class="form_block<?=(isset($block['class']) ? ' '. $block['class'] : '');?>">
       <? if (isset($block['title'])) { ?>
-        <h1><?=$block['title'];?></h1>
+        <div class="panel-heading"><h4><?=$block['title'];?></h4></div>
       <? } ?>
-      <?=$block['fields'];?>
+      <div class="panel-body"><?=$block['fields'];?></div>
       
       <div class="clearfix"></div>
     </div>

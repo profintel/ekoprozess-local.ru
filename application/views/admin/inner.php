@@ -1,5 +1,11 @@
-<h1 class="icon_big <?=$_component['name'];?>-title"><?=$title;?></h1>
+<div class="block-title">
+  <h1><span class="glyphicon <?=($_component['icon']?$_component['icon']:'glyphicon-ok');?>"></span>
+    <?=$title;?>
+  </h1>
+</div>
 
-<?=$html;?>
+<div class="container-fluid">
+  <?=$html;?>
 
-<br /><a href="<?=(isset($back) ? $back : $_lang_prefix .'/admin'. $_component['path']);?>" class="icon_small arrow_left_i_s">Назад</a>
+  <br /><a href="<?=(isset($back) ? $back : $_lang_prefix .'/admin'. $_component['path']);?>"><span class="glyphicon glyphicon-backward"></span> Назад</a>
+</div>

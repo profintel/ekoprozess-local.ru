@@ -8,6 +8,7 @@
   
   <install>
     <menu>secondary</menu>
+    <icon>glyphicon-picture</icon>
   </install>
 
   <template>

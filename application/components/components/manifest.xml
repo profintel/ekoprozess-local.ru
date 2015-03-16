@@ -9,6 +9,7 @@
   
   <install>
     <menu>primary</menu>
+    <icon>glyphicon-th</icon>
   </install>
   
 </component>

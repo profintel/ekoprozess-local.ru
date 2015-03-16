@@ -9,6 +9,7 @@
   
   <install>
     <menu>primary</menu>
+    <icon>glyphicon-list</icon>
     <requirement>components</requirement>
   </install>
   

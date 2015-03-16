@@ -1,4 +1,4 @@
-/* Generated 15.03.2015 22:49:45 */
+/* Generated 17.03.2015 00:14:20 */
 
 /* components */
 
@@ -84,112 +84,20 @@
   background-image: url(/components/languages/media/locate.png);
 }
 
-/* forms */
-
-.forms-title {
-  background-image: url(/components/forms/media/form.png);
-}
-
-.forms-field_i_s {
-  background-image: url(/components/forms/media/field-small.png);
-}
-
-.fields-title {
-  background-image: url(/components/forms/media/field.png);
-}
-
-.forms-types-title {
-  background-image: url(/components/forms/media/form-type.png);
-}
-
-.chzn-results li {
-  background-repeat: no-repeat;
-  background-position: 1px 5px;
-}
-
-.option-text,
-.option-text.highlighted {
-  padding-left: 20px !important;
-  background-image: url(/components/forms/media/option-text.png);
-}
-
-.option-textarea,
-.option-textarea.highlighted {
-  padding-left: 20px !important;
-  background-image: url(/components/forms/media/option-textarea.png);
-}
-
-.option-password,
-.option-password.highlighted {
-  padding-left: 20px !important;
-  background-image: url(/components/forms/media/option-password.png);
-}
-
-.option-captcha,
-.option-captcha.highlighted {
-  padding-left: 20px !important;
-  background-image: url(/components/forms/media/option-captcha.png);
-}
-
-.option-hidden,
-.option-hidden.highlighted {
-  padding-left: 20px !important;
-  background-image: url(/components/forms/media/option-hidden.png);
-}
-
-.option-file,
-.option-file.highlighted {
-  padding-left: 20px !important;
-  background-image: url(/components/forms/media/option-file.png);
-}
-
-.option-checkbox,
-.option-checkbox.highlighted {
-  padding-left: 20px !important;
-  background-image: url(/components/forms/media/option-checkbox.png);
-}
-
-.option-radio,
-.option-radio.highlighted {
-  padding-left: 20px !important;
-  background-image: url(/components/forms/media/option-radio.png);
-}
-
-.option-select,
-.option-select.highlighted {
-  padding-left: 20px !important;
-  background-image: url(/components/forms/media/option-select.png);
-}
-
-.option-submit,
-.option-submit.highlighted {
-  padding-left: 20px !important;
-  background-image: url(/components/forms/media/option-submit.png);
-}
-
-/* messages */
-
-.messages-title{
-	background:transparent url("/components/messages/media/icon.png") left top no-repeat;
-}
-.date {
-	color:#999999;
-	font-size:13px;
-}
-.user {
-	font-size:13px;
-}
-
-/* menus */
-
-.menus-title {
-  background-image: url(/components/menus/media/hierarchy.png);
-}
-
 /* administrators */
 
 .administrators-title{
   background-image: url(/components/administrators/media/icon1.png);
+}
+
+/* permits */
+
+.permits-title {
+  background-image: url(/components/permits/media/key.png);
+}
+
+.permits-go {
+  background-image: url(/components/permits/media/key_go.png);
 }
 
 /*** FILE /adm/css/bootstrap.min.css ***/
@@ -326,13 +234,31 @@ body {
 .white-bg {
   background-color: #ffffff;
 }
+.black-bg {
+  background-color: #2c3e50;
+}
 .font-bold {
   font-weight: 600;
 }
+.text-dark{
+  color: #676a6c;
+}
+.border-bottom {
+  border-bottom: 1px solid #e7eaec !important;
+}
 .navbar-static-side.navbar-default {
   background:none;
-  background-color:#2f4050;
+  background-color:#2F4050;
   border-radius: 0;  
+}
+#header .navbar-default {
+  background-color:transparent;
+}
+#header .navbar-default li.active > a,
+#header .navbar-default li > a:focus,
+#header .navbar-default li > a:hover {
+  background:none;
+  color: #676a6c;
 }
 .navbar-static-side {
   position: absolute;
@@ -358,6 +284,7 @@ body {
 .nav-header {
   background-color: #233645;
   padding: 15px 0 15px 30px;
+  background: url("/adm/images/header-profile.png") no-repeat scroll 0 0 rgba(0, 0, 0, 0);
 }
 .nav-header a {
   color: #dfe4ed;
@@ -374,21 +301,26 @@ body {
   color: #a7b1c2;
   font-weight: 600;
   padding: 14px 20px 14px 25px;
+  white-space: nowrap;
 }
 #side-menu  > li > a:hover,
+#side-menu  > li.active > a,
 #side-menu  > li > a:focus {
   color: #ffffff;
   background-color: #293846;
 }
+#side-menu  > li.active > a {
+  border-left: 4px solid #19aa8d;
+  padding-left: 21px;
+}
 #side-menu .glyphicon{
-  padding-right:5px; 
-  font-size: 18px;
+  padding-right:5px;
 }
 #side-menu .nav-header .dropdown .glyphicon{
   font-size: inherit;
 }
 #side-menu .nav-header .dropdown .glyphicon-align-justify{
-  font-size: 20px;
+  font-size: 12px;
   padding-right:0px; 
 }
 .dropdown-menu {
@@ -415,19 +347,55 @@ body {
   border-bottom: 1px solid #ecf0f1;
 }
 #autorization{
-  width: 352px;
-  margin: 0 auto;
+  background: none repeat scroll 0 0 #fff;
+  border-radius: 2px;
+  margin: 150px auto 0 auto;
+  padding: 20px;
+  width: 350px;
+}
+
+.block-title{
+  margin-bottom: 20px;
+  padding: 24px;
+  border-bottom: 1px solid #e7eaec !important;
+  background-color: #ffffff;
+}
+.block-title h1{
+  margin: 0;
+  font-size: 24px;
+}
+
+.container-menu .btn{
+  margin-bottom: 20px;
+}
+.container-menu .btn .glyphicon{
+  font-size: 24px;
+  margin-right: 5px;
+}
+.container-menu .btn .btn-title{
+  margin-top: 5px;
+}
+.container-menu .btn .glyphicon,
+.container-menu .btn .btn-title {
+  display: inline-block;
+  vertical-align: middle;
 }
 
 @media (max-width: 992px) {
   .navbar-static-side {
-    width: 70px;
+    width: 50px;
   }
   #page-wrapper {
-    margin: 0 0 0 70px;
+    margin: 0 0 0 50px;
   }
   .nav-header {
     padding: 15px 0;
     text-align: center;
+  }
+  #side-menu > li > a {
+    padding-left: 15px;
+  }
+  #side-menu .glyphicon{
+    font-size: 18px;
   }
 }

@@ -144,8 +144,8 @@ function search_item_del(name,component,item) {
 }
 
 var defButtons = {
-  'OK':     {text: 'OK',     handler: function() { return modal('hide'); }, icon: 'accept'},
-  'CANCEL': {text: 'Отмена', handler: function() { return modal('hide'); }, icon: 'cancel'}
+  'OK':     {text: 'OK',     handler: function() { return my_modal('hide'); }, icon: 'glyphicon-ok'},
+  'CANCEL': {text: 'Отмена', handler: function() { return my_modal('hide'); }, icon: 'glyphicon-remove'}
 };
 
 function sheet(action) {
@@ -159,11 +159,11 @@ function sheet(action) {
 }
 
 function send_confirm(message, url, data, reaction, context) {
-  return modal('information', 'Требуется подтверждение', message, [
+  return my_modal('information', 'Требуется подтверждение', message, [
     {text: 'OK', handler: function() {
-      modal('hide');
+      my_modal('hide');
       return send_request(url, data, reaction, context);
-    }, icon: 'accept'},
+    }, icon: 'glyphicon-ok'},
     'CANCEL'
   ]);
 }
@@ -215,13 +215,13 @@ function submit_form_sync(context) {
 
 function handle_answer(answer, reaction, context) {
   if (!answer) {
-    return modal('error', 'Возникли следующие ошибки:', 'Некорректный ответ сервера', 'OK');
+    return my_modal('error', 'Возникли следующие ошибки:', 'Некорректный ответ сервера', 'OK');
   }
   
   try {
     answer = $.parseJSON(answer);
   } catch (e) {
-    return modal('error', 'Возникли следующие ошибки:', answer, 'OK');
+    return my_modal('error', 'Возникли следующие ошибки:', answer, 'OK');
   }
   
   if (answer.sysmsg) {
@@ -229,29 +229,29 @@ function handle_answer(answer, reaction, context) {
   }
   
   if (typeof(answer.errors) == 'object' && answer.errors.length) {
-    return modal('error', 'Возникли следующие ошибки:', answer.errors, 'OK');
+    return my_modal('error', 'Возникли следующие ошибки:', answer.errors, 'OK');
   } else {
     if (!reaction) {
       if (typeof(answer.messages) == 'object' && answer.messages.length) {
-        return modal('information', '', answer.messages, 'OK');
+        return my_modal('information', '', answer.messages, 'OK');
       } else {
         sheet('hide');
       }
     } else if (typeof(reaction) == 'function') {
       if (typeof(answer.messages) == 'object' && answer.messages.length) {
-        return modal('information', '', answer.messages, [{text: 'OK', handler: reaction, icon: 'accept'}]);
+        return my_modal('information', '', answer.messages, [{text: 'OK', handler: reaction, icon: 'glyphicon-ok'}]);
       } else {
         reaction.call((context ? context : this), answer);
       }
     } else if (reaction == 'reload') {
       if (typeof(answer.messages) == 'object' && answer.messages.length) {
-        return modal('information', '', answer.messages, [{text: 'OK', handler: function() { document.location.reload(); }, icon: 'accept'}]);
+        return my_modal('information', '', answer.messages, [{text: 'OK', handler: function() { document.location.reload(); }, icon: 'glyphicon-ok'}]);
       } else {
         document.location.reload();
       }
     } else {
       if (typeof(answer.messages) == 'object' && answer.messages.length) {
-        return modal('information', '', answer.messages, [{text: 'OK', handler: function() { document.location = reaction; }, icon: 'accept'}]);
+        return my_modal('information', '', answer.messages, [{text: 'OK', handler: function() { document.location = reaction; }, icon: 'glyphicon-ok'}]);
       } else {
         document.location = reaction;
       }
@@ -269,19 +269,17 @@ function handle_sys_UNAUTH() {
   document.location = '/autorization/';
 }
 
-function modal(type, title, messages, buttons) {
+function my_modal(type, title, messages, buttons) {
   var m = $('#modal');
   
   if (type == 'hide') {
-    sheet('hide');
-    m.hide();
+    $('#modal').modal('hide');
     return false;
   }
   
-  sheet();
-  var t = m.find('div.title').text(title ? title : '');
-  var i = m.find('div.inner').html('').attr('class', 'inner');
-  var b = m.find('div.buttons').html('').hide();
+  var t = m.find('.modal-title').text(title ? title : '');
+  var i = m.find('.modal-body').html('');
+  var b = m.find('.modal-footer').html('').hide();
   
   if (!type) { type = 'information'; }
   if (typeof(messages) == 'object') {
@@ -296,15 +294,12 @@ function modal(type, title, messages, buttons) {
     } else {
       make_button(b, buttons);
     }
-    b.append('<div class="clear"></div>').show();
+    b.show();
   }
   
-  i.addClass(type +'_i_b').html(messages);
-  m.css({
-    'left': $(window).width() / 2 - m.width() / 2,
-    'top':  $(window).height() / 2 - m.height() / 2
-  }).show();
+  i.html(messages);
   
+  $('#modal').modal();
   return false;
 }
 
@@ -320,9 +315,9 @@ function make_button(container, button) {
   $(document.createElement('a'))
     .attr({
       href: (button.link ? button.link : '#'),
-      'class': 'button'+ (button.icon ? ' icon_small '+ button.icon +'_i_s' : '')
+      'class': 'btn btn-info btn-sm'
     })
-    .text(button.text ? button.text : '')
+    .html(button.text ? (button.icon ? '<span class="glyphicon '+ button.icon +'"></span> ' : '')+button.text : '')
     .click(button.handler)
     .appendTo(container);
 }

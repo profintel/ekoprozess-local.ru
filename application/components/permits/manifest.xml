@@ -10,6 +10,7 @@
   <install>
     <requirement>components</requirement>
     <menu>secondary</menu>
+    <icon>glyphicon-lock</icon>
   </install>
   
 </component>

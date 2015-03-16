@@ -9,6 +9,7 @@
   
   <install>
     <menu>secondary</menu>
+    <icon>glyphicon-menu-hamburger</icon>
     <requirement>projects</requirement>
     <requirement>templates</requirement>
   </install>
