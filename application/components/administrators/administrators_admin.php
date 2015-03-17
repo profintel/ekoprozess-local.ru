@@ -49,7 +49,7 @@ class Administrators_admin extends CI_Component {
         'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'_create_admin_process/',
         'blocks' => array(
           array(
-            'title'   => 'Смена пароля',
+            'title'   => 'Параметры',
             'fields'   => array(
               array(
                 'view'       => 'fields/text',

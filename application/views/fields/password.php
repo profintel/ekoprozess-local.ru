@@ -21,7 +21,7 @@
   
   <div class="col-sm-10">
     <input type="password"
-      class="form-control default-generated<?=(isset($vars['class']) ? ' '. $vars['class'] : '');?>"
+      class="form-control input-sm default-generated<?=(isset($vars['class']) ? ' '. $vars['class'] : '');?>"
       <?=(isset($vars['tabindex']) ? 'tabindex="'. (int)$vars['tabindex'] .'"' : '');?>
       <?=(isset($vars['name']) ? 'name="'. $vars['name'] .'"' : '');?>
       <?=(isset($vars['id']) ? 'id="'. $vars['id'] .'"' : (isset($vars['name']) ? 'id="'. $vars['name'] .'"' : ''));?>

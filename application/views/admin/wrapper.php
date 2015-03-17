@@ -3,11 +3,16 @@
 <head>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="robots" content="noindex,nofollow" />
+  <title>ЭКО-процессинг - Панель администратора</title>
   
   <!-- <link rel="stylesheet" type="text/css" href="/adm/chosen/chosen.css" /> -->
   <link rel="stylesheet" type="text/css" href="/components/tp_admin.css?<?=time();?>" />
   
-  <title>ЭКО-процессинг - Панель администратора</title>
+  <script type="text/javascript" src="/components/tp_admin.js?<?=time();?>"></script>
+  <script type="text/javascript" src="/adm/ckeditor/ckeditor.js"></script>
+  <script type="text/javascript" src="/adm/flowplayer/flowplayer-3.2.4.min.js"></script>
+  <script type="text/javascript" src="/adm/chosen/chosen.jquery.js"></script>  
+  
 </head>
 <body class="gray-bg">
   <div id="wrapper" class="">
@@ -122,9 +127,5 @@
       </div>
     </div>
   </div>
-  <script type="text/javascript" src="/components/tp_admin.js?<?=time();?>"></script>
-  <script type="text/javascript" src="/adm/ckeditor/ckeditor.js"></script>
-  <script type="text/javascript" src="/adm/flowplayer/flowplayer-3.2.4.min.js"></script>
-  <script type="text/javascript" src="/adm/chosen/chosen.jquery.js"></script>  
 </body>
 </html>

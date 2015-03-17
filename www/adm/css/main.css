@@ -55,6 +55,7 @@ body {
   margin: 0 0 0 220px;
   position: inherit;
 }
+
 .navbar-default .navbar-nav > .active > a,
 .navbar-default .navbar-nav > .active > a:focus,
 .navbar-default .navbar-nav > .active > a:hover{
@@ -122,13 +123,13 @@ body {
 .table-btn-group .btn{
   padding:0 3px;
 }
-.panel-heading-title {
+.item-list-heading-title {
   font-size: 16px;
 }
-.panel-heading-title .glyphicon {
+.item-list-heading-title .glyphicon {
   padding-right: 5px;
 }
-.panel .panel-heading{
+.item-list .item-list-heading{
   border-bottom: 1px solid #ecf0f1;
 }
 #autorization{
@@ -165,6 +166,66 @@ body {
   display: inline-block;
   vertical-align: middle;
 }
+
+.item-list {
+  background-color: #fff;
+  border-top: 1px solid #fff;
+  border-left: 1px solid #fff;
+  border-right: 1px solid #e3e0cf;
+  border-bottom: 1px solid #e3e0cf;
+  border-radius: 6px;
+  padding: 5px 10px;
+}
+.item-list:nth-child(2n+1) {
+  background-color: #f9f9f9;
+}
+.item-list.selected,
+.item-list:hover,
+.item-list:focus {
+  background-color: #f5f5f5;
+}
+.item-list .buttons {
+  text-align: right;
+}
+.item-list .buttons a{
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-left: 5px;
+}
+.item-list .errors {
+  color: #d24444;
+  margin-top: 5px;
+  padding: 5px 24px 0 0;
+  border-top: 1px solid #e3e0cf;
+  background-image: url(/adm/images/icons/error_s.png);
+  background-repeat: no-repeat;
+  background-position: right 6px;
+  text-align: right;
+}
+.item-list .description {
+  color: #505050;
+  margin-top: 5px;
+  padding-top: 5px;
+  border-top: 1px solid #e3e0cf;
+}
+.item-list .description p {
+  margin: 2px 0 5px 0;
+}
+.form-group .help-block{
+  color: #777;
+  font-size: 11px;
+  font-weight: normal;
+}
+.form-group:nth-child(2n+1) {
+  background-color: #f6f6f6;
+  padding-top: 5px;
+}
+.form_block .panel-heading{
+  border-bottom: 1px solid #f6f6f6;
+  padding: 10px 15px 0;
+}
+
 
 @media (max-width: 992px) {
   .navbar-static-side {

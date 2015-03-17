@@ -21,8 +21,8 @@ $id = (isset($vars['id']) ?
   </script>
 <? } ?>
 
-<div class="input_block">
-  <div class="name">
+<div class="form-group">
+  <div class="col-sm-2">
     <? if (isset($vars['title']) && $vars['title']) { ?>
       <div class="title">
         <? if (isset($vars['icon'])) { ?>
@@ -42,11 +42,11 @@ $id = (isset($vars['id']) ?
     <? } ?>
   </div>
   
-  <div class="input">
+  <div class="col-sm-10">
     <select
       id="<?=$id;?>"
       data-placeholder="<?=(isset($vars['placeholder']) ? $vars['placeholder'] : 'Выберите элемент...');?>"
-      class="default-generated<?=(isset($vars['class']) ? ' '. $vars['class'] : '');?>"
+      class="form-control<?=(isset($vars['class']) ? ' '. $vars['class'] : '');?>"
       <?=(isset($vars['tabindex']) ? 'tabindex="'. (int)$vars['tabindex'] .'"' : '');?>
       <?=(isset($vars['name']) ? 'name="'. $vars['name'] .'"' : '');?>
       <?=(isset($vars['onchange']) ? 'onChange="'. $vars['onchange'] .'"' : '');?>

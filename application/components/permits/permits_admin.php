@@ -120,7 +120,7 @@ class Permits_admin extends CI_Component {
     
     $fields[] = array(
       'view'     => 'fields/submit',
-      'class'    => 'icon_small accept_i_s',
+      'class'    => '',
       'title'    => 'Сохранить',
       'type'     => 'ajax',
       'reaction' => $this->lang_prefix .'/admin'. $this->params['path'] .'component/'. $component['id'] .'/'
@@ -216,7 +216,7 @@ class Permits_admin extends CI_Component {
     
     $fields[] = array(
       'view'     => 'fields/submit',
-      'class'    => 'icon_small accept_i_s',
+      'class'    => '',
       'title'    => 'Сохранить',
       'type'     => 'ajax',
       'reaction' => $this->lang_prefix .'/admin'. $this->params['path'] .'method/'. $component['id'] .'/'. $method .'/'
@@ -314,7 +314,7 @@ class Permits_admin extends CI_Component {
     
     $fields[] = array(
       'view'     => 'fields/submit',
-      'class'    => 'icon_small accept_i_s',
+      'class'    => '',
       'title'    => 'Сохранить',
       'type'     => 'ajax',
       'reaction' => $this->lang_prefix .'/admin'. $this->params['path'] .'superusers/'
@@ -390,7 +390,7 @@ class Permits_admin extends CI_Component {
               ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => 'icon_small accept_i_s',
+                'class'    => '',
                 'title'    => 'Создать',
                 'type'     => 'ajax',
                 'reaction' => $this->lang_prefix .'/admin'. $this->params['path']. 'groups/'
@@ -469,7 +469,7 @@ class Permits_admin extends CI_Component {
               ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => 'icon_small accept_i_s',
+                'class'    => '',
                 'title'    => 'Сохранить изменения',
                 'type'     => 'ajax',
                 'reaction' => 1

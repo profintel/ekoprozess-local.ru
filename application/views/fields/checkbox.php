@@ -12,8 +12,8 @@ $value_field = (isset($vars['value_field']) ? $vars['value_field'] : 'id');
 $text_field  = (isset($vars['text_field'])  ? $vars['text_field']  : 'title');
 ?>
 
-<div class="input_block">
-  <div class="name">
+<div class="form-group">
+  <div class="col-sm-2">
     <? if (!isset($vars['options'])) { ?>
       <label for="<?=$id;?>">
     <? } ?>
@@ -32,14 +32,14 @@ $text_field  = (isset($vars['text_field'])  ? $vars['text_field']  : 'title');
       <? } ?>
       
       <? if (isset($vars['description']) && $vars['description']) { ?>
-        <div class="description"><?=$vars['description'];?></div>
+        <div class="help-block"><?=$vars['description'];?></div>
       <? } ?>
     <? if (!isset($vars['options'])) { ?>
       </label>
     <? } ?>
   </div>
   
-  <div class="input">
+  <div class="col-sm-10">
     <? if (isset($vars['options'])) { ?>
       <? foreach ($vars['options'] as $num => $option) { ?>
         <div class="checkbox_item">
@@ -83,5 +83,4 @@ $text_field  = (isset($vars['text_field'])  ? $vars['text_field']  : 'title');
     <? } ?>
   </div>
   
-  <div class="clear"></div>
 </div>

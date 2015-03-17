@@ -26,7 +26,7 @@
         <? } ?>
         
         <input type="text"
-          class="form-control multilanguage default-generated<?=(isset($vars['class']) ? ' '. $vars['class'] : '');?>"
+          class="form-control input-sm multilanguage default-generated<?=(isset($vars['class']) ? ' '. $vars['class'] : '');?>"
           <?=(isset($vars['tabindex']) ? 'tabindex="'. (int)$vars['tabindex'] .'"' : '');?>
           <?=(isset($vars['name']) ? 'name="'. $vars['name'] .'_'. $language['name'] .'"' : '');?>
           <?=(isset($vars['placeholder']) ? 'placeholder="'. $vars['placeholder'] .'"' : '');?>
@@ -38,7 +38,7 @@
       <? } ?>
     <? } else { ?>
       <input type="text"
-        class="form-control default-generated<?=(isset($vars['class']) ? ' '. $vars['class'] : '');?>"
+        class="form-control input-sm default-generated<?=(isset($vars['class']) ? ' '. $vars['class'] : '');?>"
         <?=(isset($vars['tabindex']) ? 'tabindex="'. (int)$vars['tabindex'] .'"' : '');?>
         <?=(isset($vars['name']) ? 'name="'. $vars['name'] .'"' : '');?>
         <?=(isset($vars['placeholder']) ? 'placeholder="'. $vars['placeholder'] .'"' : '');?>
