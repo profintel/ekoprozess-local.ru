@@ -31,6 +31,12 @@ body {
 .border-bottom {
   border-bottom: 1px solid #e7eaec !important;
 }
+a.glyphicon:hover,
+a.glyphicon:focus{
+  text-decoration: none;
+  color: #2f4050;
+  outline: none;
+}
 .navbar-static-side.navbar-default {
   background:none;
   background-color:#2F4050;
@@ -89,13 +95,13 @@ body {
   padding: 14px 20px 14px 25px;
   white-space: nowrap;
 }
-#side-menu  > li > a:hover,
-#side-menu  > li.active > a,
-#side-menu  > li > a:focus {
+#side-menu > li > a:hover,
+#side-menu > li.active > a,
+#side-menu > li > a:focus {
   color: #ffffff;
   background-color: #293846;
 }
-#side-menu  > li.active > a {
+#side-menu > li.active > a {
   border-left: 4px solid #19aa8d;
   padding-left: 21px;
 }
@@ -241,6 +247,9 @@ body {
   #side-menu > li > a {
     padding-left: 15px;
   }
+#side-menu > li.active > a {
+  padding-left: 12px;
+}
   #side-menu .glyphicon{
     font-size: 18px;
   }

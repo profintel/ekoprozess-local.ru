@@ -46,7 +46,7 @@ $id = (isset($vars['id']) ?
     <select
       id="<?=$id;?>"
       data-placeholder="<?=(isset($vars['placeholder']) ? $vars['placeholder'] : 'Выберите элемент...');?>"
-      class="form-control<?=(isset($vars['class']) ? ' '. $vars['class'] : '');?>"
+      class="form-control input-sm <?=(isset($vars['class']) ? ' '. $vars['class'] : '');?>"
       <?=(isset($vars['tabindex']) ? 'tabindex="'. (int)$vars['tabindex'] .'"' : '');?>
       <?=(isset($vars['name']) ? 'name="'. $vars['name'] .'"' : '');?>
       <?=(isset($vars['onchange']) ? 'onChange="'. $vars['onchange'] .'"' : '');?>

@@ -76,7 +76,7 @@ class Administrators_admin extends CI_Component {
               ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => 'icon_small accept_i_s',
+                'class'    => '',
                 'title'    => 'Создать',
                 'type'     => 'ajax',
                 'reaction' => $this->lang_prefix .'/admin'. $this->params['path']. 'admins/'
@@ -160,7 +160,7 @@ class Administrators_admin extends CI_Component {
               ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => 'icon_small accept_i_s',
+                'class'    => '',
                 'title'    => 'Отправить',
                 'type'     => 'ajax',
                 'reaction' => $this->lang_prefix .'/admin'. $this->params['path']
@@ -209,7 +209,7 @@ class Administrators_admin extends CI_Component {
               ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => 'icon_small accept_i_s',
+                'class'    => '',
                 'title'    => 'Отправить',
                 'type'     => 'ajax',
                 'reaction' => $this->lang_prefix .'/admin'. $this->params['path']. 'admins/'
@@ -218,6 +218,7 @@ class Administrators_admin extends CI_Component {
           )
         )
       )),
+      'back' => $this->lang_prefix .'/admin'. $this->params['path']. 'admins/'
     ), TRUE);
   }
 

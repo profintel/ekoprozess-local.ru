@@ -1,5 +1,5 @@
-<div class="input_block">
-  <div class="name">
+<div class="form-group">
+  <div class="col-sm-2">
     <? if (isset($vars['title']) && $vars['title']) { ?>
       <div class="title">
         <? if (isset($vars['icon'])) { ?>
@@ -9,17 +9,17 @@
         <?=$vars['title'];?>
         
         <? if (isset($vars['req']) && $vars['req']) { ?>
-          <span class="red"> *</span>
+          <span class="text-danger"> *</span>
         <? } ?>
       </div>
     <? } ?>
     
     <? if (isset($vars['description']) && $vars['description']) { ?>
-      <div class="description"><?=$vars['description'];?></div>
+      <div class="help-block"><?=$vars['description'];?></div>
     <? } ?>
   </div>
   
-  <div class="input">
+  <div class="col-sm-10">
     <? if (isset($vars['languages'])) { ?>
       <? foreach ($vars['languages'] as $language) { ?>
         <? if (count($vars['languages']) > 1) { ?>

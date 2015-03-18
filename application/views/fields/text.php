@@ -9,7 +9,7 @@
         <?=$vars['title'];?>
         
         <? if (isset($vars['req']) && $vars['req']) { ?>
-          <span class="red"> *</span>
+          <span class="text-danger"> *</span>
         <? } ?>
       </label>
     <? } ?>

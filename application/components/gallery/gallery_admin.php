@@ -5,8 +5,8 @@ class Gallery_admin extends CI_Component {
   function __construct() {
     parent::__construct();
 
-		$this->load->model('gallery/models/gallery_model');
-		$this->load->model('templates/models/templates_model');
+    $this->load->model('gallery/models/gallery_model');
+    $this->load->model('templates/models/templates_model');
   }
   
   /**
@@ -20,55 +20,55 @@ class Gallery_admin extends CI_Component {
       'images' => $this->gallery_model->get_gallery_images(array('id' => $parent_id))
     );
 
-		return $this->render_template('templates/index', $data);
+    return $this->render_template('templates/index', $data);
   }
   
   /**
-	 *  Создание альбома
-	**/
+   *  Создание альбома
+  **/
   function create_album() {
     $pages = $this->db->get('pr_pages')->result_array();
-		if ($pages) {
-			foreach ($pages as &$page) {
-				$project = $this->db->get('pr_projects',array('id', $page['project_id']))->row_array();
-				$page['title'] = $project['title'].': '.$page['title'];
-			}
-			unset($page);
-		}
+    if ($pages) {
+      foreach ($pages as &$page) {
+        $project = $this->db->get('pr_projects',array('id', $page['project_id']))->row_array();
+        $page['title'] = $project['title'].': '.$page['title'];
+      }
+      unset($page);
+    }
     $languages = $this->languages_model->get_languages(1, 0);
-		return $this->render_template('admin/inner', array(
+    return $this->render_template('admin/inner', array(
       'title' => 'Добавление альбома',
-			'html' => $this->view->render_form(array(
+      'html' => $this->view->render_form(array(
         'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'_create_album_process/',
-				'blocks' => array(
-					array(
-						'title' 	=> 'Основные параметры',
-						'fields' 	=> array(
-							array(
-								'view' 			  => 'fields/text',
-								'title' 		  => 'Внутреннее имя:',
-								'name' 			  => 'title',
-								'id' 				  => 'item-title',
-								'maxlength'   => 256,
+        'blocks' => array(
+          array(
+            'title'   => 'Основные параметры',
+            'fields'   => array(
+              array(
+                'view'         => 'fields/text',
+                'title'       => 'Внутреннее имя:',
+                'name'         => 'title',
+                'id'           => 'item-title',
+                'maxlength'   => 256,
                 'description' => 'Используется только внутри панели администрирования',
-								'req' 			  => true
-							),
-							array(
-								'view' 			  => 'fields/text',
-								'title' 		  => 'Системное имя:',
-								'name' 			  => 'system_name',
-								'id' 				  => 'item-alias',
+                'req'         => true
+              ),
+              array(
+                'view'         => 'fields/text',
+                'title'       => 'Системное имя:',
+                'name'         => 'system_name',
+                'id'           => 'item-alias',
                 'description' => 'Используется для отображения изображений данной категории в теле страницы',
-								'maxlength'   => 256,
-								'req' 			  => true
-							),
-							array(
-								'view' 			=> 'fields/text',
-								'title' 		=> 'Название:',
-								'name' 			=> 'name',
-								'languages' => $languages,
-								'maxlength' => 256
-							),
+                'maxlength'   => 256,
+                'req'         => true
+              ),
+              array(
+                'view'       => 'fields/text',
+                'title'     => 'Название:',
+                'name'       => 'name',
+                'languages' => $languages,
+                'maxlength' => 256
+              ),
               array(
                 'view'    => 'fields/select',
                 'title'   => 'Шаблон:',
@@ -79,24 +79,24 @@ class Gallery_admin extends CI_Component {
               ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => 'icon_small accept_i_s',
+                'class'    => '',
                 'title'    => 'Создать',
                 'type'     => 'ajax',
                 'reaction' => $this->lang_prefix .'/admin'. $this->params['path']
               )
-						)
-					),
-					array(
-						'title' => 'Дополнительные параметры',
-						'fields' => array(
-							array(
-								'view' 			  => 'fields/select',
-								'title' 		  => 'Связанные страницы:',
+            )
+          ),
+          array(
+            'title' => 'Дополнительные параметры',
+            'fields' => array(
+              array(
+                'view'         => 'fields/select',
+                'title'       => 'Связанные страницы:',
                 'description' => 'Укажите страницы, на которой будут отображаться изображения данного альбома',
-								'name' 			  => 'pages[]',
-								'options'  	  => $pages,
-								'multiple' 	  => true
-							),
+                'name'         => 'pages[]',
+                'options'      => $pages,
+                'multiple'     => true
+              ),
               array(
                 'view'        => 'fields/text',
                 'title'       => 'Ширина миниатюры:',
@@ -127,18 +127,18 @@ class Gallery_admin extends CI_Component {
               ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => 'icon_small accept_i_s',
+                'class'    => '',
                 'title'    => 'Создать',
                 'type'     => 'ajax',
                 'reaction' => $this->lang_prefix .'/admin'. $this->params['path']
               )
-						)
-					)
-				)
-			)),
+            )
+          )
+        )
+      )),
     ), TRUE);
   }
-	
+  
   function _create_album_process() {
     $languages = $this->languages_model->get_languages(1, 0);
     
@@ -168,7 +168,7 @@ class Gallery_admin extends CI_Component {
     if ($errors) {
       send_answer(array('errors' => $errors));
     } 
-		
+    
     $id = $this->gallery_model->create_album($params);
     if (!$id) {
       send_answer(array('errors' => array('Не удалось создать альбом')));
@@ -187,7 +187,7 @@ class Gallery_admin extends CI_Component {
     }
 
     send_answer();
-	}
+  }
   
   function _validate_album_params($params) {
     $errors = array();
@@ -198,58 +198,58 @@ class Gallery_admin extends CI_Component {
     return $errors;
   }
   
-	/**
-	 *  Редактирование альбома
-	 * @param $id - id альбома
-	 */		
+  /**
+   *  Редактирование альбома
+   * @param $id - id альбома
+   */    
   function edit_album($id) {
     $pages = $this->db->get('pr_pages')->result_array();
-		if ($pages) {
-			foreach ($pages as &$page) {
-				$project = $this->db->get('pr_projects',array('id', $page['project_id']))->row_array();
-				$page['title'] = $project['title'].': '.$page['title'];
-			}
-			unset($page);
-		}
+    if ($pages) {
+      foreach ($pages as &$page) {
+        $project = $this->db->get('pr_projects',array('id', $page['project_id']))->row_array();
+        $page['title'] = $project['title'].': '.$page['title'];
+      }
+      unset($page);
+    }
     $languages = $this->languages_model->get_languages(1, 0);
-		$item =  $this->gallery_model->get_gallery_one(array('id' => $id));
+    $item =  $this->gallery_model->get_gallery_one(array('id' => $id));
 
-		return $this->render_template('admin/inner', array(
+    return $this->render_template('admin/inner', array(
       'title' => 'Редактирование альбома галереи '.$item['title'],
-			'html' => $this->view->render_form(array(
+      'html' => $this->view->render_form(array(
         'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'_edit_album_process/'.$id.'/',
-				'blocks' => array(
-					array(
-						'title' => 'Основные параметры',
-						'fields' => array(
-							array(
-								'view' 			  => 'fields/'.($item['system_name'] != 'gallery_system' ? 'text' : 'readonly'),
-								'title'			  => 'Внутреннее имя:',
-								'name' 			  => 'title',
-								'id' 				  => 'item-title',
-								'maxlength'   => 256,
-								'value' 		  => $item['title'],
+        'blocks' => array(
+          array(
+            'title' => 'Основные параметры',
+            'fields' => array(
+              array(
+                'view'         => 'fields/'.($item['system_name'] != 'gallery_system' ? 'text' : 'readonly'),
+                'title'        => 'Внутреннее имя:',
+                'name'         => 'title',
+                'id'           => 'item-title',
+                'maxlength'   => 256,
+                'value'       => $item['title'],
                 'description' => 'Используется только внутри панели администрирования',
-								'req' 			  => true
-							),
-							array(
-								'view' 			  => 'fields/'.($item['system_name'] != 'gallery_system' ? 'text' : 'readonly'),
-								'title' 		  => 'Системное имя:',
-								'name' 			  => 'system_name',
-								'id' 				  => 'item-alias',
-								'maxlength'   => 256,
-								'value' 		  => $item['system_name'],
+                'req'         => true
+              ),
+              array(
+                'view'         => 'fields/'.($item['system_name'] != 'gallery_system' ? 'text' : 'readonly'),
+                'title'       => 'Системное имя:',
+                'name'         => 'system_name',
+                'id'           => 'item-alias',
+                'maxlength'   => 256,
+                'value'       => $item['system_name'],
                 'description' => 'Используется для отображения в теле страницы',
-								'req' 			  => true
-							),
-							array(
-								'view' 			=> 'fields/text',
-								'title' 		=> 'Название:',
-								'name' 			=> 'name',
-								'languages' => $languages,
-								'value' 		=> $item['params'],
-								'maxlength' => 256
-							),
+                'req'         => true
+              ),
+              array(
+                'view'       => 'fields/text',
+                'title'     => 'Название:',
+                'name'       => 'name',
+                'languages' => $languages,
+                'value'     => $item['params'],
+                'maxlength' => 256
+              ),
               array(
                 'view'    => 'fields/select',
                 'title'   => 'Шаблон:',
@@ -260,31 +260,31 @@ class Gallery_admin extends CI_Component {
               ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => 'icon_small accept_i_s',
+                'class'    => '',
                 'title'    => 'Редактировать',
                 'type'     => 'ajax',
                 'reaction' => 1
               )
-						)
-					),
-					array(
-						'title' => 'Дополнительные параметры',
-						'fields' => array(
-							array(
-								'view' 			  => 'fields/select',
-								'title' 		  => 'Связанные страницы:',
+            )
+          ),
+          array(
+            'title' => 'Дополнительные параметры',
+            'fields' => array(
+              array(
+                'view'         => 'fields/select',
+                'title'       => 'Связанные страницы:',
                 'description' => 'Укажите страницу, на которой будут отображаться изображения данного альбома',
-								'name' 			  => 'pages[]',
-								'options'  	  => $pages,
-								'value'			  => (isset($item['page_id']) ? $item['page_id'] : 0),
-								'multiple' 	  => true
-							),
+                'name'         => 'pages[]',
+                'options'      => $pages,
+                'value'        => (isset($item['page_id']) ? $item['page_id'] : 0),
+                'multiple'     => true
+              ),
               array(
                 'view'        => 'fields/text',
                 'title'       => 'Ширина миниатюры:',
                 'description' => 'Ширина миниатюры по умолчанию для изображений альбома',
                 'name'        => 'thumb_width',
-								'value' 		  => (isset($item['params']['thumb_width']) ? $item['params']['thumb_width'] : ""),
+                'value'       => (isset($item['params']['thumb_width']) ? $item['params']['thumb_width'] : ""),
                 'maxlength'   => 4,
               ),
               array(
@@ -292,7 +292,7 @@ class Gallery_admin extends CI_Component {
                 'title'       => 'Высота миниатюры:',
                 'description' => 'Высота миниатюры по умолчанию для изображений альбома',
                 'name'        => 'thumb_height',
-								'value' 		  => (isset($item['params']['thumb_height']) ? $item['params']['thumb_height'] : ''),
+                'value'       => (isset($item['params']['thumb_height']) ? $item['params']['thumb_height'] : ''),
                 'maxlength'   => 4,
               ),
               array(
@@ -301,7 +301,7 @@ class Gallery_admin extends CI_Component {
                 'description' => 'Ширина плеера по умолчанию для просмотра видео альбома',
                 'maxlength'   => 4,
                 'name'        => 'width_player',
-								'value' 		  => (isset($item['params']['width_player']) ? $item['params']['width_player'] : ''),
+                'value'       => (isset($item['params']['width_player']) ? $item['params']['width_player'] : ''),
               ),
               array(
                 'view'        => 'fields/text',
@@ -309,23 +309,23 @@ class Gallery_admin extends CI_Component {
                 'description' => 'Высота плеера по умолчанию для просмотра видео альбома',
                 'maxlength'   => 4,
                 'name'        => 'height_player',
-								'value' 		  => (isset($item['params']['height_player']) ? $item['params']['height_player'] : ''),
+                'value'       => (isset($item['params']['height_player']) ? $item['params']['height_player'] : ''),
               ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => 'icon_small accept_i_s',
+                'class'    => '',
                 'title'    => 'Редактировать',
                 'type'     => 'ajax',
                 'reaction' => 1
               )
-						)
-					)
-				)
-			)),
+            )
+          )
+        )
+      )),
       'back' => $this->lang_prefix .'/admin'. $this->params['path'] . $item['parent_id'] .'/'
     ), TRUE);
   } 
-	
+  
   function _edit_album_process($id) {
     $languages = $this->languages_model->get_languages(1, 0);
     $item =  $this->gallery_model->get_gallery_one(array('id' => $id));
@@ -347,11 +347,11 @@ class Gallery_admin extends CI_Component {
     $multiparams['thumb_height']  = (int)$this->input->post('thumb_height');
     $multiparams['width_player']  = (int)$this->input->post('width_player');
     $multiparams['height_player'] = (int)$this->input->post('height_player');
-		
+    
     if (!$this->gallery_model->_validate_gallery_system_name($params['system_name'],$id)) {
       send_answer(array('errors' => array('Системное имя уже существует')));
     }
-		
+    
     $errors = $this->_validate_album_params($params);
     if ($errors) {
       send_answer(array('errors' => $errors));
@@ -374,21 +374,21 @@ class Gallery_admin extends CI_Component {
     }
     
     send_answer();
-	}
-		
-	/**
-	 * Удаление изображения
-	 * @param id изображения
-	 */			
+  }
+    
+  /**
+   * Удаление изображения
+   * @param id изображения
+   */      
   function delete_image($id) {
     $this->gallery_model->delete_image(array('id' => (int)$id));
     send_answer();
   }
   
-	/**
-	 * Удаление галереи изображений
-	 * @param id галереи
-	 */	  
+  /**
+   * Удаление галереи изображений
+   * @param id галереи
+   */    
   function delete_gallery($gallery_id) {
     $this->gallery_model->delete_gallery_images(array('id' => $gallery_id));
     send_answer();
@@ -401,35 +401,35 @@ class Gallery_admin extends CI_Component {
     $languages = $this->languages_model->get_languages(1, 0);
     $album =  $this->gallery_model->get_gallery_one(array('id' => $album_id));
     
-		return $this->render_template('admin/inner', array(
+    return $this->render_template('admin/inner', array(
       'title' => 'Добавление изображения в альбом "'.$album['title'].'"',
-			'html' => $this->view->render_form(array(
+      'html' => $this->view->render_form(array(
         'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'_add_image_process/'.$album_id.'/',
-				'blocks' => array(
-					array(
-						'title' => 'Основные параметры',
-						'fields' => array(
-							array(
-								'view' 			  => 'fields/text',
-								'title'			  => 'Внутреннее имя:',
-								'name' 			  => 'title',
-								'id' 				  => 'item-title',
-								'maxlength'   => 256,
+        'blocks' => array(
+          array(
+            'title' => 'Основные параметры',
+            'fields' => array(
+              array(
+                'view'         => 'fields/text',
+                'title'        => 'Внутреннее имя:',
+                'name'         => 'title',
+                'id'           => 'item-title',
+                'maxlength'   => 256,
                 'description' => 'Используется только внутри панели администрирования',
-								'req' 			  => true
-							),
+                'req'         => true
+              ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => 'icon_small accept_i_s',
+                'class'    => '',
                 'title'    => 'Создать',
                 'type'     => 'ajax',
                 'reaction' => $this->lang_prefix .'/admin'. $this->params['path']. $album_id .'/'
               )
-						)
-					),
-					array(
-						'title'  => 'Параметры изображения',
-						'fields' => array(
+            )
+          ),
+          array(
+            'title'  => 'Параметры изображения',
+            'fields' => array(
               array(
                 'view'  => 'fields/checkbox',
                 'title' => 'Обложка альбома:',
@@ -446,28 +446,28 @@ class Gallery_admin extends CI_Component {
                 'title'     => 'Ширина миниатюры:',
                 'name'      => 'thumb_width',
                 'maxlength' => 4,
-								'value' 		=> (isset($album['params']['thumb_width']) ? $album['params']['thumb_width'] : ""),
+                'value'     => (isset($album['params']['thumb_width']) ? $album['params']['thumb_width'] : ""),
               ),
               array(
                 'view'      => 'fields/text',
                 'title'     => 'Высота миниатюры:',
                 'name'      => 'thumb_height',
-								'value' 		=> (isset($album['params']['thumb_height']) ? $album['params']['thumb_height'] : ""),
+                'value'     => (isset($album['params']['thumb_height']) ? $album['params']['thumb_height'] : ""),
                 'maxlength' => 4,
-              ),	
+              ),  
               array(
                 'view'     => 'fields/submit',
-                'class'    => 'icon_small accept_i_s',
+                'class'    => '',
                 'title'    => 'Создать',
                 'type'     => 'ajax',
                 'reaction' => $this->lang_prefix .'/admin'. $this->params['path']. $album_id .'/'
               )
-						)
-					),
-					array(
-						'title' => 'Дополнительные параметры',
-						'fields' => array(
-							array(
+            )
+          ),
+          array(
+            'title' => 'Дополнительные параметры',
+            'fields' => array(
+              array(
                 'view' => 'fields/textarea',
                 'title' => 'Название / Альт-текст:',
                 'name' => 'name',
@@ -481,15 +481,15 @@ class Gallery_admin extends CI_Component {
               ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => 'icon_small accept_i_s',
+                'class'    => '',
                 'title'    => 'Создать',
                 'type'     => 'ajax',
                 'reaction' => $this->lang_prefix .'/admin'. $this->params['path']. $album_id .'/'
               )
-						)
-					),
-				)
-			)),
+            )
+          ),
+        )
+      )),
       'back' => $this->lang_prefix .'/admin'. $this->params['path'] . $album_id .'/'
     ), TRUE);
   }
@@ -589,100 +589,100 @@ class Gallery_admin extends CI_Component {
     $languages = $this->languages_model->get_languages(1, 0);
     $item =  $this->gallery_model->get_gallery_image(array('id' => $id));
     
-		return $this->render_template('admin/inner', array(
+    return $this->render_template('admin/inner', array(
       'title' => 'Редактирование изображения',
-			'html' => $this->view->render_form(array(
+      'html' => $this->view->render_form(array(
         'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'_edit_image_process/'.$id.'/',
-				'blocks' => array(
-					array(
-						'title' => 'Основные параметры',
-						'fields' => array(
-							array(
-								'view' 			  => 'fields/text',
-								'title'			  => 'Внутреннее имя:',
+        'blocks' => array(
+          array(
+            'title' => 'Основные параметры',
+            'fields' => array(
+              array(
+                'view'         => 'fields/text',
+                'title'        => 'Внутреннее имя:',
                 'description' => 'Используется только внутри панели администрирования',
-								'name' 			  => 'title',
-								'value' 			=> $item['title'],
-								'id' 				  => 'item-title',
-								'maxlength'   => 256,
-								'req' 			  => true
-							),
+                'name'         => 'title',
+                'value'       => $item['title'],
+                'id'           => 'item-title',
+                'maxlength'   => 256,
+                'req'         => true
+              ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => 'icon_small accept_i_s',
+                'class'    => '',
                 'title'    => 'Редактировать',
                 'type'     => 'ajax',
                 'reaction' => 1
               )
-						)
-					),
-					array(
-						'title'  => 'Параметры изображения',
-						'fields' => array(
+            )
+          ),
+          array(
+            'title'  => 'Параметры изображения',
+            'fields' => array(
               array(
                 'view'    => 'fields/checkbox',
                 'title'   => 'Обложка альбома:',
                 'name'    => 'main',
-								'checked' => $item['main'],
+                'checked' => $item['main'],
               ),
               array(
                 'view'  => 'fields/file',
                 'title' => 'Изображение (jpg, gif, png):',
                 'name'  => 'image',
-								'value' => $item['image'],
+                'value' => $item['image'],
                 'req'   => true
               ),
               array(
                 'view'      => 'fields/text',
                 'title'     => 'Ширина миниатюры:',
                 'name'      => 'thumb_width',
-								'value'     => $item['params']['thumb_width'],
+                'value'     => $item['params']['thumb_width'],
                 'maxlength' => 4,
               ),
               array(
                 'view'      => 'fields/text',
                 'title'     => 'Высота миниатюры:',
                 'name'      => 'thumb_height',
-								'value'     => $item['params']['thumb_height'],
+                'value'     => $item['params']['thumb_height'],
                 'maxlength' => 4,
               ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => 'icon_small accept_i_s',
+                'class'    => '',
                 'title'    => 'Редактировать',
                 'type'     => 'ajax',
                 'reaction' => 1
               )
-						)
-					),
-					array(
-						'title' => 'Дополнительные параметры',
-						'fields' => array(
-							array(
+            )
+          ),
+          array(
+            'title' => 'Дополнительные параметры',
+            'fields' => array(
+              array(
                 'view'      => 'fields/textarea',
                 'title'     => 'Название / Альт-текст:',
                 'name'      => 'name',
-								'value'     => $item['params'],
+                'value'     => $item['params'],
                 'languages' => $languages
               ),
               array(
                 'view'      => 'fields/textarea',
                 'title'     => 'Описание:',
                 'name'      => 'description',
-								'value'     => $item['params'],
+                'value'     => $item['params'],
                 'languages' => $languages
               ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => 'icon_small accept_i_s',
+                'class'    => '',
                 'title'    => 'Редактировать',
                 'type'     => 'ajax',
                 'reaction' => 1
               )
-						)
-					),
-				)
-			)),
+            )
+          ),
+        )
+      )),
       'back' => $this->lang_prefix .'/admin'. $this->params['path'] . $item['gallery_id'] .'/'
     ), TRUE);
   }
@@ -779,35 +779,35 @@ class Gallery_admin extends CI_Component {
     $languages = $this->languages_model->get_languages(1, 0);
     $album =  $this->gallery_model->get_gallery_one(array('id' => $album_id));
     
-		return $this->render_template('admin/inner', array(
+    return $this->render_template('admin/inner', array(
       'title' => 'Добавление видео в альбом "'.$album['title'].'"',
-			'html' => $this->view->render_form(array(
+      'html' => $this->view->render_form(array(
         'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'_add_video_process/'.$album_id.'/',
-				'blocks' => array(
-					array(
-						'title' => 'Основные параметры',
-						'fields' => array(
-							array(
-								'view' 			  => 'fields/text',
-								'title'			  => 'Внутреннее имя:',
-								'name' 			  => 'title',
-								'id' 				  => 'item-title',
-								'maxlength'   => 256,
+        'blocks' => array(
+          array(
+            'title' => 'Основные параметры',
+            'fields' => array(
+              array(
+                'view'         => 'fields/text',
+                'title'        => 'Внутреннее имя:',
+                'name'         => 'title',
+                'id'           => 'item-title',
+                'maxlength'   => 256,
                 'description' => 'Используется только внутри панели администрирования',
-								'req' 			  => true
-							),
+                'req'         => true
+              ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => 'icon_small accept_i_s',
+                'class'    => '',
                 'title'    => 'Создать',
                 'type'     => 'ajax',
                 'reaction' => $this->lang_prefix .'/admin'. $this->params['path']. $album_id .'/'
               )
-						)
-					),
-					array(
-						'title'  => 'Параметры видео',
-						'fields' => array(
+            )
+          ),
+          array(
+            'title'  => 'Параметры видео',
+            'fields' => array(
               array(
                 'view'  => 'fields/file',
                 'title' => 'Видео-файл (mp4, mov, flv):',
@@ -819,28 +819,28 @@ class Gallery_admin extends CI_Component {
                 'title'     => 'Ширина плеера:',
                 'name'      => 'width_player',
                 'maxlength' => 4,
-								'value' 		=> (isset($album['params']['width_player']) ? $album['params']['width_player'] : ""),
+                'value'     => (isset($album['params']['width_player']) ? $album['params']['width_player'] : ""),
               ),
               array(
                 'view'      => 'fields/text',
                 'title'     => 'Высота плеера:',
                 'name'      => 'height_player',
-								'value' 		=> (isset($album['params']['height_player']) ? $album['params']['height_player'] : ""),
+                'value'     => (isset($album['params']['height_player']) ? $album['params']['height_player'] : ""),
                 'maxlength' => 4,
-              ),	
+              ),  
               array(
                 'view'     => 'fields/submit',
-                'class'    => 'icon_small accept_i_s',
+                'class'    => '',
                 'title'    => 'Создать',
                 'type'     => 'ajax',
                 'reaction' => $this->lang_prefix .'/admin'. $this->params['path']. $album_id .'/'
               )
-						)
-					),
-					array(
-						'title' => 'Дополнительные параметры',
-						'fields' => array(
-							array(
+            )
+          ),
+          array(
+            'title' => 'Дополнительные параметры',
+            'fields' => array(
+              array(
                 'view'      => 'fields/textarea',
                 'title'     => 'Название / Альт-текст:',
                 'name'      => 'name',
@@ -854,15 +854,15 @@ class Gallery_admin extends CI_Component {
               ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => 'icon_small accept_i_s',
+                'class'    => '',
                 'title'    => 'Создать',
                 'type'     => 'ajax',
                 'reaction' => $this->lang_prefix .'/admin'. $this->params['path']. $album_id .'/'
               )
-						)
-					),
-				)
-			)),
+            )
+          ),
+        )
+      )),
       'back' => $this->lang_prefix .'/admin'. $this->params['path'] . $album_id .'/'
     ), TRUE);
   }
@@ -924,94 +924,94 @@ class Gallery_admin extends CI_Component {
     $languages = $this->languages_model->get_languages(1, 0);
     $item =  $this->gallery_model->get_gallery_image(array('id' => $id));
     
-		return $this->render_template('admin/inner', array(
+    return $this->render_template('admin/inner', array(
       'title' => 'Редактирование видео',
-			'html' => $this->view->render_form(array(
+      'html' => $this->view->render_form(array(
         'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'_edit_video_process/'.$id.'/',
-				'blocks' => array(
-					array(
-						'title' => 'Основные параметры',
-						'fields' => array(
-							array(
-								'view' 			  => 'fields/text',
-								'title'			  => 'Внутреннее имя:',
+        'blocks' => array(
+          array(
+            'title' => 'Основные параметры',
+            'fields' => array(
+              array(
+                'view'         => 'fields/text',
+                'title'        => 'Внутреннее имя:',
                 'description' => 'Используется только внутри панели администрирования',
-								'name' 			  => 'title',
-								'value' 			=> $item['title'],
-								'id' 				  => 'item-title',
-								'maxlength'   => 256,
-								'req' 			  => true
-							),
+                'name'         => 'title',
+                'value'       => $item['title'],
+                'id'           => 'item-title',
+                'maxlength'   => 256,
+                'req'         => true
+              ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => 'icon_small accept_i_s',
+                'class'    => '',
                 'title'    => 'Редактировать',
                 'type'     => 'ajax',
                 'reaction' => 1
               )
-						)
-					),
-					array(
-						'title'  => 'Параметры видео',
-						'fields' => array(
+            )
+          ),
+          array(
+            'title'  => 'Параметры видео',
+            'fields' => array(
               array(
                 'view'  => 'fields/file',
                 'title' => 'Видео-файл (mp4, mov, flv):',
                 'name'  => 'image',
-								'value' => $item['image'],
+                'value' => $item['image'],
                 'req'   => true
               ),
               array(
                 'view'      => 'fields/text',
                 'title'     => 'Ширина плеера:',
                 'name'      => 'width_player',
-								'value'     => $item['params']['width_player'],
+                'value'     => $item['params']['width_player'],
                 'maxlength' => 4,
               ),
               array(
                 'view'      => 'fields/text',
                 'title'     => 'Высота плеера:',
                 'name'      => 'height_player',
-								'value'     => $item['params']['height_player'],
+                'value'     => $item['params']['height_player'],
                 'maxlength' => 4,
               ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => 'icon_small accept_i_s',
+                'class'    => '',
                 'title'    => 'Редактировать',
                 'type'     => 'ajax',
                 'reaction' => 1
               )
-						)
-					),
-					array(
-						'title' => 'Дополнительные параметры',
-						'fields' => array(
-							array(
+            )
+          ),
+          array(
+            'title' => 'Дополнительные параметры',
+            'fields' => array(
+              array(
                 'view'      => 'fields/textarea',
                 'title'     => 'Название / Альт-текст:',
                 'name'      => 'name',
-								'value'     => $item['params'],
+                'value'     => $item['params'],
                 'languages' => $languages
               ),
               array(
                 'view'      => 'fields/textarea',
                 'title'     => 'Описание:',
                 'name'      => 'description',
-								'value'     => $item['params'],
+                'value'     => $item['params'],
                 'languages' => $languages
               ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => 'icon_small accept_i_s',
+                'class'    => '',
                 'title'    => 'Редактировать',
                 'type'     => 'ajax',
                 'reaction' => 1
               )
-						)
-					),
-				)
-			)),
+            )
+          ),
+        )
+      )),
       'back' => $this->lang_prefix .'/admin'. $this->params['path'] . $item['gallery_id'] .'/'
     ), TRUE);
   }
@@ -1071,35 +1071,35 @@ class Gallery_admin extends CI_Component {
     $languages = $this->languages_model->get_languages(1, 0);
     $album =  $this->gallery_model->get_gallery_one(array('id' => $album_id));
     
-		return $this->render_template('admin/inner', array(
+    return $this->render_template('admin/inner', array(
       'title' => 'Добавление видео c youtoube в альбом "'.$album['title'].'"',
-			'html' => $this->view->render_form(array(
+      'html' => $this->view->render_form(array(
         'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'_add_youtube_process/'.$album_id.'/',
-				'blocks' => array(
-					array(
-						'title' => 'Основные параметры',
-						'fields' => array(
-							array(
-								'view' 			  => 'fields/text',
-								'title'			  => 'Внутреннее имя:',
-								'name' 			  => 'title',
-								'id' 				  => 'item-title',
-								'maxlength'   => 256,
+        'blocks' => array(
+          array(
+            'title' => 'Основные параметры',
+            'fields' => array(
+              array(
+                'view'         => 'fields/text',
+                'title'        => 'Внутреннее имя:',
+                'name'         => 'title',
+                'id'           => 'item-title',
+                'maxlength'   => 256,
                 'description' => 'Используется только внутри панели администрирования',
-								'req' 			  => true
-							),
+                'req'         => true
+              ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => 'icon_small accept_i_s',
+                'class'    => '',
                 'title'    => 'Создать',
                 'type'     => 'ajax',
                 'reaction' => $this->lang_prefix .'/admin'. $this->params['path']. $album_id .'/'
               )
-						)
-					),
-					array(
-						'title'  => 'Параметры видео',
-						'fields' => array(
+            )
+          ),
+          array(
+            'title'  => 'Параметры видео',
+            'fields' => array(
               array(
                 'view'        => 'fields/text',
                 'title'       => 'Ссылка на страницу с видео:',
@@ -1112,28 +1112,28 @@ class Gallery_admin extends CI_Component {
                 'title'     => 'Ширина плеера:',
                 'name'      => 'width_player',
                 'maxlength' => 4,
-								'value' 		=> (isset($album['params']['width_player']) ? $album['params']['width_player'] : ""),
+                'value'     => (isset($album['params']['width_player']) ? $album['params']['width_player'] : ""),
               ),
               array(
                 'view'      => 'fields/text',
                 'title'     => 'Высота плеера:',
                 'name'      => 'height_player',
-								'value' 		=> (isset($album['params']['height_player']) ? $album['params']['height_player'] : ""),
+                'value'     => (isset($album['params']['height_player']) ? $album['params']['height_player'] : ""),
                 'maxlength' => 4,
-              ),	
+              ),  
               array(
                 'view'     => 'fields/submit',
-                'class'    => 'icon_small accept_i_s',
+                'class'    => '',
                 'title'    => 'Создать',
                 'type'     => 'ajax',
                 'reaction' => $this->lang_prefix .'/admin'. $this->params['path']. $album_id .'/'
               )
-						)
-					),
-					array(
-						'title' => 'Дополнительные параметры',
-						'fields' => array(
-							array(
+            )
+          ),
+          array(
+            'title' => 'Дополнительные параметры',
+            'fields' => array(
+              array(
                 'view'      => 'fields/textarea',
                 'title'     => 'Название / Альт-текст:',
                 'name'      => 'name',
@@ -1147,15 +1147,15 @@ class Gallery_admin extends CI_Component {
               ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => 'icon_small accept_i_s',
+                'class'    => '',
                 'title'    => 'Создать',
                 'type'     => 'ajax',
                 'reaction' => $this->lang_prefix .'/admin'. $this->params['path']. $album_id .'/'
               )
-						)
-					),
-				)
-			)),
+            )
+          ),
+        )
+      )),
       'back' => $this->lang_prefix .'/admin'. $this->params['path'] . $album_id .'/'
     ), TRUE);
   }
@@ -1208,95 +1208,95 @@ class Gallery_admin extends CI_Component {
     $languages = $this->languages_model->get_languages(1, 0);
     $item =  $this->gallery_model->get_gallery_image(array('id' => $id));
     
-		return $this->render_template('admin/inner', array(
+    return $this->render_template('admin/inner', array(
       'title' => 'Редактирование видео c youtoube',
-			'html' => $this->view->render_form(array(
+      'html' => $this->view->render_form(array(
         'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'_edit_youtube_process/'.$id.'/',
-				'blocks' => array(
-					array(
-						'title' => 'Основные параметры',
-						'fields' => array(
-							array(
-								'view' 			  => 'fields/text',
-								'title'			  => 'Внутреннее имя:',
+        'blocks' => array(
+          array(
+            'title' => 'Основные параметры',
+            'fields' => array(
+              array(
+                'view'         => 'fields/text',
+                'title'        => 'Внутреннее имя:',
                 'description' => 'Используется только внутри панели администрирования',
-								'name' 			  => 'title',
-								'value' 			=> $item['title'],
-								'id' 				  => 'item-title',
-								'maxlength'   => 256,
-								'req' 			  => true
-							),
+                'name'         => 'title',
+                'value'       => $item['title'],
+                'id'           => 'item-title',
+                'maxlength'   => 256,
+                'req'         => true
+              ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => 'icon_small accept_i_s',
+                'class'    => '',
                 'title'    => 'Редактировать',
                 'type'     => 'ajax',
                 'reaction' => 1
               )
-						)
-					),
-					array(
-						'title'  => 'Параметры видео',
-						'fields' => array(
+            )
+          ),
+          array(
+            'title'  => 'Параметры видео',
+            'fields' => array(
               array(
                 'view'  => 'fields/text',
                 'title' => 'Ссылка на страницу с видео:',
                 'description' => 'вид ссылки: watch?v=sS1r8fs7IfE',
                 'name'  => 'image',
-								'value' => $item['image'],
+                'value' => $item['image'],
                 'req'   => true
               ),
               array(
                 'view'      => 'fields/text',
                 'title'     => 'Ширина плеера:',
                 'name'      => 'width_player',
-								'value'     => $item['params']['width_player'],
+                'value'     => $item['params']['width_player'],
                 'maxlength' => 4,
               ),
               array(
                 'view'      => 'fields/text',
                 'title'     => 'Высота плеера:',
                 'name'      => 'height_player',
-								'value'     => $item['params']['height_player'],
+                'value'     => $item['params']['height_player'],
                 'maxlength' => 4,
               ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => 'icon_small accept_i_s',
+                'class'    => '',
                 'title'    => 'Редактировать',
                 'type'     => 'ajax',
                 'reaction' => 1
               )
-						)
-					),
-					array(
-						'title' => 'Дополнительные параметры',
-						'fields' => array(
-							array(
+            )
+          ),
+          array(
+            'title' => 'Дополнительные параметры',
+            'fields' => array(
+              array(
                 'view'      => 'fields/textarea',
                 'title'     => 'Название / Альт-текст:',
                 'name'      => 'name',
-								'value'     => $item['params'],
+                'value'     => $item['params'],
                 'languages' => $languages
               ),
               array(
                 'view'      => 'fields/textarea',
                 'title'     => 'Описание:',
                 'name'      => 'description',
-								'value'     => $item['params'],
+                'value'     => $item['params'],
                 'languages' => $languages
               ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => 'icon_small accept_i_s',
+                'class'    => '',
                 'title'    => 'Редактировать',
                 'type'     => 'ajax',
                 'reaction' => 1
               )
-						)
-					),
-				)
-			)),
+            )
+          ),
+        )
+      )),
       'back' => $this->lang_prefix .'/admin'. $this->params['path'] . $item['gallery_id'] .'/'
     ), TRUE);
   }

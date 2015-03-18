@@ -1,7 +1,7 @@
-<div class="input_block">
-  <div class="name">
+<div class="form-group">
+  <div class="col-sm-2">
     <? if (isset($vars['title']) && $vars['title']) { ?>
-      <div class="title">
+      <label for="<?=(isset($vars['id']) ? $vars['id'] : (isset($vars['name']) ? $vars['name'] : ''));?>" >
         <? if (isset($vars['icon'])) { ?>
           <img src="<?=$vars['icon'];?>" class="icon" />
         <? } ?>
@@ -9,17 +9,17 @@
         <?=$vars['title'];?>
         
         <? if (isset($vars['req']) && $vars['req']) { ?>
-          <span class="red"> *</span>
+          <span class="text-danger"> *</span>
         <? } ?>
-      </div>
+      </label>
     <? } ?>
     
     <? if (isset($vars['description']) && $vars['description']) { ?>
-      <div class="description"><?=$vars['description'];?></div>
+      <p class="help-block"><?=$vars['description'];?></p>
     <? } ?>
   </div>
   
-  <div class="input">
+  <div class="col-sm-10">
     <? if (@$vars['multiple'] && @$vars['value']) { ?>
         <a href="/admin/gallery/<?=$vars['value'];?>" target="_blank">Перейти в Галерею</a><br>
     <? } elseif (isset($vars['value']) && $vars['value']) { ?>

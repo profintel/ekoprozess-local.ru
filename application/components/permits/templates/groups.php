@@ -3,13 +3,12 @@
     Управление группами
   </h1>
 </div>
-  
 
 <div class="container-fluid wrapper-list">
   <div class="clearfix well-sm">
-    <div class="pull-right">
-      <a href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>create_group/" class="icon_small add_i_s">Создать группу</a>
-    </div>
+    <a href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>create_group/" class="btn btn-success btn-sm pull-right">
+      <span class="glyphicon glyphicon-plus"></span> Создать группу
+    </a>
   </div>
 
   <? foreach ($items as $item) { ?>
@@ -19,7 +18,7 @@
       </div>
       <div class="col-md-3 col-sm-4 col-xs-4">  
         <div class="buttons">
-          <a href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>edit_group/<?=$item['id'];?>/" class="pencil_i_s" title="Изменить"></a>
+          <a href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>edit_group/<?=$item['id'];?>/" class="glyphicon glyphicon-edit" title="Изменить"></a>
           <a href="#"
             onClick="return send_confirm(
               'Вы уверены, что хотите удалить группу?',
@@ -27,7 +26,7 @@
               {},
               'reload'
             );"
-            class="cross_i_s"
+            class="glyphicon glyphicon-trash"
             title="Удалить"
           ></a>        
         </div>

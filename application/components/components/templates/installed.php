@@ -40,10 +40,10 @@
         </div>
         <div class="col-md-6 col-xs-6 col-sm-6">
          <? if ($item['main']) { ?>
-            <p class="green icon_small tick_i_s"><b>Компонент по умолчанию</b></p>
+            <p><span class="glyphicon glyphicon-ok"></span> <b>Компонент по умолчанию</b></p>
           <? } else { ?>
             <p>
-              <a href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>set_main/<?=$item['id'];?>/" class="icon_small tick_i_s">
+              <a href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>set_main/<?=$item['id'];?>/" class="">
                 <span class="glyphicon glyphicon-ok"></span> Сделать компонентом по умолчанию
               </a>
             </p>

@@ -4,10 +4,10 @@ class Publication_admin extends CI_Component {
   
   function __construct() {
     parent::__construct();
-				
+        
     $this->load->model('templates/models/templates_model');
-		$this->load->model('publication/models/publication_model');
-		$this->load->model('gallery/models/gallery_model');
+    $this->load->model('publication/models/publication_model');
+    $this->load->model('gallery/models/gallery_model');
   }
 
   function index($parent_id = 0, $page = 1) {
@@ -23,62 +23,62 @@ class Publication_admin extends CI_Component {
         'page' => $page,
         'prefix' => '/admin/publication/'. $parent_id .'/'
       );
-			$items = $this->publication_model->get_publication($parent_id,$in_page, $in_page * ($page - 1));
+      $items = $this->publication_model->get_publication($parent_id,$in_page, $in_page * ($page - 1));
     }
 
-		return $this->render_template('templates/index', array(
+    return $this->render_template('templates/index', array(
       'parent_id' => $parent_id,
       'items' => $items,
       'pagination' => ($parent_id ? $this->load->view('admin/pagination', $pagination_data, true) : false),
     ));
   }
-	
-	/**
-	 *  Создание категории публикаций
-	 */	
+  
+  /**
+   *  Создание категории публикаций
+   */  
   function create_category() {
     $pages = $this->db->get('pr_pages')->result_array();
-		if ($pages) {
-			foreach ($pages as &$page) {
-				$project = $this->db->get('pr_projects',array('id', $page['project_id']))->row_array();
-				$page['title'] = $project['title'].': '.$page['title'];
-			}
-			unset($page);
-		}
+    if ($pages) {
+      foreach ($pages as &$page) {
+        $project = $this->db->get('pr_projects',array('id', $page['project_id']))->row_array();
+        $page['title'] = $project['title'].': '.$page['title'];
+      }
+      unset($page);
+    }
     $languages = $this->languages_model->get_languages(1, 0);
-		return $this->render_template('admin/inner', array(
+    return $this->render_template('admin/inner', array(
       'title' => 'Добавление категории публикаций',
-			'html' => $this->view->render_form(array(
+      'html' => $this->view->render_form(array(
         'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'_create_category_process/',
-				'blocks' => array(
-					array(
-						'title' 	=> 'Основные параметры',
-						'fields' 	=> array(
-							array(
-								'view' 			  => 'fields/text',
-								'title' 		  => 'Внутреннее имя:',
-								'name' 			  => 'title',
-								'id' 				  => 'publication-title',
-								'maxlength'   => 256,
+        'blocks' => array(
+          array(
+            'title'   => 'Основные параметры',
+            'fields'   => array(
+              array(
+                'view'         => 'fields/text',
+                'title'       => 'Внутреннее имя:',
+                'name'         => 'title',
+                'id'           => 'publication-title',
+                'maxlength'   => 256,
                 'description' => 'Используется только внутри панели администрирования',
-								'req' 			  => true
-							),
-							array(
-								'view' 			  => 'fields/text',
-								'title' 		  => 'Системное имя:',
-								'name' 			  => 'system_name',
-								'id' 				  => 'publication-alias',
+                'req'         => true
+              ),
+              array(
+                'view'         => 'fields/text',
+                'title'       => 'Системное имя:',
+                'name'         => 'system_name',
+                'id'           => 'publication-alias',
                 'description' => 'Используется для отображения публикаций данной категории в теле страницы',
-								'maxlength'   => 256,
-								'req' 			  => true
-							),
-							array(
-								'view' 			=> 'fields/text',
-								'title' 		=> 'Название:',
-								'name' 			=> 'name',
-								'languages' => $languages,
-								'maxlength' => 256
-							),
+                'maxlength'   => 256,
+                'req'         => true
+              ),
+              array(
+                'view'       => 'fields/text',
+                'title'     => 'Название:',
+                'name'       => 'name',
+                'languages' => $languages,
+                'maxlength' => 256
+              ),
               array(
                 'view'    => 'fields/select',
                 'title'   => 'Шаблон:',
@@ -94,31 +94,31 @@ class Publication_admin extends CI_Component {
                 'type'     => 'ajax',
                 'reaction' => $this->lang_prefix .'/admin'. $this->params['path']
               )
-						)
-					),
-					array(
-						'title' => 'Дополнительные параметры',
-						'fields' => array(
-							array(
-								'view'  => 'fields/file',
-								'title' => 'Изображение (gif, png, jpg):',
-								'name'  => 'image'
-							),
-							array(
-								'view' 			  => 'fields/select',
-								'title' 		  => 'Связанные страницы:',
+            )
+          ),
+          array(
+            'title' => 'Дополнительные параметры',
+            'fields' => array(
+              array(
+                'view'  => 'fields/file',
+                'title' => 'Изображение (gif, png, jpg):',
+                'name'  => 'image'
+              ),
+              array(
+                'view'         => 'fields/select',
+                'title'       => 'Связанные страницы:',
                 'description' => 'Укажите страницу, на которой будут отображаться публикации данной категории',
-								'name' 			  => 'page',
-								'options'  	  => $pages,
-								'multiple' 	  => false
-							),
-							array(
-								'view' 			  => 'fields/text',
-								'title' 		  => 'Публикаций на странице:',
+                'name'         => 'page',
+                'options'      => $pages,
+                'multiple'     => false
+              ),
+              array(
+                'view'         => 'fields/text',
+                'title'       => 'Публикаций на странице:',
                 'description' => 'Количество публикаций, отображаемых на одной странице',
-								'name' 			  => 'in_page',
-								'maxlength'   => 3
-							),
+                'name'         => 'in_page',
+                'maxlength'   => 3
+              ),
               array(
                 'view'     => 'fields/submit',
                 'class'    => 'icon_small accept_i_s',
@@ -126,13 +126,13 @@ class Publication_admin extends CI_Component {
                 'type'     => 'ajax',
                 'reaction' => $this->lang_prefix .'/admin'. $this->params['path']
               )
-						)
-					)
-				)
-			)),
+            )
+          )
+        )
+      )),
     ), TRUE);
   }
-	
+  
   function _create_category_process() {
     $languages = $this->languages_model->get_languages(1, 0);
     
@@ -173,7 +173,7 @@ class Publication_admin extends CI_Component {
     if ($errors) {
       send_answer(array('errors' => $errors));
     } 
-		
+    
     $id = $this->publication_model->create_publication($params);
     if (!$id) {
       send_answer(array('errors' => array('Не удалось создать категорию публикаций')));
@@ -229,7 +229,7 @@ class Publication_admin extends CI_Component {
     }
 
     send_answer();
-	}
+  }
   
   function _validate_params($params) {
     $errors = array();
@@ -241,63 +241,63 @@ class Publication_admin extends CI_Component {
     return $errors;
   }
 
-	/**
-	 *  Редактирование категории публикаций
-	 *  @param $id - id категории
-	 */		
+  /**
+   *  Редактирование категории публикаций
+   *  @param $id - id категории
+   */    
   function edit_category($id) {
     $pages = $this->db->get('pr_pages')->result_array();
-		if ($pages) {
-			foreach ($pages as &$page) {
-				$project = $this->db->get('pr_projects',array('id', $page['project_id']))->row_array();
-				$page['title'] = $project['title'].': '.$page['title'];
-			}
-			unset($page);
-		}    
+    if ($pages) {
+      foreach ($pages as &$page) {
+        $project = $this->db->get('pr_projects',array('id', $page['project_id']))->row_array();
+        $page['title'] = $project['title'].': '.$page['title'];
+      }
+      unset($page);
+    }    
     $languages = $this->languages_model->get_languages(1, 0);
-		$item =  $this->publication_model->get_publication_one(array('id' => $id));
-		$item['image'] = "";
+    $item =  $this->publication_model->get_publication_one(array('id' => $id));
+    $item['image'] = "";
     $item['images'] = $this->gallery_model->get_gallery_images(array('path' => '/gallery_system/'.$this->params['name'].'/'.$item['system_name'].'/'),1,0);
     foreach ($item['images'] as $image) {
       $item['image'] = $image['image'];
     }
     
-		return $this->render_template('admin/inner', array(
+    return $this->render_template('admin/inner', array(
       'title' => 'Редактирование категории публикаций',
-			'html' => $this->view->render_form(array(
+      'html' => $this->view->render_form(array(
         'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'_edit_category_process/'.$id.'/',
-				'blocks' => array(
-					array(
-						'title' => 'Основные параметры',
-						'fields' => array(
-							array(
-								'view' 			  => 'fields/text',
-								'title'			  => 'Внутреннее имя:',
-								'name' 			  => 'title',
-								'id' 				  => 'publication-title',
-								'maxlength'   => 256,
-								'value' 		  => $item['title'],
+        'blocks' => array(
+          array(
+            'title' => 'Основные параметры',
+            'fields' => array(
+              array(
+                'view'         => 'fields/text',
+                'title'        => 'Внутреннее имя:',
+                'name'         => 'title',
+                'id'           => 'publication-title',
+                'maxlength'   => 256,
+                'value'       => $item['title'],
                 'description' => 'Используется только внутри панели администрирования',
-								'req' 			  => true
-							),
-							array(
-								'view' 			  => 'fields/text',
-								'title' 		  => 'Системное имя:',
-								'name' 			  => 'system_name',
-								'id' 				  => 'publication-alias',
-								'maxlength'   => 256,
-								'value' 		  => $item['system_name'],
+                'req'         => true
+              ),
+              array(
+                'view'         => 'fields/text',
+                'title'       => 'Системное имя:',
+                'name'         => 'system_name',
+                'id'           => 'publication-alias',
+                'maxlength'   => 256,
+                'value'       => $item['system_name'],
                 'description' => 'Используется для отображения публикаций данной категории в теле страницы',
-								'req' 			  => true
-							),
-							array(
-								'view' 			=> 'fields/text',
-								'title' 		=> 'Название:',
-								'name' 			=> 'name',
-								'languages' => $languages,
-								'value' 		=> $item['params'],
-								'maxlength' => 256
-							),
+                'req'         => true
+              ),
+              array(
+                'view'       => 'fields/text',
+                'title'     => 'Название:',
+                'name'       => 'name',
+                'languages' => $languages,
+                'value'     => $item['params'],
+                'maxlength' => 256
+              ),
               array(
                 'view'    => 'fields/select',
                 'title'   => 'Шаблон:',
@@ -313,34 +313,34 @@ class Publication_admin extends CI_Component {
                 'type'     => 'ajax',
                 'reaction' => 1
               )
-						)
-					),
-					array(
-						'title' => 'Дополнительные параметры',
-						'fields' => array(
-							array(
-								'view' 	=> 'fields/file',
-								'title' => 'Изображение (gif, png, jpg):',
-								'value' => $item['image'],
-								'name'	=> 'image'
-							),
-							array(
-								'view' 			  => 'fields/select',
-								'title' 		  => 'Связанные страницы:',
+            )
+          ),
+          array(
+            'title' => 'Дополнительные параметры',
+            'fields' => array(
+              array(
+                'view'   => 'fields/file',
+                'title' => 'Изображение (gif, png, jpg):',
+                'value' => $item['image'],
+                'name'  => 'image'
+              ),
+              array(
+                'view'         => 'fields/select',
+                'title'       => 'Связанные страницы:',
                 'description' => 'Укажите страницу, на которой будут отображаться публикации данной категории',
-								'name' 			  => 'page',
-								'options'  	  => $pages,
-								'value'			  => (isset($item['page_id']) ? $item['page_id'] : 0),
-								'multiple' 	  => false
-							),
-							array(
-								'view' 			  => 'fields/text',
-								'title' 		  => 'Публикаций на странице:',
+                'name'         => 'page',
+                'options'      => $pages,
+                'value'        => (isset($item['page_id']) ? $item['page_id'] : 0),
+                'multiple'     => false
+              ),
+              array(
+                'view'         => 'fields/text',
+                'title'       => 'Публикаций на странице:',
                 'description' => 'Количество публикаций, отображаемых на одной странице',
-								'name' 			  => 'in_page',
+                'name'         => 'in_page',
                 'value'       => $item['in_page'],
-								'maxlength'   => 3
-							),
+                'maxlength'   => 3
+              ),
               array(
                 'view'     => 'fields/submit',
                 'class'    => 'icon_small accept_i_s',
@@ -348,22 +348,22 @@ class Publication_admin extends CI_Component {
                 'type'     => 'ajax',
                 'reaction' => 1
               )
-						)
-					)
-				)
-			)),
+            )
+          )
+        )
+      )),
     ), TRUE);
   }
 
   function _edit_category_process($id) {
     $languages = $this->languages_model->get_languages(1, 0);
     $item = $this->publication_model->get_publication_one(array('id' => $id));
-		$item['image'] = "";
+    $item['image'] = "";
     $item['images'] = $this->gallery_model->get_gallery_images(array('path' => '/gallery_system/'.$this->params['name'].'/'.$item['system_name'].'/'),1,0);
     foreach ($item['images'] as $image) {
       $item['image'] = $image['image'];
     }
-		unset($image);
+    unset($image);
     
     $params = array(
       'template_id' => (int)$this->input->post('template_id'),
@@ -396,7 +396,7 @@ class Publication_admin extends CI_Component {
         'name' => htmlspecialchars(trim($this->input->post('name_'. $language['name']))),
       );
     }
-		
+    
     if (!$this->publication_model->_validate_publication_system_name($params['system_name'],$id)) {
       send_answer(array('errors' => array('Системное имя уже существует')));
     }
@@ -412,7 +412,7 @@ class Publication_admin extends CI_Component {
     
     $links = array(
       'page_id' => $this->input->post('page')
-    );		
+    );    
     if (!$this->publication_model->set_publication_links($id, $links)) {
       send_answer(array('errors' => array('Не удалось сохранить связи')));
     }
@@ -465,50 +465,50 @@ class Publication_admin extends CI_Component {
     }
     
     send_answer();
-	}
-		
-	/**
-	 *  Удаление категории публикаций
-	 * @param $id - id категории публикации
-	 */			
+  }
+    
+  /**
+   *  Удаление категории публикаций
+   * @param $id - id категории публикации
+   */      
   function delete_category($id) {
     $this->publication_model->delete_category((int)$id);
     send_answer();
-  }		
-	
-	/**
-	 *  Добавление публикации
-	 * @param $parent_id - id категории публикаций
-	 */		
+  }    
+  
+  /**
+   *  Добавление публикации
+   * @param $parent_id - id категории публикаций
+   */    
   function create_publication($parent_id) {
-		$parent = $this->publication_model->get_publication_one(array('id' => $parent_id));
+    $parent = $this->publication_model->get_publication_one(array('id' => $parent_id));
     $languages = $this->languages_model->get_languages(1, 0);
-		return $this->render_template('admin/inner', array(
+    return $this->render_template('admin/inner', array(
       'title' => 'Добавление публикации в категории "'.htmlspecialchars($parent['title']).'"',
-			'html' => $this->view->render_form(array(
+      'html' => $this->view->render_form(array(
         'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'_create_publication_process/'. $parent_id .'/',
-				'blocks' => array(
-					array(
-						'title' => 'Основные параметры',
-						'fields' => array(
-							array(
-								'view' 			  => 'fields/text',
-								'title' 		  => 'Внутреннее имя:',
-								'name' 			  => 'title',
-								'id' 				  => 'publication-title',
-								'maxlength'   => 256,
+        'blocks' => array(
+          array(
+            'title' => 'Основные параметры',
+            'fields' => array(
+              array(
+                'view'         => 'fields/text',
+                'title'       => 'Внутреннее имя:',
+                'name'         => 'title',
+                'id'           => 'publication-title',
+                'maxlength'   => 256,
                 'description' => 'Используется только внутри панели администрирования',
-								'req' 			  => true
-							),
-							array(
-								'view' 			  => 'fields/text',
-								'title' 		  => 'Системное имя:',
-								'name' 			  => 'system_name',
-								'id' 				  => 'publication-alias',
-								'maxlength'   => 256,
+                'req'         => true
+              ),
+              array(
+                'view'         => 'fields/text',
+                'title'       => 'Системное имя:',
+                'name'         => 'system_name',
+                'id'           => 'publication-alias',
+                'maxlength'   => 256,
                 'description' => 'Используется для отображения публикации в теле страницы',
-								'req' 			  => true
-							),
+                'req'         => true
+              ),
               array(
                 'view'    => 'fields/select',
                 'title'   => 'Шаблон:',
@@ -517,29 +517,29 @@ class Publication_admin extends CI_Component {
                 'value'   => $this->templates_model->get_template("publication_one"),
                 'req'     => TRUE
               ),
-							array(
-								'view' 			=> 'fields/textarea',
-								'title' 		=> 'Анонс:',
-								'name' 			=> 'text_small',
-								'languages' => $languages
-							),
-							array(
-								'view' 			=> 'fields/editor',
-								'title' 		=> 'Полный текст:',
-								'name' 			=> 'text_full',
-								'languages' => $languages,
-								'toolbar' 	=> 'Full'
-							),
-							array(
-								'view' 	=> 'fields/file',
-								'title' => 'Изображение (gif, png, jpg):',
-								'name' 	=> 'image'
-							),
-							array(
-								'view' 	=> 'fields/checkbox',
-								'title' => 'Публикация активна',
-								'name' 	=> 'active'
-							),
+              array(
+                'view'       => 'fields/textarea',
+                'title'     => 'Анонс:',
+                'name'       => 'text_small',
+                'languages' => $languages
+              ),
+              array(
+                'view'       => 'fields/editor',
+                'title'     => 'Полный текст:',
+                'name'       => 'text_full',
+                'languages' => $languages,
+                'toolbar'   => 'Full'
+              ),
+              array(
+                'view'   => 'fields/file',
+                'title' => 'Изображение (gif, png, jpg):',
+                'name'   => 'image'
+              ),
+              array(
+                'view'   => 'fields/checkbox',
+                'title' => 'Публикация активна',
+                'name'   => 'active'
+              ),
               array(
                 'view'     => 'fields/submit',
                 'class'    => 'icon_small accept_i_s',
@@ -547,21 +547,21 @@ class Publication_admin extends CI_Component {
                 'type'     => 'ajax',
                 'reaction' => $this->lang_prefix .'/admin'. $this->params['path'] . $parent_id .'/'
               )
-						)
-					),
-					array(
-						'title' => 'Дополнительные параметры',
-						'fields' => array(
-							array(
-								'view' 	=> 'fields/datetime',
-								'title' => 'Опубликовать с:',
-								'name'	=> 'tm_start'
-							),
-							array(
-								'view' 	=> 'fields/datetime',
-								'title' => 'Опубликовать до:',
-								'name' 	=> 'tm_end'
-							),
+            )
+          ),
+          array(
+            'title' => 'Дополнительные параметры',
+            'fields' => array(
+              array(
+                'view'   => 'fields/datetime',
+                'title' => 'Опубликовать с:',
+                'name'  => 'tm_start'
+              ),
+              array(
+                'view'   => 'fields/datetime',
+                'title' => 'Опубликовать до:',
+                'name'   => 'tm_end'
+              ),
               array(
                 'view'     => 'fields/submit',
                 'class'    => 'icon_small accept_i_s',
@@ -569,11 +569,11 @@ class Publication_admin extends CI_Component {
                 'type'     => 'ajax',
                 'reaction' => $this->lang_prefix .'/admin'. $this->params['path'] . $parent_id .'/'
               )
-						)
-					),
-					array(
-						'title' => 'Заголовки и SEO',
-						'fields' => array(
+            )
+          ),
+          array(
+            'title' => 'Заголовки и SEO',
+            'fields' => array(
               array(
                 'view'        => 'fields/text',
                 'title'       => 'Заголовок публикации:',
@@ -616,13 +616,13 @@ class Publication_admin extends CI_Component {
                 'type'     => 'ajax',
                 'reaction' => $this->lang_prefix .'/admin'. $this->params['path'] . $parent_id .'/'
               )
-						)
-					),
-				)
-			)),
-    ), TRUE);		
-	}
-	
+            )
+          ),
+        )
+      )),
+    ), TRUE);    
+  }
+  
   function _create_publication_process($parent_id) {
     $languages = $this->languages_model->get_languages(1, 0);
     
@@ -661,9 +661,9 @@ class Publication_admin extends CI_Component {
         'h1' => htmlspecialchars(trim($this->input->post('h1_'. $language['name']))),
         'keywords' => htmlspecialchars(trim($this->input->post('keywords_'. $language['name']))),
         'description' => htmlspecialchars(trim($this->input->post('description_'. $language['name'])))      
-			);
+      );
     }
-		
+    
     if (!$this->publication_model->_validate_publication_system_name($params['system_name'])) {
       send_answer(array('errors' => array('Системное имя уже существует')));
     }
@@ -728,16 +728,16 @@ class Publication_admin extends CI_Component {
     }
     
     send_answer();
-	}
-	
-	/**
-	 *  Редактирование публикации
-	 * @param $parent_id - id публикации
-	 */		
+  }
+  
+  /**
+   *  Редактирование публикации
+   * @param $parent_id - id публикации
+   */    
   function edit_publication($id) {
-		$item = $this->publication_model->get_publication_one(array('id' => $id));
+    $item = $this->publication_model->get_publication_one(array('id' => $id));
     $category = $this->publication_model->get_publication_one(array('id' => $item['parent_id']));
-		$item['image'] = "";
+    $item['image'] = "";
     $item['images'] = $this->gallery_model->get_gallery_images(array('path' => '/gallery_system/'.$this->params['name'].'/'.$category['system_name'].'/'.$item['system_name'].'/'),1,0);
     foreach ($item['images'] as $image) {
       $item['image'] = $image['image'];
@@ -745,34 +745,34 @@ class Publication_admin extends CI_Component {
     unset($image);
     $languages = $this->languages_model->get_languages(1, 0);    
     
-		return $this->render_template('admin/inner', array(
+    return $this->render_template('admin/inner', array(
       'title' => 'Редактирование публикации "'.htmlspecialchars($item['title']).'"',
-			'html' => $this->view->render_form(array(
+      'html' => $this->view->render_form(array(
         'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'_edit_publication_process/'. $id .'/',
-				'blocks' => array(
-					array(
-						'title' => 'Основные параметры',
-						'fields' => array(
-							array(
-								'view' 			  => 'fields/text',
-								'title' 		  => 'Внутреннее имя:',
-								'name' 			  => 'title',
-								'id' 				  => 'publication-title',
-								'maxlength'   => 256,
-								'value' 		  => $item['title'],
+        'blocks' => array(
+          array(
+            'title' => 'Основные параметры',
+            'fields' => array(
+              array(
+                'view'         => 'fields/text',
+                'title'       => 'Внутреннее имя:',
+                'name'         => 'title',
+                'id'           => 'publication-title',
+                'maxlength'   => 256,
+                'value'       => $item['title'],
                 'description' => 'Используется только внутри панели администрирования',
-								'req' 			  => true
-							),
-							array(
-								'view' 			  => 'fields/text',
-								'title' 		  => 'Системное имя:',
-								'name' 			  => 'system_name',
-								'id' 				  => 'publication-alias',
-								'maxlength'   => 256,
-								'value' 		  => $item['system_name'],
+                'req'         => true
+              ),
+              array(
+                'view'         => 'fields/text',
+                'title'       => 'Системное имя:',
+                'name'         => 'system_name',
+                'id'           => 'publication-alias',
+                'maxlength'   => 256,
+                'value'       => $item['system_name'],
                 'description' => 'Используется для отображения публикации в теле страницы',
-								'req' 			  => true
-							),
+                'req'         => true
+              ),
               array(
                 'view'    => 'fields/select',
                 'title'   => 'Шаблон:',
@@ -781,33 +781,33 @@ class Publication_admin extends CI_Component {
                 'value'   => $item['template_id'],
                 'req'     => TRUE
               ),
-							array(
-								'view'			=> 'fields/textarea',
-								'title' 		=> 'Анонс:',
-								'name' 			=> 'text_small',
-								'value' 		=> $item['params'],
-								'languages' => $languages
-							),
-							array(
-								'view' 			=> 'fields/editor',
-								'title' 		=> 'Полный текст:',
-								'name' 			=> 'text_full',
-								'value' 		=> $item['params'],
-								'languages' => $languages,
-								'toolbar' 	=> 'Full'
-							),
-							array(
-								'view'	=> 'fields/file',
-								'title' => 'Изображение (gif, png, jpg):',
-								'name' 	=> 'image',
-								'value' => $item['image'],
-							),
-							array(
-								'view' 		=> 'fields/checkbox',
-								'title' 	=> 'Публикация активна',
-								'name'		=> 'active',
-								'checked' => $item['active'],
-							),
+              array(
+                'view'      => 'fields/textarea',
+                'title'     => 'Анонс:',
+                'name'       => 'text_small',
+                'value'     => $item['params'],
+                'languages' => $languages
+              ),
+              array(
+                'view'       => 'fields/editor',
+                'title'     => 'Полный текст:',
+                'name'       => 'text_full',
+                'value'     => $item['params'],
+                'languages' => $languages,
+                'toolbar'   => 'Full'
+              ),
+              array(
+                'view'  => 'fields/file',
+                'title' => 'Изображение (gif, png, jpg):',
+                'name'   => 'image',
+                'value' => $item['image'],
+              ),
+              array(
+                'view'     => 'fields/checkbox',
+                'title'   => 'Публикация активна',
+                'name'    => 'active',
+                'checked' => $item['active'],
+              ),
               array(
                 'view'     => 'fields/submit',
                 'class'    => 'icon_small accept_i_s',
@@ -815,23 +815,23 @@ class Publication_admin extends CI_Component {
                 'type'     => 'ajax',
                 'reaction' => 1
               )
-						)
-					),
-					array(
-						'title' => 'Дополнительные параметры',
-						'fields' => array(
-							array(
-								'view' 	=> 'fields/datetime',
-								'title' => 'Опубликовать с:',
-								'name' 	=> 'tm_start',
-								'value' => ($item['tm_start'] ? date('d.m.Y H:i', strtotime($item['tm_start'])) : '')
-							),
-							array(
-								'view' 	=> 'fields/datetime',
-								'title' => 'Опубликовать до:',
-								'name'	=> 'tm_end',
-								'value' => ($item['tm_end'] ? date('d.m.Y H:i', strtotime($item['tm_end'])) : '')
-							),
+            )
+          ),
+          array(
+            'title' => 'Дополнительные параметры',
+            'fields' => array(
+              array(
+                'view'   => 'fields/datetime',
+                'title' => 'Опубликовать с:',
+                'name'   => 'tm_start',
+                'value' => ($item['tm_start'] ? date('d.m.Y H:i', strtotime($item['tm_start'])) : '')
+              ),
+              array(
+                'view'   => 'fields/datetime',
+                'title' => 'Опубликовать до:',
+                'name'  => 'tm_end',
+                'value' => ($item['tm_end'] ? date('d.m.Y H:i', strtotime($item['tm_end'])) : '')
+              ),
               array(
                 'view'     => 'fields/submit',
                 'class'    => 'icon_small accept_i_s',
@@ -839,17 +839,17 @@ class Publication_admin extends CI_Component {
                 'type'     => 'ajax',
                 'reaction' => 1
               )
-						)
-					),
-					array(
-						'title' => 'Заголовки и SEO',
-						'fields' => array(
+            )
+          ),
+          array(
+            'title' => 'Заголовки и SEO',
+            'fields' => array(
               array(
                 'view'        => 'fields/text',
                 'title'       => 'Заголовок публикации:',
                 'name'        => 'name',
                 'description' => 'Используется при отображении публикации на странице',
-								'value' 			=> $item['params'],
+                'value'       => $item['params'],
                 'languages'   => $languages
               ),
               array(
@@ -857,7 +857,7 @@ class Publication_admin extends CI_Component {
                 'title'       => 'Заголовок страницы:',
                 'description' => 'Отображается в заголовке окна браузера (мета-тег TITLE)',
                 'name'        => 'title',
-								'value' 			=> $item['params'],
+                'value'       => $item['params'],
                 'languages'   => $languages
               ),
               array(
@@ -865,7 +865,7 @@ class Publication_admin extends CI_Component {
                 'title'       => 'Заголовок в теле страницы:',
                 'description' => 'Подставляется в тег H1',
                 'name'        => 'h1',
-								'value' 			=> $item['params'],
+                'value'       => $item['params'],
                 'languages'   => $languages
               ),
               array(
@@ -873,7 +873,7 @@ class Publication_admin extends CI_Component {
                 'title'       => 'Ключевые слова:',
                 'description' => 'Подставляются в мета-тег KEYWORDS',
                 'name'        => 'keywords',
-								'value' 			=> $item['params'],
+                'value'       => $item['params'],
                 'languages'   => $languages
               ),
               array(
@@ -881,7 +881,7 @@ class Publication_admin extends CI_Component {
                 'title'       => 'Описание:',
                 'description' => 'Подставляется в мета-тег DESCRIPTION',
                 'name'        => 'description',
-								'value' 			=> $item['params'],
+                'value'       => $item['params'],
                 'languages'   => $languages
               ),
               array(
@@ -891,23 +891,23 @@ class Publication_admin extends CI_Component {
                 'type'     => 'ajax',
                 'reaction' => 1
               )
-						)
-					),
-				)
-			)),
-			'back' => $this->lang_prefix .'/admin'. $this->params['path'] . $item['parent_id'] .'/'
-    ), TRUE);		
-	}
-	
+            )
+          ),
+        )
+      )),
+      'back' => $this->lang_prefix .'/admin'. $this->params['path'] . $item['parent_id'] .'/'
+    ), TRUE);    
+  }
+  
   function _edit_publication_process($id) {
     $item = $this->publication_model->get_publication_one(array('id' => $id));
     $category = $this->publication_model->get_publication_one(array('id' => $item['parent_id']));
-		$item['image'] = "";
+    $item['image'] = "";
     $item['images'] = $this->gallery_model->get_gallery_images(array('path' => '/gallery_system/'.$this->params['name'].'/'.$category['system_name'].'/'.$item['system_name'].'/'),1,0);
     foreach ($item['images'] as $image) {
       $item['image'] = $image['image'];
     }
-    unset($image);		
+    unset($image);    
     $languages = $this->languages_model->get_languages(1, 0);
     
     $params = array(
@@ -949,13 +949,13 @@ class Publication_admin extends CI_Component {
         'h1' => htmlspecialchars(trim($this->input->post('h1_'. $language['name']))),
         'keywords' => htmlspecialchars(trim($this->input->post('keywords_'. $language['name']))),
         'description' => htmlspecialchars(trim($this->input->post('description_'. $language['name'])))        
-			);
+      );
     }
-		
+    
     if (!$this->publication_model->_validate_publication_system_name($params['system_name'],$id)) {
       send_answer(array('errors' => array('Системное имя уже существует')));
     }
-		
+    
     $errors = $this->_validate_params($params);
     if ($errors) {
       send_answer(array('errors' => $errors));
@@ -1019,34 +1019,34 @@ class Publication_admin extends CI_Component {
     }
     
     send_answer();
-	}
+  }
 
-	/**
-	 *  Удаление публикаций
-	 * @param $id - id публикации
-	 */			
+  /**
+   *  Удаление публикаций
+   * @param $id - id публикации
+   */      
   function delete_publication($parent_id, $id) {
     $this->publication_model->delete_publication((int)$id);
-		send_answer();
+    send_answer();
     header('Location: '. $this->lang_prefix .'/admin'. $this->params['path'] . $parent_id .'/');
-  }	
+  }  
 
-	/**
-	 *  Включение публикаций
-	 * @param $id - id публикации
-	 */	  
+  /**
+   *  Включение публикаций
+   * @param $id - id публикации
+   */    
   function enable_publication($parent_id, $id) {
     $this->publication_model->edit_publication((int)$id, array('active' => 1));
     header('Location: '. $this->lang_prefix .'/admin'. $this->params['path'] . $parent_id .'/');
   }
 
-	/**
-	 *  Выключение публикаций
-	 * @param $id - id публикации
-	 */	    
+  /**
+   *  Выключение публикаций
+   * @param $id - id публикации
+   */      
   function disable_publication($parent_id, $id) {
     $this->publication_model->edit_publication((int)$id, array('active' => 0));
     header('Location: '. $this->lang_prefix .'/admin'. $this->params['path'] . $parent_id .'/');
-  }		
+  }    
 
 }
