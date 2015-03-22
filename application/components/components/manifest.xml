@@ -9,7 +9,7 @@
   
   <install>
     <menu>primary</menu>
-    <icon>glyphicon-th</icon>
+    <icon>glyphicon glyphicon-menu-hamburger</icon>
   </install>
   
 </component>

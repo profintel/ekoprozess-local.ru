@@ -22,19 +22,19 @@
           <li class="nav-header">
             <div class="hidden-xs">            
               <div class="dropdown">
-                <span class="logo-element">
-                  <? if (isset($_admin['image']) && $_admin['image']) { ?>
-                    <img src="/adm/images/logo.png" class="img-circle" alt="<?=$_admin['username'];?>">
-                  <? } else { ?>
-                    <img src="/components/accounts/media/user.png" class="img-circle" alt="<?=$_admin['username'];?>">
-                  <? } ?>
-                </span>
-                <div class="visible-lg-block">
-                  <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                    <? if (isset($_admin['params']['name']) && $_admin['params']['name']) { ?>
-                      <div class="font-bold"><?=$_admin['params']['name'];?></div>
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                  <span class="logo-element">
+                    <? if (isset($_admin['image']) && $_admin['image']) { ?>
+                      <img src="/adm/images/logo.png" class="img-circle" alt="<?=$_admin['username'];?>">
+                    <? } else { ?>
+                      <img src="/components/accounts/media/user.png" class="img-circle" alt="<?=$_admin['username'];?>">
                     <? } ?>
-                    <div class="font-bold">
+                  </span>
+                  <div class="visible-lg-block">
+                    <? if (isset($_admin['params']['name']) && $_admin['params']['name']) { ?>
+                      <div class=""><?=$_admin['params']['name'];?></div>
+                    <? } ?>
+                    <div class="">
                       <? if (isset($_admin['params']['post']) && $_admin['params']['post']) { ?>
                         <span><?=$_admin['params']['post'];?></span>
                       <? } else { ?>
@@ -42,18 +42,18 @@
                       <? } ?>
                       <b class="caret"></b>
                     </div>
-                  </a>
-                  <ul class="dropdown-menu">
-                    <li><a href="/admin/administrators/profile/">Сменить пароль</a></li>
-                    <li class="divider"></li>
-                    <li><a href="/autorization/close/"><span class="glyphicon glyphicon-log-out"></span> Выйти</a></li>
-                  </ul>
-                </div>
+                  </div>
+                </a>
+                <ul class="dropdown-menu">
+                  <li><a href="/admin/administrators/profile/">Сменить пароль</a></li>
+                  <li class="divider"></li>
+                  <li><a href="/autorization/close/"><span class="glyphicon glyphicon-log-out"></span> Выйти</a></li>
+                </ul>
               </div>
             </div>
             <div class="menu-primary-element visible-xs-block">
               <div class="dropdown">
-                <a href="#" class="dropdown-toggle btn btn-success btn-xs" data-toggle="dropdown">
+                <a href="#" class="dropdown-toggle btn btn-primary btn-xs" data-toggle="dropdown">
                   <span class="glyphicon glyphicon-align-justify"></span>
                 </a>
                 <ul class="dropdown-menu">
@@ -108,6 +108,11 @@
       </div>
       <div id="content" class="">
         <?=$_html;?>
+      </div>
+      <div id="progress-main" class="well">
+        <div class="progress">
+          <div class="progress-bar progress-bar-striped" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+        </div>
       </div>
     </div>
   </div>

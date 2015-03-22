@@ -4,9 +4,9 @@
   </h1>
 </div>
 <div class="container-fluid">
-  <div class="panel">
+  <div class="panel panel-primary">
     <div class="panel-heading">
-      <div class="panel-heading-title"><span class="glyphicon <?=(@$item['icon']?$item['icon']:'glyphicon-ok');?>"></span> <?=$item['title'];?></div>
+      <span class="glyphicon <?=(@$item['icon']?$item['icon']:'glyphicon-ok');?>"></span> <?=$item['title'];?>
     </div>
     <div class="panel-body">
       <? if ($item['description']) { ?>
@@ -51,7 +51,7 @@
           
           <p>
             <a href="#" onClick="return send_request('<?=$_lang_prefix;?>/admin<?=$_component['path'];?>refresh/<?=$item['id'];?>/');">
-              <span class="glyphicon glyphicon-refresh font-bold"></span> Обновить кэш
+              <span class="glyphicon glyphicon-refresh"></span> Обновить кэш
             </a>
           </p>
           
@@ -64,7 +64,7 @@
                 '<?=$_lang_prefix;?>/admin<?=$_component['path'];?>'
               );"
             >
-              <span class="glyphicon glyphicon-remove text-danger font-bold"></span> Удалить компонент
+              <span class="glyphicon glyphicon-trash"></span> Удалить компонент
             </a>
           </p>
         </div>

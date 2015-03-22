@@ -7,31 +7,31 @@
 <div class="container-fluid wrapper-list container-gallery">
   <? if (!$parent_id) { ?>
     <div class="clearfix well-sm">
-      <a href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>create_album/" class="btn btn-success btn-sm pull-right">
+      <a href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>create_album/" class="btn btn-primary btn-xs pull-right">
         <span class="glyphicon glyphicon-plus"></span> Создать альбом
       </a>
     </div>
   <? } else { ?>
     <div class="row clearfix well-sm hidden-xs">
       <div class="col-sm-3 col-md-2 pull-right">
-        <a class="btn btn-success btn-sm btn-block" href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>add_youtube/<?=$parent_id;?>/">
+        <a class="btn btn-primary btn-xs btn-block" href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>add_youtube/<?=$parent_id;?>/">
           <span class="glyphicon glyphicon-plus"></span> YouTube
         </a>&nbsp;
       </div>
       <div class="col-sm-3 col-md-2 pull-right">
-        <a class="btn btn-success btn-sm btn-block" href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>add_video/<?=$parent_id;?>/">
+        <a class="btn btn-primary btn-xs btn-block" href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>add_video/<?=$parent_id;?>/">
           <span class="glyphicon glyphicon-plus"></span> Видео
         </a>&nbsp;
       </div>
       <div class="col-sm-3 col-md-2 pull-right">
-        <a class="btn btn-success btn-sm btn-block" href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>add_image/<?=$parent_id;?>/">
+        <a class="btn btn-primary btn-xs btn-block" href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>add_image/<?=$parent_id;?>/">
           <span class="glyphicon glyphicon-plus"></span> Изображение
         </a>
       </div>
     </div>
     <div class="visible-xs-block clearfix">
       <div class="dropdown well-sm pull-right">
-        <a href="#" class="dropdown-toggle btn btn-success btn-xs" data-toggle="dropdown">
+        <a href="#" class="dropdown-toggle btn btn-primary btn-xs" data-toggle="dropdown">
           <span class="glyphicon glyphicon-align-justify"></span>
         </a>
         <ul class="dropdown-menu">
@@ -55,33 +55,35 @@
     </div>
   <? } ?>
 
-  <? foreach ($albums as $item) { ?>
-    <div class="clearfix item-list">
-      <div class="col-md-9 col-sm-8 col-xs-8">
-        <div class="title">
-          <a href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?><?=$item['id'];?>/" title="Перейти">
-            <span class="glyphicon glyphicon-folder-open"></span>&emsp;<?=$item['title'];?> / <?=$item['system_name'];?>
-          </a>
+  <ul class="list-group">
+    <? foreach ($albums as $item) { ?>
+      <li class="clearfix list-group-item">
+        <div class="col-md-9 col-sm-8 col-xs-8">
+          <div class="title">
+            <a href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?><?=$item['id'];?>/" title="Перейти">
+              <span class="glyphicon glyphicon-folder-open"></span>&emsp;<?=$item['title'];?> / <?=$item['system_name'];?>
+            </a>
+          </div>
         </div>
-      </div>
-      <div class="col-md-3 col-sm-4 col-xs-4">
-        <div class="buttons">
-          <a href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?><?=$item['id'];?>/" class="glyphicon glyphicon-share" title="Перейти"></a>
-          <a href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>edit_album/<?=$item['id'];?>/" class="glyphicon glyphicon-edit" title="Редактировать"></a>
-          <a href="#"
-            onClick="return send_confirm(
-              'Вы уверены, что хотите удалить галерею и все изображения в этой галерее?',
-              '<?=$_lang_prefix;?>/admin<?=$_component['path'];?>delete_gallery/<?=$item['id'];?>/',
-              {},
-              'reload'
-            );"
-            class="glyphicon glyphicon-trash"
-            title="Удалить"
-          ></a>
+        <div class="col-md-3 col-sm-4 col-xs-4">
+          <div class="buttons text-right">
+            <a href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?><?=$item['id'];?>/" class="glyphicon glyphicon-share" title="Перейти"></a>
+            <a href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>edit_album/<?=$item['id'];?>/" class="glyphicon glyphicon-edit" title="Редактировать"></a>
+            <a href="#"
+              onClick="return send_confirm(
+                'Вы уверены, что хотите удалить галерею и все изображения в этой галерее?',
+                '<?=$_lang_prefix;?>/admin<?=$_component['path'];?>delete_gallery/<?=$item['id'];?>/',
+                {},
+                'reload'
+              );"
+              class="glyphicon glyphicon-trash"
+              title="Удалить"
+            ></a>
+          </div>
         </div>
-      </div>
-    </div>
-  <? } ?>
+      </li>
+    <? } ?>
+  </ul>
 
   <? if ($images) { ?>
     <div class="row image">

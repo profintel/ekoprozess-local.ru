@@ -150,9 +150,11 @@ var defButtons = {
 
 function sheet(action) {
   if (action == 'hide') {
-    $('#sheet, #sheet_loading').hide();
+    $('#progress-main .progress-bar').removeClass('active');
+    $('#progress-main').hide();
   } else {
-    $('#sheet, #sheet_loading').show();
+    $('#progress-main .progress-bar').addClass('active');
+    $('#progress-main').show();
   }
   
   return false;

@@ -4,10 +4,10 @@
   </h1>
 </div>
 <div class="container-fluid">
-  <div class="panel">
+  <div class="panel panel-primary">
     <div class="panel-heading">
       <? if (isset($item['title']) && $item['title']) { ?>
-        <div class="panel-heading-title"><span class="glyphicon <?=(@$item['icon']?$item['icon']:'glyphicon-ok');?>"></span> <?=$item['title'];?></div>
+        <span class="glyphicon <?=(@$item['icon']?$item['icon']:'glyphicon-ok');?>"></span> <?=$item['title'];?>
       <? } ?>
     </div>
     

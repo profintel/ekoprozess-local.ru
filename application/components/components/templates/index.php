@@ -1,29 +1,31 @@
-<div class="block-title clearfix">
-  <h1 class="pull-left"><span class="glyphicon <?=($_component['icon']?$_component['icon']:'glyphicon-ok');?>"></span>
+<div class="block-title">
+  <h1>
+    <span class="glyphicon <?=($_component['icon']?$_component['icon']:'glyphicon-ok');?>"></span>
     Управление компонентами
   </h1>
-  <a class="pull-right btn btn-success btn-sm" href="javascript:void(0);" onClick="send_request('<?=$_lang_prefix;?>/admin<?=$_component['path'];?>refresh/');">
-    <span class="glyphicon glyphicon-refresh font-bold"></span> Обновить кэш
-  </a>
 </div>
 <div class="container-fluid">
+  <div class="clearfix block_mb20">
+    <a class="pull-right btn btn-primary btn-xs" href="javascript:void(0);" onClick="send_request('<?=$_lang_prefix;?>/admin<?=$_component['path'];?>refresh/');">
+      <span class="glyphicon glyphicon-refresh"></span> Обновить кэш
+    </a>
+  </div>
   <div class="<?=(!$uninstalled ?:"col-md-6");?>">
     <div class="panel">
       <div class="panel-heading">
-        <div class="panel-heading-title">
-          <span class="glyphicon <?=($_component['icon']?$_component['icon']:'glyphicon-ok');?>"></span> Установленные компоненты
-        </div>
+        <h5><span class="glyphicon <?=($_component['icon']?$_component['icon']:'glyphicon-ok');?>"></span> Установленные компоненты</h5>
       </div>
-      <table class="table table-hover table-striped">
+      <ul class="list-group">
         <? foreach ($installed as $item) { ?>
-          <tr>
-            <td width="5%"><span class="glyphicon <?=($item['icon']?$item['icon']:'glyphicon-ok');?>"></span></td>
-            <td width="80%"><a class="text-dark" href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>installed/<?=$item['id'];?>/"><?=$item['title'];?></a></td>
-            <td width="15%">
-              <div class="table-btn-group text-right">
+          <li class="clearfix list-group-item">
+            <a class="col-md-9 col-sm-8 col-xs-8" href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>installed/<?=$item['id'];?>/">
+              <span class="glyphicon <?=($item['icon']?$item['icon']:'glyphicon-ok');?>"></span>&emsp;<?=$item['title'];?>
+            </a>
+            <div class="col-md-3 col-sm-4 col-xs-4">
+              <div class="buttons text-right">
                 <a href="#"
                   onClick="return send_request('<?=$_lang_prefix;?>/admin<?=$_component['path'];?>refresh/<?=$item['id'];?>/');"
-                  class="glyphicon glyphicon-refresh text-success font-bold btn"
+                  class="glyphicon glyphicon-refresh"
                   title="Обновить кэш"
                 ></a>
                 <a href="#"
@@ -33,33 +35,33 @@
                     {},
                     '<?=$_lang_prefix;?>/admin<?=$_component['path'];?>'
                   );"
-                  class="glyphicon glyphicon-remove text-danger font-bold btn"
+                  class="glyphicon glyphicon-trash"
                   title="Удалить компонент"
                 ></a>
               </div>
-
-            </td>
-          </tr>
+            </div>
+          </li>
         <? } ?>
-      </table>
+      </ul>
     </div>
   </div>
   <? if ($uninstalled) { ?>
     <div class="col-md-6">
       <div class="panel">
         <div class="panel-heading">
-          <div class="panel-heading-title">
+          <h5>
             <span class="glyphicon <?=($_component['icon']?$_component['icon']:'glyphicon-ok');?>"></span> Доступные компоненты
-          </div>
+          </h5>
         </div>
 
-        <table class="table table-hover table-striped">
+        <ul class="list-group">
           <? foreach ($uninstalled as $item) { ?>
-            <tr>
-              <td width="5%"><span class="glyphicon <?=(@$item['icon']?$item['icon']:'glyphicon-ok');?>"></span></td>
-              <td width="80%"><a class="text-dark" href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>uninstalled/<?=$item['name'];?>/"><?=$item['title'];?></a></td>
-              <td width="15%">
-                <div class="table-btn-group text-right">
+            <li class="clearfix list-group-item">
+              <a class="col-md-9 col-sm-8 col-xs-8" href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>uninstalled/<?=$item['name'];?>/">
+                <span class="glyphicon <?=(@$item['icon']?$item['icon']:'glyphicon-ok');?>"></span>&emsp;<?=$item['title'];?>
+              </a>
+              <div class="col-md-3 col-sm-4 col-xs-4">
+                <div class="buttons text-right">
                   <? if (!$item['errors']) { ?>
                     <a href="#"
                       onClick="return send_request(
@@ -67,15 +69,15 @@
                         {},
                         '<?=$_lang_prefix;?>/admin<?=$_component['path'];?>'
                       );"
-                      class="glyphicon glyphicon-plus btn"
+                      class="glyphicon glyphicon-plus"
                       title="Установить компонент"
                     ></a>
                   <? } ?>
                 </div>
-              </td>
-            </tr>
+              </div>
+            </li>
           <? } ?>
-        </table>
+        </ul>
       </div>
     </div>
   <? } ?>
