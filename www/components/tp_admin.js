@@ -1,4 +1,4 @@
-/*** Generated 22.03.2015 16:10:44 ***/
+/*** Generated 22.03.2015 19:02:06 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -3691,9 +3691,7 @@ function send_request(url, data, reaction, context) {
   return false;
 }
 
-function submit_form(context, reaction, uri_postfix) {
-  sheet();
-  
+function submit_form(context, reaction, uri_postfix) {  
   var form = $(context).parents('form');
   var path = form.attr('action');
   
@@ -3729,9 +3727,21 @@ function handle_answer(answer, reaction, context) {
   if (answer.sysmsg) {
     return handle_sysmsg(answer.sysmsg);
   }
-  
-  if (typeof(answer.errors) == 'object' && answer.errors.length) {
-    return my_modal('error', 'Возникли следующие ошибки:', answer.errors, 'OK');
+
+  if (typeof(answer.errors) == 'object' && answer.errors) {    
+    // return my_modal('error', 'Возникли следующие ошибки:', answer.errors, 'OK');
+    var form = $(context).parents('form'), input, error;
+    $.each(answer.errors, function(key,item){
+      input = form.find('[name="'+key+'"]');
+      if (input.length){
+        input.parents('.form-group').addClass('has-error');
+      } else {
+        error = form.children('.form-error');
+        error.text(item).addClass('alert alert-danger');
+        $(document).scrollTop(error.scrollTop());
+      }
+    })
+    console.log(answer.errors);
   } else {
     if (!reaction) {
       if (typeof(answer.messages) == 'object' && answer.messages.length) {
@@ -3817,7 +3827,7 @@ function make_button(container, button) {
   $(document.createElement('a'))
     .attr({
       href: (button.link ? button.link : '#'),
-      'class': 'btn btn-info btn-sm'
+      'class': 'btn btn-primary btn-xs'
     })
     .html(button.text ? (button.icon ? '<span class="glyphicon '+ button.icon +'"></span> ' : '')+button.text : '')
     .click(button.handler)

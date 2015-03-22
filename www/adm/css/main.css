@@ -5,6 +5,9 @@ html,body {
 body {
   color: #676a6c;
 }
+.modal-dialog{
+  z-index: 2000;
+}
 #wrapper{
   min-height: 100%;
   position: relative;

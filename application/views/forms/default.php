@@ -6,6 +6,7 @@
   enctype="<?=$vars['enctype'];?>"
   <?=($vars['onsubmit'] ? ' onSubmit="'. $vars['onsubmit'] .'"' : '');?>
 >
+  <div class="form-error"></div>
   <? foreach ($vars['blocks'] as $block) { ?>
     <div class="form_block<?=(isset($block['class']) ? ' '. $block['class'] : '');?>">
       <? if (isset($block['title'])) { ?>

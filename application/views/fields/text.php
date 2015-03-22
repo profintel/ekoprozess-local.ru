@@ -1,7 +1,7 @@
 <div class="form-group">
   <div class="col-sm-2">
     <? if (isset($vars['title']) && $vars['title']) { ?>
-      <label for="<?=(isset($vars['id']) ? $vars['id'] : (isset($vars['name']) ? $vars['name'] : ''));?>" >
+      <label class="control-label" for="<?=(isset($vars['id']) ? $vars['id'] : (isset($vars['name']) ? $vars['name'] : ''));?>" >
         <? if (isset($vars['icon'])) { ?>
           <img src="<?=$vars['icon'];?>" class="icon" />
         <? } ?>

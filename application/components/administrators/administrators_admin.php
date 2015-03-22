@@ -64,7 +64,6 @@ class Administrators_admin extends CI_Component {
                 'title'     => 'Пароль:',
                 'name'       => 'password',
                 'maxlength' => 256,
-                'description' => 'Текущий пароль',
                 'req'       => true
               ),
               array(
@@ -114,12 +113,13 @@ class Administrators_admin extends CI_Component {
   
   function _validate_create_params($params) {
     $errors = array();
-    if (!$params['username']) { $errors[] = 'Не указан логин'; }
+    if (!$params['username']) { $errors['username'] = 'Не указан логин'; }
     if ($this->db->get_where('admins', array('username' => $params['username']))->num_rows()) {
       $errors[] = 'Пользователь с таким логином уже существует в базе данных'; 
     }
-    if (!$params['password']) { $errors[] = 'Не указан пароль'; }
-    if ($params['password'] != $params['re_password']) { $errors[] = 'Пароль не совпадает с повтором'; }
+    if (!$params['password']) { $errors['password'] = 'Не указан пароль'; }
+    if (!$params['re_password']) { $errors['re_password'] = 'Не указан повтор пароля'; }
+    if ($params['password'] != $params['re_password']) { $errors['re_password'] = 'Пароль не совпадает с повтором'; }
     return $errors;
   }  
   
