@@ -26,20 +26,20 @@ class Autorization extends PR_Controller {
             'title'  => '',
             'fields' => array(
               array(
-                'view'      => 'fields/text',
-                'title'     => 'Логин:',
-                'name'      => 'username',
-                'autofocus' => TRUE
+                'view'        => 'fields/text',
+                'title'       => 'Логин:',
+                'name'        => 'username',
+                'autofocus'   => TRUE
               ),
               array(
-                'view'  => 'fields/password',
-                'title' => 'Пароль:',
-                'name'  => 'password'
+                'view'        => 'fields/password',
+                'title'       => 'Пароль:',
+                'name'        => 'password'
               ),
               array(
                 'view'     => 'fields/submit',
                 'id'       => 'autorization-submit',
-                'class'    => 'icon_small door_in_i_s',
+                'class'    => '',
                 'title'    => 'Войти',
                 'type'     => 'ajax',
                 'reaction' => '/admin/'
@@ -54,8 +54,17 @@ class Autorization extends PR_Controller {
 	}
   
   function process() {
+    $errors = array();
+    if (!$this->input->post('username')) {
+      $errors['username'] = 'Укажите имя пользователя';
+    }
+    if (!$this->input->post('password')) {
+      $errors['password'] = 'Укажите пароль';
+    }
+    if ($errors) {
+      send_answer(array('errors' => $errors));
+    }
     $admin = $this->autorization_model->check_admin($this->input->post('username'), $this->input->post('password'));
-    
     if (!$admin) {
       send_answer(array('errors' => array('Неверное имя пользователя или пароль')));
     }

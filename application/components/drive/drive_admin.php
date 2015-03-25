@@ -10,7 +10,7 @@ class Drive_admin extends CI_Component {
     require_once '/google-api-php-client/src/contrib/Google_DriveService.php';
     
     $this->client = new Google_Client();
-    
+    var_dump($this->client->isAccessTokenExpired());
     if($this->client->isAccessTokenExpired() === false){
       //Get your credentials from the console
       $this->client->setClientId('73563138901-a7lq5o3afm5oekd200192ifogl8o1hj9.apps.googleusercontent.com');

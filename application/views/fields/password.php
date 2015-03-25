@@ -29,6 +29,7 @@
       <?=(isset($vars['value']) ? 'value="'. $vars['value'] .'"' : '');?>
       <?=(isset($vars['autofocus']) && $vars['autofocus'] ? 'autofocus="autofocus"' : '');?>
       <?=(isset($vars['disabled']) && $vars['disabled'] ? 'disabled="disabled"' : '');?>
+      <?=(isset($vars['placeholder']) ? 'placeholder="'. $vars['placeholder'] .'"' : '');?>
     />
   </div>
   

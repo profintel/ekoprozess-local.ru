@@ -228,7 +228,7 @@ function handle_answer(answer, reaction, context) {
     return handle_sysmsg(answer.sysmsg);
   }
 
-  if (typeof(answer.errors) == 'object' && answer.errors) {    
+  if (typeof(answer.errors) == 'object' && !$.isEmptyObject(answer.errors)) {    
     // return my_modal('error', 'Возникли следующие ошибки:', answer.errors, 'OK');
     var form = $(context).parents('form'), input, error;
     $.each(answer.errors, function(key,item){

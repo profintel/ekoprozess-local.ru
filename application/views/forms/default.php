@@ -9,7 +9,7 @@
   <div class="form-error"></div>
   <? foreach ($vars['blocks'] as $block) { ?>
     <div class="form_block<?=(isset($block['class']) ? ' '. $block['class'] : '');?>">
-      <? if (isset($block['title'])) { ?>
+      <? if (isset($block['title']) && $block['title']) { ?>
         <div class="panel-heading"><h4><?=$block['title'];?></h4></div>
       <? } ?>
       <div class="panel-body"><?=$block['fields'];?></div>

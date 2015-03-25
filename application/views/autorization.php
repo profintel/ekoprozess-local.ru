@@ -8,14 +8,18 @@
   
   <title>ЭКО-процессинг - Авторизация</title>
 </head>
-<body class="black-bg">
+<body class="gray-bg">
   
-  <div id="autorization" class="panel">
-    <h2>Авторизация</h2>
-    <div class="inner">
-      
-      <?=$form;?>
-      
+  <div id="wrapper_autorization">
+    <div id="autorization" class="container">
+      <div class="panel">
+        <h2 class="text-left">Вход</h2>
+        <div class="inner">
+          
+          <?=$form;?>
+          
+        </div>
+      </div>
     </div>
   </div>
     
