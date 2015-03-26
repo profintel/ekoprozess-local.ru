@@ -9,7 +9,6 @@ class PR_Controller extends CI_Controller {
   public $admin_id;
   public $placement;
   public $project;
-  public $user;
   
   function __construct() {
     parent::__construct();

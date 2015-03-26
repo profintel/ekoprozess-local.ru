@@ -28,5 +28,12 @@ class Admin_model extends CI_Model {
   function get_admin($id) {
     return $this->db->get_where('admins', array('id' => $id))->row_array();
   }
+
+  function update_admin($id, $params) {
+    if ($this->db->update('admins', $params, array('id' => $id))) {
+      return true;
+    }
+    return false;
+  }
   
 }
