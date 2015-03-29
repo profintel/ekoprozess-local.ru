@@ -1,4 +1,4 @@
-/*** Generated 25.03.2015 22:04:20 ***/
+/*** Generated 29.03.2015 23:22:14 ***/
 
 /*** FILE /js/__jquery.js ***/
 
@@ -1177,3 +1177,6 @@ function alert_message(message) {
 $(function() {
   $('a.zoom').lightBox();
 })
+
+/*** cities ***/
+

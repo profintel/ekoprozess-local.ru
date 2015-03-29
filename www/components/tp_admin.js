@@ -1,4 +1,4 @@
-/*** Generated 25.03.2015 22:04:20 ***/
+/*** Generated 29.03.2015 23:22:14 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -3644,8 +3644,8 @@ function search_item_del(name,component,item) {
 }
 
 var defButtons = {
-  'OK':     {text: 'OK',     handler: function() { return my_modal('hide'); }, icon: 'glyphicon-ok'},
-  'CANCEL': {text: 'Отмена', handler: function() { return my_modal('hide'); }, icon: 'glyphicon-remove'}
+  'OK':     {text: 'OK',     handler: function() { my_modal('hide'); sheet('hide'); }, icon: 'glyphicon-ok'},
+  'CANCEL': {text: 'Отмена', handler: function() { my_modal('hide'); sheet('hide'); }, icon: 'glyphicon-remove'}
 };
 
 function sheet(action) {
@@ -3691,7 +3691,8 @@ function send_request(url, data, reaction, context) {
   return false;
 }
 
-function submit_form(context, reaction, uri_postfix) {  
+function submit_form(context, reaction, uri_postfix) {
+  sheet();
   var form = $(context).parents('form');
   var path = form.attr('action');
   
@@ -3728,8 +3729,7 @@ function handle_answer(answer, reaction, context) {
     return handle_sysmsg(answer.sysmsg);
   }
 
-  if (typeof(answer.errors) == 'object' && !$.isEmptyObject(answer.errors)) {    
-    // return my_modal('error', 'Возникли следующие ошибки:', answer.errors, 'OK');
+  if (typeof(answer.errors) == 'object' && !$.isEmptyObject(answer.errors)) {
     var form = $(context).parents('form'), input, error;
     $.each(answer.errors, function(key,item){
       input = form.find('[name="'+key+'"]');
@@ -3737,11 +3737,15 @@ function handle_answer(answer, reaction, context) {
         input.parents('.form-group').addClass('has-error');
       } else {
         error = form.children('.form-error');
-        error.text(item).addClass('alert alert-danger');
-        $(document).scrollTop(error.scrollTop());
+        if(error.length){
+          error.text(item).addClass('alert alert-danger');
+          $(document).scrollTop(error.scrollTop());
+        } else {
+          my_modal('error', 'Возникли следующие ошибки:', answer.errors, 'OK');
+        }
       }
     })
-    console.log(answer.errors);
+    sheet('hide');
   } else {
     if (!reaction) {
       if (typeof(answer.messages) == 'object' && answer.messages.length) {
@@ -3812,6 +3816,7 @@ function my_modal(type, title, messages, buttons) {
   i.html(messages);
   
   $('#modal').modal();
+
   return false;
 }
 
@@ -4023,3 +4028,7 @@ function projects_pages_make(page, returning) {
 $(function() {
   $('a.zoom').lightBox();
 })
+
+/*** cities ***/
+
+$(function() {})

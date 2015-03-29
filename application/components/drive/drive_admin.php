@@ -42,6 +42,27 @@ class Drive_admin extends CI_Component {
     if($this->client->getAccessToken()) $list = $this->service->files->listFiles(array("q"=>"trashed = false"));
     $data = array(
       'items' => (isset($list['items']) ? $list['items'] : array()),
+      'form' => $this->view->render_form(array(
+        'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'uploadFile/',
+        'blocks' => array(
+          array(
+            'title' => 'Загрузить файл',
+            'fields' => array(
+              array(
+                'view'         => 'fields/file',
+                'title'        => 'Выберите файл:',
+                'name'         => 'file'
+              ),
+              array(
+                'view'     => 'fields/submit',
+                'title'    => 'Загрузить',
+                'type'     => 'ajax',
+                'reaction' => 1
+              )
+            )
+          ),
+        )
+      )),
       'error' => ($this->client->getAccessToken() ? '' : 'Ошибка сквозной авторизации')
     );
     // print_r($data['items']);
@@ -52,6 +73,9 @@ class Drive_admin extends CI_Component {
   * Загрузка файла на гугл-диск
   */
   function uploadFile() {
+    if(!$_FILES['file']['name']){
+      send_answer(array('errors'=>array('file'=>'Выберите файл.')));
+    }
     if($_FILES['file']['error']){
       send_answer(array('errors'=>array('При загрузке файла произошла ошибка. Возможно файл превышает максимально допустимый размер.')));
     }

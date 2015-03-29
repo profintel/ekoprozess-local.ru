@@ -7,22 +7,28 @@
   <? if ($error) { ?>
     <div class="alert alert-danger"><?=$error;?></div>
   <? } else { ?>
-    <div class="clearfix">
-      <form action="/admin/drive/uploadFile/" onsubmit="return false;" enctype="multipart/form-data" target="_self" method="POST" >
-        <input id="image" class="default-generated" type="file" name="file">
-        <a onclick="return submit_form(this);" class="btn btn-primary btn-xs pull-right" href="#">
-          <span class="glyphicon glyphicon-save"></span>  Загрузить  </a>
-      </form>
+    <div class="clearfix well-sm">
+      <a class="btn btn-primary btn-xs pull-right" data-toggle="collapse" href="#formUpload" aria-expanded="false" aria-controls="formUpload">
+        Загрузить файл
+      </a>
     </div>
+    <div class="collapse" id="formUpload">
+      <button type="button" class="close" data-toggle="collapse" data-target="#formUpload" aria-expanded="false" aria-controls="formUpload"><span class="text-dark well-sm">&times;</span></button>
+      <?=$form;?>
+    </div>
+    
     <ul class="list-group">
       <? foreach ($items as $item) { ?>
         <li class="clearfix list-group-item">
           <div class="col-md-9 col-sm-8 col-xs-8">
-            <a href="#">
-              <? if(isset($item['iconLink']) && $item['iconLink']) { ?>
-                <img src="<?=$item['iconLink'];?>" width="16px" height="16px">
-              <? } ?> <?=$item['title'];?>
-            </a>
+              <? if(isset($item['alternateLink'])) { ?>
+                <a href="<?=$item['alternateLink'];?>" target="_<?=$item['id'];?>" title="Изменить">
+                  <? if(isset($item['iconLink']) && $item['iconLink']) { ?>
+                    <img src="<?=$item['iconLink'];?>" width="16px" height="16px">
+                  <? } ?>
+                  <?=$item['title'];?>
+                </a>
+              <? } ?>
           </div>
           <div class="col-md-3 col-sm-4 col-xs-4">
             <div class="buttons text-right">
@@ -45,7 +51,7 @@
             </div1>
           </div>
         </li>
-    <? } ?>
+      <? } ?>
     </ul>
   <? } ?>
 </div>

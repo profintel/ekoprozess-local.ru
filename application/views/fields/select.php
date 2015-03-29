@@ -24,7 +24,7 @@ $id = (isset($vars['id']) ?
 <div class="form-group">
   <div class="col-sm-2">
     <? if (isset($vars['title']) && $vars['title']) { ?>
-      <div class="title">
+      <label>
         <? if (isset($vars['icon'])) { ?>
           <img src="<?=$vars['icon'];?>" class="icon" />
         <? } ?>
@@ -34,7 +34,7 @@ $id = (isset($vars['id']) ?
         <? if (isset($vars['req']) && $vars['req']) { ?>
           <span class="red"> *</span>
         <? } ?>
-      </div>
+      </label>
     <? } ?>
     
     <? if (isset($vars['description']) && $vars['description']) { ?>
