@@ -6,6 +6,84 @@ class Cities_model extends CI_Model {
     parent::__construct();
   }
 
+  /***Федеральные округа***/
+  function get_regions_federal($limit = 0, $offset = 0, $where = array(), $order_by = array()) {   
+    if ($limit) {
+      $this->db->limit($limit, $offset);
+    }
+    if ($order_by) {
+      foreach ($order_by as $field => $dest) {
+        $this->db->order_by($field, $dest);
+      }      
+    } else {
+      $this->db->order_by('id','asc');
+    }
+    if ($where) {
+      $this->db->where($where);
+    }
+    $items = $this->db->get('region_federal')->result_array();
+    
+    return $items;
+  }
+  
+  function get_regions_federal_cnt($where = '') {
+    if ($where) {
+      $this->db->where($where);
+    }
+    return $this->db->count_all_results('region_federal');
+  }
+
+  function get_region_federal($where = array()) {
+    $item = $this->db->get_where('region_federal', $where)->row_array();
+    if($item){
+      $item['regions'] = $this->db->get_where('region_federal_regions', array('federal_id'  => $item['id']))->result_array();
+      $item['regions'] = array_simple($item['regions'], 'region_id');
+    }
+    return $item;
+  }
+
+  function create_region_federal($params) {
+    if ($this->db->insert('region_federal', $params)) {
+      return $this->db->query("SELECT LAST_INSERT_ID() as id")->row()->id;
+    }
+    return false;
+  }
+
+  function update_region_federal($id, $params) {
+    if ($this->db->update('region_federal', $params, array('id' => $id))) {
+      return true;
+    }
+    return false;
+  }
+  
+  function set_region_federal_regions($id, $regions) {    
+    $now = array();
+    if (!$this->db->query('DELETE FROM pr_region_federal_regions WHERE federal_id = '. $id .' AND region_id NOT IN ('. ($regions ? implode(',', $regions) : 0) .')')) {
+      return false;
+    }
+    if ($regions) {
+      $now_items = $this->db->get_where('pr_region_federal_regions', array('federal_id' => $id))->result_array();
+      foreach ($now_items as $now_item) {
+        $now[] = $now_item['region_id'];
+      }
+      foreach ($regions as $region_id) {
+        if (!in_array($region_id, $now)) {
+          if (!$this->db->insert('pr_region_federal_regions', array('federal_id' => $id, 'region_id' => $region_id))) {
+            return false;
+          }
+        }
+      }
+    }
+    return true;
+  }
+  
+  function delete_region_federal($id) {
+    if ($this->db->delete('region_federal', array('id' => $id))) {
+      return true;
+    }
+    return false;
+  }
+
   /***Регионы***/
   function get_regions($limit = 0, $offset = 0, $where = array(), $order_by = array()) {   
     if ($limit) {

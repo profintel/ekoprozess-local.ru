@@ -5,13 +5,12 @@
   <meta name="robots" content="noindex,nofollow" />
   <title>ЭКО-процессинг - Панель администратора</title>
   
-  <!-- <link rel="stylesheet" type="text/css" href="/adm/chosen/chosen.css" /> -->
+  <link rel="stylesheet" type="text/css" href="/adm/chosen/chosen.min.css" />
   <link rel="stylesheet" type="text/css" href="/components/tp_admin.css?<?=time();?>" />
   
   <script type="text/javascript" src="/components/tp_admin.js?<?=time();?>"></script>
   <script type="text/javascript" src="/adm/ckeditor/ckeditor.js"></script>
-  <script type="text/javascript" src="/adm/flowplayer/flowplayer-3.2.4.min.js"></script>
-  <script type="text/javascript" src="/adm/chosen/chosen.jquery.js"></script>  
+  <script type="text/javascript" src="/adm/chosen/chosen.jquery.min.js"></script>  
   
 </head>
 <body class="gray-bg">

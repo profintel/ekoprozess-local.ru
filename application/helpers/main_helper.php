@@ -500,3 +500,12 @@ function search_input($name, $component, $method) {
   </div>
   ';
 }
+
+/**
+* Экранирование строки перед добавлением в базу
+**/
+function mysql_prepare($str) {
+  $CI =& get_instance();
+  $CI->load->database();
+  return str_replace("'", '', $CI->db->escape($str));
+}

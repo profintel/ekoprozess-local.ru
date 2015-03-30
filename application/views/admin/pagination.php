@@ -12,19 +12,19 @@
           break;
           case 1:
         ?>
-            <li><a href="<?=(isset($prefix) ? $prefix : '/') . $page_num . (isset($postfix) ? $postfix : '/');?>"><?=$page_num;?></a></li>
+            <li><a href="<?=(isset($prefix) ? $prefix : '/') . $page_num .'/'. (isset($postfix) ? $postfix : '/');?>"><?=$page_num;?></a></li>
         <?
           break;
           case 2:
         ?>
-            <li><a href="<?=(isset($prefix) ? $prefix : '/') . $page_num . (isset($postfix) ? $postfix : '/');?>">...</a></li>
+            <li><a href="<?=(isset($prefix) ? $prefix : '/') . $page_num .'/'. (isset($postfix) ? $postfix : '/');?>">...</a></li>
         <?
           break;
         }
         ?>        
       <? } ?>
       <? end($pages); ?>
-      <li class="<?=($page != key($pages) ?: 'disabled');?>"><a href="<?=(isset($prefix) ? $prefix : '/') . ($page + 1) . (isset($postfix) ? $postfix : '/')?>" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>
+      <li class="<?=($page != key($pages) ?: 'disabled');?>"><a href="<?=(isset($prefix) ? $prefix : '/') . ($page + 1) .'/'. (isset($postfix) ? $postfix : '/')?>" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>
     </ul>
   <? } ?>
 </nav>

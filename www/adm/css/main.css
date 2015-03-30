@@ -238,6 +238,9 @@ a.glyphicon:focus{
   border-bottom: 1px solid #f6f6f6;
   padding: 10px 15px 0;
 }
+.form-inline .form-group{
+  padding-top: 0;
+}
 #progress-main {
   display: none;
   width: 200px;

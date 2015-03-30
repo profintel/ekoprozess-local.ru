@@ -13,7 +13,7 @@ $id = (isset($vars['id']) ?
   <script>
   $(document).ready(function() {
     $('#<?=$id;?>').chosen({
-      disable_search: <?=(isset($vars['chosen_search']) && $vars['chosen_search'] ? 'false' : 'true');?>,
+      disable_search: <?=(isset($vars['disable_search']) && $vars['disable_search'] ? 'true' : 'false');?>,
       auto_width: <?=(isset($vars['auto_width']) && $vars['auto_width'] ? 'true' : 'false');?>,
       allow_single_deselect: <?=(isset($vars['empty']) && $vars['empty'] ? 'true' : 'false');?>
     });

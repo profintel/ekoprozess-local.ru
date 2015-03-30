@@ -13,15 +13,24 @@ class PR_URI extends CI_URI {
   }
   
   function getParams() {
-    return $this->_get_params;
+    $params = array();
+    foreach ($this->_get_params as $key => $value) {
+      if(!is_array($value)){
+        $params[$key] = strip_tags($value);
+      }
+    }
+    return $params;
   }
   
   function getParam($key) {
     if (!isset($this->_get_params[$key])) {
       return FALSE;
     }
-    
-    return $this->_get_params[$key];
+    $param = $this->_get_params[$key];
+    if(!is_array($param)){
+      $param = strip_tags($param);
+    }
+    return $param;
   }
 
 }

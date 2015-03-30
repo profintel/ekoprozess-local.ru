@@ -1,4 +1,4 @@
-/* Generated 29.03.2015 23:22:14 */
+/* Generated 30.03.2015 22:31:56 */
 
 /* components */
 
@@ -536,6 +536,9 @@ a.glyphicon:focus{
 .form_block .panel-heading{
   border-bottom: 1px solid #f6f6f6;
   padding: 10px 15px 0;
+}
+.form-inline .form-group{
+  padding-top: 0;
 }
 #progress-main {
   display: none;
