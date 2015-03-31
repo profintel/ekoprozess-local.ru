@@ -23,9 +23,10 @@ class Admin extends PR_Controller {
     
     $this->load->model('admin_model');
     $this->load->model('components/models/components_model');
+    $this->load->model('administrators/models/administrators_model');
   }
   
-	function _remap() {
+  function _remap() {
     $this->segments = $this->uri->segment_array();
     
     $this->langs = array_simple($this->languages_model->get_languages(1, 1), FALSE, 'name');
@@ -57,10 +58,10 @@ class Admin extends PR_Controller {
       '_component'      => $this->component,
       '_menu_primary'   => $this->admin_model->get_menu('primary'),
       '_menu_secondary' => $this->admin_model->get_menu('secondary'),
-      '_admin'          => $this->admin_model->get_admin($this->admin_id),
+      '_admin'          => $this->administrators_model->get_admin(array('id' => $this->admin_id)),
       '_html'           => $html
     ));
-	}
+  }
   
   function _find_component() {
     while ($this->segments) {
@@ -70,7 +71,23 @@ class Admin extends PR_Controller {
       }
       $this->arguments[] = array_pop($this->segments);
     }
-    return $this->components_model->get_main_component();
+    //компонент по умолчанию
+    $main_component = $this->components_model->get_main_component();
+    if ($this->main_model->exists_component('permits')) {
+      $permits = $this->components_model->get_component('permits');
+      $this->load->component($permits);
+      //проверяем есть ли права на компонент по умолчанию, если прав нет, ищем компонент на который права есть
+      if(!$this->permits->_check_access($this->admin_id, $main_component['name'])){
+        $permit_component = $this->permits_model->get_permit('admin_id = '.$this->admin_id.' AND (method = "index" OR method IS NULL)');
+        if($permit_component){
+          $component = $this->components_model->get_component($permit_component['component']);
+          if($component){
+            return $component;
+          }
+        }
+      }
+    }
+    return $main_component;
   }
   
   function _run_component($name) {
@@ -90,9 +107,42 @@ class Admin extends PR_Controller {
       if (!$this->permits->_check_access($this->admin_id, $name, $method)) {
         show_error('У вас нет прав для осуществления данной операции');
       }
+      if($method != 'icon'){
+        $method_title = $this->_parse_component($name, $method);
+        $this->db->insert('admin_logs',array(
+          'admin_id'  =>  $this->admin_id,
+          'ip'        =>  $_SERVER['REMOTE_ADDR'],
+          'component' =>  $name,
+          'method'    =>  $method,
+          'path'      =>  $_SERVER['REQUEST_URI'],
+          'title'     =>  $method_title,
+          'post'      =>  serialize($_POST)));
+      }
     }
-    
+
     return call_user_func_array(array(&$this->$name, $method), $this->arguments);
   }
   
+  /**
+  * Парсит контроллер компонента и возвращает описание_метода
+  * @param $name - имя компонента
+  * @param $method - имя_метода
+  * @return string
+  */
+  function _parse_component($name, $method) {
+    $result = '';
+    $code = @file_get_contents(APPPATH .'components/'. $name .'/'. $name .'_admin.php');
+    if ($code) {
+      preg_match_all('/(?:\/\*\*?\s*\*\s*(.*?)\s*\*(?>\s*@.*?\/|\/)?\s*)?function\s+(.*?)\s*\(/s', $code, $matches, PREG_SET_ORDER);
+      
+      foreach ($matches as $match) {
+        if (!preg_match('/^_/', $match[2])) {
+          if($match[2] == $method){
+            $result = preg_replace('/\s*\*\s*/', ' ', $match[1]);
+          }
+        }
+      }
+    }
+    return $result;
+  }
 }

@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS `pr_admin_logs`;
+
 DROP TABLE IF EXISTS `pr_admin_group_permits`;
 
 DROP TABLE IF EXISTS `pr_admin_groups`;

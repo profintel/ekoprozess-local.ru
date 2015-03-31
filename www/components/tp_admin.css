@@ -1,4 +1,4 @@
-/* Generated 30.03.2015 22:31:56 */
+/* Generated 31.03.2015 22:43:55 */
 
 /* components */
 
@@ -70,6 +70,10 @@
   background-image: url(/components/administrators/media/icon1.png);
 }
 
+/* cities */
+
+
+
 /* permits */
 
 .permits-title {
@@ -79,10 +83,6 @@
 .permits-go {
   background-image: url(/components/permits/media/key_go.png);
 }
-
-/* cities */
-
-
 
 /*** FILE /adm/css/bootstrap.min.css ***/
 
@@ -326,6 +326,9 @@ body {
 .font-bold {
   font-weight: 600;
 }
+.text-white{
+  color: #ffffff;
+}
 .text-dark{
   color: #676a6c;
 }
@@ -543,10 +546,10 @@ a.glyphicon:focus{
 #progress-main {
   display: none;
   width: 200px;
-  position: absolute;
+  position: fixed;
   top: 15px;
   left: 50%;
-  margin-left: -100px;
+  margin-left: 0px;
   z-index: 150;
 }
 #progress-main .progress {

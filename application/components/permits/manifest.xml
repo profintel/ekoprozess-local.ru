@@ -2,14 +2,14 @@
 <component>
   
   <information>
-    <title>Разграничение доступа</title>
+    <title>Доступ</title>
     <version>1.0</version>
-    <description>Настроки доступа к компонентам и их функциям</description>
+    <description>Настроки доступа администраторов к компонентам и их функциям</description>
   </information>
   
   <install>
     <requirement>components</requirement>
-    <menu>secondary</menu>
+    <menu>primary</menu>
     <icon>glyphicon-lock</icon>
   </install>
   

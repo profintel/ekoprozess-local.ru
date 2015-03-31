@@ -14,7 +14,7 @@
   
 </head>
 <body class="gray-bg">
-  <div id="wrapper" class="">
+  <div id="wrapper">
     <nav role="navigation" class="navbar-default navbar-static-side">
       <div class="sidebar-collapse">
         <ul id="side-menu" class="nav">
@@ -24,7 +24,7 @@
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                   <span class="logo-element">
                     <? if (isset($_admin['image']) && $_admin['image']) { ?>
-                      <img src="/adm/images/logo.png" class="img-circle" alt="<?=$_admin['username'];?>">
+                      <img src="<?=$_admin['images'][0]['thumbs']['32_32'];?>" class="img-circle" alt="<?=$_admin['username'];?>">
                     <? } else { ?>
                       <img src="/components/accounts/media/user.png" class="img-circle" alt="<?=$_admin['username'];?>">
                     <? } ?>
@@ -44,7 +44,7 @@
                   </div>
                 </a>
                 <ul class="dropdown-menu">
-                  <li><a href="/admin/administrators/profile/">Сменить пароль</a></li>
+                  <li><a href="/admin/administrators/edit_admin/<?=$_admin['id'];?>/">Редактировать профиль</a></li>
                   <li class="divider"></li>
                   <li><a href="/autorization/close/"><span class="glyphicon glyphicon-log-out"></span> Выйти</a></li>
                 </ul>

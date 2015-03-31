@@ -30,7 +30,7 @@ class Permits_model extends CI_Model {
       $this->db->where_in('group_id', $groups);
       if ($this->db->get_where('pr_admin_group_permits', array(
         'component' => $component,
-        'method'    => $method
+        'method'    => (strpos($method,'_') !== false && strpos($method,'_') == 0 ? substr(str_replace('_process', '', $method), 1) : $method),
       ))->num_rows()) {
         return TRUE;
       }
@@ -43,10 +43,9 @@ class Permits_model extends CI_Model {
     ))->num_rows()) {
       return TRUE;
     }
-    
     if ($this->db->get_where('permits', array(
       'component' => $component,
-      'method'    => $method,
+      'method'    => (strpos($method,'_') !== false && strpos($method,'_') == 0 ? substr(str_replace('_process', '', $method), 1) : $method),
       'admin_id'  => $admin_id
     ))->num_rows()) {
       return TRUE;
@@ -83,6 +82,14 @@ class Permits_model extends CI_Model {
     
     $this->db->trans_commit();
     return TRUE;
+  }
+  
+  function get_permits($params = array()) {
+    return $this->db->get_where('permits', $params)->result_array();
+  }
+  
+  function get_permit($params = array()) {
+    return $this->db->get_where('permits', $params)->row_array();
   }
   
   function set_permit($admin_id, $component, $method = '') {

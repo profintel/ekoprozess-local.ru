@@ -59,3 +59,21 @@ ALTER TABLE `pr_admin_group_permits`
 ALTER TABLE `pr_admins` ADD `superuser` INT UNSIGNED NOT NULL DEFAULT '0' AFTER `password`;
 
 UPDATE `pr_admins` SET `superuser` = 1;
+
+CREATE TABLE `pr_admin_logs` (
+  `id` int(10) unsigned NOT NULL auto_increment,
+  `component` varchar(100) NOT NULL,
+  `method` varchar(100) default NULL,
+  `path` varchar(100) default NULL,
+  `title` varchar(100) default NULL,
+  `admin_id` int(10) unsigned NOT NULL,
+  `ip` varchar(100) NOT NULL,
+  `post` text,
+  `tm` timestamp NOT NULL default CURRENT_TIMESTAMP,
+  PRIMARY KEY  (`id`),
+  KEY `admin_id` (`admin_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `pr_admin_logs`
+  ADD CONSTRAINT `pr_admin_logs_ibfk_2` FOREIGN KEY (`admin_id`) REFERENCES `pr_admins` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `pr_admin_logs_ibfk_1` FOREIGN KEY (`component`) REFERENCES `pr_components` (`name`) ON DELETE CASCADE ON UPDATE CASCADE;

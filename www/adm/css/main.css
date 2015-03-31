@@ -27,6 +27,9 @@ body {
 .font-bold {
   font-weight: 600;
 }
+.text-white{
+  color: #ffffff;
+}
 .text-dark{
   color: #676a6c;
 }
@@ -244,10 +247,10 @@ a.glyphicon:focus{
 #progress-main {
   display: none;
   width: 200px;
-  position: absolute;
+  position: fixed;
   top: 15px;
   left: 50%;
-  margin-left: -100px;
+  margin-left: 0px;
   z-index: 150;
 }
 #progress-main .progress {
