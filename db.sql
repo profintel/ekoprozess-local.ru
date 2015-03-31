@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Хост: 127.0.0.1
--- Время создания: Мар 30 2015 г., 23:43
+-- Время создания: Мар 31 2015 г., 22:55
 -- Версия сервера: 5.5.25
 -- Версия PHP: 5.3.13
 
@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS `pr_admins` (
   `access_token` varchar(1000) DEFAULT NULL,
   `tm` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=6 ;
 
 --
 -- Дамп данных таблицы `pr_admins`
@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS `pr_admins` (
 
 INSERT INTO `pr_admins` (`id`, `username`, `password`, `superuser`, `access_token`, `tm`) VALUES
 (1, 'elena', '80cab4915b70ff461c83debd7c1bf83a', 1, '{"access_token":"ya29.QgHKw8LWWI-DnGp5HcCO8cz4L7nlXr9hET-gXBEFDjUIHLz0nmdPpjoTZIDP1ywGZQfWuaiCqDxuaw","token_type":"Bearer","expires_in":3599,"refresh_token":"1\\/lRaKf2vf6SZvBC7J4n0wWqgg-BAPQQ6HncXNcKK7HRt90RDknAdJa_sgfheVM0XT","created":1427390544}', '2015-03-14 09:34:41'),
-(2, 'pavel', '04e275943594ba324e92b619d00f166e', 0, NULL, '2015-03-17 15:38:31');
+(2, 'pavel', '698d51a19d8a121ce581499d7b701668', 0, NULL, '2015-03-17 15:38:31');
 
 -- --------------------------------------------------------
 
@@ -77,15 +77,7 @@ CREATE TABLE IF NOT EXISTS `pr_admin_groups` (
   PRIMARY KEY (`id`),
   KEY `admin_id` (`admin_id`),
   KEY `group_id` (`group_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
-
---
--- Дамп данных таблицы `pr_admin_groups`
---
-
-INSERT INTO `pr_admin_groups` (`id`, `admin_id`, `group_id`) VALUES
-(1, 1, 1),
-(2, 2, 2);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -115,15 +107,84 @@ CREATE TABLE IF NOT EXISTS `pr_admin_group_types` (
   `title` varchar(256) NOT NULL,
   `tm` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
 
 --
--- Дамп данных таблицы `pr_admin_group_types`
+-- Структура таблицы `pr_admin_logs`
 --
 
-INSERT INTO `pr_admin_group_types` (`id`, `title`, `tm`) VALUES
-(1, 'Администраторы', '2015-03-17 17:13:17'),
-(2, 'Менеджеры', '2015-03-17 17:13:52');
+CREATE TABLE IF NOT EXISTS `pr_admin_logs` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `component` varchar(100) NOT NULL,
+  `method` varchar(100) DEFAULT NULL,
+  `path` varchar(100) DEFAULT NULL,
+  `title` varchar(100) DEFAULT NULL,
+  `admin_id` int(10) unsigned NOT NULL,
+  `ip` varchar(100) NOT NULL,
+  `post` text,
+  `tm` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `admin_id` (`admin_id`),
+  KEY `pr_admin_logs_ibfk_1` (`component`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=51 ;
+
+--
+-- Дамп данных таблицы `pr_admin_logs`
+--
+
+INSERT INTO `pr_admin_logs` (`id`, `component`, `method`, `path`, `title`, `admin_id`, `ip`, `post`, `tm`) VALUES
+(1, 'components', 'index', '/admin/components/', 'Просмотр меню компонентов ', 1, '127.0.0.1', 'a:0:{}', '2015-03-31 17:43:18'),
+(2, 'components', 'refresh', '/admin/components/refresh/', 'Обновление кеша ', 1, '127.0.0.1', 'a:0:{}', '2015-03-31 17:43:21'),
+(3, 'components', 'refresh', '/admin/components/refresh/', 'Обновление кеша ', 1, '127.0.0.1', 'a:0:{}', '2015-03-31 17:43:23'),
+(4, 'components', 'refresh', '/admin/components/refresh/', 'Обновление кеша ', 1, '127.0.0.1', 'a:0:{}', '2015-03-31 17:43:38'),
+(5, 'components', 'index', '/admin/components/', 'Просмотр меню компонентов ', 1, '127.0.0.1', 'a:0:{}', '2015-03-31 17:43:39'),
+(6, 'components', 'refresh', '/admin/components/refresh/', 'Обновление кеша ', 1, '127.0.0.1', 'a:0:{}', '2015-03-31 17:43:41'),
+(7, 'components', 'install', '/admin/components/install/search/', 'Установка компонента ', 1, '127.0.0.1', 'a:0:{}', '2015-03-31 17:43:45'),
+(8, 'components', 'index', '/admin/components/', 'Просмотр меню компонентов ', 1, '127.0.0.1', 'a:0:{}', '2015-03-31 17:43:48'),
+(9, 'components', 'delete', '/admin/components/delete/21/', 'Удаление компонента ', 1, '127.0.0.1', 'a:0:{}', '2015-03-31 17:43:55'),
+(10, 'components', 'index', '/admin/components/', 'Просмотр меню компонентов ', 1, '127.0.0.1', 'a:0:{}', '2015-03-31 17:43:56'),
+(11, 'permits', 'index', '/admin/permits/', 'Меню компонента', 1, '127.0.0.1', 'a:0:{}', '2015-03-31 17:44:03'),
+(12, 'permits', 'components', '/admin/permits/components/', 'Вывод списка установленных компонентов', 1, '127.0.0.1', 'a:0:{}', '2015-03-31 17:44:06'),
+(13, 'permits', 'methods', '/admin/permits/methods/1/', 'Вывод списка методов компонента', 1, '127.0.0.1', 'a:0:{}', '2015-03-31 17:44:08'),
+(14, 'permits', 'method', '/admin/permits/method/1/index/', 'Форма для работы с правами администраторов на доступ к методам компонента', 1, '127.0.0.1', 'a:0:{}', '2015-03-31 17:44:09'),
+(15, 'permits', 'methods', '/admin/permits/methods/1/', 'Вывод списка методов компонента', 1, '127.0.0.1', 'a:0:{}', '2015-03-31 17:44:13'),
+(16, 'permits', 'components', '/admin/permits/components/', 'Вывод списка установленных компонентов', 1, '127.0.0.1', 'a:0:{}', '2015-03-31 17:44:14'),
+(17, 'permits', 'index', '/admin/permits/', 'Меню компонента', 1, '127.0.0.1', 'a:0:{}', '2015-03-31 17:44:16'),
+(18, 'permits', 'superusers', '/admin/permits/superusers/', 'Форма для работы с правами суперпользователя', 1, '127.0.0.1', 'a:0:{}', '2015-03-31 17:44:17'),
+(19, 'permits', 'set_superusers', '/admin/permits/set_superusers/', 'Установка прав суперпользователя', 1, '127.0.0.1', 'a:1:{s:6:"admins";a:1:{i:0;s:1:"1";}}', '2015-03-31 17:44:20'),
+(20, 'permits', 'superusers', '/admin/permits/superusers/', 'Форма для работы с правами суперпользователя', 1, '127.0.0.1', 'a:0:{}', '2015-03-31 17:44:20'),
+(21, 'permits', 'index', '/admin/permits/', 'Меню компонента', 1, '127.0.0.1', 'a:0:{}', '2015-03-31 17:44:21'),
+(22, 'permits', 'components', '/admin/permits/components/', 'Вывод списка установленных компонентов', 1, '127.0.0.1', 'a:0:{}', '2015-03-31 17:44:23'),
+(23, 'permits', 'methods', '/admin/permits/methods/1/', 'Вывод списка методов компонента', 1, '127.0.0.1', 'a:0:{}', '2015-03-31 17:44:25'),
+(24, 'permits', 'method', '/admin/permits/method/1/index/', 'Форма для работы с правами администраторов на доступ к методам компонента', 1, '127.0.0.1', 'a:0:{}', '2015-03-31 17:44:27'),
+(25, 'permits', 'set_method_permits', '/admin/permits/set_method_permits/1/index/', 'Установка прав администраторов на доступ к методу компонента', 1, '127.0.0.1', 'a:1:{s:6:"admins";a:2:{i:0;s:1:"1";i:1;s:1:"2";}}', '2015-03-31 17:44:29'),
+(26, 'permits', 'method', '/admin/permits/method/1/index/', 'Форма для работы с правами администраторов на доступ к методам компонента', 1, '127.0.0.1', 'a:0:{}', '2015-03-31 17:44:29'),
+(27, 'permits', 'methods', '/admin/permits/methods/1/', 'Вывод списка методов компонента', 1, '127.0.0.1', 'a:0:{}', '2015-03-31 17:44:30'),
+(28, 'permits', 'components', '/admin/permits/components/', 'Вывод списка установленных компонентов', 1, '127.0.0.1', 'a:0:{}', '2015-03-31 17:44:32'),
+(29, 'permits', 'methods', '/admin/permits/methods/11/', 'Вывод списка методов компонента', 1, '127.0.0.1', 'a:0:{}', '2015-03-31 17:44:34'),
+(30, 'permits', 'method', '/admin/permits/method/11/edit_admin/', 'Форма для работы с правами администраторов на доступ к методам компонента', 1, '127.0.0.1', 'a:0:{}', '2015-03-31 17:44:37'),
+(31, 'permits', 'set_method_permits', '/admin/permits/set_method_permits/11/edit_admin/', 'Установка прав администраторов на доступ к методу компонента', 1, '127.0.0.1', 'a:1:{s:6:"admins";a:2:{i:0;s:1:"1";i:1;s:1:"2";}}', '2015-03-31 17:44:39'),
+(32, 'permits', 'method', '/admin/permits/method/11/edit_admin/', 'Форма для работы с правами администраторов на доступ к методам компонента', 1, '127.0.0.1', 'a:0:{}', '2015-03-31 17:44:40'),
+(33, 'permits', 'methods', '/admin/permits/methods/11/', 'Вывод списка методов компонента', 1, '127.0.0.1', 'a:0:{}', '2015-03-31 17:44:41'),
+(34, 'permits', 'method', '/admin/permits/method/11/index/', 'Форма для работы с правами администраторов на доступ к методам компонента', 1, '127.0.0.1', 'a:0:{}', '2015-03-31 17:44:42'),
+(35, 'permits', 'set_method_permits', '/admin/permits/set_method_permits/11/index/', 'Установка прав администраторов на доступ к методу компонента', 1, '127.0.0.1', 'a:1:{s:6:"admins";a:2:{i:0;s:1:"1";i:1;s:1:"2";}}', '2015-03-31 17:44:46'),
+(36, 'permits', 'method', '/admin/permits/method/11/index/', 'Форма для работы с правами администраторов на доступ к методам компонента', 1, '127.0.0.1', 'a:0:{}', '2015-03-31 17:44:46'),
+(37, 'components', 'index', '/admin/', 'Просмотр меню компонентов ', 2, '127.0.0.1', 'a:0:{}', '2015-03-31 17:45:46'),
+(38, 'administrators', 'edit_admin', '/admin/administrators/edit_admin/2/', 'Редактирование параметров администратора', 2, '127.0.0.1', 'a:0:{}', '2015-03-31 17:46:00'),
+(39, 'administrators', '_edit_admin_process', '/admin/administrators/_edit_admin_process/2/', '', 2, '127.0.0.1', 'a:3:{s:8:"password";s:0:"";s:11:"re_password";s:0:"";s:7:"post_ru";s:0:"";}', '2015-03-31 17:46:03'),
+(40, 'administrators', 'edit_admin', '/admin/administrators/edit_admin/2/', 'Редактирование параметров администратора', 2, '127.0.0.1', 'a:0:{}', '2015-03-31 17:46:03'),
+(41, 'administrators', '_edit_admin_process', '/admin/administrators/_edit_admin_process/2/', '', 2, '127.0.0.1', 'a:3:{s:8:"password";s:0:"";s:11:"re_password";s:0:"";s:7:"post_ru";s:39:"Технический директор";}', '2015-03-31 17:46:06'),
+(42, 'administrators', 'edit_admin', '/admin/administrators/edit_admin/2/', 'Редактирование параметров администратора', 2, '127.0.0.1', 'a:0:{}', '2015-03-31 17:46:07'),
+(43, 'components', 'index', '/admin/', 'Просмотр меню компонентов ', 1, '127.0.0.1', 'a:0:{}', '2015-03-31 17:46:31'),
+(44, 'components', 'index', '/admin/', 'Просмотр меню компонентов ', 1, '127.0.0.1', 'a:0:{}', '2015-03-31 17:50:09'),
+(45, 'components', 'index', '/admin/f', 'Просмотр меню компонентов ', 1, '127.0.0.1', 'a:0:{}', '2015-03-31 17:50:11'),
+(46, 'components', 'index', '/admin/f', 'Просмотр меню компонентов ', 1, '127.0.0.1', 'a:0:{}', '2015-03-31 17:52:30'),
+(47, 'administrators', 'index', '/admin/administrators/', 'Меню компонента', 1, '127.0.0.1', 'a:0:{}', '2015-03-31 17:53:01'),
+(48, 'administrators', 'edit_admin', '/admin/administrators/edit_admin/1', 'Редактирование параметров администратора', 1, '127.0.0.1', 'a:0:{}', '2015-03-31 17:53:04'),
+(49, 'administrators', '_edit_admin_process', '/admin/administrators/_edit_admin_process/1/', '', 1, '127.0.0.1', 'a:3:{s:8:"password";s:0:"";s:11:"re_password";s:0:"";s:7:"post_ru";s:22:"Программист";}', '2015-03-31 17:53:05'),
+(50, 'administrators', 'edit_admin', '/admin/administrators/edit_admin/1', 'Редактирование параметров администратора', 1, '127.0.0.1', 'a:0:{}', '2015-03-31 17:53:23');
 
 -- --------------------------------------------------------
 
@@ -2675,7 +2736,7 @@ CREATE TABLE IF NOT EXISTS `pr_components` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`),
   KEY `parent` (`parent`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=17 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=22 ;
 
 --
 -- Дамп данных таблицы `pr_components`
@@ -2688,8 +2749,8 @@ INSERT INTO `pr_components` (`id`, `parent`, `name`, `path`, `menu`, `icon`, `ti
 (4, NULL, 'gallery', '/gallery/', NULL, 'glyphicon-picture', 'Галерея', NULL, NULL, 'Управление мультимедиа галереей', 0, '2015-03-14 09:34:49'),
 (5, NULL, 'languages', '/languages/', NULL, 'glyphicon-flag', 'Языки', NULL, 1, 'Управление языками', 0, '2015-03-14 09:34:50'),
 (11, NULL, 'administrators', '/administrators/', 'primary', 'glyphicon-user', 'Администраторы', NULL, NULL, NULL, 0, '2015-03-15 11:01:10'),
-(13, NULL, 'permits', '/permits/', 'primary', 'glyphicon-lock', 'Доступ', NULL, 1, 'Настроки доступа к компонентам и их функциям', 0, '2015-03-16 17:38:45'),
-(16, NULL, 'cities', '/cities/', 'secondary', 'glyphicon-book', 'Регионы / Города', NULL, NULL, 'Управление базой регионов и городов России', 0, '2015-03-29 16:11:55');
+(16, NULL, 'cities', '/cities/', 'secondary', 'glyphicon-book', 'Регионы / Города', NULL, NULL, 'Управление базой регионов и городов России', 0, '2015-03-29 16:11:55'),
+(20, NULL, 'permits', '/permits/', 'primary', 'glyphicon-lock', 'Доступ', NULL, 1, 'Настроки доступа администраторов к компонентам и их функциям', 0, '2015-03-31 17:43:16');
 
 -- --------------------------------------------------------
 
@@ -2728,14 +2789,19 @@ CREATE TABLE IF NOT EXISTS `pr_gallery_hierarchy` (
   PRIMARY KEY (`id`),
   KEY `parent_id` (`parent_id`),
   KEY `path` (`path`(255))
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=7 ;
 
 --
 -- Дамп данных таблицы `pr_gallery_hierarchy`
 --
 
 INSERT INTO `pr_gallery_hierarchy` (`id`, `parent_id`, `template_id`, `title`, `system_name`, `path`, `tm`) VALUES
-(1, 0, 11, 'альбом', 'album', '/album/', '2015-03-22 10:21:02');
+(1, 0, 11, 'альбом', 'album', '/album/', '2015-03-22 10:21:02'),
+(2, 0, NULL, 'Системная', 'gallery_system', '/gallery_system/', '2015-03-31 16:23:20'),
+(3, 2, NULL, 'Администраторы', 'administrators', '/gallery_system/administrators/', '2015-03-31 16:23:20'),
+(4, 3, NULL, 'tets1', 'admin_4', '/gallery_system/administrators/admin_4/', '2015-03-31 16:23:20'),
+(5, 3, NULL, 'sdf', 'admin_5', '/gallery_system/administrators/admin_5/', '2015-03-31 16:48:15'),
+(6, 3, NULL, 'elena', 'admin_1', '/gallery_system/administrators/admin_1/', '2015-03-31 16:53:37');
 
 -- --------------------------------------------------------
 
@@ -2753,7 +2819,16 @@ CREATE TABLE IF NOT EXISTS `pr_gallery_images` (
   `tm` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `gallery_id` (`gallery_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=5 ;
+
+--
+-- Дамп данных таблицы `pr_gallery_images`
+--
+
+INSERT INTO `pr_gallery_images` (`id`, `type`, `title`, `gallery_id`, `main`, `image`, `tm`) VALUES
+(1, 'image', '', 4, 0, '/uploads/2015/03/31/14278190004589556.jpg', '2015-03-31 16:23:20'),
+(2, 'image', '', 5, 0, '/uploads/2015/03/31/14278204958265355.jpg', '2015-03-31 16:48:15'),
+(4, 'image', '', 6, 0, '/uploads/2015/03/31/14278216320072280.jpg', '2015-03-31 17:07:12');
 
 -- --------------------------------------------------------
 
@@ -2785,7 +2860,17 @@ CREATE TABLE IF NOT EXISTS `pr_gallery_thumbs` (
   `tm` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `image_id` (`image_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=7 ;
+
+--
+-- Дамп данных таблицы `pr_gallery_thumbs`
+--
+
+INSERT INTO `pr_gallery_thumbs` (`id`, `image_id`, `width`, `height`, `thumb`, `tm`) VALUES
+(1, 1, 180, 135, '/uploads/2015/03/31/14278190004589556_180_135.jpg', '2015-03-31 16:23:20'),
+(2, 2, 180, 135, '/uploads/2015/03/31/14278204958265355_180_135.jpg', '2015-03-31 16:48:15'),
+(5, 4, 180, 135, '/uploads/2015/03/31/14278216320072280_180_135.jpg', '2015-03-31 17:07:12'),
+(6, 4, 32, 32, '/uploads/2015/03/31/14278216320072280_32_32.jpg', '2015-03-31 17:07:12');
 
 -- --------------------------------------------------------
 
@@ -2905,7 +2990,7 @@ CREATE TABLE IF NOT EXISTS `pr_params` (
   `tm` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `category` (`category`,`owner_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=53 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=58 ;
 
 --
 -- Дамп данных таблицы `pr_params`
@@ -2956,7 +3041,12 @@ INSERT INTO `pr_params` (`id`, `category`, `owner_id`, `name`, `value`, `tm`) VA
 (49, 'gallery', 2, 'thumb_width', '0', '2015-03-29 13:32:51'),
 (50, 'gallery', 2, 'thumb_height', '0', '2015-03-29 13:32:51'),
 (51, 'gallery', 2, 'width_player', '0', '2015-03-29 13:32:51'),
-(52, 'gallery', 2, 'height_player', '0', '2015-03-29 13:32:51');
+(52, 'gallery', 2, 'height_player', '0', '2015-03-29 13:32:51'),
+(53, 'admins', 3, 'post_ru', 'Программист', '2015-03-31 16:22:49'),
+(54, 'admins', 4, 'post_ru', 'Программист', '2015-03-31 16:23:20'),
+(55, 'admins', 5, 'post_ru', 'Программист1', '2015-03-31 16:45:24'),
+(56, 'admins', 1, 'post_ru', 'Программист', '2015-03-31 16:53:37'),
+(57, 'admins', 2, 'post_ru', 'Технический директор', '2015-03-31 17:00:35');
 
 -- --------------------------------------------------------
 
@@ -2973,14 +3063,16 @@ CREATE TABLE IF NOT EXISTS `pr_permits` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `component` (`component`,`method`,`admin_id`),
   KEY `admin_id` (`admin_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=4 ;
 
 --
 -- Дамп данных таблицы `pr_permits`
 --
 
 INSERT INTO `pr_permits` (`id`, `component`, `method`, `admin_id`, `tm`) VALUES
-(1, 'projects', 'index', 2, '2015-03-17 15:38:31');
+(1, 'components', 'index', 2, '2015-03-31 17:44:29'),
+(2, 'administrators', 'edit_admin', 2, '2015-03-31 17:44:39'),
+(3, 'administrators', 'index', 2, '2015-03-31 17:44:46');
 
 -- --------------------------------------------------------
 
@@ -3272,7 +3364,7 @@ CREATE TABLE IF NOT EXISTS `pr_templates` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`),
   KEY `component_id` (`component_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=17 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=19 ;
 
 --
 -- Дамп данных таблицы `pr_templates`
@@ -3304,15 +3396,22 @@ INSERT INTO `pr_templates` (`id`, `path`, `name`, `title`, `description`, `compo
 -- Ограничения внешнего ключа таблицы `pr_admin_groups`
 --
 ALTER TABLE `pr_admin_groups`
-  ADD CONSTRAINT `pr_admin_groups_ibfk_1` FOREIGN KEY (`admin_id`) REFERENCES `pr_admins` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `pr_admin_groups_ibfk_2` FOREIGN KEY (`group_id`) REFERENCES `pr_admin_group_types` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `pr_admin_groups_ibfk_2` FOREIGN KEY (`group_id`) REFERENCES `pr_admin_group_types` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `pr_admin_groups_ibfk_1` FOREIGN KEY (`admin_id`) REFERENCES `pr_admins` (`id`) ON DELETE CASCADE;
 
 --
 -- Ограничения внешнего ключа таблицы `pr_admin_group_permits`
 --
 ALTER TABLE `pr_admin_group_permits`
-  ADD CONSTRAINT `pr_admin_group_permits_ibfk_1` FOREIGN KEY (`component`) REFERENCES `pr_components` (`name`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `pr_admin_group_permits_ibfk_2` FOREIGN KEY (`group_id`) REFERENCES `pr_admin_group_types` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `pr_admin_group_permits_ibfk_2` FOREIGN KEY (`group_id`) REFERENCES `pr_admin_group_types` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `pr_admin_group_permits_ibfk_1` FOREIGN KEY (`component`) REFERENCES `pr_components` (`name`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Ограничения внешнего ключа таблицы `pr_admin_logs`
+--
+ALTER TABLE `pr_admin_logs`
+  ADD CONSTRAINT `pr_admin_logs_ibfk_2` FOREIGN KEY (`admin_id`) REFERENCES `pr_admins` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `pr_admin_logs_ibfk_1` FOREIGN KEY (`component`) REFERENCES `pr_components` (`name`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Ограничения внешнего ключа таблицы `pr_city`
@@ -3366,8 +3465,8 @@ ALTER TABLE `pr_pages_states`
 -- Ограничения внешнего ключа таблицы `pr_permits`
 --
 ALTER TABLE `pr_permits`
-  ADD CONSTRAINT `pr_permits_ibfk_1` FOREIGN KEY (`component`) REFERENCES `pr_components` (`name`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `pr_permits_ibfk_2` FOREIGN KEY (`admin_id`) REFERENCES `pr_admins` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `pr_permits_ibfk_2` FOREIGN KEY (`admin_id`) REFERENCES `pr_admins` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `pr_permits_ibfk_1` FOREIGN KEY (`component`) REFERENCES `pr_components` (`name`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Ограничения внешнего ключа таблицы `pr_projects`
