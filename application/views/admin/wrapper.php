@@ -30,12 +30,12 @@
                     <? } ?>
                   </span>
                   <div class="visible-lg-block">
-                    <? if (isset($_admin['params']['name']) && $_admin['params']['name']) { ?>
-                      <div class=""><?=$_admin['params']['name'];?></div>
+                    <? if (isset($_admin['params']['name_'.$_language]) && $_admin['params']['name_'.$_language]) { ?>
+                      <div class=""><?=$_admin['params']['name_'.$_language];?></div>
                     <? } ?>
                     <div class="">
-                      <? if (isset($_admin['params']['post']) && $_admin['params']['post']) { ?>
-                        <span><?=$_admin['params']['post'];?></span>
+                      <? if (isset($_admin['params']['post_'.$_language]) && $_admin['params']['post_'.$_language]) { ?>
+                        <span><?=$_admin['params']['post_'.$_language];?></span>
                       <? } else { ?>
                         <span><?=$_admin['username'];?></span>
                       <? } ?>

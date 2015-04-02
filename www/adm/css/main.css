@@ -94,6 +94,7 @@ a.glyphicon:focus{
 }
 .nav-header .dropdown {
   margin-top: 6px;
+  font-size: 13px;
 }
 .nav-header a:hover,
 .nav-header a:focus {

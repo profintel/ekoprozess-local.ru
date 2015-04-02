@@ -1,4 +1,4 @@
-/*** Generated 31.03.2015 22:43:55 ***/
+/*** Generated 02.04.2015 22:14:48 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -4032,3 +4032,6 @@ $(function() {
 /*** cities ***/
 
 $(function() {})
+
+/*** calendar ***/
+

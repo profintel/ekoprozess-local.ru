@@ -1,4 +1,4 @@
-/* Generated 31.03.2015 22:43:55 */
+/* Generated 02.04.2015 22:14:48 */
 
 /* components */
 
@@ -83,6 +83,10 @@
 .permits-go {
   background-image: url(/components/permits/media/key_go.png);
 }
+
+/* calendar */
+
+
 
 /*** FILE /adm/css/bootstrap.min.css ***/
 
@@ -393,6 +397,7 @@ a.glyphicon:focus{
 }
 .nav-header .dropdown {
   margin-top: 6px;
+  font-size: 13px;
 }
 .nav-header a:hover,
 .nav-header a:focus {

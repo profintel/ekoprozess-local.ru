@@ -98,6 +98,13 @@ class Administrators_admin extends CI_Component {
               ),
               array(
                 'view'        => 'fields/text',
+                'title'       => 'ФИО:',
+                'name'        => 'name',
+                'languages'   => $languages,
+                'maxlength'   => 256,
+              ),
+              array(
+                'view'        => 'fields/text',
                 'title'       => 'Должность:',
                 'name'        => 'post',
                 'languages'   => $languages,
@@ -141,6 +148,7 @@ class Administrators_admin extends CI_Component {
     $multiparams = array();
     foreach ($languages as $language) {
       $multiparams[$language['name']] = array(
+        'name' => htmlspecialchars(trim($this->input->post('name_'. $language['name']))),
         'post' => htmlspecialchars(trim($this->input->post('post_'. $language['name']))),
       );
     }
@@ -273,6 +281,14 @@ class Administrators_admin extends CI_Component {
               ),
               array(
                 'view'        => 'fields/text',
+                'title'       => 'ФИО:',
+                'name'        => 'name',
+                'languages'   => $languages,
+                'value'       => $item['params'],
+                'maxlength'   => 256,
+              ),
+              array(
+                'view'        => 'fields/text',
                 'title'       => 'Должность:',
                 'name'        => 'post',
                 'languages'   => $languages,
@@ -319,6 +335,7 @@ class Administrators_admin extends CI_Component {
     $multiparams = array();
     foreach ($languages as $language) {
       $multiparams[$language['name']] = array(
+        'name' => htmlspecialchars(trim($this->input->post('name_'. $language['name']))),
         'post' => htmlspecialchars(trim($this->input->post('post_'. $language['name']))),
       );
     }
