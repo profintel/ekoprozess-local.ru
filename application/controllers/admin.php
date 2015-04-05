@@ -48,6 +48,13 @@ class Admin extends PR_Controller {
       return;
     }
     
+    //Проверка и обновление календаря событий
+    if ($this->main_model->exists_component('calendar')) {
+      // $this->db->update('admin_events',array('color' => ''));
+      // $this->db->update('admin_events',array('color' => '#1ABC9C '),array('check'=>1));
+      $this->db->update('admin_events',array('color' => '#fe7979'),array('admin_id'=>$this->admin_id,'check'=>0,'start <'=>date('Y-m-d H:i:s'),'end <'=>date('Y-m-d H:i:s')));
+    }
+
     $this->load->view('admin/wrapper', array(
       'pr_version'      => $this->config->item('pr_version'),
       '_segments'       => $this->segments,

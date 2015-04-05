@@ -41,6 +41,11 @@ $(function() {
   	ampm: false
   };
   $.timepicker.setDefaults($.timepicker.regional['ru']);
+
+  $('.input-datetimepicker').datetimepicker({
+    hourGrid: 4,
+    minuteGrid: 5
+  });
   
   $("a.confirm").on('click', function() {
     if (confirm('Вы уверены?')) {
@@ -142,11 +147,6 @@ function search_hide() {
 function search_item_del(name,component,item) {
   return send_confirm('Вы уверены, что хотите удалить запись '+item.title+'?','/admin/'+ component +'/delete_'+ name +'/'+item.id+'/',{},'reload');
 }
-
-var defButtons = {
-  'OK':     {text: 'OK',     handler: function() { my_modal('hide'); sheet('hide'); }, icon: 'glyphicon-ok'},
-  'CANCEL': {text: 'Отмена', handler: function() { my_modal('hide'); sheet('hide'); }, icon: 'glyphicon-remove'}
-};
 
 function sheet(action) {
   if (action == 'hide') {
@@ -285,6 +285,11 @@ function handle_sys_UNAUTH() {
   document.location = '/autorization/';
 }
 
+var defButtons = {
+  'OK':     {text: 'OK',     handler: function() { my_modal('hide'); sheet('hide'); }, icon: 'glyphicon-ok'},
+  'CANCEL': {text: 'Отмена', handler: function() { my_modal('hide'); sheet('hide'); }, icon: 'glyphicon-remove', class: 'btn-default'}
+};
+
 function my_modal(type, title, messages, buttons) {
   var m = $('#modal');
   
@@ -331,8 +336,8 @@ function make_button(container, button) {
   
   $(document.createElement('a'))
     .attr({
-      href: (button.link ? button.link : '#'),
-      'class': 'btn btn-primary btn-xs'
+      href: (button.link ? button.link : 'javascript:void(0)'),
+      'class': 'btn btn-xs '+(button.class ? button.class : 'btn-primary')
     })
     .html(button.text ? (button.icon ? '<span class="glyphicon '+ button.icon +'"></span> ' : '')+button.text : '')
     .click(button.handler)

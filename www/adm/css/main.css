@@ -48,6 +48,13 @@ a.glyphicon:focus{
   color: #2f4050;
   outline: none;
 }
+.ui-datepicker {
+  font-size: 14px;
+  padding: 5px;
+}
+.ui-datepicker dd {
+  margin-left: 15px;
+}
 .navbar-static-side.navbar-default {
   background:none;
   background-color:#2F4050;
@@ -236,7 +243,7 @@ a.glyphicon:focus{
 }
 .form-group:nth-child(2n+1) {
   background-color: #f6f6f6;
-  padding-top: 5px;
+  padding: 5px 0;
 }
 .form_block .panel-heading{
   border-bottom: 1px solid #f6f6f6;
@@ -265,6 +272,10 @@ a.glyphicon:focus{
 .pagination > .disabled > a:hover,
 .pagination > .disabled > a:focus {
   background-color: transparent;
+}
+
+.modal-body .panel{
+  box-shadow: none;.form-group:nth-child(2n+1)
 }
 
 @media (max-width: 992px) {
