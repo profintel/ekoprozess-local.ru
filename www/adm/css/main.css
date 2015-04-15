@@ -278,6 +278,12 @@ a.glyphicon:focus{
   box-shadow: none;.form-group:nth-child(2n+1)
 }
 
+#events-danger {
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+}
+
 @media (max-width: 992px) {
   .navbar-static-side {
     width: 50px;

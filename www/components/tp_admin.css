@@ -1,4 +1,4 @@
-/* Generated 05.04.2015 23:43:59 */
+/* Generated 13.04.2015 22:22:01 */
 
 /* components */
 
@@ -591,6 +591,12 @@ a.glyphicon:focus{
 
 .modal-body .panel{
   box-shadow: none;.form-group:nth-child(2n+1)
+}
+
+#events-danger {
+  width: 100%;
+  position: absolute;
+  bottom: 0;
 }
 
 @media (max-width: 992px) {

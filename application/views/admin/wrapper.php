@@ -73,6 +73,16 @@
             <li class="visible-lg-block <?=($item['name'] == $_component['name'] ? 'active' : '');?>">
               <a href="<?=$_lang_prefix;?>/admin<?=$item['path'];?>">
                 <span class="glyphicon <?=($item['icon']?$item['icon']:'glyphicon-ok');?>"></span><?=$item['title'];?>
+                <? if ($item['name']=='calendar') {?>
+                  <div class="text-right">
+                    <? if ($_admin['red_events']) {?>
+                      <span class="label label-danger"><?=count($_admin['red_events']);?></span>
+                    <?}?>
+                    <? if ($_admin['events']) {?>
+                      <span class="label label-info"><?=count($_admin['events']);?></span>
+                    <?}?>
+                  </div>
+                <?}?>
               </a>
             </li>
             <li class="hidden-lg el-tooltip <?=($item['name'] == $_component['name'] ? 'active' : '');?>" data-toggle="tooltip" data-placement="right" title="<?=$item['title'];?>">
@@ -83,6 +93,14 @@
           <? } ?>
         </ul>
       </div>
+      
+      <?/*if ($_admin['red_events']) {?>
+        <div class="alert alert-danger" id="events-danger">
+          <?foreach ($_admin['red_events'] as $key => $value) {?>
+            <div><?=$value['title'];?></div>          
+          <?}?>
+        </div>
+      <?}*/?>
     </nav>
     <div id="page-wrapper">
       <div id="header">
