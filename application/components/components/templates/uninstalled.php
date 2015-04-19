@@ -48,7 +48,12 @@
               </a>
             </p>
           <? } else { ?>
-            <p class="alert alert-danger"><b>Установка невозможна</b></p>
+            <p class="alert alert-danger">
+              <b>Установка невозможна</b>         
+              <? foreach ($item['errors'] as $key => $error) {?>
+                <br/><i><?=$error;?></i>
+              <? } ?>
+            </p>
           <? } ?>
         </div>
       </div>

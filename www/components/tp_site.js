@@ -1,4 +1,4 @@
-/*** Generated 13.04.2015 22:22:02 ***/
+/*** Generated 19.04.2015 20:03:46 ***/
 
 /*** FILE /js/__jquery.js ***/
 
@@ -1178,9 +1178,9 @@ $(function() {
   $('a.zoom').lightBox();
 })
 
-/*** cities ***/
-
-
-
 /*** calendar ***/
+
+
+
+/*** cities ***/
 

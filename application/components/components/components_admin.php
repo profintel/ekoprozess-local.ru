@@ -242,6 +242,20 @@ class Components_admin extends CI_Component {
       }
     }
     
+    if (file_exists(APPPATH .'components/'. $component['name'] .'/database/'. $this->db->dbdriver .'_insert.sql')) {
+      $sql = file_get_contents(APPPATH .'components/'. $component['name'] .'/database/'. $this->db->dbdriver .'_insert.sql');
+      if ($sql) {
+        if (!$this->main_model->execute_sql($sql)) {
+          $this->components_model->delete_component($component['name']);
+          $errors = array('Не удалось заполнить таблицы компонентаБД');
+          if (!$returning) {
+            send_answer(array('errors' => $errors));
+          }
+          return $errors;
+        }
+      }
+    }
+    
     if (!$returning) {
       send_answer(array('messages' => array('Компонент успешно установлен')));
     }

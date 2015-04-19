@@ -29,7 +29,7 @@
                       <img src="/components/accounts/media/user.png" class="img-circle" alt="<?=$_admin['username'];?>">
                     <? } ?>
                   </span>
-                  <div class="visible-lg-block">
+                  <div class="hidden-xs">
                     <? if (isset($_admin['params']['name_'.$_language]) && $_admin['params']['name_'.$_language]) { ?>
                       <div class=""><?=$_admin['params']['name_'.$_language];?></div>
                     <? } ?>
@@ -70,7 +70,7 @@
             </div>
           </li>
           <? foreach ($_menu_secondary as $item) { ?>
-            <li class="visible-lg-block <?=($item['name'] == $_component['name'] ? 'active' : '');?>">
+            <li class="hidden-xs <?=($item['name'] == $_component['name'] ? 'active' : '');?>">
               <a href="<?=$_lang_prefix;?>/admin<?=$item['path'];?>">
                 <span class="glyphicon <?=($item['icon']?$item['icon']:'glyphicon-ok');?>"></span><?=$item['title'];?>
                 <? if ($item['name']=='calendar') {?>
@@ -85,7 +85,7 @@
                 <?}?>
               </a>
             </li>
-            <li class="hidden-lg el-tooltip <?=($item['name'] == $_component['name'] ? 'active' : '');?>" data-toggle="tooltip" data-placement="right" title="<?=$item['title'];?>">
+            <li class="visible-xs-block el-tooltip <?=($item['name'] == $_component['name'] ? 'active' : '');?>" data-toggle="tooltip" data-placement="right" title="<?=$item['title'];?>">
               <a href="<?=$_lang_prefix;?>/admin<?=$item['path'];?>">
                 <span class="glyphicon <?=($item['icon']?$item['icon']:'glyphicon-ok');?>"></span>
               </a>

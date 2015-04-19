@@ -60,21 +60,27 @@
               <a class="col-md-9 col-sm-8 col-xs-8" href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>uninstalled/<?=$item['name'];?>/">
                 <span class="glyphicon <?=(@$item['icon']?$item['icon']:'glyphicon-ok');?>"></span>&emsp;<?=$item['title'];?>
               </a>
-              <div class="col-md-3 col-sm-4 col-xs-4">
-                <div class="buttons text-right">
-                  <? if (!$item['errors']) { ?>
-                    <a href="#"
-                      onClick="return send_request(
-                        '<?=$_lang_prefix;?>/admin<?=$_component['path'];?>install/<?=$item['name'];?>/',
-                        {},
-                        '<?=$_lang_prefix;?>/admin<?=$_component['path'];?>'
-                      );"
-                      class="glyphicon glyphicon-plus"
-                      title="Установить компонент"
-                    ></a>
+              <? if (!$item['errors']) { ?>
+                <div class="col-md-3 col-sm-4 col-xs-4">
+                  <div class="buttons text-right">
+                      <a href="#"
+                        onClick="return send_request(
+                          '<?=$_lang_prefix;?>/admin<?=$_component['path'];?>install/<?=$item['name'];?>/',
+                          {},
+                          '<?=$_lang_prefix;?>/admin<?=$_component['path'];?>'
+                        );"
+                        class="glyphicon glyphicon-plus"
+                        title="Установить компонент"
+                      ></a>
+                  </div>
+                </div>
+              <? } else { ?>
+                <div class="col-xs-12 text-right">
+                  <? foreach ($item['errors'] as $key => $error) {?>
+                    <p class="text-danger"><i><?=$error;?></i></p>
                   <? } ?>
                 </div>
-              </div>
+              <? } ?>
             </li>
           <? } ?>
         </ul>

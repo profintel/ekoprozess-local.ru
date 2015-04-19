@@ -41,7 +41,7 @@ class Administrators_admin extends CI_Component {
     unset($value);
     return $this->render_template('admin/items', array(
       'items'           => $items,
-      'component_item'  => array('name' => 'admin', 'title' => 'администратор')
+      'component_item'  => array('name' => 'admin', 'title' => 'администратора')
     ));
   }
   

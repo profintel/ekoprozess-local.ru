@@ -1,4 +1,4 @@
-/* Generated 13.04.2015 22:22:01 */
+/* Generated 19.04.2015 20:03:46 */
 
 /* components */
 
@@ -70,10 +70,6 @@
   background-image: url(/components/administrators/media/icon1.png);
 }
 
-/* cities */
-
-
-
 /* permits */
 
 .permits-title {
@@ -89,6 +85,10 @@
 .fc-view-container {
   background-color: #ffffff;
 }
+
+/* cities */
+
+
 
 /*** FILE /adm/css/bootstrap.min.css ***/
 

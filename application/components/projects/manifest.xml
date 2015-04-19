@@ -9,7 +9,7 @@
   
   <install>
     <menu>primary</menu>
-    <icon>glyphicon-list</icon>
+    <icon>glyphicon-menu-hamburger</icon>
     <requirement>components</requirement>
   </install>
   

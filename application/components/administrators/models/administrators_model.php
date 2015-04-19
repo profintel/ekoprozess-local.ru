@@ -14,6 +14,13 @@ class Administrators_model extends CI_Model {
     }
     $this->db->order_by('username');
     $items = $this->db->get('pr_admins')->result_array();
+    foreach ($items as $key => &$item) {
+      $item['params'] = $this->main_model->get_params('admins', $item['id']);
+      foreach ($item['params'] as $key => $value) {
+        $item[$key] = $value;
+      }
+    }
+    unset($item);
     
     return $items;
   }
