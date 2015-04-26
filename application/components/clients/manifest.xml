@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component>
+
+  <information>
+    <title>База клиентов</title>
+    <description>Управление базой клиентов, импорт базы, отчеты</description>
+  </information>
+  
+  <install>
+    <menu>secondary</menu>
+    <icon>glyphicon-menu-hamburger</icon>
+    <requirement>cities</requirement>
+  </install>
+  
+</component>

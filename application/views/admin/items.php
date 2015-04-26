@@ -38,30 +38,34 @@
   <ul class="list-group">
     <? foreach ($items as $item) { ?>
       <li class="clearfix list-group-item">
-        <div class="col-md-9 col-sm-8 col-xs-8">
-          <a href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>edit_<?=$component_item['name'];?>/<?=$item['id'];?>/"><?=$item['title'];?></a>
-        </div>
-        <div class="col-md-3 col-sm-4 col-xs-4">
-          <div class="buttons text-right">
-            <? if (isset($item['active']) && $item['active']) { ?>
-              <a href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>disable_<?=$component_item['name'];?>/<?=$item['id'];?>/" class="glyphicon glyphicon-check" title="Отключить"></a>
-            <? } ?>
-            <? if (isset($item['active']) && !$item['active']) { ?>
-              <a href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>enable_<?=$component_item['name'];?>/<?=$item['id'];?>/" class="glyphicon glyphicon-unchecked" title="Отключить"></a>
-            <? } ?>
-            <a href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>edit_<?=$component_item['name'];?>/<?=$item['id'];?>/" class="glyphicon glyphicon-edit" title="Изменить"></a>
+        <a class="pull-left icon" data-toggle="dropdown">
+          <span class="glyphicon glyphicon-wrench"></span>
+        </a>
+        <a class="col-md-11 col-sm-11 col-xs-11 dropdown-toggle" data-toggle="dropdown">
+          <?/*?> <a href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>edit_<?=$component_item['name'];?>/<?=$item['id'];?>/"><?=$item['title'];?></a><?*/?>
+          <?=$item['title'];?>
+        </a>
+        <ul class="dropdown-menu">
+          <?/* if (isset($item['active']) && $item['active']) { ?>
+            <li><a href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>disable_<?=$component_item['name'];?>/<?=$item['id'];?>/" title="Отключить"><span class="glyphicon glyphicon-check"></span> Отключить</a></li>
+          <? } ?>
+          <? if (isset($item['active']) && !$item['active']) { ?>
+            <li><a href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>enable_<?=$component_item['name'];?>/<?=$item['id'];?>/" title="Включить"><span class="glyphicon glyphicon-unchecked"></span> Включить</a></li>
+          <? } */?>
+          <li><a href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>edit_<?=$component_item['name'];?>/<?=$item['id'];?>/" title="Редактировать"><span class="glyphicon glyphicon-edit"></span> Редактировать</a></li>
+          <li class="divider"></li>
+          <li>
             <a href="#"
               onClick="return send_confirm(
                 'Вы уверены, что хотите удалить объект - <?=$item['title'];?>?',
                 '<?=$_lang_prefix;?>/admin<?=$_component['path'];?>delete_<?=$component_item['name'];?>/<?=$item['id'];?>/',
                 {},
                 'reload'
-              );"
-              class="glyphicon glyphicon-trash"
+              );"                    
               title="Удалить"
-            ></a>
-          </div>
-        </div>
+            ><span class="glyphicon glyphicon-trash"></span> Удалить</a>
+          </li>
+        </ul>
       </li>
   <? } ?>
   </ul>

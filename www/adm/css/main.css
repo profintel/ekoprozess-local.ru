@@ -147,6 +147,7 @@ a.glyphicon:focus{
   font-weight: normal;
   line-height: 25px;
   margin: 4px;
+  padding: 5px 15px;
   text-align: left;
 }
 .item-list-heading-title {
@@ -217,6 +218,12 @@ a.glyphicon:focus{
 .list-group-item {
   padding: 5px;
 }
+.list-group-item a {
+  cursor: pointer;
+}
+.list-group-item .icon .glyphicon {
+  display: none;
+}
 .list-group-item:nth-child(2n+1) {
   background-color: #f9f9f9;
 }
@@ -224,12 +231,19 @@ a.glyphicon:focus{
 .list-group-item:hover,
 .list-group-item:focus {
   background-color: #008CBA;
+}
+.list-group-item.selected > a,
+.list-group-item.selected > .glyphicon,
+.list-group-item:hover > a,
+.list-group-item:hover > .glyphicon,
+.list-group-item:focus > a,
+.list-group-item:focus > .glyphicon {
   color: #ffffff;
 }
-.list-group-item.selected *,
-.list-group-item:hover *,
-.list-group-item:focus *{
-  color: #ffffff;
+.list-group-item.selected .icon .glyphicon,
+.list-group-item:hover .icon .glyphicon,
+.list-group-item:focus .icon .glyphicon {
+  display: block;
 }
 .list-group-item a:hover{
   text-decoration: none;
