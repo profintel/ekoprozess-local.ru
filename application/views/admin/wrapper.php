@@ -3,6 +3,8 @@
 <head>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="robots" content="noindex,nofollow" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <title>ЭКО-процессинг - Панель администратора</title>
   
   <link rel="stylesheet" type="text/css" href="/adm/chosen/chosen.min.css" />
@@ -10,11 +12,19 @@
   
   <script type="text/javascript" src="/components/tp_admin.js?<?=time();?>"></script>
   <script type="text/javascript" src="/adm/ckeditor/ckeditor.js"></script>
-  <script type="text/javascript" src="/adm/chosen/chosen.jquery.min.js"></script>  
+  <script type="text/javascript" src="/adm/chosen/chosen.jquery.min.js"></script> 
+
+  <!--[if gte IE 9]>
+    <style type="text/css">
+      .gradient {
+         filter: none;
+      }
+    </style>
+  <![endif]--> 
   
 </head>
-<body class="gray-bg">
-  <div id="wrapper">
+<body class="">
+  <div id="wrapper" class="gray-bg">
     <nav role="navigation" class="navbar-default navbar-static-side">
       <div class="sidebar-collapse">
         <ul id="side-menu" class="nav">

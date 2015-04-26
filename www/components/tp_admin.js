@@ -1,4 +1,4 @@
-/*** Generated 19.04.2015 20:03:46 ***/
+/*** Generated 26.04.2015 19:54:36 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -3696,6 +3696,10 @@ function submit_form(context, reaction, uri_postfix) {
   sheet();
   var form = $(context).parents('form');
   var path = form.attr('action');
+
+  form.children('.form-error').text("");
+  form.find('.has-error').removeClass('has-error');
+  form.find('.error').remove();
   
   if (uri_postfix) {
     form.attr('action', path + uri_postfix);
@@ -3736,6 +3740,7 @@ function handle_answer(answer, reaction, context) {
       input = form.find('[name="'+key+'"]');
       if (input.length){
         input.parents('.form-group').addClass('has-error');
+        input.before('<small class="error text-danger">'+item+'</small>');
       } else {
         error = form.children('.form-error');
         if(error.length){

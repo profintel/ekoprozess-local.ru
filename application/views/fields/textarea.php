@@ -27,7 +27,7 @@
         <? } ?>
         
         <textarea
-          class="form-control multilanguage default-generated<?=(isset($vars['class']) ? ' '. $vars['class'] : '');?>"
+          class="form-control input-sm multilanguage default-generated<?=(isset($vars['class']) ? ' '. $vars['class'] : '');?>"
           rows="<?=(isset($vars['rows']) ? $vars['rows'] : 3);?>"
           <?=(isset($vars['cols']) ? 'cols="'. $vars['cols'] .'"' : '');?>
           <?=(isset($vars['tabindex']) ? 'tabindex="'. (int)$vars['tabindex'] .'"' : '');?>

@@ -1,38 +1,23 @@
-<script>  
-  $(function() {
-    $('#search_string,.autocomplete_search_string').focus(function() {
-      if ($(this).val() == 'Поиск') {
-        $(this).removeClass('def');
-        $(this).val('');
-      }
-    });
-    $('#search_string,.autocomplete_search_string').blur(function() {
-      if ($(this).val() == '') {
-        $(this).addClass('def');
-        $(this).val('Поиск');
-      }
-    });
-  });
-
-
+<script>
   function autocomplete_search(request, response, input_obj) {  
     if (request.term.length) {
+      $('#item_id').val(request.term);
       input_obj.addClass('loading');
       $.post('/admin/'+ input_obj.data('component') +'/'+ input_obj.data('method') +'/', {search_string: request.term}, function(result) {     
         input_obj.removeClass('loading');
-        if (typeof(result.items) != 'undefined' && result.items.length) {
+        if (typeof(result.items) == 'object' && !$.isEmptyObject(result.items)) {
           response($.map(result.items, function(item) {
-            return {label: item.title, value: item.id};
+            return {label: item.title, value: item.id, 'location': item.location};
           }));
         }
       }, 'json');
     }
   }
 </script>
-<div class="input_block">
-  <div class="name">
+<div class="form-group">
+  <div class="col-sm-2">
     <? if (isset($vars['title']) && $vars['title']) { ?>
-      <div class="title">
+      <label class="control-label">
         <? if (isset($vars['icon'])) { ?>
           <img src="<?=$vars['icon'];?>" class="icon" />
         <? } ?>
@@ -42,16 +27,18 @@
         <? if (isset($vars['req']) && $vars['req']) { ?>
           <span class="red"> *</span>
         <? } ?>
-      </div>
+      </label>
     <? } ?>
     
     <? if (isset($vars['description']) && $vars['description']) { ?>
-      <div class="description"><?=$vars['description'];?></div>
+      <div class="help-block"><?=$vars['description'];?></div>
     <? } ?>
   </div>
   
-  <div class="input">
-    <input type="text" id="<?=(isset($vars['name']) && $vars['name'] ? $vars['name'] : '');?>_search_string" class="autocomplete_search_string dark" value="Поиск" 
+  <div class="col-sm-10">
+    <input type="text" id="<?=(isset($vars['name']) && $vars['name'] ? $vars['name'] : '');?>_search_string" 
+    class="form-control input-sm autocomplete_search_string dark" 
+    <?=(isset($vars['value']) ? "value='". $vars['value'] ."'" : '');?>
     data-name ="<?=(isset($vars['name']) && $vars['name'] ? $vars['name'] : '');?>"
     data-component ="<?=(isset($vars['component']) && $vars['component'] ? $vars['component'] : '');?>"
     data-method ="<?=(isset($vars['method']) && $vars['method'] ? $vars['method'] : '');?>" />
@@ -60,20 +47,26 @@
         $("#<?=(isset($vars['name']) && $vars['name'] ? $vars['name'] : '');?>_search_string").autocomplete({
           delay: 500,
           source: function(request, response) {
-            return autocomplete_search(request, response, $("#<?=(isset($vars['name']) && $vars['name'] ? $vars['name'] : '');?>_search_string"));
+            var result = autocomplete_search(request, response, $("#<?=(isset($vars['name']) && $vars['name'] ? $vars['name'] : '');?>_search_string"));
+            return result;
           },
           select: function(event, ui) { 
-            if (ui.item) { 
+            if (ui.item) {
+              if (typeof(ui.item.location) != 'undefined') {
+                document.location = ui.item.location;
+              }
               $('#item_id').val(ui.item.value);
               $('#<?=(isset($vars['name']) && $vars['name'] ? $vars['name'] : '');?>_search_string').val(ui.item.label);
-              return false; 
-            } 
+              return false;
+            }
           },
           focus: function() { return false; }
           });
       });
     </script>
-    <input type="hidden" name="<?=(isset($vars['name']) && $vars['name'] ? $vars['name'] : '');?>" value="" id="item_id">
+    <input type="hidden" 
+      name="<?=(isset($vars['name']) && $vars['name'] ? $vars['name'] : '');?>" 
+      value="<?=(isset($vars['value']) ? $vars['value'] : '');?>" id="item_id">
   </div>
   
   <div class="clear"></div>
