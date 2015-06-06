@@ -63,6 +63,12 @@ a.glyphicon:focus{
   background-color:#2F4050;
   border-radius: 0;  
 }
+.loading{
+  text-indent: 9999px;
+  min-height: 16px;
+  overflow: hidden;
+  background:transparent url(/adm/images/loading_sm.gif) center center no-repeat;
+}
 #header .navbar-default {
   background-color:transparent;
 }

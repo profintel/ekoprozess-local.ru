@@ -41,20 +41,38 @@ class Clients_admin extends CI_Component {
   * Просмотр отчета по базе клиентов
   */
   function clients_report($page = 1) {
-    $where = array();
+    $where = '';
     $get_params = array(
-      'title' => ($this->uri->getParam('title') ? mysql_prepare($this->uri->getParam('title')) : ''),
-      'city_id' => ($this->uri->getParam('city_id') ? mysql_prepare($this->uri->getParam('city_id')) : ''),
-      'admin_id' => ($this->uri->getParam('admin_id') ? mysql_prepare($this->uri->getParam('admin_id')) : ''),
+      'title'     => ($this->uri->getParam('title') ? mysql_prepare($this->uri->getParam('title')) : ''),
+      'region_federal_id' => ($this->uri->getParam('region_federal_id') ? mysql_prepare($this->uri->getParam('region_federal_id')) : ''),
+      'region_id' => ($this->uri->getParam('region_id') ? mysql_prepare($this->uri->getParam('region_id')) : ''),
+      'city_id'   => ($this->uri->getParam('city_id') ? mysql_prepare($this->uri->getParam('city_id')) : ''),
+      'admin_id'  => ($this->uri->getParam('admin_id') ? mysql_prepare($this->uri->getParam('admin_id')) : ''),
     );
     if($get_params['title']){
-      $where['clients.title LIKE'] = $get_params['title'].'%';
+      $where .= 'clients.title LIKE "'.$get_params['title'].'%"';
+    }
+    if($get_params['region_federal_id'] && !$get_params['region_id'] && !$get_params['city_id']){
+      //выборка городов по федеральному округу
+      $cities = $this->cities_model->get_cities(0,0,false,false,$get_params['region_federal_id']);
+      if($cities){
+        $cities = array_simple($cities,'id');
+      }
+      $where .= 'clients.city_id IN ('.($cities ? implode(',', $cities) : 0).')';
+    }
+    if($get_params['region_id'] && !$get_params['city_id']){
+      //выборка городов по региону
+      $cities = $this->cities_model->get_cities(0,0,array('region_id' => $get_params['region_id']));
+      if($cities){
+        $cities = array_simple($cities,'id');
+      }
+      $where .= 'clients.city_id IN ('.($cities ? implode(',', $cities) : 0).')';
     }
     if($get_params['city_id']){
-      $where['clients.city_id'] = $get_params['city_id'];
+      $where .= 'clients.city_id = '.$get_params['city_id'];
     }
     if($get_params['admin_id']){
-      $where['clients.admin_id'] = $get_params['admin_id'];
+      $where .= 'clients.admin_id = '.$get_params['admin_id'];
     }
     $limit = 50;
     $offset = $limit * ($page - 1);
@@ -83,13 +101,22 @@ class Clients_admin extends CI_Component {
             'title'   => 'Параметры отчета',
             'fields'   => array(
               array(
-                'view'      => 'fields/text',
-                'title'     => 'Название:',
-                'name'      => 'title',
-                'value'     => $get_params['title'],
-                'component' => $this->params['name'],
-                'method'    => 'client_search',
-                'maxlength' => 256
+                'view'    => 'fields/select',
+                'title'   => 'Федеральный округ:',
+                'name'    => 'region_federal_id',
+                'value'   => $get_params['region_federal_id'],
+                'options' => $this->cities_model->get_regions_federal(),
+                'onchange'=> "return changeRegion(this, 'federal')",
+                'empty'   => true
+              ),
+              array(
+                'view'    => 'fields/select',
+                'title'   => 'Регион:',
+                'name'    => 'region_id',
+                'value'   => $get_params['region_id'],
+                'options' => $this->cities_model->get_regions(),
+                'onchange'=> 'return changeRegion(this)',
+                'empty'   => true
               ),
               array(
                 'view'    => 'fields/select',
@@ -98,6 +125,15 @@ class Clients_admin extends CI_Component {
                 'value'   => $get_params['city_id'],
                 'options' => $this->cities_model->get_cities(),
                 'empty'   => true
+              ),
+              array(
+                'view'      => 'fields/text',
+                'title'     => 'Название:',
+                'name'      => 'title',
+                'value'     => $get_params['title'],
+                'component' => $this->params['name'],
+                'method'    => 'client_search',
+                'maxlength' => 256
               ),
               array(
                 'view'        => 'fields/select',
@@ -121,6 +157,44 @@ class Clients_admin extends CI_Component {
     );
 
     return $this->render_template('templates/admin_report', $data);
+  }
+
+  /**
+  * Формирует html select-ов для отчета
+  * return json
+  */
+  function renderSelectsReport() {
+    $result = array();
+    $type = $this->input->post('type');
+    $id = ((int)$this->input->post('id') ? (int)$this->input->post('id') : 0);
+    if($id){
+      if($type == 'federal'){
+        //выборка регионов по федеральному округу
+        $regions = $this->cities_model->get_regions(0,0,false,false,$id);
+        $vars = array(
+          'view'    => 'fields/select',
+          'title'   => 'Регион:',
+          'name'    => 'region_id',
+          'options' => $regions,
+          'onchange'=> "return changeRegion(this)",
+          'empty'   => true
+        );
+        $result['regions'] = $this->load->view('fields/select', array('vars' => $vars), true); 
+        //выборка городов по федеральному округу
+        $cities = $this->cities_model->get_cities(0,0,false,false,$id);
+      } else {
+        $cities = $this->cities_model->get_cities(0,0,array('region_id' => $id));
+      }
+      $vars = array(
+        'view'    => 'fields/select',
+        'title'   => 'Город:',
+        'name'    => 'city_id',
+        'options' => $cities,
+        'empty'   => true
+      );
+      $result['city'] = $this->load->view('fields/select', array('vars' => $vars), true);
+    }
+    echo json_encode($result);
   }
 
   /**
