@@ -21,7 +21,10 @@
   </div>
 </div>
 <div class="container-fluid">
-  <a class="btn btn-default btn-xs" href="/admin<?=$_component['path'];?>"><span class="glyphicon glyphicon-backward"></span> Назад</a><br/><br/>
+  <div class="clearfix">
+    <a class="btn btn-default btn-xs pull-left" href="/admin<?=$_component['path'];?>"><span class="glyphicon glyphicon-backward"></span> Назад</a>
+    <a  class="btn btn-default btn-xs pull-right" href="/admin<?=$_component['path'];?>clients_report/">Очистить параметры</a>   
+  </div><br/>
   <?=$form;?><br/>
   <table class="table table-report table-hover table-bordered">
     <tr>
