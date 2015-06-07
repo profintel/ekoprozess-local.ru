@@ -509,3 +509,17 @@ function mysql_prepare($str) {
   $CI->load->database();
   return str_replace("'", '', $CI->db->escape($str));
 }
+
+/**
+* Проверяет наличие установленного компонента
+* @param 
+* @return boolean
+**/
+function exists_component($component_name){
+  $CI =& get_instance();
+  $CI->load->model('models/main_model');
+  if ($CI->main_model->exists_component($component_name)) {
+    return true;
+  }
+  return false;
+}

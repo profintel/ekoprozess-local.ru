@@ -521,6 +521,9 @@ class Cities_admin extends CI_Component {
       'number'      => (int)$this->input->post('number'),
       'active'      => ($this->input->post('active') ? 1 : 0)
     );
+    //формируем полное название с регионом
+    $region = $this->cities_model->get_region(array('id' => $params['region_id']));
+    $params['title_full'] = $params['title'].', '.$region['title'];
 
     $errors = $this->_validate_city($params);
     if ($errors) {
@@ -536,8 +539,8 @@ class Cities_admin extends CI_Component {
   }
   
   /**
-   *  Редактирование города
-  **/  
+  *  Редактирование города
+  */  
   function edit_city($id) {
     $item = $this->cities_model->get_city(array('id'=>$id));
     if(!$item){
@@ -600,6 +603,9 @@ class Cities_admin extends CI_Component {
       'number'      => (int)$this->input->post('number'),
       'active'      => ($this->input->post('active') ? 1 : 0)
     );
+    //формируем полное название с регионом
+    $region = $this->cities_model->get_region(array('id' => $params['region_id']));
+    $params['title_full'] = $params['title'].', '.$region['title'];
 
     $errors = $this->_validate_city($params);
     if ($errors) {
@@ -618,6 +624,21 @@ class Cities_admin extends CI_Component {
     if (!$params['title']) { $errors['title'] = 'Не указано название'; }
     if (!$params['region_id']) { $errors['region_id'] = 'Не указан регион'; }
     return $errors;
+  }
+  
+  /**
+  * Перезаписывает полное название с регионом для всех городов
+  */
+  function _updateCitiesTitleFull() {    
+    $items = $this->cities_model->get_cities();
+    foreach ($items as $key => $item) {
+      //формируем полное название с регионом
+      $region = $this->cities_model->get_region(array('id' => $item['region_id']));
+      $params['title_full'] = $item['title'].', '.$region['title'];
+      if ($this->cities_model->update_city($item['id'], $params)) {
+        echo $params['title_full'].'<br/>';
+      }
+    }
   }
 
   /**

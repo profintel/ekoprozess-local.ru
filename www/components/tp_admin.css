@@ -1,4 +1,4 @@
-/* Generated 06.06.2015 16:11:43 */
+/* Generated 08.06.2015 00:12:40 */
 
 /* components */
 
@@ -80,15 +80,15 @@
   background-image: url(/components/permits/media/key_go.png);
 }
 
+/* cities */
+
+
+
 /* calendar */
 
 .fc-view-container {
   background-color: #ffffff;
 }
-
-/* cities */
-
-
 
 /*** FILE /adm/css/bootstrap.min.css ***/
 
@@ -566,6 +566,11 @@ a.glyphicon:focus{
 .list-group-item:focus .icon .glyphicon {
   display: block;
 }
+.list-group-item.selected .icon + [class^="col-"],
+.list-group-item:hover .icon + [class^="col-"],
+.list-group-item:focus .icon + [class^="col-"] {
+  padding-left: 3px;
+}
 .list-group-item a:hover{
   text-decoration: none;
 }
@@ -576,6 +581,9 @@ a.glyphicon:focus{
   margin-left: 5px;
 }
 
+.form-control{
+  font-size: 12px;
+}
 .form-group .help-block{
   color: #777;
   font-size: 11px;
@@ -630,6 +638,23 @@ a.glyphicon:focus{
 }
 .table-report td {
   word-wrap:break-word;
+  cursor: pointer;
+}
+
+.ui-datepicker{
+  width: 400px;
+}
+.ui-datepicker table{
+  width: 50%;
+  float: left;
+}
+.ui-datepicker .ui-timepicker-div,
+.ui-datepicker .ui-datepicker-buttonpane{
+  width: 48%;
+  float: right;
+}
+.ui-datepicker dd{
+  margin-right: 15px;
 }
 
 @media (max-width: 950px) {

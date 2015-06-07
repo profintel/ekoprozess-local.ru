@@ -39,7 +39,7 @@
     <? foreach ($items as $item) { ?>
       <li class="clearfix list-group-item">
         <a class="pull-left icon" data-toggle="dropdown">
-          <span class="glyphicon glyphicon-wrench"></span>
+          <span class="glyphicon glyphicon-cog"></span>
         </a>
         <a class="col-md-11 col-sm-11 col-xs-11 dropdown-toggle" data-toggle="dropdown">
           <?/*?> <a href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>edit_<?=$component_item['name'];?>/<?=$item['id'];?>/"><?=$item['title'];?></a><?*/?>

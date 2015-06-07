@@ -295,11 +295,19 @@ var defButtons = {
   'CANCEL': {text: 'Отмена', handler: function() { my_modal('hide'); sheet('hide'); }, icon: 'glyphicon-remove', class: 'btn-default'}
 };
 
-function my_modal(type, title, messages, buttons) {
+/**
+* Формирует html модального окна
+* type - тип окна
+* title - Заголовок в modal-title
+* messages - Сообщения добавляются в modal-body
+* buttons - Кнопки в modal-footer
+* events - объект с событиями
+*/
+function my_modal(type, title, messages, buttons, events) {
   var m = $('#modal');
   
   if (type == 'hide') {
-    $('#modal').modal('hide');
+    m.modal('hide');
     return false;
   }
   
@@ -322,10 +330,21 @@ function my_modal(type, title, messages, buttons) {
     }
     b.show();
   }
+
+  if (typeof(events) == 'object') {
+    $(events).each(function(i, ev) {
+      if (typeof(ev.name) != 'undefined' && typeof(ev.func) == 'function') {
+        m.on(ev.name,function(e){
+          func = ev.func;
+          func.call(e);
+        })
+      }
+    });
+  }
   
   i.html(messages);
   
-  $('#modal').modal();
+  m.modal();
 
   return false;
 }

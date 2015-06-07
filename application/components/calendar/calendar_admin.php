@@ -16,7 +16,7 @@ class Calendar_admin extends CI_Component {
   /**
    *  Добавление события
   **/  
-  function create_event($start = '', $end = '') {
+  function create_event() {
     return $this->render_template('admin/inner', array(
       'title' => 'Добавление события',
       'html' => $this->view->render_form(array(
@@ -29,13 +29,30 @@ class Calendar_admin extends CI_Component {
                 'view'      => 'fields/text',
                 'title'     => 'Название:',
                 'name'      => 'title',
+                'value'     => ($this->uri->getParam('title') ? $this->uri->getParam('title') : ''),
                 'maxlength' => 256
               ),
               array(
                 'view'      => 'fields/textarea',
                 'title'     => 'Описание:',
                 'name'      => 'description',
-                'maxlength' => 1000
+                'value'     => ($this->uri->getParam('description') ? $this->uri->getParam('description') : ''),
+                'maxlength' => 1000,
+                'rows'      => 2
+              ),
+              array(
+                'view'      => 'fields/textarea',
+                'title'     => 'Результат:',
+                'name'      => 'result',
+                'value'     => ($this->uri->getParam('result') ? $this->uri->getParam('result') : ''),
+                'maxlength' => 1000,
+                'rows'      => 2
+              ),
+              array(
+                'view'      => 'fields/hidden',
+                'title'     => 'Клиент:',
+                'name'      => 'client_id',
+                'value'     => ($this->uri->getParam('client_id') ? $this->uri->getParam('client_id') : ''),
               ),
               array(
                 'view'  => 'fields/datetime',
@@ -56,6 +73,12 @@ class Calendar_admin extends CI_Component {
                 'checked' => ($this->uri->getParam('allDay') ? 1 : 0)
               ),
               array(
+                'view'    => 'fields/checkbox',
+                'title'   => 'Выполнено',
+                'name'    => 'check',
+                'checked' => ($this->uri->getParam('check') ? 1 : 0)
+              ),
+              array(
                 'view'     => 'fields/submit',
                 'title'    => 'Создать',
                 'class'    => 'hidden',
@@ -73,17 +96,28 @@ class Calendar_admin extends CI_Component {
   function _create_event_process() {
     $params = array(
       'admin_id'    => $this->admin_id,
+      'client_id'   => ($this->input->post('client_id') ? $this->input->post('client_id') : null),
       'title'       => htmlspecialchars(trim($this->input->post('title'))),
       'description' => htmlspecialchars(trim($this->input->post('description'))),
+      'result'      => htmlspecialchars(trim($this->input->post('result'))),
       'start'       => ($this->input->post('start') ? date('Y-m-d H:i:s', strtotime($this->input->post('start'))) : NULL),
       'end'         => ($this->input->post('end') ? date('Y-m-d H:i:s', strtotime($this->input->post('end'))) : NULL),
       'active'      => 1,
       'allDay'      => ($this->input->post('allDay') ? 1 : 0),
+      'check'       => ($this->input->post('check') ? 1 : 0),
     );
 
     $errors = $this->_validate_event($params);
     if ($errors) {
       send_answer(array('errors' => $errors));
+    }
+
+    if ($params['allDay'] && !$params['end']) {
+      $params['end'] = date('Y-m-d H:i:s', mktime(0,0,0,
+        date("m",strtotime($params['start'])),
+        date("d",strtotime($params['start']))+1,
+        date("Y",strtotime($params['start']))
+      ));
     }
     
     $id = $this->calendar_model->create_event($params);
@@ -98,12 +132,12 @@ class Calendar_admin extends CI_Component {
     $errors = array();
     if (!$params['title']) { $errors['title'] = 'Не указано название'; }
     if (!$params['start']) { $errors['start'] = 'Не указано начало'; }
-    if (!$params['end']) { $errors['end'] = 'Не указано окончание'; }
+    if (!$params['allDay'] && !$params['end']) { $errors['end'] = 'Не указано окончание'; }
     return $errors;
   }
      
   /**
-   *  Добавление события
+   *  Редактирование события
   **/  
   function edit_event($id) {
     $item = $this->calendar_model->get_event(array('id' => $id));
@@ -126,8 +160,23 @@ class Calendar_admin extends CI_Component {
                 'view'      => 'fields/textarea',
                 'title'     => 'Описание:',
                 'name'      => 'description',
-                'maxlength' => 1000,
                 'value'     => $item['description'],
+                'maxlength' => 1000,
+                'rows'      => 2
+              ),
+              array(
+                'view'      => 'fields/textarea',
+                'title'     => 'Результат:',
+                'value'     => $item['result'],
+                'name'      => 'result',
+                'maxlength' => 1000,
+                'rows'      => 2
+              ),
+              array(
+                'view'      => 'fields/hidden',
+                'title'     => 'Клиент:',
+                'name'      => 'client_id',
+                'value'     => $item['client_id'],
               ),
               array(
                 'view'  => 'fields/datetime',
@@ -172,6 +221,7 @@ class Calendar_admin extends CI_Component {
     $params = array(
       'title'       => htmlspecialchars(trim($this->input->post('title'))),
       'description' => htmlspecialchars(trim($this->input->post('description'))),
+      'result'      => htmlspecialchars(trim($this->input->post('result'))),
       'start'       => ($this->input->post('start') ? date('Y-m-d H:i:s', strtotime($this->input->post('start'))) : NULL),
       'end'         => ($this->input->post('end') ? date('Y-m-d H:i:s', strtotime($this->input->post('end'))) : NULL),
       'check'       => ($this->input->post('check') ? 1 : 0),

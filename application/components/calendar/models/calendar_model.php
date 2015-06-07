@@ -8,7 +8,8 @@ class Calendar_model extends CI_Model {
   }
 
   /***События***/
-  function get_events($limit = 0, $offset = 0, $where = array(), $order_by = array()) {   
+  function get_events($limit = 0, $offset = 0, $where = array(), $order_by = array()) {  
+    $this->load->model('administrators/models/administrators_model'); 
     if ($limit) {
       $this->db->limit($limit, $offset);
     }
@@ -23,6 +24,7 @@ class Calendar_model extends CI_Model {
     $items = $this->db->get('admin_events')->result_array();
     foreach ($items as $key => &$item) {
       $item['allDay'] = ($item['allDay'] ? true : false);
+      $item['admin'] = $this->administrators_model->get_admin(array('id'=>$item['admin_id']));
     }
     unset($item);
   

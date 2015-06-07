@@ -8,6 +8,7 @@ class Clients_admin extends CI_Component {
     $this->load->model('clients/models/clients_model');
     $this->load->model('cities/models/cities_model');
     $this->load->model('administrators/models/administrators_model');
+    $this->load->model('calendar/models/calendar_model');
   }
   
   /**
@@ -374,6 +375,7 @@ class Clients_admin extends CI_Component {
   **/  
   function edit_client($id) {
     $item = $this->clients_model->get_client(array('id'=>$id));
+    $city = $this->cities_model->get_city(array('id'=>$item['city_id']));
     if(!$item){
       show_error('Объект не найден');
     }
@@ -391,18 +393,52 @@ class Clients_admin extends CI_Component {
         'value'     => $item['params'],
         'languages' => $languages
       );
+      //1 параметр - описание с телефонами, добавляем в событие по умолчанию
+      if($key == 0){
+        $event_desc = $item['params']['param_'.$param['id'].'_'.$this->language];
+      }
     }
     $fields_params[] = array(
       'view'     => 'fields/submit',
-      'title'    => 'Создать',
+      'title'    => 'Сохранить',
       'type'     => 'ajax',
-      'reaction' => $this->lang_prefix .'/admin'. $this->params['path'].'clients_list/'
+      'reaction' => 'reload'
     );
+    //параметры для добавления события
+    $event_params = json_encode(array(
+      'start'       => date("Y-m-d H:i:s", mktime(0,0,0,date("m"),date("d")+1,date("Y"))),
+      'client_id'   => $item['id'],
+      'title'       => $city['title_full'].' '.$item['title'],
+      'description' => @$event_desc,
+      'allDay'      => true,
+    ));
+    $event_btn = array(
+      'title'    => 'Добавить событие',
+      'icon'     => 'glyphicon-plus',
+      'onclick'  => 'createLocalEvent('.$event_params.', "reload")',
+    );
+    //список событий клиента
+    $events = $this->calendar_model->get_events(0,0,array('client_id' => $item['id']),array('start'=>'desc'));
+    //поля для формы
+    $fields_events = array();
+    foreach ($events as $key => $value) {
+      $fields_events[] = array(
+        'view'      => 'fields/readonly',
+        'title'     => '<small>'.date('d.m.Y H:i:s',strtotime($value['start'])).'</small> '.
+                       "<small><a href='javascript:void(0)' onClick='editEvent(".json_encode($value).")'>Редактировать</a></small>",
+        'value'     => '<small>'.$value['admin']['params']['name_'.$this->language].'<br/>'.$value['title'].'<br/>'.$value['result'].'</small>',
+      );
+    }
     return $this->render_template('admin/inner', array(
       'title' => 'Редактирование клиента',
       'html' => $this->view->render_form(array(
         'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'_edit_client_process/'.$id.'/',
-        'blocks' => array(
+        'blocks' => array(          
+          array(
+            'title'     => 'События',
+            'title_btn' => $this->load->view('fields/submit', array('vars' => $event_btn), true),
+            'fields'    => $fields_events
+          ),
           array(
             'title'   => 'Основные параметры',
             'fields'   => array(

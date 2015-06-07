@@ -47,13 +47,15 @@ class Admin extends PR_Controller {
     if (!isset($html)) {
       return;
     }
-    
+
     $admin = $this->administrators_model->get_admin(array('id' => $this->admin_id));
-    $admin['events'] = $this->db->get_where('admin_events', array('admin_id'=>$this->admin_id,'check'=>0,'start >='=>date('Y-m-d H:i:s')))->result_array();
-    $admin['red_events'] = $this->db->get_where('admin_events', array('admin_id'=>$this->admin_id,'check'=>0,'start <'=>date('Y-m-d H:i:s'),'end <'=>date('Y-m-d H:i:s')))->result_array();
-    //Проверка и обновление календаря событий
-    if ($this->main_model->exists_component('calendar')) {
-      $this->db->update('admin_events',array('color' => '#fe7979'),array('admin_id'=>$this->admin_id,'check'=>0,'start <'=>date('Y-m-d H:i:s'),'end <'=>date('Y-m-d H:i:s')));
+    if(exists_component('calendar')){
+      $admin['events'] = $this->db->get_where('admin_events', array('admin_id'=>$this->admin_id,'check'=>0,'start >='=>date('Y-m-d H:i:s')))->result_array();
+      $admin['red_events'] = $this->db->get_where('admin_events', array('admin_id'=>$this->admin_id,'check'=>0,'start <'=>date('Y-m-d H:i:s'),'end <'=>date('Y-m-d H:i:s')))->result_array();
+      //Проверка и обновление календаря событий
+      if ($this->main_model->exists_component('calendar')) {
+        $this->db->update('admin_events',array('color' => '#fe7979'),array('admin_id'=>$this->admin_id,'check'=>0,'start <'=>date('Y-m-d H:i:s'),'end <'=>date('Y-m-d H:i:s')));
+      }      
     }
 
     $this->load->view('admin/wrapper', array(

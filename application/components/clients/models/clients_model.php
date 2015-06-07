@@ -28,7 +28,7 @@ class Clients_model extends CI_Model {
   }
 
   function get_clients_report($limit = 0, $offset = 0, $where = array(), $order_by = array()) {   
-    $this->db->select('city.title as city,clients.*');
+    $this->db->select('city.title_full as city,clients.*');
     $this->db->join('city', 'city.id = clients.city_id', 'LEFT');
     if ($limit) {
       $this->db->limit($limit, $offset);

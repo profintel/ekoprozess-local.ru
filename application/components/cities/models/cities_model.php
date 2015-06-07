@@ -173,6 +173,10 @@ class Cities_model extends CI_Model {
       $this->db->where($where);
     }
     $items = $this->db->get('city')->result_array();
+    foreach ($items as $key => &$item) {
+      $item['title'] = $item['title_full'];
+    }
+    unset($item);
     
     return $items;
   }

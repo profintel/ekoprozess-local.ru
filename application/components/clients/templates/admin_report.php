@@ -36,7 +36,7 @@
       <?}?>
     </tr>
     <? foreach ($items as $item) { ?>
-      <tr>
+      <tr onclick="window.open('/admin/clients/edit_client/<?=$item['id'];?>/','_client_<?=$item['id'];?>')">
         <td><?=$item['id'];?></td>
         <td><?=$item['title'];?></td>
         <td><?=$item['city'];?></td>
