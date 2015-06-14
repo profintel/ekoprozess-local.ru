@@ -342,6 +342,10 @@ a.glyphicon:focus{
   margin-right: 15px;
 }
 
+.has-error .chosen-container-single .chosen-single{
+  border-color: #f04124;
+}
+
 @media (max-width: 950px) {
   .navbar-static-side {
     width: 50px;

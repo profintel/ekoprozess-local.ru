@@ -42,6 +42,18 @@ class Cities_model extends CI_Model {
     return $item;
   }
 
+  /*
+  * Возвращает федеральный округ по региону
+  * @param $region_id - id региона
+  */
+  function get_region_federal_region($region_id) {
+    $this->db->select('region_federal.*');
+    $this->db->join('region_federal_regions','region_federal_regions.federal_id = region_federal.id');
+    $item = $this->db->get_where('region_federal', array('region_federal_regions.region_id' => $region_id))->row_array();
+
+    return $item;
+  }
+
   function create_region_federal($params) {
     if ($this->db->insert('region_federal', $params)) {
       return $this->db->query("SELECT LAST_INSERT_ID() as id")->row()->id;

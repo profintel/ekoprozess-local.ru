@@ -491,8 +491,14 @@ class Cities_admin extends CI_Component {
               ),
               array(
                 'view'      => 'fields/text',
-                'title'     => 'Численность населения:',
+                'title'     => 'Численность населения (т. чел.):',
                 'name'      => 'number',
+                'maxlength' => 10
+              ),
+              array(
+                'view'      => 'fields/text',
+                'title'     => 'Расстояние до Екатеринбурга (км):',
+                'name'      => 'dist_ekb',
                 'maxlength' => 10
               ),
               array(
@@ -519,6 +525,7 @@ class Cities_admin extends CI_Component {
       'title'       => htmlspecialchars(trim($this->input->post('title'))),
       'region_id'   => (int)$this->input->post('region_id'),
       'number'      => (int)$this->input->post('number'),
+      'dist_ekb'    => (float)$this->input->post('dist_ekb'),
       'active'      => ($this->input->post('active') ? 1 : 0)
     );
     //формируем полное название с регионом
@@ -571,10 +578,17 @@ class Cities_admin extends CI_Component {
               ),
               array(
                 'view'      => 'fields/text',
-                'title'     => 'Численность населения:',
+                'title'     => 'Численность населения (т. чел.):',
                 'name'      => 'number',
                 'maxlength' => 10,
-                'value'   => $item['number']
+                'value'     => $item['number']
+              ),
+              array(
+                'view'      => 'fields/text',
+                'title'     => 'Расстояние до Екатеринбурга (км):',
+                'name'      => 'dist_ekb',
+                'maxlength' => 10,
+                'value'     => $item['dist_ekb']
               ),
               array(
                 'view'    => 'fields/checkbox',
@@ -601,6 +615,7 @@ class Cities_admin extends CI_Component {
       'title'       => htmlspecialchars(trim($this->input->post('title'))),
       'region_id'   => (int)$this->input->post('region_id'),
       'number'      => (int)$this->input->post('number'),
+      'dist_ekb'    => (float)$this->input->post('dist_ekb'),
       'active'      => ($this->input->post('active') ? 1 : 0)
     );
     //формируем полное название с регионом

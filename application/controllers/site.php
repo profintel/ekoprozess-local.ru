@@ -19,6 +19,8 @@ class Site extends PR_Controller {
   }
   
 	function _remap() {
+    location((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? 'https' : 'http') .'://'. $this->project['domain'] . '/admin/');
+
     if (!$this->project) {
       show_404();
     }

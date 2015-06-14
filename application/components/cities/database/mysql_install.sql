@@ -58,6 +58,7 @@ CREATE TABLE IF NOT EXISTS `pr_city` (
   `title` varchar(128) NOT NULL DEFAULT '',
   `title_full` varchar(1000) NOT NULL DEFAULT '',
   `number` int(10) unsigned NOT NULL DEFAULT '0',
+  `dist_ekb` float(10) unsigned NOT NULL DEFAULT '0',
   `active` boolean NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`),
   KEY `region_id` (`region_id`)

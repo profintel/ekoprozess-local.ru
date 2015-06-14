@@ -233,7 +233,7 @@ function handle_answer(answer, reaction, context) {
     return handle_sysmsg(answer.sysmsg);
   }
 
-  if (typeof(answer.errors) == 'object' && !$.isEmptyObject(answer.errors)) {
+  if(typeof(answer.errors) == 'object' && !$.isEmptyObject(answer.errors)) {
     var form = $(context).parents('form'), input, error;
     $.each(answer.errors, function(key,item){
       input = form.find('[name="'+key+'"]');
@@ -251,28 +251,34 @@ function handle_answer(answer, reaction, context) {
       }
     })
     sheet('hide');
+  } else if(typeof(answer.redirect) != 'undefined') {
+    document.location = answer.redirect;
   } else {
+    var form = $(context).parents('form');
+    if (form.length) {
+      form[0].reset();
+    }
     if (!reaction) {
       if (typeof(answer.messages) == 'object' && answer.messages.length) {
-        return my_modal('information', '', answer.messages, 'OK');
+        return my_modal('information', 'Уведомление', answer.messages, 'OK');
       } else {
         sheet('hide');
       }
     } else if (typeof(reaction) == 'function') {
       if (typeof(answer.messages) == 'object' && answer.messages.length) {
-        return my_modal('information', '', answer.messages, [{text: 'OK', handler: reaction, icon: 'glyphicon-ok'}]);
+        return my_modal('information', 'Уведомление', answer.messages, [{text: 'OK', handler: reaction, icon: 'glyphicon-ok'}]);
       } else {
         reaction.call((context ? context : this), answer);
       }
     } else if (reaction == 'reload') {
       if (typeof(answer.messages) == 'object' && answer.messages.length) {
-        return my_modal('information', '', answer.messages, [{text: 'OK', handler: function() { document.location.reload(); }, icon: 'glyphicon-ok'}]);
+        return my_modal('information', 'Уведомление', answer.messages, [{text: 'OK', handler: function() { document.location.reload(); }, icon: 'glyphicon-ok'}]);
       } else {
         document.location.reload();
       }
     } else {
       if (typeof(answer.messages) == 'object' && answer.messages.length) {
-        return my_modal('information', '', answer.messages, [{text: 'OK', handler: function() { document.location = reaction; }, icon: 'glyphicon-ok'}]);
+        return my_modal('information', 'Уведомление', answer.messages, [{text: 'OK', handler: function() { document.location = reaction; }, icon: 'glyphicon-ok'}]);
       } else {
         document.location = reaction;
       }

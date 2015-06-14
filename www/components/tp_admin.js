@@ -1,4 +1,4 @@
-/*** Generated 08.06.2015 00:12:40 ***/
+/*** Generated 14.06.2015 22:18:08 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -3734,7 +3734,7 @@ function handle_answer(answer, reaction, context) {
     return handle_sysmsg(answer.sysmsg);
   }
 
-  if (typeof(answer.errors) == 'object' && !$.isEmptyObject(answer.errors)) {
+  if(typeof(answer.errors) == 'object' && !$.isEmptyObject(answer.errors)) {
     var form = $(context).parents('form'), input, error;
     $.each(answer.errors, function(key,item){
       input = form.find('[name="'+key+'"]');
@@ -3752,28 +3752,34 @@ function handle_answer(answer, reaction, context) {
       }
     })
     sheet('hide');
+  } else if(typeof(answer.redirect) != 'undefined') {
+    document.location = answer.redirect;
   } else {
+    var form = $(context).parents('form');
+    if (form.length) {
+      form[0].reset();
+    }
     if (!reaction) {
       if (typeof(answer.messages) == 'object' && answer.messages.length) {
-        return my_modal('information', '', answer.messages, 'OK');
+        return my_modal('information', 'Уведомление', answer.messages, 'OK');
       } else {
         sheet('hide');
       }
     } else if (typeof(reaction) == 'function') {
       if (typeof(answer.messages) == 'object' && answer.messages.length) {
-        return my_modal('information', '', answer.messages, [{text: 'OK', handler: reaction, icon: 'glyphicon-ok'}]);
+        return my_modal('information', 'Уведомление', answer.messages, [{text: 'OK', handler: reaction, icon: 'glyphicon-ok'}]);
       } else {
         reaction.call((context ? context : this), answer);
       }
     } else if (reaction == 'reload') {
       if (typeof(answer.messages) == 'object' && answer.messages.length) {
-        return my_modal('information', '', answer.messages, [{text: 'OK', handler: function() { document.location.reload(); }, icon: 'glyphicon-ok'}]);
+        return my_modal('information', 'Уведомление', answer.messages, [{text: 'OK', handler: function() { document.location.reload(); }, icon: 'glyphicon-ok'}]);
       } else {
         document.location.reload();
       }
     } else {
       if (typeof(answer.messages) == 'object' && answer.messages.length) {
-        return my_modal('information', '', answer.messages, [{text: 'OK', handler: function() { document.location = reaction; }, icon: 'glyphicon-ok'}]);
+        return my_modal('information', 'Уведомление', answer.messages, [{text: 'OK', handler: function() { document.location = reaction; }, icon: 'glyphicon-ok'}]);
       } else {
         document.location = reaction;
       }
@@ -4063,42 +4069,6 @@ $(function() {
 
 $(function() {})
 
-/*** clients ***/
-
-/**
-* Меняет значения select регионов и городов в отчете по клиентам
-* @param el - текущий элемент DOM
-*        type - тип региона (федеральный округ или регион)
-*/
-function changeRegion(el,type){
-  if(type == 'federal'){
-    $('#region_id').parents('.form-group').addClass('loading');
-  }
-  $('#city_id').parents('.form-group').addClass('loading');
-  //id федерального округа
-  var html, id = $(el).val();
-  $.post('/admin/clients/renderSelectsReport/', {type:type, id: id}, function(result) {
-    if(type == 'federal'){
-      //регионы
-      html = $(result.regions).find('.col-sm-10').html();
-      $('#region_id').parents('.form-group').find('.col-sm-10').html("").append(html);
-      $('#region_id').chosen({
-        width: "100%",
-        allow_single_deselect: true
-      });
-      $('#region_id').parents('.form-group').removeClass('loading');
-    }
-    //города
-    html = $(result.city).find('.col-sm-10').html();
-    $('#city_id').parents('.form-group').find('.col-sm-10').html("").append(html);
-    $('#city_id').chosen({
-      width: "100%",
-      allow_single_deselect: true
-    });
-    $('#city_id').parents('.form-group').removeClass('loading');
-  },'json')
-}
-
 /*** calendar ***/
 
 $(function() {
@@ -4271,4 +4241,40 @@ function addLastEvent(){
     },'JSON');
   },100)
   sheet('hide');
+}
+
+/*** clients ***/
+
+/**
+* Меняет значения select регионов и городов в отчете по клиентам
+* @param el - текущий элемент DOM
+*        type - тип региона (федеральный округ или регион)
+*/
+function changeRegion(el,type){
+  if(type == 'federal'){
+    $('#region_id').parents('.form-group').addClass('loading');
+  }
+  $('#city_id').parents('.form-group').addClass('loading');
+  //id федерального округа
+  var html, id = $(el).val();
+  $.post('/admin/clients/renderSelectsReport/', {type:type, id: id}, function(result) {
+    if(type == 'federal'){
+      //регионы
+      html = $(result.regions).find('.col-sm-10').html();
+      $('#region_id').parents('.form-group').find('.col-sm-10').html("").append(html);
+      $('#region_id').chosen({
+        width: "100%",
+        allow_single_deselect: true
+      });
+      $('#region_id').parents('.form-group').removeClass('loading');
+    }
+    //города
+    html = $(result.city).find('.col-sm-10').html();
+    $('#city_id').parents('.form-group').find('.col-sm-10').html("").append(html);
+    $('#city_id').chosen({
+      width: "100%",
+      allow_single_deselect: true
+    });
+    $('#city_id').parents('.form-group').removeClass('loading');
+  },'json')
 }

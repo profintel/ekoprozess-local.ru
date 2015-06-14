@@ -19,13 +19,13 @@ class Clients_admin extends CI_Component {
       'title' => 'База клиентов',
       'items' => array(
         array(
-          'title' => 'Отчет по клиентам',
+          'title' => 'Список клиентов',
           'link'  => $this->lang_prefix .'/admin'. $this->params['path'] .'clients_report/'
         ),
-        array(
-          'title' => 'Список клиентов',
-          'link'  => $this->lang_prefix .'/admin'. $this->params['path'] .'clients_list/'
-        ),
+        // array(
+        //   'title' => 'Список клиентов',
+        //   'link'  => $this->lang_prefix .'/admin'. $this->params['path'] .'clients_list/'
+        // ),
         array(
           'title' => 'Параметры таблицы клиентов',
           'link'  => $this->lang_prefix .'/admin'. $this->params['path'] .'client_params/'
@@ -91,7 +91,7 @@ class Clients_admin extends CI_Component {
     );
     $data = array(
       'title'           => 'Клиенты',
-      'client_params'   => $this->clients_model->get_client_params(),
+      'client_params'   => $this->clients_model->get_client_params(0,0,array('active' => 1)),
       'items'           => $this->clients_model->get_clients_report($limit, $offset, $where),
       'pagination'      => $this->load->view('admin/pagination', $pagination_data, true),
       'form' => $this->view->render_form(array(
@@ -99,7 +99,7 @@ class Clients_admin extends CI_Component {
         'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'clients_report/',
         'blocks' => array(
           array(
-            'title'   => 'Параметры отчета',
+            'title'   => 'Параметры поиска',
             'fields'   => array(
               array(
                 'view'    => 'fields/select',
@@ -138,7 +138,7 @@ class Clients_admin extends CI_Component {
               ),
               array(
                 'view'        => 'fields/select',
-                'title'       => 'Администратор:',
+                'title'       => 'Менеджер:',
                 'name'        => 'admin_id',
                 'value'       => $get_params['admin_id'],
                 'text_field'  => 'name_ru',
@@ -217,12 +217,21 @@ class Clients_admin extends CI_Component {
       'prefix'  => '/admin'.$this->params['path'].'clients_list/',
       'postfix' => ($title ? '?title='.$title : '')
     );
+    $items = $this->clients_model->get_clients($limit, $offset, $where);
+    foreach ($items as $key => &$item) {
+      $city = $this->cities_model->get_city(array('id'=>$item['city_id']));
+      if($city){
+        $region_federal = $this->cities_model->get_region_federal_region($city['region_id']);
+        $item['title'] = $city['title_full'] .' ('.@$region_federal['title'] .') '. $item['title'];
+      }
+    }
+    unset($item);
     $data = array(
       'title'           => 'Клиенты',
       'search_path'     => '/admin'.$this->params['path'].'clients_list/',
       'search_title'    => $title,
       'component_item'  => array('name' => 'client', 'title' => 'клиента'),
-      'items'           => $this->clients_model->get_clients($limit, $offset, $where),
+      'items'           => $items,
       'pagination'      => $this->load->view('admin/pagination', $pagination_data, true),
     );
 
@@ -296,14 +305,16 @@ class Clients_admin extends CI_Component {
                 'view'    => 'fields/select',
                 'title'   => 'Город:',
                 'name'    => 'city_id',
-                'options' => $this->cities_model->get_cities()
+                'options' => $this->cities_model->get_cities(),
+                'empty'   => true
               ),
               array(
                 'view'        => 'fields/select',
-                'title'       => 'Администратор:',
+                'title'       => 'Менеджер:',
                 'name'        => 'admin_id',
                 'text_field'  => 'name_ru',
-                'options'     => $this->administrators_model->get_admins()
+                'options'     => $this->administrators_model->get_admins(),
+                'empty'       => true
               ),
               array(
                 'view'  => 'fields/checkbox',
@@ -322,10 +333,87 @@ class Clients_admin extends CI_Component {
           array(
             'title'   => 'Дополнительные параметры',
             'fields'   => $fields_params
+          ),
+          array(
+            'title'   => 'Реквизиты',
+            'fields'   => array(
+              array(
+                'view'      => 'fields/text',
+                'title'     => 'ИНН',
+                'name'      => 'inn',
+                'languages' => $languages
+              ),
+              array(
+                'view'      => 'fields/text',
+                'title'     => 'КПП',
+                'name'      => 'kpp',
+                'languages' => $languages
+              ),
+              array(
+                'view'      => 'fields/text',
+                'title'     => 'ОГРН',
+                'name'      => 'ogrn',
+                'languages' => $languages
+              ),
+              array(
+                'view'      => 'fields/text',
+                'title'     => 'Расчетный счёт',
+                'name'      => 'bank_account',
+                'languages' => $languages
+              ),
+              array(
+                'view'      => 'fields/text',
+                'title'     => 'Кор. счет',
+                'name'      => 'kor_account',
+                'languages' => $languages
+              ),
+              array(
+                'view'      => 'fields/text',
+                'title'     => 'БИК',
+                'name'      => 'bik',
+                'languages' => $languages
+              ),
+              array(
+                'view'      => 'fields/text',
+                'title'     => 'Юр. Адрес',
+                'name'      => 'legal_address',
+                'languages' => $languages
+              ),
+              array(
+                'view'      => 'fields/text',
+                'title'     => 'Почтовый адрес',
+                'name'      => 'post_address',
+                'languages' => $languages
+              ),
+              array(
+                'view'      => 'fields/text',
+                'title'     => 'ФИО директора',
+                'name'      => 'director_name',
+                'languages' => $languages
+              ),
+              array(
+                'view'      => 'fields/text',
+                'title'     => 'Телефон директора',
+                'name'      => 'director_phone',
+                'languages' => $languages
+              ),
+              array(
+                'view'      => 'fields/text',
+                'title'     => 'Email директора',
+                'name'      => 'director_email',
+                'languages' => $languages
+              ),
+              array(
+                'view'     => 'fields/submit',
+                'title'    => 'Создать',
+                'type'     => 'ajax',
+                'reaction' => $this->lang_prefix .'/admin'. $this->params['path'].'clients_list/'
+              )
+            )
           )
         )
       )),
-      'back' => $this->lang_prefix .'/admin'. $this->params['path'].'clients_list/'
+      'back' => $this->lang_prefix .'/admin'. $this->params['path'].'clients_report/'
     ), TRUE);
   }
   
@@ -334,23 +422,41 @@ class Clients_admin extends CI_Component {
       'title'       => htmlspecialchars(trim($this->input->post('title'))),
       'city_id'     => (int)$this->input->post('city_id'),
       'admin_id'    => (int)$this->input->post('admin_id'),
-      'active'      => ($this->input->post('active') ? 1 : 0)
-    );
-    $params['order'] = $this->clients_model->get_client_order();
+      'active'      => ($this->input->post('active') ? 1 : 0),
+      'order'       => $this->clients_model->get_client_order()
+    );    
+    $languages = $this->languages_model->get_languages(1, 0);
     
     $client_params = $this->clients_model->get_client_params();
-    $languages = $this->languages_model->get_languages(1, 0);
-    $multiparams = array();
+    //значения по дополнительным параметрам клиента
+    $client_multiparams = array();
     foreach ($languages as $language) {
-      $multiparams[$language['name']] = array();
+      $client_multiparams[$language['name']] = array();
       foreach ($client_params as $key => $param) {
-        $multiparams[$language['name']]['param_'.$param['id']] = htmlspecialchars(trim($this->input->post('param_'.$param['id'].'_'. $language['name'])));
+        $client_multiparams[$language['name']]['param_'.$param['id']] = htmlspecialchars(trim($this->input->post('param_'.$param['id'].'_'. $language['name'])));
       }
     }
 
-    if(!$this->_validate_client_title($params['title'])){
-      send_answer(array('errors' => array('title' => 'Клиент с таким названием уже существует')));
+    //значения по реквизитам
+    $multiparams = array();
+    foreach ($languages as $language) {
+      $multiparams[$language['name']]['inn'] = htmlspecialchars(trim($this->input->post('inn_'. $language['name'])));
+      $multiparams[$language['name']]['kpp'] = htmlspecialchars(trim($this->input->post('kpp_'. $language['name'])));
+      $multiparams[$language['name']]['ogrn'] = htmlspecialchars(trim($this->input->post('ogrn_'. $language['name'])));
+      $multiparams[$language['name']]['bank_account'] = htmlspecialchars(trim($this->input->post('bank_account_'. $language['name'])));
+      $multiparams[$language['name']]['kor_account'] = htmlspecialchars(trim($this->input->post('kor_account_'. $language['name'])));
+      $multiparams[$language['name']]['bik'] = htmlspecialchars(trim($this->input->post('bik_'. $language['name'])));
+      $multiparams[$language['name']]['legal_address'] = htmlspecialchars(trim($this->input->post('legal_address_'. $language['name'])));
+      $multiparams[$language['name']]['post_address'] = htmlspecialchars(trim($this->input->post('post_address_'. $language['name'])));
+      $multiparams[$language['name']]['director_name'] = htmlspecialchars(trim($this->input->post('director_name_'. $language['name'])));
+      $multiparams[$language['name']]['director_phone'] = htmlspecialchars(trim($this->input->post('director_phone_'. $language['name'])));
+      $multiparams[$language['name']]['director_email'] = htmlspecialchars(trim($this->input->post('director_email_'. $language['name'])));
     }
+
+    $errors = $this->_validate_client_title($params);
+    if ($errors) {
+      send_answer(array('errors' => $errors));
+    } 
 
     $errors = $this->_validate_client($params);
     if ($errors) {
@@ -362,12 +468,17 @@ class Clients_admin extends CI_Component {
       send_answer(array('errors' => array('Ошибка при добавлении объекта')));
     }
     
-    if (!$this->main_model->set_params('client_params', $id, $multiparams)) {
+    if (!$this->main_model->set_params('client_params', $id, $client_multiparams)) {
       $this->clients_model->delete_client($id);
       send_answer(array('errors' => array('Не удалось сохранить параметры')));
     }
+    
+    if (!$this->main_model->set_params('clients', $id, $multiparams)) {
+      $this->clients_model->delete_client($id);
+      send_answer(array('errors' => array('Не удалось сохранить реквизиты')));
+    }
 
-    send_answer();
+    send_answer(array('redirect' => '/admin'.$this->params['path'].'edit_client/'.$id.'/'));
   }
   
   /**
@@ -408,7 +519,7 @@ class Clients_admin extends CI_Component {
     $event_params = json_encode(array(
       'start'       => date("Y-m-d H:i:s", mktime(0,0,0,date("m"),date("d")+1,date("Y"))),
       'client_id'   => $item['id'],
-      'title'       => $city['title_full'].' '.$item['title'],
+      'title'       => @$city['title_full'].' '.$item['title'],
       'description' => @$event_desc,
       'allDay'      => true,
     ));
@@ -454,15 +565,17 @@ class Clients_admin extends CI_Component {
                 'title'   => 'Город:',
                 'name'    => 'city_id',
                 'value'   => $item['city_id'],
-                'options' => $this->cities_model->get_cities()
+                'options' => $this->cities_model->get_cities(),
+                'empty'   => true
               ),
               array(
                 'view'        => 'fields/select',
-                'title'       => 'Администратор:',
+                'title'       => 'Менеджер:',
                 'name'        => 'admin_id',
                 'value'       => $item['admin_id'],
                 'text_field'  => 'name_ru',
-                'options'     => $this->administrators_model->get_admins()
+                'options'     => $this->administrators_model->get_admins(),
+                'empty'       => true
               ),
               array(
                 'view'    => 'fields/checkbox',
@@ -481,10 +594,98 @@ class Clients_admin extends CI_Component {
           array(
             'title'   => 'Дополнительные параметры',
             'fields'   => $fields_params
+          ),
+          array(
+            'title'   => 'Реквизиты',
+            'fields'   => array(
+              array(
+                'view'      => 'fields/text',
+                'title'     => 'ИНН',
+                'name'      => 'inn',
+                'languages' => $languages,
+                'value'     => $item['main_params'],
+              ),
+              array(
+                'view'      => 'fields/text',
+                'title'     => 'КПП',
+                'name'      => 'kpp',
+                'languages' => $languages,
+                'value'     => $item['main_params'],
+              ),
+              array(
+                'view'      => 'fields/text',
+                'title'     => 'ОГРН',
+                'name'      => 'ogrn',
+                'languages' => $languages,
+                'value'     => $item['main_params'],
+              ),
+              array(
+                'view'      => 'fields/text',
+                'title'     => 'Расчетный счёт',
+                'name'      => 'bank_account',
+                'languages' => $languages,
+                'value'     => $item['main_params'],
+              ),
+              array(
+                'view'      => 'fields/text',
+                'title'     => 'Кор. счет',
+                'name'      => 'kor_account',
+                'languages' => $languages,
+                'value'     => $item['main_params'],
+              ),
+              array(
+                'view'      => 'fields/text',
+                'title'     => 'БИК',
+                'name'      => 'bik',
+                'languages' => $languages,
+                'value'     => $item['main_params'],
+              ),
+              array(
+                'view'      => 'fields/text',
+                'title'     => 'Юр. Адрес',
+                'name'      => 'legal_address',
+                'languages' => $languages,
+                'value'     => $item['main_params'],
+              ),
+              array(
+                'view'      => 'fields/text',
+                'title'     => 'Почтовый адрес',
+                'name'      => 'post_address',
+                'languages' => $languages,
+                'value'     => $item['main_params'],
+              ),
+              array(
+                'view'      => 'fields/text',
+                'title'     => 'ФИО директора',
+                'name'      => 'director_name',
+                'languages' => $languages,
+                'value'     => $item['main_params'],
+              ),
+              array(
+                'view'      => 'fields/text',
+                'title'     => 'Телефон директора',
+                'name'      => 'director_phone',
+                'languages' => $languages,
+                'value'     => $item['main_params'],
+              ),
+              array(
+                'view'      => 'fields/text',
+                'title'     => 'Email директора',
+                'name'      => 'director_email',
+                'languages' => $languages,
+                'value'     => $item['main_params'],
+              ),
+              array(
+                'view'     => 'fields/submit',
+                'title'    => 'Сохранить',
+                'type'     => 'ajax',
+                'reaction' => 'reload'
+              )
+            )
           )
         )
       )),
-      'back' => $this->lang_prefix .'/admin'. $this->params['path'].'clients_list/'
+      'back' => $this->lang_prefix .'/admin'. $this->params['path'].'clients_report/'
     ), TRUE);
   }
   
@@ -495,10 +696,37 @@ class Clients_admin extends CI_Component {
       'admin_id'  => (int)$this->input->post('admin_id'),
       'active'    => ($this->input->post('active') ? 1 : 0)
     );
+    $languages = $this->languages_model->get_languages(1, 0);
 
+    $client_params = $this->clients_model->get_client_params();
+    //значения по дополнительным параметрам клиента
+    $client_multiparams = array();
+    foreach ($languages as $language) {
+      $client_multiparams[$language['name']] = array();
+      foreach ($client_params as $key => $param) {
+        $client_multiparams[$language['name']]['param_'.$param['id']] = htmlspecialchars(trim($this->input->post('param_'.$param['id'].'_'. $language['name'])));
+      }
+    }
 
-    if(!$this->_validate_client_title($params['title'], $id)){
-      send_answer(array('errors' => array('title' => 'Клиент с таким названием уже существует')));
+    //значения по реквизитам
+    $multiparams = array();
+    foreach ($languages as $language) {
+      $multiparams[$language['name']]['inn'] = htmlspecialchars(trim($this->input->post('inn_'. $language['name'])));
+      $multiparams[$language['name']]['kpp'] = htmlspecialchars(trim($this->input->post('kpp_'. $language['name'])));
+      $multiparams[$language['name']]['ogrn'] = htmlspecialchars(trim($this->input->post('ogrn_'. $language['name'])));
+      $multiparams[$language['name']]['bank_account'] = htmlspecialchars(trim($this->input->post('bank_account_'. $language['name'])));
+      $multiparams[$language['name']]['kor_account'] = htmlspecialchars(trim($this->input->post('kor_account_'. $language['name'])));
+      $multiparams[$language['name']]['bik'] = htmlspecialchars(trim($this->input->post('bik_'. $language['name'])));
+      $multiparams[$language['name']]['legal_address'] = htmlspecialchars(trim($this->input->post('legal_address_'. $language['name'])));
+      $multiparams[$language['name']]['post_address'] = htmlspecialchars(trim($this->input->post('post_address_'. $language['name'])));
+      $multiparams[$language['name']]['director_name'] = htmlspecialchars(trim($this->input->post('director_name_'. $language['name'])));
+      $multiparams[$language['name']]['director_phone'] = htmlspecialchars(trim($this->input->post('director_phone_'. $language['name'])));
+      $multiparams[$language['name']]['director_email'] = htmlspecialchars(trim($this->input->post('director_email_'. $language['name'])));
+    }
+
+    $errors = $this->_validate_client_title($params, $id);
+    if ($errors) {
+      send_answer(array('errors' => $errors));
     }
 
     $errors = $this->_validate_client($params);
@@ -509,6 +737,16 @@ class Clients_admin extends CI_Component {
     if (!$this->clients_model->update_client($id, $params)) {
       send_answer(array('errors' => array('Ошибка при сохранении изменений')));
     }
+    
+    if (!$this->main_model->set_params('client_params', $id, $client_multiparams)) {
+      $this->clients_model->delete_client($id);
+      send_answer(array('errors' => array('Не удалось сохранить параметры')));
+    }
+    
+    if (!$this->main_model->set_params('clients', $id, $multiparams)) {
+      $this->clients_model->delete_client($id);
+      send_answer(array('errors' => array('Не удалось сохранить реквизиты')));
+    }
 
     send_answer(array('success' => array('Изменения успешно сохранены')));
   }
@@ -516,18 +754,22 @@ class Clients_admin extends CI_Component {
   function _validate_client($params) {
     $errors = array();
     if (!$params['title']) { $errors['title'] = 'Не указано название'; }
+    if (!$params['city_id']) { $errors['city_id'] = 'Не указан город'; }
     return $errors;
   }
   
-  function _validate_client_title($title, $id = 0) {
-    $where = array('title'=>$title);
+  function _validate_client_title($params, $id = 0) {
+    $errors = array();
+    $where = array('title' => $params['title'],'city_id' => $params['city_id']);
     if($id){
       $where['id !='] = $id;
     }
-    if ($this->clients_model->get_clients_cnt($where)) {
-      return false;
+    $client = $this->clients_model->get_client($where);
+    if ($client) { 
+      $errors['title'] = 'В базе уже существует клиент с указанным названием и городом. Менеджер: '.
+      ($client['admin'] ? $client['admin']['params']['name_'.$this->language] : 'не указан');
     }
-    return true;
+    return $errors;
   }
 
   /**
@@ -555,6 +797,8 @@ class Clients_admin extends CI_Component {
     if (!$this->clients_model->delete_client((int)$id)) {
       send_answer(array('errors' => array('Не удалось удалить объект')));
     }
+    $this->main_model->delete_params('clients',$id);
+    $this->main_model->delete_params('client_params',$id);
     
     send_answer();
   }
@@ -750,7 +994,8 @@ class Clients_admin extends CI_Component {
   **/
   function import() {
     return $this->render_template('templates/admin_import', array(
-      'title' => 'Импорт клиентской базы из Excel',
+      'title'         => 'Импорт клиентской базы из Excel',
+      'client_params' => $this->clients_model->get_client_params(0,0,array('active' => 1)),
       'form' => $this->view->render_form(array(
         'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'_import_process/',
         'blocks' => array(
@@ -766,7 +1011,7 @@ class Clients_admin extends CI_Component {
                 'view'     => 'fields/submit',
                 'title'    => 'Загрузить',
                 'type'     => 'ajax',
-                'reaction' => $this->lang_prefix .'/admin'. $this->params['path']
+                'reaction' => ''
               )
             )
           )
@@ -776,6 +1021,13 @@ class Clients_admin extends CI_Component {
     ), TRUE);
   }
 
+  /**
+  * Обработка загруженного файла excel
+  * 1 ячейка - Название фирмы
+  * 2 ячейка - Название региона
+  * 3 ячейка - Название города
+  * Остальные ячейки - активные параметры клиента в порядке установленном в админке
+  */
   function _import_process() {
     if (!$_FILES['file']['name']) {
       send_answer(array('errors' => array('file' => 'Загрузите файл!')));
@@ -784,37 +1036,66 @@ class Clients_admin extends CI_Component {
     if (!$file) {
       send_answer(array('errors' => array('file' => 'Ошибка при загрузке файла!')));
     }
+    //загружаем библиотеку PHPExcel для обработки файла
     $this->load->library('PHPExcel');
     /** Load $inputFileName to a PHPExcel Object  **/
     $objPHPExcel = PHPExcel_IOFactory::load('.'.$file);
 
-
+    //данные активного листа файла
     $sheetData = $objPHPExcel->getActiveSheet()->toArray(null,true,true,true);
     foreach ($sheetData as $key => $row) {
-      $row['B'] = explode(' ', $row['B']);
-      $row['B'] = $row['B'][0];
-      $city = $this->cities_model->get_city('title LIKE "%'.str_replace(' ', '%', $row['B']).'%"');
+      //параметры для таблицы pr_clients
       $params = array(
         'title'       => htmlspecialchars(trim($row['A'])),
-        'city_id'     => ($city ? $city['id'] : NULL),
+        'city_id'     => NULL,
         'admin_id'    => NULL,
-        'active'      => 1
+        'active'      => 1,
+        'order'       => $this->clients_model->get_client_order(),
       );
-      $params['order'] = $this->clients_model->get_client_order();
-      
-      $client_params = $this->clients_model->get_client_params();
-      $languages = $this->languages_model->get_languages(1, 0);
-      $multiparams = array();
-      foreach ($languages as $language) {
-        $multiparams[$language['name']]['param_1'] = htmlspecialchars(trim($row['C']));
-        $multiparams[$language['name']]['param_2'] = htmlspecialchars(trim($row['D']));
-        $multiparams[$language['name']]['param_3'] = htmlspecialchars(trim($row['E']));
-        $multiparams[$language['name']]['param_4'] = htmlspecialchars(trim($row['F']));
-        $multiparams[$language['name']]['param_5'] = htmlspecialchars(trim($row['G']));
-        $multiparams[$language['name']]['param_6'] = htmlspecialchars(trim($row['H']));
+
+      if(!$params['title']){
+        send_answer(array('errors' => array('file' => 'Ошибка в строке '.$key.': Не указано название клиента')));
+      }
+
+      /***Поиск города с учетом региона***/
+      // разбиваем строку с регионом на массив через пробелы
+      $row['B'] = explode(' ', $row['B']);
+      //названием региона является 1 слово в строке
+      $row['B'] = $row['B'][0];
+      //поиск региона в базе
+      $region = $this->cities_model->get_region('title LIKE "%'.str_replace(' ', '%', $row['B']).'%"');
+      if(!$region){
+        send_answer(array('errors' => array('file' => 'Ошибка в строке '.$key.': Не найден регион в базе')));
       }
       
-      $client = $this->clients_model->get_client(array('title'=>$params['title']));
+      // разбиваем строку с городом на массив через пробелы
+      $row['C'] = explode(' ', $row['C']);
+      //названием города является 1 слово в строке
+      $row['C'] = $row['C'][0];
+      //поиск города с учетом региона в базе
+      $city = $this->cities_model->get_city('region_id = '.$region['id'].' AND title LIKE "%'.str_replace(' ', '%', $row['C']).'%"');
+
+      if(!$city){
+        send_answer(array('errors' => array('file' => 'Ошибка в строке '.$key.': Не найден город в базе')));
+      }
+
+      $params['city_id'] = $city['id'];
+      
+      //активные параметры клиента в заданной сортировке
+      $client_params = $this->clients_model->get_client_params(0,0,array('active' => 1));
+      $multiparams = array();
+      //начинаем просмотр строки файла с 4-ой колонки, откуда начинаются параметры
+      $columnNumIndex = 3;
+      foreach ($client_params as $key => $client_param) {
+        //строковый индекс колонки в соответствии с заданным числовым индексом
+        $columnStringIndex = PHPExcel_Cell::stringFromColumnIndex($columnNumIndex);
+        //сопоставляем параметр с ячейкой в файле с вычисленным индексом
+        $multiparams[$this->language]['param_'.$client_param['id']] = htmlspecialchars(trim(@$row[$columnStringIndex]));
+        //увеличиваем индекс ячейки
+        $columnNumIndex++;
+      }
+      //поиск клиента в базе по title
+      $client = $this->clients_model->get_client(array('title'=>$params['title'], 'city_id'=>$city['id']));
       if ($client){
         $id = $client['id'];
         if (!$this->clients_model->update_client($id, $params)) {
@@ -834,7 +1115,7 @@ class Clients_admin extends CI_Component {
 
     }
 
-    send_answer();
+    send_answer(array('messages' => array('Файл успешно обработан')));
   }
 
 }

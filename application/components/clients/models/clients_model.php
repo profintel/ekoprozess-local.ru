@@ -28,7 +28,7 @@ class Clients_model extends CI_Model {
   }
 
   function get_clients_report($limit = 0, $offset = 0, $where = array(), $order_by = array()) {   
-    $this->db->select('city.title_full as city,clients.*');
+    $this->db->select('clients.*, city.title_full as city_title, city.number as city_number, city.dist_ekb as city_dist_ekb');
     $this->db->join('city', 'city.id = clients.city_id', 'LEFT');
     if ($limit) {
       $this->db->limit($limit, $offset);
@@ -46,6 +46,7 @@ class Clients_model extends CI_Model {
     $items = $this->db->get('clients')->result_array();
     foreach ($items as $key => &$item) {
       $item['params'] = $this->main_model->get_params('client_params', $item['id']);
+      $item['admin'] = $this->administrators_model->get_admin(array('id' => $item['admin_id']));
     }
     unset($item);
     
@@ -63,6 +64,8 @@ class Clients_model extends CI_Model {
     $item = $this->db->get_where('clients', $where)->row_array();
     if($item){
       $item['params'] = $this->main_model->get_params('client_params', $item['id']);
+      $item['main_params'] = $this->main_model->get_params('clients', $item['id']);
+      $item['admin'] = $this->administrators_model->get_admin(array('id' => $item['admin_id']));
     }
     return $item;
   }

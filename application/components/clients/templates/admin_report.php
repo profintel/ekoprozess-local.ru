@@ -1,23 +1,17 @@
 <div class="container-fluid padding_0">
   <div class="block-title row">
-    <div class="<?=(@$search_path ?'col-sm-7':'');?>">
+    <div class="col-sm-7">
       <h1><span class="glyphicon <?=($_component['icon']?$_component['icon']:'glyphicon-ok');?>"></span>
         <?=(@$title ? $title : $_component['title']);?>
       </h1>
       <p class="visible-xs-block">&nbsp;</p>
     </div>
-    <? if (@$search_path) { ?>
-      <div class="col-sm-5 text-right">
-        <form action="<?=$search_path;?>" method="GET" class="form-inline">
-          <div class="form-group">
-            <input type="text" name="title" value="<?=$search_title;?>" <?=($search_title ? 'autofocus="true"' : '');?> class="form-control input-sm" id="searchTitle" placeholder="Введите название">
-          </div>
-          <div class="form-group">
-          <button type="submit" class="btn btn-default btn-sm">Поиск</button>
-          </div>
-        </form>
-      </div>
-    <? } ?>
+
+    <div class="col-sm-5 text-right">
+      <a href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>create_client/" class="btn btn-primary btn-xs pull-right">
+        <span class="glyphicon glyphicon-plus"></span> Создать клиента
+      </a>
+    </div>
   </div>
 </div>
 <div class="container-fluid">
@@ -29,8 +23,9 @@
   <table class="table table-report table-hover table-bordered">
     <tr>
       <th>ID</th>
+      <th>Менеджер</th>
       <th>Название</th>
-      <th>Город</th>
+      <th>Населенный пункт</th>
       <?foreach ($client_params as $key => $value) {?>
         <th><?=$value['title'];?></th>
       <?}?>
@@ -38,8 +33,17 @@
     <? foreach ($items as $item) { ?>
       <tr onclick="window.open('/admin/clients/edit_client/<?=$item['id'];?>/','_client_<?=$item['id'];?>')">
         <td><?=$item['id'];?></td>
+        <td><?=($item['admin'] ? $item['admin']['params']['name_'.$_language] : 'Не указан');?></td>
         <td><?=$item['title'];?></td>
-        <td><?=$item['city'];?></td>
+        <td>
+          <?=$item['city_title'];?>
+          <?if ($item['city_number']) {?>
+            <br/><?=$item['city_number'];?> т. чел.
+          <?}?>
+          <?if ($item['city_dist_ekb']) {?>
+            <br/><?=$item['city_dist_ekb'];?> км до Екатеринбурга
+          <?}?>
+        </td>
         <?foreach ($client_params as $key => $value) {?>
           <td><?=@$item['params']['param_'.$value['id'].'_'.$_language];?></td>
         <?}?>

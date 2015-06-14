@@ -1,8 +1,8 @@
-DROP TABLE IF EXISTS `pr_client_param_values`;
-
 DROP TABLE IF EXISTS `pr_client_params`;
 
 DROP TABLE IF EXISTS `pr_clients`;
+
+DELETE FROM `pr_params` WHERE `category` = "client_params";
 
 CREATE TABLE IF NOT EXISTS `pr_clients` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
