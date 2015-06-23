@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component>
+  
+  <information>
+    <title>Конструктор форм</title>
+    <version>1.0</version>
+    <description>Создание различных форм</description>
+  </information>
+  
+  <install>
+    <menu>secondary</menu>
+    <icon>glyphicon-th-large</icon>
+    <requirement>templates</requirement>
+  </install>
+  
+  <template>
+    <title>Форма - Bootstrap</title>
+    <path>templates/form_bootstrap</path>
+  </template>
+  
+</component>

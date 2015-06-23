@@ -1,0 +1,10 @@
+.messages-title{
+	background:transparent url("/components/messages/media/icon.png") left top no-repeat;
+}
+.date {
+	color:#999999;
+	font-size:13px;
+}
+.user {
+	font-size:13px;
+}

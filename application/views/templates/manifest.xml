@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+  
+  <template>
+    <title>Основной</title>
+    <path>main</path>
+  </template>
+  
+  <template>
+    <title>Страница - Главная</title>
+    <path>main_page</path>
+  </template>  
+
+  <template>
+    <title>Страница - Внутренняя</title>
+    <path>text_page</path>
+  </template>
+
+    <template>
+        <title>Страница - Контакты</title>
+        <path>contacts_page</path>
+    </template>
+
+    <template>
+    <title>Основное меню</title>
+    <path>main_menu</path>
+  </template>
+  
+  <template>
+    <title>Нижнее меню</title>
+    <path>bottom_menu</path>
+  </template>
+  
+  <template>
+    <title>Постраничная навигация</title>
+    <path>crumbs</path>
+  </template>
+  
+</templates>

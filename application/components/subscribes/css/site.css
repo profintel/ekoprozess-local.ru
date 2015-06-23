@@ -1,0 +1,83 @@
+#sheet_loading,
+#sheet {
+  position: fixed;
+  display: none;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #000;
+  filter: progid:DXImageTransform.Microsoft.Alpha(opacity=50);
+  -moz-opacity: 0.5;
+  -khtml-opacity: 0.5;
+  opacity: 0.5;
+  z-index: 1001;
+}
+#sheet_loading {
+  background-image: url(/adm/images/loading_big_black.gif);
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 1000;
+}
+
+#modal {
+  z-index: 1002;
+  position: fixed;
+  width: 400px;
+  background-color: #666;
+  border-radius: 10px;
+  padding: 7px;
+  display: none;
+}
+#modal .title {
+  color: #78ac05;
+  background-color: #505050;
+  border-radius: 6px 6px 0 0;
+  padding: 10px;
+  font-size: 16px;
+}
+#modal .inner {
+  background-color: #505050;
+  color: #fff;
+  padding: 0 10px 0 72px;
+  background-position: 20px top;
+  background-repeat: no-repeat;
+  min-height: 32px;
+  y-overflow: auto;
+}
+#modal .buttons {
+  background-color: #505050;
+  padding: 10px;
+  border-radius: 0 0 6px 6px;
+}
+.error_i_b {
+  background-image: url(/adm/images/icons/error_b.png);
+}
+.accept_i_s {
+  background-image: url(/adm/images/icons/accept_s.png);
+}
+.subscribe .button {
+  display: block;
+  float: right;
+  border-radius: 4px;
+  background-color: #ece9d8;
+  border: 1px solid #d8d5c4;
+  color: #444;
+  text-decoration: none;
+  padding: 4px 8px;
+  font-size: 13px;
+  margin: 4px 1px 1px 5px;
+}
+.subscribe .button:hover {
+  background-color: #fcf9e8;
+  border: 1px solid #e8e5d4;
+  color: #555;
+}
+.subscribe .button:active {
+  margin: 5px 0 0 6px;
+}
+.icon_small {
+  background-position: 4px center;
+  background-repeat: no-repeat;
+  padding-left: 24px;
+}

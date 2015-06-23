@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component>
+  
+  <information>
+    <title>Языки</title>
+    <version>1.0</version>
+    <description>Управление языками</description>
+  </information>
+  
+  <install>
+    <menu>secondary</menu>
+    <icon>glyphicon-flag</icon>
+  </install>
+  
+  <template>
+    <title>Языки</title>
+    <path>templates/languages</path>
+  </template>
+  
+</component>

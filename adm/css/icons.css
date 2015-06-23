@@ -1,0 +1,97 @@
+.icon_small, .icon_big {
+  background-position: 4px center;
+  background-repeat: no-repeat;
+}
+.icon_small {
+  padding-left: 24px;
+}
+.icon_big {
+  padding-left: 44px;
+}
+
+.accept_i_s {
+  background-image: url(/adm/images/icons/accept_s.png);
+}
+.switch_i_b {
+  background-image: url(/adm/images/icons/switch_b.png);
+}
+.arrow_left_i_s {
+  background-image: url(/adm/images/icons/arrow_left_s.png);
+}
+.arrow_right_i_s {
+  background-image: url(/adm/images/icons/arrow_right_s.png);
+}
+.arrow_up_i_s {
+  background-image: url(/adm/images/icons/arrow_up_s.png);
+}
+.arrow_down_i_s {
+  background-image: url(/adm/images/icons/arrow_down_s.png);
+}
+.arrow_undo_i_s {
+  background-image: url(/adm/images/icons/arrow_undo_s.png);
+}
+.arrow_refresh_i_s {
+  background-image: url(/adm/images/icons/arrow_refresh_s.png);
+}
+.door_in_i_s {
+  background-image: url(/adm/images/icons/door_in_s.png);
+}
+.information_i_b {
+  background-image: url(/adm/images/icons/information_b.png);
+}
+.exclamation_i_b {
+  background-image: url(/adm/images/icons/exclamation_b.png);
+}
+.error_i_b {
+  background-image: url(/adm/images/icons/error_b.png);
+}
+.error_i_s {
+  background-image: url(/adm/images/icons/error_s.png);
+}
+.cancel_i_s {
+  background-image: url(/adm/images/icons/cancel_s.png);
+}
+.cross_i_s {
+  background-image: url(/adm/images/icons/cross_s.png);
+}
+.add_i_s {
+  background-image: url(/adm/images/icons/add_s.png);
+}
+.tick_i_s {
+  background-image: url(/adm/images/icons/tick_s.png);
+}
+.lightbulb_i_s {
+  background-image: url(/adm/images/icons/lightbulb_s.png);
+}
+.lightbulb_off_i_s {
+  background-image: url(/adm/images/icons/lightbulb_off_s.png);
+}
+.pencil_i_s {
+  background-image: url(/adm/images/icons/pencil_s.png);
+}
+.move_i_s {
+  background-image: url(/adm/images/icons/move_s.png);
+  cursor: move;
+}
+.copy_i_s {
+  background-image: url(/adm/images/icons/page_copy_s.png);
+}
+.toggle_minus_i_s {
+  background-image: url(/adm/images/icons/toggle_minus_s.png);
+}
+.toggle_plus_i_s {
+  background-image: url(/adm/images/icons/toggle_plus_s.png);
+}
+.toggle_none_i_s {
+  background-image: url(/adm/images/icons/toggle_none_s.png);
+  cursor: default;
+}
+.compress_i_s {
+  background-image: url(/adm/images/icons/compress_s.png);
+}
+.magnifier_i_s {
+  background-image: url(/adm/images/icons/magnifier_s.png);
+}
+.gear_i_s {
+  background-image: url(/adm/images/icons/cog_s.png);
+}

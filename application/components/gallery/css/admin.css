@@ -1,0 +1,21 @@
+.container-gallery .row.image .thumbnail{
+  height: 155px;
+  overflow: hidden;
+  position: relative;
+}
+.container-gallery .row.image .thumbnail .item-el{
+  position: absolute;
+  margin: auto;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+.container-gallery .row.image .col-*{
+  position: relative;
+}
+.container-gallery .row.image .item-el-settings{
+  position: absolute;
+  top: 3px;
+  right: 18px;
+}

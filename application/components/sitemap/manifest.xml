@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component>
+  
+  <information>
+    <title>Карта сайта</title>
+    <description></description>
+  </information>
+  
+  <template>
+    <title>Карта сайта</title>
+    <path>templates/sitemap</path>
+  </template>
+
+</component>

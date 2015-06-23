@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component>
+  
+  <information>
+    <title>Календарь событий</title>
+    <description>Управление событиями и задачами в календаре</description>
+  </information>
+  
+  <install>
+    <menu>secondary</menu>
+    <icon>glyphicon-calendar</icon>
+  </install>
+
+</component>

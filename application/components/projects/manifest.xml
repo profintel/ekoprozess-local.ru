@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component>
+  
+  <information>
+    <title>Проекты</title>
+    <version>1.0</version>
+    <description>Работа со структурой проектов, управление разделами, страницами, их наполнением и свойствами</description>
+  </information>
+  
+  <install>
+    <menu>primary</menu>
+    <icon>glyphicon-menu-hamburger</icon>
+    <requirement>components</requirement>
+  </install>
+  
+</component>

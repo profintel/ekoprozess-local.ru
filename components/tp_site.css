@@ -1,0 +1,87 @@
+/* Generated 21.06.2015 17:54:42 */
+
+/* gallery */
+
+.clear {
+  clear: both;
+}
+.site_gallery .item {
+  padding:10px 12px;
+}
+.gallery_add_content {
+  display:none;
+}
+.site_gallery .desc {
+  font-size:10px;
+  color:#888888;
+}
+.site_gallery .desc .title {
+  font-size:16px;
+  color:#A62D50;
+  text-align:center;
+  height:40px;
+  overflow:hidden;
+}
+.jcarousel-control-prev {
+  background: transparent;
+  left: 5px;
+  right: auto;
+  display: block;
+  width: 50px;
+  height: 200px;
+  position: absolute;
+  top: 0;
+}
+.jcarousel-control-prev:hover {
+  background: transparent url(/images/slider_left.png) 0 50% no-repeat;  
+}
+.jcarousel-control-next {
+  background: transparent;
+  left: auto;
+  right: 5px;
+  display: block;
+  width: 50px;
+  height: 200px;
+  position: absolute;
+  top: 0;
+}
+.jcarousel-control-next:hover {
+  background: transparent url(/images/slider_right.png) 0 50% no-repeat;  
+}
+.jcarousel{  min-height: 200px;  margin: 0;  overflow: hidden;  position: relative;  width: 100%;}
+.jcarousel ul {  list-style: none outside none;  margin: 0;  padding: 0;  position: relative;  width: 20000em;}
+.jcarousel ul > li{  display: block;  width: 1140px;  float: left;  text-align: center; margin-right:10px;}
+.jcarousel ul > li img {  
+  width:1140px;
+}
+
+/* cities */
+
+
+
+/*** FILE /css/core.css ***/
+
+#default-generated-sheet-loading,
+#default-generated-sheet {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#default-generated-sheet-loading {
+  background: url(/adm/images/loading_big_black.gif);
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 1000;
+}
+
+#default-generated-sheet {
+  background-color: #000;
+  filter: progid:DXImageTransform.Microsoft.Alpha(opacity=50);
+  -moz-opacity: 0.5;
+  -khtml-opacity: 0.5;
+  opacity: 0.5;
+  z-index: 1001;
+}

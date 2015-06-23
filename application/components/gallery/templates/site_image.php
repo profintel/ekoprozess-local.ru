@@ -1,0 +1,1 @@
+<img class="main_img" src="<?=@$images[0]['image'] ? $images[0]['image'] : '/components/gallery/media/no_image.png';?>"/>

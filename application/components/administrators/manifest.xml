@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component>
+  
+  <information>
+    <title>Администраторы</title>
+  </information>
+  
+  <install>
+    <menu>secondary</menu>
+    <icon>glyphicon-user</icon>
+  </install>
+  
+</component>

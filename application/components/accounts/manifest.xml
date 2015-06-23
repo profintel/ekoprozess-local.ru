@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component>
+  
+  <information>
+    <title>Учетные записи</title>
+  </information>
+  
+  <install>
+    <menu>secondary</menu>
+    <icon>glyphicon-user</icon>
+  </install>
+  
+  <template>
+    <title>Страница - Авторизация</title>
+    <path>templates/login</path>
+  </template>
+  
+  <template>
+    <title>Личный кабинет</title>
+    <path>templates/cabinet</path>
+  </template>
+  
+  <template>
+    <title>Активация аккаунта</title>
+    <path>templates/activation_account</path>
+  </template>
+  
+  <template>
+    <title>Форма кода подтверждения</title>
+    <path>templates/confirmation_code</path>
+  </template>
+  
+</component>

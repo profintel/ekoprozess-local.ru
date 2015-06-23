@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component>
+  
+  <information>
+    <title>Документы</title>
+    <description>Управление документами с использованием сервиса google Drive Api</description>
+  </information>
+  
+  <install>
+    <menu>secondary</menu>
+    <icon>glyphicon-hdd</icon>
+  </install>
+  
+</component>
