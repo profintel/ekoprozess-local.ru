@@ -10,7 +10,7 @@
       <span class="glyphicon glyphicon-refresh"></span> Обновить кэш
     </a>
   </div>
-  <div class="<?=(!$uninstalled ?:"col-md-6");?>">
+  <div class="<?=(!$uninstalled ? '' :"col-md-6");?>">
     <div class="panel">
       <div class="panel-heading">
         <h5><span class="glyphicon <?=($_component['icon']?$_component['icon']:'glyphicon-ok');?>"></span> Установленные компоненты</h5>
