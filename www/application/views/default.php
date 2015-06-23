@@ -1,1 +1,0 @@
-<?=(isset($_content) ? $_content : '');?>

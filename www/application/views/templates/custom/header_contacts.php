@@ -1,3 +1,0 @@
-<span style="font-size:20px; font-weight:bold; color:#666 !important;">+7(343)</span><span style="font-size:20px; font-weight:bold; color:#1f4fd0 !important;">2010783,</span><span style="font-size:20px; font-weight:bold; color:#666 !important;">+7(343)</span><span style="font-size:20px; font-weight:bold; color:#1f4fd0 !important;">2010763</span><br>
-<span style="font-size:16px; color: #9b9ba2 !important;">г.Екатеринбург, ул.Черепанова 1А</span><br>
-<span style="font-size:16px; color: #9b9ba2 !important;">info@autolombard66.ru</span>

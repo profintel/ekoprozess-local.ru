@@ -1,9 +1,0 @@
-User-agent: *
-Disallow: /adm/
-Disallow: /admin/
-Disallow: /files/
-Disallow: /uploads/
-Disallow: /install/
-Disallow: /component/
-Disallow: /autorization/
-Host: #host#
