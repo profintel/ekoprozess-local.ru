@@ -24,7 +24,7 @@
         ?>        
       <? } ?>
       <? end($pages); ?>
-      <li class="<?=($page != key($pages) ?: 'disabled');?>"><a href="<?=(isset($prefix) ? $prefix : '/') . ($page + 1) .'/'. (isset($postfix) ? $postfix : '/')?>" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>
+      <li class="<?=($page != key($pages) ?'': 'disabled');?>"><a href="<?=(isset($prefix) ? $prefix : '/') . ($page + 1) .'/'. (isset($postfix) ? $postfix : '/')?>" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>
     </ul>
   <? } ?>
 </nav>
