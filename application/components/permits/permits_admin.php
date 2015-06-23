@@ -354,8 +354,9 @@ class Permits_admin extends CI_Component {
   * Просмотр групп прав администраторов 
   **/
   function groups() { 
-    return $this->render_template('templates/groups', array(
-      'items' => $this->permits_model->get_groups()
+    return $this->render_template('admin/items', array(
+      'items'           => $this->permits_model->get_groups(),
+      'component_item'  => array('name' => 'group', 'title' => 'группу')
     ));
   }
   

@@ -1,4 +1,4 @@
-/* Generated 14.06.2015 22:18:08 */
+/* Generated 21.06.2015 17:54:42 */
 
 /* components */
 
@@ -558,7 +558,13 @@ a.glyphicon:focus{
 .list-group-item:hover > a,
 .list-group-item:hover > .glyphicon,
 .list-group-item:focus > a,
-.list-group-item:focus > .glyphicon {
+.list-group-item:focus > .glyphicon,
+.list-group-item.selected .buttons > a,
+.list-group-item.selected .buttons > .glyphicon,
+.list-group-item:hover .buttons > a,
+.list-group-item:hover .buttons > .glyphicon,
+.list-group-item:focus .buttons > a,
+.list-group-item:focus .buttons > .glyphicon {
   color: #ffffff;
 }
 .list-group-item.selected .icon .glyphicon,
@@ -595,7 +601,35 @@ a.glyphicon:focus{
 }
 .form_block .panel-heading{
   border-bottom: 1px solid #f6f6f6;
-  padding: 10px 15px 0;
+  padding: 10px 20px 0;
+}
+.form_block .panel-heading h4 a{
+  color: #676a6c;
+  position: relative;
+}
+.form_block .panel-body{
+  padding: 0 15px;
+}
+#accordion .form_block .panel-heading h4 a:before{
+  display: block;
+  position: absolute;
+  top:4px;
+  left: -13px;
+  content:"\e113";
+  font-family:'Glyphicons Halflings';
+  font-style:normal;
+  font-weight:normal;
+  font-size: 12px;
+  line-height:1;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+#accordion .form_block .panel-heading h4 a[aria-expanded="false"]:before{
+  content: "\e114";
+}
+.panel-group .form_block .panel-heading+.panel-collapse>.panel-body,
+.panel-group .form_block .panel-heading+.panel-collapse>.list-group {
+  border-top: 0;
 }
 .form-inline .form-group{
   padding-top: 0;
@@ -655,6 +689,10 @@ a.glyphicon:focus{
 }
 .ui-datepicker dd{
   margin-right: 15px;
+}
+
+.ui-menu .ui-menu-item {
+  font-size: 12px;
 }
 
 .has-error .chosen-container-single .chosen-single{
