@@ -6,8 +6,7 @@
   </information>
   
   <install>
-    <menu>secondary</menu>
-    <icon>glyphicon-user</icon>
+    <menu>primary</menu>
   </install>
   
 </component>

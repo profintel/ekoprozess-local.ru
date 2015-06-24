@@ -2,6 +2,7 @@
 
 class Administrators_model extends CI_Model {
   
+    
   function __construct() {
     parent::__construct();
       
@@ -50,7 +51,7 @@ class Administrators_model extends CI_Model {
     }
     return false;
   }
-
+  
   function edit_admin($id, $params) {
     if ($this->db->update('pr_admins', $params, array('id' => $id))) {
       return true;
@@ -63,5 +64,33 @@ class Administrators_model extends CI_Model {
       return true;
     }
     return false;
-  }  
+  }
+
+  function get_admin_logs_cnt($where = '') {
+    if ($where) {
+      $this->db->where($where);
+    }
+    return $this->db->count_all_results('admin_logs');
+  }
+  
+  function get_admin_logs($where = array(), $order_by = array(), $limit = 0, $offset = 0) {
+    $this->db->select('admin_logs.*, admins.username as username');
+    $this->db->join('admins','admins.id=admin_logs.admin_id');
+    if ($where) {
+      $this->db->where($params);
+    }
+    if ($order_by) {
+      foreach ($order_by as $field => $dest) {
+        $this->db->order_by($field, $dest);
+      }
+    } else {
+      $this->db->order_by('tm', 'DESC');
+    }
+    if ($limit) {
+      $this->db->limit($limit, $offset);
+    }    
+    $items = $this->db->get('admin_logs')->result_array();
+    
+    return $items;
+  }
 }

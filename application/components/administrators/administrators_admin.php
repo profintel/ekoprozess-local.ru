@@ -25,6 +25,11 @@ class Administrators_admin extends CI_Component {
           'title' => 'Администраторы',
           'link'  => $this->lang_prefix .'/admin'. $this->params['path'] .'admins/',
           'class' => 'accounts-admins-icon'
+        ),
+        array(
+          'title' => 'Действия администраторов',
+          'link'  => $this->lang_prefix .'/admin'. $this->params['path'] .'logs/',
+          'class' => 'accounts-admins-icon'
         )
       )
     ));
@@ -427,5 +432,25 @@ class Administrators_admin extends CI_Component {
       $this->administrators_model->delete_admin($id);
     }
     send_answer();
-  }    
+  }
+  
+  /**
+  * Просмотр действий администраторов
+  */
+  function logs($page = 1) {
+    $in_page = 50;
+    $all_count = $this->administrators_model->get_admin_logs_cnt();
+    $pages = get_pages($page, $all_count, $in_page);
+    $pagination_data = array(
+      'pages'  => $pages,
+      'page'   => $page,
+      'prefix' => '/admin/administrators/logs/'
+    );
+    $items = $this->administrators_model->get_admin_logs(array(),array(),$in_page, $in_page * ($page - 1));  
+
+    return $this->render_template('templates/admin_logs', array(
+      'items'      => $items,
+      'pagination' => $this->load->view('admin/pagination', $pagination_data, true),
+    ));
+  } 
 }
