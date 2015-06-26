@@ -1,4 +1,4 @@
-/*** Generated 21.06.2015 17:54:42 ***/
+/*** Generated 24.06.2015 14:53:39 ***/
 
 /*** FILE /js/__jquery.js ***/
 
@@ -1184,3 +1184,16 @@ $(function() {
 
 /*** calendar ***/
 
+
+
+/*** administrators ***/
+
+function togglePanel(action){
+  if(action == 'open'){
+    $('#admin_panel').removeClass('closed');
+    $.cookie('admin_panel', 'open', { path: '/' });
+  } else {
+    $('#admin_panel').addClass('closed');
+    $.cookie('admin_panel', 'closed', { path: '/' });
+  }
+}

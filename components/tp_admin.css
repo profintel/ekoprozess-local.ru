@@ -1,4 +1,4 @@
-/* Generated 21.06.2015 17:54:42 */
+/* Generated 24.06.2015 14:53:39 */
 
 /* components */
 
@@ -64,12 +64,6 @@
   background-image: url(/components/languages/media/locate.png);
 }
 
-/* administrators */
-
-.administrators-title{
-  background-image: url(/components/administrators/media/icon1.png);
-}
-
 /* permits */
 
 .permits-title {
@@ -88,6 +82,12 @@
 
 .fc-view-container {
   background-color: #ffffff;
+}
+
+/* administrators */
+
+.administrators-title{
+  background-image: url(/components/administrators/media/icon.png);
 }
 
 /*** FILE /adm/css/bootstrap.min.css ***/
@@ -610,16 +610,20 @@ a.glyphicon:focus{
 .form_block .panel-body{
   padding: 0 15px;
 }
+#accordion .form_block .panel-heading h4 a:hover,
+#accordion .form_block .panel-heading h4 a:focus{
+  text-decoration: none;
+}
 #accordion .form_block .panel-heading h4 a:before{
   display: block;
   position: absolute;
-  top:4px;
-  left: -13px;
+  top:6px;
+  left: -12px;
   content:"\e113";
   font-family:'Glyphicons Halflings';
   font-style:normal;
   font-weight:normal;
-  font-size: 12px;
+  font-size: 8px;
   line-height:1;
   -webkit-font-smoothing:antialiased;
   -moz-osx-font-smoothing:grayscale;
@@ -634,6 +638,25 @@ a.glyphicon:focus{
 .form-inline .form-group{
   padding-top: 0;
 }
+.form-default .panel{
+  padding-bottom: 5px;
+}
+
+.quick_form .form-control{
+  width: 100%;
+}
+.quick_form .col-sm-2{
+  text-align: right;
+  padding-left: 0;
+}
+.quick_form .col-sm-10{
+  padding-right: 0;
+}
+.quick_form_btn{
+  float: none !important;
+  display: inline-block;
+}
+
 #progress-main {
   display: none;
   width: 200px;
