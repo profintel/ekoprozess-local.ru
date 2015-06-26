@@ -14,7 +14,7 @@
     }
   }
 </script>
-<div class="form-group">
+<div class="form-group <?=(isset($vars['class']) && $vars['class'] ? $vars['class'] : '');?>">
   <div class="col-sm-2">
     <? if (isset($vars['title']) && $vars['title']) { ?>
       <label class="control-label">

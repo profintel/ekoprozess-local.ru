@@ -9,7 +9,7 @@
   >
     <div class="form-error"></div>
     <? foreach ($vars['blocks'] as $num=> $block) { ?>
-      <div class="form_block<?=(isset($block['class']) ? ' '. $block['class'] : '');?>">
+      <div class="form_block  <?=(isset($block['class']) ? ' '. $block['class'] : '');?>">
         <? if (isset($block['title']) && $block['title']) { ?>
           <div class="panel-heading" role="tab" id="heading<?=$num;?>">
             <? if (isset($block['title_btn']) && $block['title_btn']) { ?>
@@ -39,12 +39,10 @@
           </div>
         <? } ?>
         <div id="collapse<?=$num;?>" class="panel-collapse collapse <?=(@$block['aria-expanded'] === FALSE ? '' : 'in');?>" role="tabpanel" aria-labelledby="heading<?=$num;?>">
-          <div class="panel-body">
+          <div class="panel-body clearfix">
             <?=$block['fields'];?>
           </div>
         </div>
-        
-        <div class="clearfix"></div>
       </div>
     <? } ?>
   </form>

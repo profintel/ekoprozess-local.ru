@@ -110,13 +110,17 @@ class Admin extends PR_Controller {
     } else {
       show_404();
     }
-    
-    if ($this->main_model->exists_component('permits')) {
+
+    //если установлен компонент Права доступа проверям права на метод компонента
+    if (exists_component('permits')) {
       $permits = $this->components_model->get_component('permits');
       $this->load->component($permits);
       if (!$this->permits->_check_access($this->admin_id, $name, $method)) {
         show_error('У вас нет прав для осуществления данной операции');
       }
+    }
+    //если установлен компонент Администраторы записываем в лог действия администраторов
+    if(exists_component('administrators')){
       if($method != 'icon'){
         $method_title = $this->_parse_component($name, $method);
         $this->db->insert('admin_logs',array(

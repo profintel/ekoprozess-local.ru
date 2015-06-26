@@ -102,12 +102,14 @@ class Clients_admin extends CI_Component {
       'quick_form' => $this->view->render_form(array(
         'method' => 'GET',
         'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'clients_report/',
+        'view'  => 'forms/form_inline',
         'blocks' => array(
           array(
             'title'    => '',
             'fields'   => array(
               array(
                 'view'      => 'fields/autocomplete_input',
+                'class'     => 'col-xs-11 quick_form',
                 'title'     => 'Название:',
                 'name'      => 'title',
                 'value'     => $get_params['title'],
@@ -117,7 +119,9 @@ class Clients_admin extends CI_Component {
               ),
               array(
                 'view'     => 'fields/submit',
-                'title'    => 'Поиск',
+                'class'    => 'col-xs-1 quick_form_btn',
+                'icon'     => 'glyphicon-search',
+                'title'    => '',
                 'type'     => '',
                 'reaction' => $this->lang_prefix .'/admin'. $this->params['path']
               )
@@ -130,7 +134,7 @@ class Clients_admin extends CI_Component {
         'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'clients_report/',
         'blocks' => array(
           array(
-            'title'   => 'Расширенный поиск',
+            'title'         => 'Расширенный поиск',
             'fields'   => array(
               array(
                 'view'    => 'fields/select',
@@ -166,15 +170,6 @@ class Clients_admin extends CI_Component {
                 'text_field'  => 'name_ru',
                 'options'     => $this->administrators_model->get_admins(),
                 'empty'       => true
-              ),
-              array(
-                'view'      => 'fields/autocomplete_input',
-                'title'     => 'Название:',
-                'name'      => 'title',
-                'value'     => $get_params['title'],
-                'component' => $this->params['name'],
-                'method'    => 'client_search',
-                'maxlength' => 256
               ),
               array(
                 'view'    => 'fields/hidden',
