@@ -44,7 +44,7 @@ $(function() {
 
   $('.input-datetimepicker').datetimepicker({
     hourGrid: 4,
-    minuteGrid: 5
+    minuteGrid: 10
   });
   
   $("a.confirm").on('click', function() {

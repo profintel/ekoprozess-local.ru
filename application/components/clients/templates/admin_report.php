@@ -6,7 +6,7 @@
       </h1>
       <p class="visible-xs-block">&nbsp;</p>
     </div>
-    <div class="col-sm-6"><?=$quick_form;?></div>
+    <div class="col-sm-6 quick_form"><?=$quick_form;?></div>
     <div class="col-sm-3 text-right">
       <a href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>create_client/" class="btn btn-primary btn-xs pull-right">
         <span class="glyphicon glyphicon-plus"></span> Создать клиента

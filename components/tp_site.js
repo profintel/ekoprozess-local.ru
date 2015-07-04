@@ -1,4 +1,4 @@
-/*** Generated 24.06.2015 14:53:39 ***/
+/*** Generated 05.07.2015 00:02:18 ***/
 
 /*** FILE /js/__jquery.js ***/
 
@@ -1178,14 +1178,6 @@ $(function() {
   $('a.zoom').lightBox();
 })
 
-/*** cities ***/
-
-
-
-/*** calendar ***/
-
-
-
 /*** administrators ***/
 
 function togglePanel(action){
@@ -1197,3 +1189,10 @@ function togglePanel(action){
     $.cookie('admin_panel', 'closed', { path: '/' });
   }
 }
+
+/*** cities ***/
+
+
+
+/*** calendar ***/
+

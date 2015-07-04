@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS `pr_client_acceptances`;
+
 DROP TABLE IF EXISTS `pr_client_params`;
 
 DROP TABLE IF EXISTS `pr_clients`;
@@ -42,3 +44,21 @@ CREATE TABLE IF NOT EXISTS `pr_client_param_values` (
 ALTER TABLE `pr_client_param_values`
   ADD CONSTRAINT `pr_client_param_values_ibfk_2` FOREIGN KEY (`client_id`) REFERENCES `pr_clients` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `pr_client_param_values_ibfk_1` FOREIGN KEY (`param_id`) REFERENCES `pr_client_params` (`id`) ON DELETE CASCADE;
+
+CREATE TABLE IF NOT EXISTS `pr_client_acceptances` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `date` date NOT NULL,
+  `client_id` int(10) unsigned DEFAULT NULL,
+  `price` float NOT NULL,
+  `gross` float NOT NULL,
+  `net` float NOT NULL,
+  `color` varchar(100) NOT NULL DEFAULT '',
+  `result` varchar(500) NOT NULL DEFAULT '',
+  `comment` varchar(1000) NOT NULL DEFAULT '',
+  `tm` timestamp NOT NULL default CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `client_id` (`client_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+ALTER TABLE `pr_client_acceptances`
+  ADD CONSTRAINT `pr_client_acceptances_ibfk_2` FOREIGN KEY (`client_id`) REFERENCES `pr_clients` (`id`) ON DELETE CASCADE;

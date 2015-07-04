@@ -31,6 +31,10 @@ class Clients_admin extends CI_Component {
           'link'  => $this->lang_prefix .'/admin'. $this->params['path'] .'client_params/'
         ),
         array(
+          'title' => 'Акты приемки',
+          'link'  => $this->lang_prefix .'/admin'. $this->params['path'] .'acceptances/'
+        ),
+        array(
           'title' => 'Импорт списка клиентов',
           'link'  => $this->lang_prefix .'/admin'. $this->params['path'] .'import/'
         ),
@@ -102,14 +106,14 @@ class Clients_admin extends CI_Component {
       'quick_form' => $this->view->render_form(array(
         'method' => 'GET',
         'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'clients_report/',
-        'view'  => 'forms/form_inline',
+        'view'   => 'forms/form_inline',
         'blocks' => array(
           array(
             'title'    => '',
             'fields'   => array(
               array(
                 'view'      => 'fields/autocomplete_input',
-                'class'     => 'col-xs-11 quick_form',
+                'class'     => 'col-xs-11 quick_form_input',
                 'title'     => 'Название:',
                 'name'      => 'title',
                 'value'     => $get_params['title'],
@@ -1151,4 +1155,336 @@ class Clients_admin extends CI_Component {
     send_answer(array('messages' => array('Файл успешно обработан')));
   }
 
+  /**
+  *  Просмотр списка актов приемки
+  */
+  function acceptances($page = 1) {
+    $where = array();
+    $title = ($this->uri->getParam('title') ? mysql_prepare($this->uri->getParam('title')) : '');
+    $client_id = ($this->uri->getParam('client_id') ? mysql_prepare($this->uri->getParam('client_id')) : '');
+    if($client_id){
+      $where['client_id'] = $client_id;
+      $client = $this->clients_model->get_client(array('id'=>$client_id));
+      if($client){
+        $title = $client['title'];
+      }
+    }
+    if($title){
+      $client = $this->clients_model->get_client(array('title LIKE '=>$title.'%'));
+      if($client){
+        $where['client_id'] = $client['id'];
+        $title = $client['title'];
+      }
+    }
+    $limit = 50;
+    $offset = $limit * ($page - 1);
+    $cnt = $this->clients_model->get_acceptances_cnt($where);
+    $pages = get_pages($page, $cnt, $limit);
+    $pagination_data = array(
+      'pages' => $pages,
+      'page' => $page,
+      'prefix' => '/admin'.$this->params['path'].'acceptances/',
+      'postfix' => ($client_id ? '?client_id='.$client_id : '')
+    );
+    $data = array(
+      'title' => 'Акты приемки',
+      'search_path'     => '/admin'.$this->params['path'].'acceptances/',
+      'search_title'    => @$title,
+      'component_item'  => array('name' => 'acceptance', 'title' => 'акт приемки'),
+      'items'           => $this->clients_model->get_acceptances($limit, $offset, $where),
+      'pagination'      => $this->load->view('admin/pagination', $pagination_data, true),
+      'quick_form' => $this->view->render_form(array(
+        'method' => 'GET',
+        'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'acceptances/',
+        'view'   => 'forms/form_inline',
+        'blocks' => array(
+          array(
+            'title'    => '',
+            'fields'   => array(
+              array(
+                'view'      => 'fields/autocomplete_input',
+                'class'     => 'col-xs-11 quick_form_input',
+                'title'     => 'Название:',
+                'name'      => 'title',
+                'value'     => @$title,
+                'component' => $this->params['name'],
+                'method'    => 'client_search_acceptances',
+                'maxlength' => 256
+              ),
+              array(
+                'view'     => 'fields/submit',
+                'class'    => 'col-xs-1 quick_form_btn',
+                'icon'     => 'glyphicon-search',
+                'title'    => '',
+                'type'     => '',
+                'reaction' => $this->lang_prefix .'/admin'. $this->params['path']
+              )
+            )
+          )
+        )
+      )),
+    );
+
+    return $this->render_template('templates/admin_client_acceptances', $data);
+  }
+
+  /**
+  *  Поиск клиентов по актам приемки
+  */
+  function client_search_acceptances($location=true) {
+    $where = array();
+    $title = $this->input->post('search_string');
+    if($title){
+      $where['title LIKE'] = $title.'%';
+    }
+    $limit = 20;
+    $offset = 0;
+    $items = $this->clients_model->get_clients($limit, $offset, $where);
+    $result = array('items'=>array());
+    foreach ($items as $key => $item) {
+      $result['items'][] = array(
+        'id'        => $item['id'],
+        'title'     => $item['title'],
+        'location'  => '/admin'.$this->params['path'].'acceptances/?client_id='.$item['id'],
+      );
+    }
+
+    echo json_encode($result);
+  }
+  
+  /**
+   *  Создание акта приемки
+  **/  
+  function create_acceptance() {
+    return $this->render_template('admin/inner', array(
+      'title' => 'Добавление акта приемки',
+      'html' => $this->view->render_form(array(
+        'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'_create_acceptance_process/',
+        'blocks' => array(
+          array(
+            'title'   => 'Основные параметры',
+            'fields'   => array(
+              array(
+                'view'  => 'fields/datetime',
+                'title' => 'Дата:',
+                'name'  => 'date'
+              ),
+              array(
+                'view'    => 'fields/select',
+                'title'   => 'Компания:',
+                'name'    => 'client_id',
+                'options' => $this->clients_model->get_clients()
+              ),
+              array(
+                'view'    => 'fields/text',
+                'title'   => 'Брутто (кг):',
+                'name'    => 'gross',
+              ),
+              array(
+                'view'    => 'fields/text',
+                'title'   => 'Нетто (кг):',
+                'name'    => 'net',
+              ),
+              array(
+                'view'    => 'fields/text',
+                'title'   => 'Упаковка + засор, %:',
+                'name'    => 'result',
+              ),
+              array(
+                'view'    => 'fields/text',
+                'title'   => 'Цвет:',
+                'name'    => 'color',
+              ),
+              array(
+                'view'    => 'fields/text',
+                'title'   => 'Цена:',
+                'name'    => 'price',
+              ),
+              array(
+                'view'    => 'fields/text',
+                'title'   => 'Примечание:',
+                'name'    => 'comment',
+                'value'   => 'т- тюки, 1кг- вес упаковки, засор %'
+              ),
+              array(
+                'view'     => 'fields/submit',
+                'title'    => 'Создать',
+                'type'     => 'ajax',
+                'reaction' => $this->lang_prefix .'/admin'. $this->params['path'].'acceptances/'
+              )
+            )
+          )
+        )
+      )),
+      'back' => $this->lang_prefix .'/admin'. $this->params['path'].'acceptances/'
+    ), TRUE);
+  }
+  
+  function _create_acceptance_process() {    
+    $params = array(
+      'client_id'=> (int)$this->input->post('client_id'),
+      'gross'    => (float)$this->input->post('gross'),
+      'result'   => $this->input->post('result'),
+      'net'      => (float)$this->input->post('net'),
+      'price'    => (float)$this->input->post('price'),
+      'color'    => $this->input->post('color'),
+      'date'     => ($this->input->post('date') ? date('Y-m-d', strtotime($this->input->post('date'))) : NULL),
+      'comment'  => $this->input->post('comment'),
+    );
+
+    $errors = $this->_validate_acceptance($params);
+    if ($errors) {
+      send_answer(array('errors' => $errors));
+    } 
+    
+    $id = $this->clients_model->create_acceptance($params);
+    if (!$id) {
+      send_answer(array('errors' => array('Ошибка при добавлении объекта')));
+    }
+
+    send_answer();
+  }
+  
+  /**
+  *  Редактирование акта приемки
+  */  
+  function edit_acceptance($id) {
+    $item = $this->clients_model->get_acceptance(array('id'=>$id));
+    if(!$item){
+      show_error('Объект не найден');
+    }
+
+    return $this->render_template('admin/inner', array(
+      'title' => 'Редактирование акта приемки',
+      'html' => $this->view->render_form(array(
+        'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'_edit_acceptance_process/'.$id.'/',
+        'blocks' => array(
+          array(
+            'title'   => 'Основные параметры',
+            'fields'   => array(
+              array(
+                'view'  => 'fields/datetime',
+                'title' => 'Дата:',
+                'name'  => 'date',
+                'value' => ($item['date'] ? date('d.m.Y', strtotime($item['date'])) : '')
+              ),
+              array(
+                'view'    => 'fields/select',
+                'title'   => 'Компания:',
+                'name'    => 'client_id',
+                'options' => $this->clients_model->get_clients(),
+                'value'   => $item['client_id']
+              ),
+              array(
+                'view'    => 'fields/text',
+                'title'   => 'Брутто (кг):',
+                'name'    => 'gross',
+                'value'   => $item['gross']
+              ),
+              array(
+                'view'    => 'fields/text',
+                'title'   => 'Нетто (кг):',
+                'name'    => 'net',
+                'value'   => $item['net']
+              ),
+              array(
+                'view'    => 'fields/text',
+                'title'   => 'Упаковка + засор, %:',
+                'name'    => 'result',
+                'value'   => $item['result']
+              ),
+              array(
+                'view'    => 'fields/text',
+                'title'   => 'Цвет:',
+                'name'    => 'color',
+                'value'   => $item['color']
+              ),
+              array(
+                'view'    => 'fields/text',
+                'title'   => 'Цена:',
+                'name'    => 'price',
+                'value'   => $item['price']
+              ),
+              array(
+                'view'    => 'fields/text',
+                'title'   => 'Примечание:',
+                'name'    => 'comment',
+                'value'   => $item['comment']
+              ),
+              array(
+                'view'     => 'fields/submit',
+                'title'    => 'Сохранить',
+                'type'     => 'ajax',
+                'reaction' => 'reload'
+              )
+            )
+          )
+        )
+      )),
+      'back' => $this->lang_prefix .'/admin'. $this->params['path'].'acceptances/'
+    ), TRUE);
+  }
+  
+  function _edit_acceptance_process($id) {    
+    $params = array(
+      'client_id'=> (int)$this->input->post('client_id'),
+      'gross'    => (float)$this->input->post('gross'),
+      'result'   => $this->input->post('result'),
+      'net'      => (float)$this->input->post('net'),
+      'price'    => (float)$this->input->post('price'),
+      'color'    => $this->input->post('color'),
+      'date'     => ($this->input->post('date') ? date('Y-m-d', strtotime($this->input->post('date'))) : NULL),
+      'comment'  => $this->input->post('comment'),
+    );
+
+    $errors = $this->_validate_acceptance($params);
+    if ($errors) {
+      send_answer(array('errors' => $errors));
+    }
+    
+    if (!$this->clients_model->update_acceptance($id, $params)) {
+      send_answer(array('errors' => array('Ошибка при сохранении изменений')));
+    }
+
+    send_answer(array('success' => array('Изменения успешно сохранены')));
+  }
+  
+  function _validate_acceptance($params) {
+    $errors = array();
+    if (!$params['client_id']) { $errors['client_id'] = 'Не указана компания'; }
+    if (!$params['gross'])     { $errors['gross'] = 'Не указан параметр Брутто'; }
+    if (!$params['net'])       { $errors['net'] = 'Не указан параметр Нетто'; }
+    if (!$params['price'])     { $errors['price'] = 'Не указан параметр Цена'; }
+    if (!$params['color'])     { $errors['color'] = 'Не указан параметр Цвет'; }
+    return $errors;
+  }
+
+  /**
+   *  Включение акта приемки
+   * @param $id - id вложения
+   */   
+  function enable_acceptance($id) {
+    $this->clients_model->update_acceptance((int)$id, array('active' => 1));
+    header('Location: '.$_SERVER['HTTP_REFERER']);
+  }
+
+  /**
+   *  Выключение акта приемки
+   * @param $id - id вложения
+   */     
+  function disable_acceptance($id) {
+    $this->clients_model->update_acceptance((int)$id, array('active' => 0));
+    header('Location: '.$_SERVER['HTTP_REFERER']);
+  }
+
+  /**
+   * Удаление акта приемки
+  **/
+  function delete_acceptance($id) {
+    if (!$this->clients_model->delete_acceptance((int)$id)) {
+      send_answer(array('errors' => array('Не удалось удалить объект')));
+    }
+    
+    send_answer();
+  }
 }

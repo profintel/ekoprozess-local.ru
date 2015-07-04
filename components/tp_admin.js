@@ -1,4 +1,4 @@
-/*** Generated 24.06.2015 14:53:39 ***/
+/*** Generated 05.07.2015 00:02:18 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -3545,7 +3545,7 @@ $(function() {
 
   $('.input-datetimepicker').datetimepicker({
     hourGrid: 4,
-    minuteGrid: 5
+    minuteGrid: 10
   });
   
   $("a.confirm").on('click', function() {

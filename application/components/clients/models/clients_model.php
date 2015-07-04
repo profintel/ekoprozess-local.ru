@@ -151,4 +151,54 @@ class Clients_model extends CI_Model {
     }
     return false;
   }
+
+  /***Акты приемки***/
+  function get_acceptances($limit = 0, $offset = 0, $where = array(), $order_by = array()) {
+    $this->db->select('client_acceptances.*,clients.title as client');
+    if ($limit) {
+      $this->db->limit($limit, $offset);
+    }
+    $this->db->order_by('tm','desc');
+    if ($where) {
+      $this->db->where($where);
+    }
+    $this->db->join('clients','clients.id=client_acceptances.client_id');
+    $items = $this->db->get('client_acceptances')->result_array();
+    
+    return $items;
+  }
+  
+  function get_acceptances_cnt($where = '') {
+    if ($where) {
+      $this->db->where($where);
+    }
+    return $this->db->count_all_results('client_acceptances');
+  }
+
+  function get_acceptance($where = array()) {
+    $item = $this->db->get_where('client_acceptances', $where)->row_array();
+
+    return $item;
+  }
+
+  function create_acceptance($params) {
+    if ($this->db->insert('client_acceptances', $params)) {
+      return $this->db->query("SELECT LAST_INSERT_ID() as id")->row()->id;
+    }
+    return false;
+  }
+
+  function update_acceptance($id, $params) {
+    if ($this->db->update('client_acceptances', $params, array('id' => $id))) {
+      return true;
+    }
+    return false;
+  }
+  
+  function delete_acceptance($id) {
+    if ($this->db->delete('client_acceptances', array('id' => $id))) {
+      return true;
+    }
+    return false;
+  }
 }
