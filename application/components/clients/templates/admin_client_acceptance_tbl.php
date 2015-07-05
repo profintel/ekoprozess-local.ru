@@ -1,4 +1,4 @@
-<table class="table table-bordered">
+<table border="1" width="100%" cellpadding="10" cellspacing="10" class="table table-bordered">
   <tr>
     <th>Дата</th>
     <th>Компания</th>

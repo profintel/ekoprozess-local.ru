@@ -47,7 +47,7 @@
                                       <table width="100%" border="0" cellspacing="0" cellpadding="0">
                                         <tr>
                                           <td style="font-family: Arial; font-size:14px; line-height:19px; text-align:left; color:#666;">
-                                            <br /><div style="font-family: Georgia; color:#666666; font-weight:normal; text-align:left; ">
+                                            <br /><div style="font-family: Arial; color:#666666; font-weight:normal; text-align:left; ">
                                               <?=stripslashes(str_replace('\n', "\n", $content));?>
                                             </div>
                                             <p style="margin-top:50px">
