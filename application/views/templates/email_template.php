@@ -84,7 +84,7 @@
           </tr>
           <tr style="font-family: Arial; font-size:11px; color:#888888;">
             <td align="center" valign="middle" width="">
-              &nbsp;Данное письмо сформировано автоматически и не предполагает ответа.
+              
             </td>
           </tr>
           <tr>
