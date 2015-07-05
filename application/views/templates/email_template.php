@@ -9,13 +9,13 @@
   <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top:40px;">
     <tr>
       <td align="center" valign="top">
-        <table width="614" border="0" cellspacing="0" cellpadding="2" bgcolor="#197db1">
+        <table width="714" border="0" cellspacing="0" cellpadding="2" bgcolor="#2F4050">
           <tr>
             <td>        
-              <table width="614" border="0" cellspacing="0" cellpadding="0" bgcolor="#ffffff">
+              <table width="714" border="0" cellspacing="0" cellpadding="0" bgcolor="#ffffff">
                 <tr>
                   <td>
-                    <table width="610" border="0" cellspacing="17" cellpadding="0">
+                    <table width="710" border="0" cellspacing="17" cellpadding="0">
                       <tr>
                         <td>
                           <table width="100%" border="0" cellspacing="0" cellpadding="0">
@@ -24,7 +24,7 @@
                               </td>                            
                             </tr>
                             <tr>
-                              <td bgcolor="" >
+                              <td>
                                 <table width="100%" border="0" cellspacing="0" cellpadding="10">
                                   <tr>
                                     <td align="left" width="230" >
@@ -78,7 +78,7 @@
     </tr>
     <tr>
       <td align="center">
-        <table width="614" border="0" cellspacing="0" cellpadding="0">
+        <table width="714" border="0" cellspacing="0" cellpadding="0">
           <tr>
             <td><br/></td>
           </tr>
