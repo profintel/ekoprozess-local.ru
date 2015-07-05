@@ -278,6 +278,25 @@ function send_mail($from, $email, $subject, $message, $project) {
       'title'   => $subject,
       'content' => $message
     );
+  $body = $CI->load->view('templates/email_template', $data, true);
+
+  $headers  = 'MIME-Version: 1.0' . "\r\n";
+  $headers .= 'Content-type: text/html; charset=UTF-8' . "\r\n";
+  $headers .= 'From: '. $from . "\r\n";
+
+  if(!@mail($email, code_mail_subject($subject), $body, $headers)){
+    return false;
+  }
+  return true;
+}
+
+function send_mail_old($from, $email, $subject, $message, $project) {
+  $CI =& get_instance();
+  $data = array(
+      'domain'  => $project['domain'],
+      'title'   => $subject,
+      'content' => $message
+    );
   $message = $CI->load->view('templates/email_template', $data, true);
   $CI->load->library('email');
   $CI->email->from($from);
