@@ -1,4 +1,4 @@
-/* Generated 05.07.2015 13:10:46 */
+/* Generated 06.07.2015 00:14:25 */
 
 /* components */
 
@@ -606,6 +606,7 @@ a.glyphicon:focus{
 .form_block .panel-heading{
   border-bottom: 1px solid #f6f6f6;
   padding: 10px 20px 0;
+  margin-bottom: 5px;
 }
 .form_block .panel-heading h4 a{
   color: #676a6c;
