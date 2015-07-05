@@ -72,6 +72,11 @@ class Administrators_admin extends CI_Component {
                 'req'       => true
               ),
               array(
+                'view'  => 'fields/text',
+                'title' => 'Email:',
+                'name'  => 'email',
+              ),
+              array(
                 'view'       => 'fields/password',
                 'title'     => 'Пароль:',
                 'name'       => 'password',
@@ -132,6 +137,7 @@ class Administrators_admin extends CI_Component {
   function _create_admin_process() {
     $params = array(
       'username' => htmlspecialchars(trim($this->input->post('username'))),
+      'email'    => htmlspecialchars(trim($this->input->post('email'))),
       'password' => htmlspecialchars(trim($this->input->post('password')))
     );
     $add_params = array(
@@ -232,6 +238,9 @@ class Administrators_admin extends CI_Component {
     if ($this->db->get_where('admins', array('username' => $params['username']))->num_rows()) {
       $errors[] = 'Пользователь с таким логином уже существует в базе данных'; 
     }
+    if ($params['email'] && !preg_match('/^[-0-9a-z_\.]+@[-0-9a-z^\.]+\.[a-z]{2,4}$/i', $params['email'])) { 
+      $errors['email'] = 'Некорректный Email'; 
+    }
     if (!$params['password']) { $errors['password'] = 'Не указан пароль'; }
     if (!$params['re_password']) { $errors['re_password'] = 'Не указан повтор пароля'; }
     if ($params['password'] != $params['re_password']) { $errors['re_password'] = 'Пароль не совпадает с повтором'; }
@@ -249,6 +258,24 @@ class Administrators_admin extends CI_Component {
       'html' => $this->view->render_form(array(
         'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'_edit_admin_process/'.$id.'/',
         'blocks' => array(
+          array(
+            'title'   => 'Основные параметры',
+            'fields'   => array(              
+              array(
+                'view'  => 'fields/text',
+                'title' => 'Email:',
+                'name'  => 'email',
+                'value' => $item['email']
+              ),
+              array(
+                'view'     => 'fields/submit',
+                'class'    => '',
+                'title'    => 'Сохранить',
+                'type'     => 'ajax',
+                'reaction' => 'reload'
+              )
+            )
+          ),
           array(
             'title'   => 'Смена пароля',
             'fields'   => array(
@@ -317,6 +344,7 @@ class Administrators_admin extends CI_Component {
   function _edit_admin_process($id) {
     $item = $this->administrators_model->get_admin(array('id' => $id));
     $params = array(
+      'email'    => htmlspecialchars(trim($this->input->post('email'))),
       'password' => htmlspecialchars(trim($this->input->post('password'))),
     );
     $add_params = array(
@@ -332,6 +360,12 @@ class Administrators_admin extends CI_Component {
     if ($params['password']) {
       $params['password'] = md5($params['password']); 
       if (!$this->administrators_model->edit_admin($id, $params)) {
+        send_answer(array('errors' => array('Не удалось отредактировать учетную запись')));
+      }
+    }
+   
+    if ($params['email']) {
+      if (!$this->administrators_model->edit_admin($id, array('email'=>$params['email']))) {
         send_answer(array('errors' => array('Не удалось отредактировать учетную запись')));
       }
     }

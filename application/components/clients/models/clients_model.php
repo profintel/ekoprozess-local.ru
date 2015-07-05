@@ -176,6 +176,8 @@ class Clients_model extends CI_Model {
   }
 
   function get_acceptance($where = array()) {
+    $this->db->select('client_acceptances.*,clients.title as client,clients.email as email');
+    $this->db->join('clients','clients.id=client_acceptances.client_id');
     $item = $this->db->get_where('client_acceptances', $where)->row_array();
 
     return $item;
@@ -198,6 +200,28 @@ class Clients_model extends CI_Model {
   function delete_acceptance($id) {
     if ($this->db->delete('client_acceptances', array('id' => $id))) {
       return true;
+    }
+    return false;
+  }
+
+  function get_acceptance_emails($where = array(), $order_by = array()) {
+    $this->db->select('client_acceptance_emails.*,admins.username as username,clients.title as client');
+    $this->db->order_by('tm','desc');
+    if ($where) {
+      $this->db->where($where);
+    }
+    $this->db->join('admins','admins.id=client_acceptance_emails.admin_id');
+    $this->db->join('clients','clients.id=client_acceptance_emails.client_id');
+    $items = $this->db->get('client_acceptance_emails')->result_array();
+    foreach ($items as $key => &$item) {
+      $item['message'] = $this->load->view('../../application/components/clients/templates/admin_client_acceptance_tbl',array('item'  => $item),TRUE);
+    }
+    return $items;
+  }
+
+  function create_acceptance_email($params) {
+    if ($this->db->insert('client_acceptance_emails', $params)) {
+      return $this->db->query("SELECT LAST_INSERT_ID() as id")->row()->id;
     }
     return false;
   }

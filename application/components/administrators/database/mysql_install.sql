@@ -16,3 +16,5 @@ CREATE TABLE `pr_admin_logs` (
   CONSTRAINT `pr_admin_logs_ibfk_1` FOREIGN KEY (`component`) REFERENCES `pr_components` (`name`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `pr_admin_logs_ibfk_2` FOREIGN KEY (`admin_id`) REFERENCES `pr_admins` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE  `pr_admins` ADD  `email` VARCHAR( 100 ) NOT NULL AFTER  `password`

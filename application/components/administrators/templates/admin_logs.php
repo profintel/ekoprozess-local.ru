@@ -1,53 +1,41 @@
-<div class="container-fluid padding_0">
-  <div class="block-title row">
-    <div class="<?=(@$search_path ?'col-sm-7':'');?>">
-      <h1><span class="glyphicon <?=($_component['icon']?$_component['icon']:'glyphicon-ok');?>"></span>
-        <?=(@$title ? $title : $_component['title']);?>
-      </h1>
-      <p class="visible-xs-block">&nbsp;</p>
-    </div>
-    <? if (@$search_path) { ?>
-      <div class="col-sm-5 text-right">
-        <form action="<?=$search_path;?>" method="GET" class="form-inline">
-          <div class="form-group">
-            <input type="text" name="title" value="<?=$search_title;?>" <?=($search_title ? 'autofocus="true"' : '');?> class="form-control input-sm" id="searchTitle" placeholder="Введите название">
-          </div>
-          <div class="form-group">
-          <button type="submit" class="btn btn-default btn-sm">Поиск</button>
-          </div>
-        </form>
-      </div>
-    <? } ?>
-  </div>
-</div>
+<h1 class="icon_big <?=$_component['name'];?>-title"><?=$_component['title'];?></h1>
 <div class="container-fluid">
-  <div class="clearfix block_mb20">
-    <? if (count($items) > 20) { ?>
-      <a class="btn btn-default btn-xs" href="/admin<?=$_component['path'];?>"><span class="glyphicon glyphicon-backward"></span> Назад</a>
-    <? } ?>
-  </div>
-  <table class="table table-hover panel">
+<div class="table-responsive">
+  <table class="table table-hover panel table-sm">
     <thead>
       <tr>
+        <th>Дата</th>
         <th>Администратор</th>
         <th>Компонент</th>
         <th>Метод</th>
         <th>Описание метода</th>
-        <th>Дата</th>
+        <th>Path</th>
+        <th>POST</th>
       </tr>
     </thead>
     <tbody>
       <? foreach ($items as $item) { ?>
         <tr class="panel selection">
+          <td><?=rus_date($item['tm'],'d m Yг. H:i');?></td>
           <td><?=$item['username'];?></td>
           <td><?=$item['component'];?></td>
           <td><?=$item['method'];?></td>
           <td><?=$item['title'];?></td>
-          <td><?=rus_date($item['tm'],'d m Yг. H:i');?></td>
+          <td><?=$item['path'];?></td>
+          <td>
+            <? if ($item['post'] != "a:0:{}") {?>
+              <a href="javascript:void(0)" class="" title="Ссылки"
+                onClick="return my_modal('information', 'POST данные', '<plaintext><?=htmlspecialchars(str_replace("\n", "", $item['post']));?></plaintext>',[{text: 'OK', handler: function() {my_modal('hide');}, icon: 'accept'}]);">
+                POST
+              </a>
+            <? } ?>
+          </td>
         </tr>
       <? } ?>
     </tbody>
   </table>
-  <?=(isset($pagination) && $pagination ? $pagination : '');?>
-  <a class="btn btn-default btn-xs" href="/admin<?=$_component['path'];?>"><span class="glyphicon glyphicon-backward"></span> Назад</a>
-</div>
+</divD>
+
+<?=(isset($pagination) && $pagination ? $pagination : '');?>
+
+<div class="clear"></div>

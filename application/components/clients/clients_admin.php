@@ -335,7 +335,13 @@ class Clients_admin extends CI_Component {
                 'name'      => 'title',
                 'component' => $this->params['name'],
                 'method'    => 'client_search',
+                'placeholder' => ' ',
                 'maxlength' => 256
+              ),
+              array(
+                'view'  => 'fields/text',
+                'title' => 'Email:',
+                'name'  => 'email',
               ),
               array(
                 'view'    => 'fields/select',
@@ -456,8 +462,9 @@ class Clients_admin extends CI_Component {
   function _create_client_process() {    
     $params = array(
       'title'       => htmlspecialchars(trim($this->input->post('title'))),
+      'email'       => htmlspecialchars(trim($this->input->post('email'))),
       'city_id'     => (int)$this->input->post('city_id'),
-      'admin_id'    => (int)$this->input->post('admin_id'),
+      'admin_id'    => ((int)$this->input->post('admin_id') ? (int)$this->input->post('admin_id') : null),
       'active'      => ($this->input->post('active') ? 1 : 0),
       'order'       => $this->clients_model->get_client_order()
     );    
@@ -565,7 +572,7 @@ class Clients_admin extends CI_Component {
       'onclick'  => 'createLocalEvent('.$event_params.', "reload")',
     );
     //список событий клиента
-    $events = $this->calendar_model->get_events(0,0,array('client_id' => $item['id']),array('start'=>'desc'));
+    $events = $this->calendar_model->get_events(50,0,array('client_id' => $item['id']),array('start'=>'desc'));
     //поля для формы
     $fields_events = array();
     foreach ($events as $key => $value) {
@@ -576,17 +583,27 @@ class Clients_admin extends CI_Component {
         'value'     => '<small>'.$value['admin']['params']['name_'.$this->language].'<br/>'.$value['title'].'<br/>'.$value['result'].'</small>',
       );
     }
+    //параметры для добавления акта приемки
+    $acceptance_btn = array(
+      'title'    => 'Добавить акт приемки',
+      'icon'     => 'glyphicon-plus',
+      'onclick'  => 'window.open("/admin/clients/create_acceptance/?client_id='.$item['id'].'","_client_acceptance_create_'.$item['id'].'")',
+    );
+    //список актов приемки
+    $acceptances = $this->clients_model->get_acceptances(50, 0, array('client_id'=>$id));
+    //поля для формы
+    $fields_acceptances = array();
+    $fields_acceptances[] = array(
+      'view'      => 'fields/readonly_value',
+      'title'     => '',
+      'value'     => '<br/>'.$this->load->view('../../application/components/clients/templates/admin_client_acceptances_tbl',array('items' => $acceptances),TRUE),
+    );
     return $this->render_template('admin/inner', array(
       'title' => 'Редактирование клиента',
       'html' => $this->view->render_form(array(
         'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'_edit_client_process/'.$id.'/',
-        'blocks' => array(          
-          array(
-            'title'         => 'События',
-            'title_btn'     => $this->load->view('fields/submit', array('vars' => $event_btn), true),
-            'fields'        => $fields_events,
-            'aria-expanded' => false
-          ),
+        'view'   => 'forms/form_tabs',
+        'blocks' => array(
           array(
             'title'   => 'Основные параметры',
             'fields'   => array(
@@ -596,6 +613,12 @@ class Clients_admin extends CI_Component {
                 'name'      => 'title',
                 'value'     => $item['title'],
                 'maxlength' => 256
+              ),
+              array(
+                'view'  => 'fields/text',
+                'title' => 'Email:',
+                'name'  => 'email',
+                'value' => $item['email'],
               ),
               array(
                 'view'    => 'fields/select',
@@ -719,7 +742,19 @@ class Clients_admin extends CI_Component {
                 'reaction' => 'reload'
               )
             )
-          )
+          ),
+          array(
+            'title'         => 'События',
+            'title_btn'     => $this->load->view('fields/submit', array('vars' => $event_btn), true),
+            'fields'        => $fields_events,
+            'aria-expanded' => false
+          ),
+          array(
+            'title'         => 'Акты приемки',
+            'title_btn'     => $this->load->view('fields/submit', array('vars' => $acceptance_btn), true),
+            'fields'        => $fields_acceptances,
+            'aria-expanded' => false
+          ),
         )
       )),
       'back' => $this->lang_prefix .'/admin'. $this->params['path'].'clients_report/'
@@ -729,8 +764,9 @@ class Clients_admin extends CI_Component {
   function _edit_client_process($id) {    
     $params = array(
       'title'     => htmlspecialchars(trim($this->input->post('title'))),
+      'email'     => htmlspecialchars(trim($this->input->post('email'))),
       'city_id'   => (int)$this->input->post('city_id'),
-      'admin_id'  => (int)$this->input->post('admin_id'),
+      'admin_id'  => ((int)$this->input->post('admin_id') ? (int)$this->input->post('admin_id') : null),
       'active'    => ($this->input->post('active') ? 1 : 0)
     );
     $languages = $this->languages_model->get_languages(1, 0);
@@ -792,6 +828,9 @@ class Clients_admin extends CI_Component {
     $errors = array();
     if (!$params['title']) { $errors['title'] = 'Не указано название'; }
     if (!$params['city_id']) { $errors['city_id'] = 'Не указан город'; }
+    if ($params['email'] && !preg_match('/^[-0-9a-z_\.]+@[-0-9a-z^\.]+\.[a-z]{2,4}$/i', $params['email'])) { 
+      $errors['email'] = 'Некорректный Email'; 
+    }
     return $errors;
   }
   
@@ -1075,7 +1114,7 @@ class Clients_admin extends CI_Component {
     }
     //загружаем библиотеку PHPExcel для обработки файла
     $this->load->library('PHPExcel');
-    /** Load $inputFileName to a PHPExcel Object  **/
+    // Load $inputFileName to a PHPExcel Object
     $objPHPExcel = PHPExcel_IOFactory::load('.'.$file);
 
     //данные активного листа файла
@@ -1094,7 +1133,7 @@ class Clients_admin extends CI_Component {
         send_answer(array('errors' => array('file' => 'Ошибка в строке '.$key.': Не указано название клиента')));
       }
 
-      /***Поиск города с учетом региона***/
+      /*Поиск города с учетом региона*/
       // разбиваем строку с регионом на массив через пробелы
       $row['B'] = explode(' ', $row['B']);
       //названием региона является 1 слово в строке
@@ -1157,6 +1196,7 @@ class Clients_admin extends CI_Component {
 
   /**
   *  Просмотр списка актов приемки
+  *
   */
   function acceptances($page = 1) {
     $where = array();
@@ -1186,12 +1226,14 @@ class Clients_admin extends CI_Component {
       'prefix' => '/admin'.$this->params['path'].'acceptances/',
       'postfix' => ($client_id ? '?client_id='.$client_id : '')
     );
+    $items = $this->clients_model->get_acceptances($limit, $offset, $where);
     $data = array(
       'title' => 'Акты приемки',
+      'html'  => $this->load->view('../../application/components/clients/templates/admin_client_acceptances_tbl',array('items' => $items),TRUE),
       'search_path'     => '/admin'.$this->params['path'].'acceptances/',
       'search_title'    => @$title,
       'component_item'  => array('name' => 'acceptance', 'title' => 'акт приемки'),
-      'items'           => $this->clients_model->get_acceptances($limit, $offset, $where),
+      'items'           => $items,
       'pagination'      => $this->load->view('admin/pagination', $pagination_data, true),
       'quick_form' => $this->view->render_form(array(
         'method' => 'GET',
@@ -1256,6 +1298,7 @@ class Clients_admin extends CI_Component {
    *  Создание акта приемки
   **/  
   function create_acceptance() {
+    $client_id = ($this->uri->getParam('client_id') ? mysql_prepare($this->uri->getParam('client_id')) : 0);
     return $this->render_template('admin/inner', array(
       'title' => 'Добавление акта приемки',
       'html' => $this->view->render_form(array(
@@ -1273,7 +1316,8 @@ class Clients_admin extends CI_Component {
                 'view'    => 'fields/select',
                 'title'   => 'Компания:',
                 'name'    => 'client_id',
-                'options' => $this->clients_model->get_clients()
+                'options' => $this->clients_model->get_clients(),
+                'value'   => $client_id,
               ),
               array(
                 'view'    => 'fields/text',
@@ -1349,7 +1393,7 @@ class Clients_admin extends CI_Component {
   *  Редактирование акта приемки
   */  
   function edit_acceptance($id) {
-    $item = $this->clients_model->get_acceptance(array('id'=>$id));
+    $item = $this->clients_model->get_acceptance(array('client_acceptances.id'=>$id));
     if(!$item){
       show_error('Объект не найден');
     }
@@ -1457,6 +1501,66 @@ class Clients_admin extends CI_Component {
     if (!$params['price'])     { $errors['price'] = 'Не указан параметр Цена'; }
     if (!$params['color'])     { $errors['color'] = 'Не указан параметр Цвет'; }
     return $errors;
+  }
+
+  /**
+  *  Отправление email с актом приемки
+  *  @params $id - id акта приемки
+  */
+  function client_acceptance_email($id) {
+    $item = $this->clients_model->get_acceptance(array('client_acceptances.id'=>$id));
+    if(!$item){
+      show_error('Объект не найден');
+    }
+
+    return $this->render_template('templates/admin_client_acceptance_email', array(
+      'title' => 'Акт приемки',
+      'html'  => $this->load->view('../../application/components/clients/templates/admin_client_acceptance_tbl',array('item'  => $item),TRUE),
+      'item'  => $item,
+      'emails'=> $this->clients_model->get_acceptance_emails(array('acceptance_id'=>$item['id']))
+    ));
+  }
+
+  /**
+  *  Отправление email с актом приемки
+  *  @params $id - id акта приемки
+  */
+  function _client_acceptance_email($id) {
+    $item = $this->clients_model->get_acceptance(array('client_acceptances.id'=>$id));
+    if(!$item){
+      send_answer(array('errors' => array('Объект не найден')));
+    }
+    $from = $this->input->post('from');
+    $to = $this->input->post('to');
+    if (!preg_match('/^[-0-9a-z_\.]+@[-0-9a-z^\.]+\.[a-z]{2,4}$/i', $from)) { 
+      send_answer(array('errors' => array('Некорректный еmail отправителя')));
+    }
+    if (!preg_match('/^[-0-9a-z_\.]+@[-0-9a-z^\.]+\.[a-z]{2,4}$/i', $to)) { 
+      send_answer(array('errors' => array('Некорректный еmail получателя')));
+    }
+    $message = $this->load->view('../../application/components/clients/templates/admin_client_acceptance_tbl',array('item'  => $item),TRUE);
+    if(!send_mail($from, $to, 'Акт приемки', $message, $this->project)){
+      send_answer(array('errors' => array('Не удалось отправить сообщение')));
+    }
+    $params = array(
+      'admin_id'     => $this->admin_id,
+      'acceptance_id'=> $item['id'],
+      'from'         => $from,
+      'to'           => $to,
+      'client_id'    => $item['client_id'],
+      'gross'        => $item['gross'],
+      'result'       => $item['result'],
+      'net'          => $item['net'],
+      'price'        => $item['price'],
+      'color'        => $item['color'],
+      'date'         => $item['date'],
+      'comment'      => $item['comment'],
+    );
+    if(!$this->clients_model->create_acceptance_email($params)){
+      send_answer(array('errors' => array('Сообщение успешно отправлено. Не удалось сохранить письмо в истории')));
+    }
+
+    send_answer(array('messages' => array('Сообщение успешно отправлено')));
   }
 
   /**

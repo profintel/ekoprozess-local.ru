@@ -15,37 +15,7 @@
   </div>
 </div>
 <div class="container-fluid">
-  <? if ($items) { ?>
-    <table class="table table-report table-hover table-bordered">
-      <tr>
-        <th>Дата</th>
-        <th>Компания</th>
-        <th>Брутто, кг</th>
-        <th>Упаковка + засор, %</th>
-        <th>Нетто, кг</th>
-        <th>Цвет</th>
-        <th>Цена</th>
-        <th>Стоимость</th>
-        <th></th>
-      </tr>
-      <? foreach ($items as $item) { ?>
-        <tr onclick="window.open('/admin/clients/edit_acceptance/<?=$item['id'];?>/','_client_acceptance_<?=$item['id'];?>')">
-          <td><?=date('d.m.Y',strtotime($item['date']));?></td>
-          <td><?=$item['client'];?></td>
-          <td><?=$item['gross'];?></td>
-          <td><?=$item['result'];?></td>
-          <td><?=$item['net'];?></td>
-          <td><?=$item['color'];?></td>
-          <td><?=$item['price'];?></td>
-          <td><?=$item['price']*$item['net'];?></td>
-          <td><a href="#">Отправить акт по email</a></td>
-        </tr>
-      <? } ?>
-    </table>
-    <?=(isset($pagination) && $pagination ? $pagination : '');?>
-  <? } else { ?>
-    <div class="alert text-warning">Не найдено ни одного акта приемки</div>
-  <? } ?>
+  <?=$html?>
   <a class="btn btn-default btn-xs" href="/admin<?=$_component['path'];?>"><span class="glyphicon glyphicon-backward"></span> Назад</a>
 </div>
 <br/>

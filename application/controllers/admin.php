@@ -6,6 +6,7 @@ class Admin extends PR_Controller {
   public $arguments = array();
   public $language;
   public $component;
+  public $admin;
   
   function __construct() {
     parent::__construct();
@@ -43,15 +44,16 @@ class Admin extends PR_Controller {
     
     $this->load->component($this->component);
     
+    $this->admin = $this->administrators_model->get_admin(array('id' => $this->admin_id));
+
     $html = $this->_run_component($this->component['name']);
     if (!isset($html)) {
       return;
     }
 
-    $admin = $this->administrators_model->get_admin(array('id' => $this->admin_id));
     if(exists_component('calendar')){
-      $admin['events'] = $this->db->get_where('admin_events', array('admin_id'=>$this->admin_id,'check'=>0,'start >='=>date('Y-m-d H:i:s')))->result_array();
-      $admin['red_events'] = $this->db->get_where('admin_events', array('admin_id'=>$this->admin_id,'check'=>0,'start <'=>date('Y-m-d H:i:s'),'end <'=>date('Y-m-d H:i:s')))->result_array();
+      $this->admin['events'] = $this->db->get_where('admin_events', array('admin_id'=>$this->admin_id,'check'=>0,'start >='=>date('Y-m-d H:i:s')))->result_array();
+      $this->admin['red_events'] = $this->db->get_where('admin_events', array('admin_id'=>$this->admin_id,'check'=>0,'start <'=>date('Y-m-d H:i:s'),'end <'=>date('Y-m-d H:i:s')))->result_array();
       //Проверка и обновление календаря событий
       if ($this->main_model->exists_component('calendar')) {
         $this->db->update('admin_events',array('color' => '#fe7979'),array('admin_id'=>$this->admin_id,'check'=>0,'start <'=>date('Y-m-d H:i:s'),'end <'=>date('Y-m-d H:i:s')));
@@ -68,7 +70,7 @@ class Admin extends PR_Controller {
       '_component'      => $this->component,
       '_menu_primary'   => $this->admin_model->get_menu('primary'),
       '_menu_secondary' => $this->admin_model->get_menu('secondary'),
-      '_admin'          => $admin,
+      '_admin'          => $this->admin,
       '_html'           => $html
     ));
   }
