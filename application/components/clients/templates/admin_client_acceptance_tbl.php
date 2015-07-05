@@ -1,4 +1,4 @@
-<table border="1" width="100%" cellpadding="4" cellspacing="0" class="table table-bordered">
+<table border="1" width="100%" cellpadding="4" style="border-collapse: collapse;" class="table table-bordered">
   <tr>
     <th>Дата</th>
     <th>Компания</th>
