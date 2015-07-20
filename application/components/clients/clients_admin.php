@@ -47,6 +47,7 @@ class Clients_admin extends CI_Component {
   */
   function clients_report($page = 1) {
     $where = '';
+    $error = '';
     $get_params = array(
       'title'     => ($this->uri->getParam('title') ? mysql_prepare($this->uri->getParam('title')) : ''),
       'region_federal_id' => ($this->uri->getParam('region_federal_id') ? mysql_prepare($this->uri->getParam('region_federal_id')) : ''),
@@ -55,6 +56,11 @@ class Clients_admin extends CI_Component {
       'admin_id'  => ($this->uri->getParam('admin_id') ? mysql_prepare($this->uri->getParam('admin_id')) : ''),
       'client_id'  => ($this->uri->getParam('client_id') ? mysql_prepare($this->uri->getParam('client_id')) : ''),
     );
+    //если указан не текущий менеджер,
+    //то проверяем на доступ к просмотру клиентов других менеджеров
+    if($get_params['admin_id'] != $this->admin_id && !$this->admin['superuser']){
+      $error = 'У вас нет прав на просмотр клиентов всех менеджеров';
+    }
     if($get_params['client_id']){
       $where .= ($where ? ' AND ' : '').'pr_clients.id = '.$get_params['client_id'];
     } else {
@@ -98,10 +104,11 @@ class Clients_admin extends CI_Component {
       'prefix'  => '/admin'.$this->params['path'].'clients_report/',
       'postfix' => $postfix
     );
+    $items = $this->clients_model->get_clients_report($limit, $offset, $where);
     $data = array(
       'title'           => 'Клиенты',
       'client_params'   => $this->clients_model->get_client_params(0,0,array('active' => 1)),
-      'items'           => $this->clients_model->get_clients_report($limit, $offset, $where),
+      'items'           => $items,
       'pagination'      => $this->load->view('admin/pagination', $pagination_data, true),
       'quick_form' => $this->view->render_form(array(
         'method' => 'GET',
@@ -308,7 +315,7 @@ class Clients_admin extends CI_Component {
     $fields_params = array();
     foreach ($client_params as $key => $param) {
       $fields_params[] = array(
-        'view'      => 'fields/textarea',
+        'view'      => 'fields/text',
         'rows'      => 2,
         'title'     => $param['title'],
         'name'      => 'param_'.$param['id'],
@@ -322,8 +329,9 @@ class Clients_admin extends CI_Component {
       'reaction' => $this->lang_prefix .'/admin'. $this->params['path'].'clients_list/'
     );
     return $this->render_template('admin/inner', array(
-      'title' => 'Добавление клиента',
+      'title' => 'Добавление карточки клиента',
       'html' => $this->view->render_form(array(
+        'view'   => 'forms/default',
         'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'_create_client_process/',
         'blocks' => array(
           array(
@@ -356,6 +364,7 @@ class Clients_admin extends CI_Component {
                 'name'        => 'admin_id',
                 'text_field'  => 'name_ru',
                 'options'     => $this->administrators_model->get_admins(),
+                'value'       => $this->admin_id,
                 'empty'       => true
               ),
               array(
@@ -540,7 +549,7 @@ class Clients_admin extends CI_Component {
     $fields_params = array();
     foreach ($client_params as $key => $param) {
       $fields_params[] = array(
-        'view'      => 'fields/textarea',
+        'view'      => 'fields/text',
         'rows'      => 2,
         'title'     => $param['title'],
         'name'      => 'param_'.$param['id'],
@@ -599,7 +608,7 @@ class Clients_admin extends CI_Component {
       'value'     => '<br/>'.$this->load->view('../../application/components/clients/templates/admin_client_acceptances_tbl',array('items' => $acceptances),TRUE),
     );
     return $this->render_template('admin/inner', array(
-      'title' => 'Редактирование клиента',
+      'title' => 'Карточка клиента',
       'html' => $this->view->render_form(array(
         'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'_edit_client_process/'.$id.'/',
         'view'   => 'forms/form_tabs',
