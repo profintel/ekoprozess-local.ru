@@ -1,4 +1,4 @@
-/* Generated 06.07.2015 00:14:25 */
+/* Generated 31.07.2015 16:07:24 */
 
 /* components */
 
@@ -89,10 +89,6 @@
 .fc-view-container {
   background-color: #ffffff;
 }
-
-/* drive */
-
-
 
 /*** FILE /adm/css/bootstrap.min.css ***/
 
@@ -706,12 +702,17 @@ div.quick_form_input+div{
 }
 
 .table-report {
-  font-size: 10px;
   background-color: #ffffff;
 }
-.table-report td {
+.table-report th,
+.table-report td,
+.table-report .label {
+  font-size: 10px;
   word-wrap:break-word;
   cursor: pointer;
+}
+.table-report td:last-child {
+  cursor: inherit;
 }
 
 .ui-datepicker{

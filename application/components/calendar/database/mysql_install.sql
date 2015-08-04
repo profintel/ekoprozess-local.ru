@@ -6,6 +6,7 @@ CREATE TABLE `pr_admin_events` (
   `client_id` int(10) unsigned default NULL,
   `title` varchar(256) NOT NULL,
   `description` varchar(1000) NOT NULL,
+  `event` varchar(1000) NOT NULL,
   `result` varchar(1000) NOT NULL,
   `start` datetime default NULL,
   `end` datetime default NULL,

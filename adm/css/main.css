@@ -387,12 +387,17 @@ div.quick_form_input+div{
 }
 
 .table-report {
-  font-size: 10px;
   background-color: #ffffff;
 }
-.table-report td {
+.table-report th,
+.table-report td,
+.table-report .label {
+  font-size: 10px;
   word-wrap:break-word;
   cursor: pointer;
+}
+.table-report td:last-child {
+  cursor: inherit;
 }
 
 .ui-datepicker{

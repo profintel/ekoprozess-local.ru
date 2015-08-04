@@ -34,9 +34,17 @@ class Calendar_admin extends CI_Component {
               ),
               array(
                 'view'      => 'fields/textarea',
-                'title'     => 'Описание:',
+                'title'     => 'Контакты:',
                 'name'      => 'description',
                 'value'     => ($this->uri->getParam('description') ? $this->uri->getParam('description') : ''),
+                'maxlength' => 1000,
+                'rows'      => 2
+              ),
+              array(
+                'view'      => 'fields/textarea',
+                'title'     => 'Описание события:',
+                'name'      => 'event',
+                'value'     => ($this->uri->getParam('event') ? $this->uri->getParam('event') : ''),
                 'maxlength' => 1000,
                 'rows'      => 2
               ),
@@ -61,15 +69,16 @@ class Calendar_admin extends CI_Component {
                 'value' => ($this->uri->getParam('start') ? date('d.m.Y H:i', strtotime($this->uri->getParam('start'))) : '')
               ),
               array(
-                'view'  => 'fields/datetime',
+                'view'  => 'fields/hidden',
                 'title' => 'Окончание:',
                 'name'  => 'end',
                 'value' => ($this->uri->getParam('end') ? date('d.m.Y H:i', strtotime($this->uri->getParam('end'))) : '')
               ),
               array(
-                'view'    => 'fields/checkbox',
+                'view'    => 'fields/hidden',
                 'title'   => 'Весь день',
                 'name'    => 'allDay',
+                'value'   => ($this->uri->getParam('allDay') ? 1 : 0),
                 'checked' => ($this->uri->getParam('allDay') ? 1 : 0)
               ),
               array(
@@ -99,6 +108,7 @@ class Calendar_admin extends CI_Component {
       'client_id'   => ($this->input->post('client_id') ? $this->input->post('client_id') : null),
       'title'       => htmlspecialchars(trim($this->input->post('title'))),
       'description' => htmlspecialchars(trim($this->input->post('description'))),
+      'event'       => htmlspecialchars(trim($this->input->post('event'))),
       'result'      => htmlspecialchars(trim($this->input->post('result'))),
       'start'       => ($this->input->post('start') ? date('Y-m-d H:i:s', strtotime($this->input->post('start'))) : NULL),
       'end'         => ($this->input->post('end') ? date('Y-m-d H:i:s', strtotime($this->input->post('end'))) : NULL),
@@ -158,9 +168,17 @@ class Calendar_admin extends CI_Component {
               ),
               array(
                 'view'      => 'fields/textarea',
-                'title'     => 'Описание:',
+                'title'     => 'Контакты:',
                 'name'      => 'description',
                 'value'     => $item['description'],
+                'maxlength' => 1000,
+                'rows'      => 2
+              ),
+              array(
+                'view'      => 'fields/textarea',
+                'title'     => 'Описание события:',
+                'name'      => 'event',
+                'value'     => $item['event'],
                 'maxlength' => 1000,
                 'rows'      => 2
               ),
@@ -185,15 +203,16 @@ class Calendar_admin extends CI_Component {
                 'value' => ($item['start'] ? date('d.m.Y H:i', strtotime($item['start'])) : '')
               ),
               array(
-                'view'  => 'fields/datetime',
+                'view'  => 'fields/hidden',
                 'title' => 'Окончание:',
                 'name'  => 'end',
                 'value' => ($item['end'] ? date('d.m.Y H:i', strtotime($item['end'])) : '')
               ),
               array(
-                'view'    => 'fields/checkbox',
+                'view'    => 'fields/hidden',
                 'title'   => 'Весь день',
                 'name'    => 'allDay',
+                'value'   => $item['allDay'],
                 'checked' => $item['allDay']
               ),
               array(
@@ -221,6 +240,7 @@ class Calendar_admin extends CI_Component {
     $params = array(
       'title'       => htmlspecialchars(trim($this->input->post('title'))),
       'description' => htmlspecialchars(trim($this->input->post('description'))),
+      'event'       => htmlspecialchars(trim($this->input->post('event'))),
       'result'      => htmlspecialchars(trim($this->input->post('result'))),
       'start'       => ($this->input->post('start') ? date('Y-m-d H:i:s', strtotime($this->input->post('start'))) : NULL),
       'end'         => ($this->input->post('end') ? date('Y-m-d H:i:s', strtotime($this->input->post('end'))) : NULL),
@@ -262,6 +282,40 @@ class Calendar_admin extends CI_Component {
   function get_lastEvent() {
     $event = $this->calendar_model->get_event(array('admin_id'=>$this->admin_id),array('id'=>'desc'));
     echo json_encode($event);
+  }
+
+  /*
+  * Список событий по типу и клиенту
+  * return json
+  */
+  function getClientEvents() {
+    $where = array();
+    //тип событий
+    if($this->input->post('type')){
+      //прошедшие события не отмеченные "выполнено"
+      if($this->input->post('type') == 'red'){
+        $where['check']=0;
+        $where['start <']=date('Y-m-d H:i:s');
+      }
+      //запланированные события не отмеченные "выполнено"
+      if($this->input->post('type') == 'blue'){
+        $where['check']=0;
+        $where['start >']=date('Y-m-d H:i:s');
+      }
+    }
+    if((int)$this->input->post('client_id')){
+      $where['client_id']=(int)$this->input->post('client_id');
+    }
+    if((int)$this->input->post('admin_id')){
+      $where['admin_id']=(int)$this->input->post('admin_id');
+    }
+
+    $events = $this->calendar_model->get_events(0,0,$where,array('start'=>'desc'));
+    foreach ($events as $key => &$event) {
+      $event['start'] = date('d.m.Y',strtotime($event['start']));
+    }
+    unset($event);
+    echo json_encode($events);
   }
 
   function eventDrop() {

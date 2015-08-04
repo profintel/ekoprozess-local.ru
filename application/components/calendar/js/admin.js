@@ -40,7 +40,7 @@ $(function() {
       eventRender: function(event, element) {
         element.addClass('popover');
         element.attr('title', event.title);
-        element.attr('data-content', event.description);
+        element.attr('data-content', event.event+(event.result ? ' ('+event.result+')' : ''));
         
       },
       eventMouseover: function( event, jsEvent, view ){
@@ -168,4 +168,23 @@ function addLastEvent(){
     },'JSON');
   },100)
   sheet('hide');
+}
+
+/* Модальное окно с событиями
+* @params type - тип событий (red,blue)
+*         client_id - id клиента
+*         admin_id - id администратора
+*/
+function loadEvents(type,client_id,admin_id){
+  var event_text = '', messages = [];
+  $.post('/admin/calendar/getClientEvents/',{type:type,client_id:client_id,admin_id:admin_id},function(answer){
+    if(typeof(answer) != 'object' || $.isEmptyObject(answer)){
+      my_modal('error', 'Возникли следующие ошибки:', ['Ошибка при загрузке событий'], 'OK');
+    }
+    $.each(answer, function(key,item){
+      event_text = '<b>'+item.start+'</b> '+item.admin.params.name_ru+': '+item.event+(item.result ? ' ('+item.result+')' : '');
+      messages.push(event_text);
+    });
+    my_modal('information', 'События', messages, ['OK']);
+  },'json');
 }

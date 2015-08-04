@@ -44,9 +44,23 @@ class Clients_model extends CI_Model {
       $this->db->where($where);
     }
     $items = $this->db->get('clients')->result_array();
+    //Дополнительные параметры для события
+    $client_param_desc = $this->clients_model->get_client_param();
     foreach ($items as $key => &$item) {
       $item['params'] = $this->main_model->get_params('client_params', $item['id']);
       $item['admin'] = $this->administrators_model->get_admin(array('id' => $item['admin_id']));
+      $item['last_event'] = $this->calendar_model->get_event(array('client_id' => $item['id']),array('tm'=>'desc'));
+      $item['red_events_cnt'] = $this->calendar_model->get_events_cnt(array('client_id'=>$item['id'], 'check'=>0, 'start <'=>date('Y-m-d H:i:s'),'end <'=>date('Y-m-d H:i:s')));
+      $item['blue_events_cnt'] = $this->calendar_model->get_events_cnt(array('client_id'=>$item['id'], 'check'=>0, 'start >='=>date('Y-m-d H:i:s')));
+      //параметры для добавления события
+      $item['event_params'] = json_encode(array(
+        'start'       => date("Y-m-d H:i:s", mktime(0,0,0,date("m"),date("d")+1,date("Y"))),
+        'client_id'   => $item['id'],
+        'title'       => @$item['city_title'].' '.$item['title'],
+        //1 параметр - описание с телефонами, добавляем в событие по умолчанию
+        'description' => @$item['params']['param_'.@$client_param_desc['id'].'_'.$this->language],
+        'allDay'      => true,
+      ));
     }
     unset($item);
     
@@ -103,7 +117,7 @@ class Clients_model extends CI_Model {
     if ($order_by) {
       foreach ($order_by as $field => $dest) {
         $this->db->order_by($field, $dest);
-      }      
+      }
     } else {
       $this->db->order_by('order','asc');
     }
@@ -122,7 +136,14 @@ class Clients_model extends CI_Model {
     return $this->db->count_all_results('client_params');
   }
 
-  function get_client_param($where = array()) {
+  function get_client_param($where = array(), $order_by = array()) {
+    if ($order_by) {
+      foreach ($order_by as $field => $dest) {
+        $this->db->order_by($field, $dest);
+      }
+    } else {
+      $this->db->order_by('order','asc');
+    }
     $item = $this->db->get_where('client_params', $where)->row_array();
     return $item;
   }

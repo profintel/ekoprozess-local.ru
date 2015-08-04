@@ -1,4 +1,4 @@
-/*** Generated 06.07.2015 00:14:26 ***/
+/*** Generated 31.07.2015 16:07:24 ***/
 
 /*** FILE /js/__jquery.js ***/
 
@@ -1191,8 +1191,4 @@ function togglePanel(action){
 }
 
 /*** cities ***/
-
-
-
-/*** calendar ***/
 

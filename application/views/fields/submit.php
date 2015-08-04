@@ -6,7 +6,7 @@
     onClick='<?=$vars['onclick'];?>'
   <? } else { ?>
     <? if ($vars['type'] == 'ajax') { ?>
-      onClick="return submit_form(this, <?=(isset($vars['reaction']) && $vars['reaction'] ? "'". $vars['reaction'] ."'" : 'null');?>, <?=(isset($vars['failure']) && $vars['failure'] ? "'". $vars['failure'] ."'" : 'null');?>);"
+      onClick="return submit_form(this, <?=(isset($vars['reaction']) && $vars['reaction'] ? (isset($vars['reaction_func']) && $vars['reaction_func'] ? $vars['reaction'] : "'". $vars['reaction'] ."'") : 'null');?>, <?=(isset($vars['failure']) && $vars['failure'] ? "'". $vars['failure'] ."'" : 'null');?>, <?=(isset($vars['data_type']) && $vars['data_type'] ? "'". $vars['data_type'] ."'" : "'json'");?>);"
     <? } else { ?>
       onClick="return submit_form_sync(this);"
     <? } ?>

@@ -45,7 +45,7 @@ class Clients_admin extends CI_Component {
   /**
   * Просмотр отчета по базе клиентов
   */
-  function clients_report($page = 1) {
+  function clients_report() {
     $where = '';
     $error = '';
     $get_params = array(
@@ -90,6 +90,7 @@ class Clients_admin extends CI_Component {
         $where .= ($where ? ' AND ' : '').'pr_clients.admin_id = '.$get_params['admin_id'];
       }
     }
+    $page = ($this->uri->getParam('page') ? $this->uri->getParam('page') : 1);
     $limit = 50;
     $offset = $limit * ($page - 1);
     $cnt = $this->clients_model->get_clients_cnt($where );
@@ -111,9 +112,9 @@ class Clients_admin extends CI_Component {
       'items'           => $items,
       'pagination'      => $this->load->view('admin/pagination', $pagination_data, true),
       'quick_form' => $this->view->render_form(array(
-        'method' => 'GET',
-        'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'clients_report/',
-        'view'   => 'forms/form_inline',
+        'method'  => 'GET',
+        'action'  => $this->lang_prefix .'/admin'. $this->params['path'] .'clients_report/',
+        'view'    => 'forms/form_inline',
         'blocks' => array(
           array(
             'title'    => '',
@@ -142,7 +143,8 @@ class Clients_admin extends CI_Component {
       )),
       'form' => $this->view->render_form(array(
         'method' => 'GET',
-        'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'clients_report/',
+        'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'clients_report/',        
+        'enctype' => '',
         'blocks' => array(
           array(
             'title'         => 'Расширенный поиск',
@@ -153,7 +155,7 @@ class Clients_admin extends CI_Component {
                 'name'    => 'region_federal_id',
                 'value'   => $get_params['region_federal_id'],
                 'options' => $this->cities_model->get_regions_federal(),
-                'onchange'=> "return changeRegion(this, 'federal')",
+                'onchange'=> "changeRegion(this, 'federal'); submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
                 'empty'   => true
               ),
               array(
@@ -161,8 +163,8 @@ class Clients_admin extends CI_Component {
                 'title'   => 'Регион:',
                 'name'    => 'region_id',
                 'value'   => $get_params['region_id'],
-                'options' => $this->cities_model->get_regions(),
-                'onchange'=> 'return changeRegion(this)',
+                'options' => $this->cities_model->get_regions(0,0,false,false,$get_params['region_federal_id']),
+                'onchange'=> "changeRegion(this); submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
                 'empty'   => true
               ),
               array(
@@ -170,7 +172,8 @@ class Clients_admin extends CI_Component {
                 'title'   => 'Город:',
                 'name'    => 'city_id',
                 'value'   => $get_params['city_id'],
-                'options' => $this->cities_model->get_cities(),
+                'options' => $this->cities_model->get_cities(0,0,($get_params['region_id'] ? array('city.region_id'=>$get_params['region_id']) : false),false,$get_params['region_federal_id']),
+                'onchange'=> "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
                 'empty'   => true
               ),
               array(
@@ -180,6 +183,7 @@ class Clients_admin extends CI_Component {
                 'value'       => $get_params['admin_id'],
                 'text_field'  => 'name_ru',
                 'options'     => $this->administrators_model->get_admins(),
+                'onchange'    => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
                 'empty'       => true
               ),
               array(
@@ -191,18 +195,31 @@ class Clients_admin extends CI_Component {
                 'empty'   => true
               ),
               array(
-                'view'     => 'fields/submit',
-                'title'    => 'Поиск',
-                'type'     => '',
-                'reaction' => $this->lang_prefix .'/admin'. $this->params['path']
+                'view'          => 'fields/submit',
+                'title'         => 'Поиск',
+                'type'          => 'ajax',
+                'failure'       => '?ajax=1',
+                'reaction_func' => true,
+                'reaction'      => 'handle_ajaxResultHTML',
+                'data_type'     => 'html'
               )
             )
           )
         )
       )),
     );
+    
+    if($this->uri->getParam('ajax') == 1){
+      echo $this->load->view('../../application/components/clients/templates/admin_report_table',$data,true);
+    } else {
+      return $this->render_template('templates/admin_report', array('data'=>$data));
+    }
 
-    return $this->render_template('templates/admin_report', $data);
+  }
+
+  function render_clients_report_table($data){
+    $data = unserialize(base64_decode($data));
+    return $this->load->view('../../application/components/clients/templates/admin_report_table',$data,true);
   }
 
   /**
@@ -221,7 +238,7 @@ class Clients_admin extends CI_Component {
         'title'   => 'Регион:',
         'name'    => 'region_id',
         'options' => $regions,
-        'onchange'=> "return changeRegion(this)",
+        'onchange'=> "changeRegion(this); submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
         'empty'   => true
       );
       $result['regions'] = $this->load->view('fields/select', array('vars' => $vars), true); 
@@ -235,6 +252,7 @@ class Clients_admin extends CI_Component {
       'title'   => 'Город:',
       'name'    => 'city_id',
       'options' => $cities,
+      'onchange'=> "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
       'empty'   => true
     );
     $result['city'] = $this->load->view('fields/select', array('vars' => $vars), true);
@@ -362,6 +380,7 @@ class Clients_admin extends CI_Component {
                 'view'        => 'fields/select',
                 'title'       => 'Менеджер:',
                 'name'        => 'admin_id',
+                'value'       => $this->admin_id,
                 'text_field'  => 'name_ru',
                 'options'     => $this->administrators_model->get_admins(),
                 'value'       => $this->admin_id,
@@ -589,7 +608,7 @@ class Clients_admin extends CI_Component {
         'view'      => 'fields/readonly',
         'title'     => '<small>'.date('d.m.Y H:i:s',strtotime($value['start'])).'</small> '.
                        "<small><a href='javascript:void(0)' onClick='editEvent(".json_encode($value).")'>Редактировать</a></small>",
-        'value'     => '<small>'.$value['admin']['params']['name_'.$this->language].'<br/>'.$value['title'].'<br/>'.$value['result'].'</small>',
+        'value'     => '<small>'.$value['admin']['params']['name_'.$this->language].($value['event'] ? '<br/>'.$value['event'] : '').($value['result'] ? '<br/>('.$value['result'].')' : '').'</small>',
       );
     }
     //параметры для добавления акта приемки

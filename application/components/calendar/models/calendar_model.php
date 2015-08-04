@@ -47,7 +47,11 @@ class Calendar_model extends CI_Model {
         $this->db->order_by($field, $dest);
       }      
     }
-    return $this->db->get('admin_events')->row_array();
+    $item = $this->db->get('admin_events')->row_array();
+    if($item){
+      $item['admin'] = $this->administrators_model->get_admin(array('id'=>$item['admin_id']));
+    }
+    return $item;
   }
 
   function create_event($params) {

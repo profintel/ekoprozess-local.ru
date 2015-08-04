@@ -191,7 +191,7 @@ function send_request(url, data, reaction, context) {
   return false;
 }
 
-function submit_form(context, reaction, uri_postfix) {
+function submit_form(context, reaction, uri_postfix, data_type) {
   sheet();
   var form = $(context).parents('form');
   var path = form.attr('action');
@@ -203,9 +203,9 @@ function submit_form(context, reaction, uri_postfix) {
   if (uri_postfix) {
     form.attr('action', path + uri_postfix);
   }
-  
+
   form.ajaxSubmit(function(answer) {
-    handle_answer(answer, reaction, context);
+    handle_answer(answer, reaction, context, data_type);
   });
   
   form.attr('action', path);
@@ -218,15 +218,23 @@ function submit_form_sync(context) {
   return false;
 }
 
-function handle_answer(answer, reaction, context) {
+function handle_answer(answer, reaction, context, data_type) {
   if (!answer) {
     return my_modal('error', 'Возникли следующие ошибки:', 'Некорректный ответ сервера', 'OK');
   }
-  
-  try {
-    answer = $.parseJSON(answer);
-  } catch (e) {
-    return my_modal('error', 'Возникли следующие ошибки:', answer, 'OK');
+
+  if(!data_type){
+    data_type = 'json';
+  }
+  if(data_type == 'html'){
+    answer = $.parseHTML(answer);
+  }
+  if(data_type == 'json'){
+    try {
+      answer = $.parseJSON(answer);
+    } catch (e) {
+      return my_modal('error', 'Возникли следующие ошибки:', answer, 'OK');
+    }
   }
   
   if (answer.sysmsg) {
@@ -255,9 +263,6 @@ function handle_answer(answer, reaction, context) {
     document.location = answer.redirect;
   } else {
     var form = $(context).parents('form');
-    if (form.length) {
-      form[0].reset();
-    }
     if (!reaction) {
       if (typeof(answer.messages) == 'object' && answer.messages.length) {
         return my_modal('information', 'Уведомление', answer.messages, 'OK');
@@ -286,6 +291,26 @@ function handle_answer(answer, reaction, context) {
   }
   
   return false;
+}
+
+/**
+* Отображает html результат в #ajaxResult
+* @params context - елемент формы
+*         answer - json результат запроса формы
+*/
+function handle_ajaxResultHTML(answer) {
+  
+  window.history.pushState(null,document.title,document.location+'?sd=sd');
+  // console.log(window.history.state);
+  var container = $(answer).find('#ajax_result');
+  if(container.length){
+    $(document).find('#ajax_result').fadeOut(400,function(){
+      $(this).html($(container).html())
+      $(this).fadeIn(400,function(){      
+        sheet('hide');
+      });
+    })
+  }
 }
 
 function handle_sysmsg(msg) {

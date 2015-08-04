@@ -1,4 +1,4 @@
-/*** Generated 06.07.2015 00:14:25 ***/
+/*** Generated 31.07.2015 16:07:24 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -3692,7 +3692,7 @@ function send_request(url, data, reaction, context) {
   return false;
 }
 
-function submit_form(context, reaction, uri_postfix) {
+function submit_form(context, reaction, uri_postfix, data_type) {
   sheet();
   var form = $(context).parents('form');
   var path = form.attr('action');
@@ -3704,9 +3704,9 @@ function submit_form(context, reaction, uri_postfix) {
   if (uri_postfix) {
     form.attr('action', path + uri_postfix);
   }
-  
+
   form.ajaxSubmit(function(answer) {
-    handle_answer(answer, reaction, context);
+    handle_answer(answer, reaction, context, data_type);
   });
   
   form.attr('action', path);
@@ -3719,15 +3719,23 @@ function submit_form_sync(context) {
   return false;
 }
 
-function handle_answer(answer, reaction, context) {
+function handle_answer(answer, reaction, context, data_type) {
   if (!answer) {
     return my_modal('error', 'Возникли следующие ошибки:', 'Некорректный ответ сервера', 'OK');
   }
-  
-  try {
-    answer = $.parseJSON(answer);
-  } catch (e) {
-    return my_modal('error', 'Возникли следующие ошибки:', answer, 'OK');
+
+  if(!data_type){
+    data_type = 'json';
+  }
+  if(data_type == 'html'){
+    answer = $.parseHTML(answer);
+  }
+  if(data_type == 'json'){
+    try {
+      answer = $.parseJSON(answer);
+    } catch (e) {
+      return my_modal('error', 'Возникли следующие ошибки:', answer, 'OK');
+    }
   }
   
   if (answer.sysmsg) {
@@ -3756,9 +3764,6 @@ function handle_answer(answer, reaction, context) {
     document.location = answer.redirect;
   } else {
     var form = $(context).parents('form');
-    if (form.length) {
-      form[0].reset();
-    }
     if (!reaction) {
       if (typeof(answer.messages) == 'object' && answer.messages.length) {
         return my_modal('information', 'Уведомление', answer.messages, 'OK');
@@ -3787,6 +3792,26 @@ function handle_answer(answer, reaction, context) {
   }
   
   return false;
+}
+
+/**
+* Отображает html результат в #ajaxResult
+* @params context - елемент формы
+*         answer - json результат запроса формы
+*/
+function handle_ajaxResultHTML(answer) {
+  
+  window.history.pushState(null,document.title,document.location+'?sd=sd');
+  // console.log(window.history.state);
+  var container = $(answer).find('#ajax_result');
+  if(container.length){
+    $(document).find('#ajax_result').fadeOut(400,function(){
+      $(this).html($(container).html())
+      $(this).fadeIn(400,function(){      
+        sheet('hide');
+      });
+    })
+  }
 }
 
 function handle_sysmsg(msg) {
@@ -4113,7 +4138,7 @@ $(function() {
       eventRender: function(event, element) {
         element.addClass('popover');
         element.attr('title', event.title);
-        element.attr('data-content', event.description);
+        element.attr('data-content', event.event+(event.result ? ' ('+event.result+')' : ''));
         
       },
       eventMouseover: function( event, jsEvent, view ){
@@ -4241,6 +4266,25 @@ function addLastEvent(){
     },'JSON');
   },100)
   sheet('hide');
+}
+
+/* Модальное окно с событиями
+* @params type - тип событий (red,blue)
+*         client_id - id клиента
+*         admin_id - id администратора
+*/
+function loadEvents(type,client_id,admin_id){
+  var event_text = '', messages = [];
+  $.post('/admin/calendar/getClientEvents/',{type:type,client_id:client_id,admin_id:admin_id},function(answer){
+    if(typeof(answer) != 'object' || $.isEmptyObject(answer)){
+      my_modal('error', 'Возникли следующие ошибки:', ['Ошибка при загрузке событий'], 'OK');
+    }
+    $.each(answer, function(key,item){
+      event_text = '<b>'+item.start+'</b> '+item.admin.params.name_ru+': '+item.event+(item.result ? ' ('+item.result+')' : '');
+      messages.push(event_text);
+    });
+    my_modal('information', 'События', messages, ['OK']);
+  },'json');
 }
 
 /*** clients ***/

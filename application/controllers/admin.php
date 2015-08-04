@@ -136,7 +136,9 @@ class Admin extends PR_Controller {
       }
     }
 
-    return call_user_func_array(array(&$this->$name, $method), $this->arguments);
+    $template = call_user_func_array(array(&$this->$name, $method), $this->arguments);
+
+    return $this->_parse_template($template);
   }
   
   /**
@@ -160,5 +162,41 @@ class Admin extends PR_Controller {
       }
     }
     return $result;
+  }
+  
+  function _parse_template($template, $data = array()) {    
+    preg_match_all('/{{(.+):(.+)}}/u', $template, $matches, PREG_SET_ORDER);
+    foreach ($matches as $match) {
+      if (method_exists($this, '_handle_'. $match[1])) {
+        $content = call_user_func_array(array(&$this, '_handle_'. $match[1]), array($match[2], $data));
+        if ($content !== FALSE) {
+          $template = str_replace($match[0], $this->_parse_template($content, $data), $template);
+        }
+      }
+    }
+    
+    return $template;
+  }
+
+  function _handle_cmp($line, $data = array()) {
+    $parts = explode('->', $line);
+    
+    $component = $this->components_model->get_component($parts[0]);
+    if (!$component) {
+      return FALSE;
+    }
+    $this->load->component($component);    
+    
+    $method = (isset($parts[1]) && $parts[1] ? $parts[1] : 'index');
+    $parts = explode('<-', $method);
+    $method = array_shift($parts);
+    
+    if (method_exists($this->{$component['name']}, '_remap')) {
+      return call_user_func_array(array(&$this->{$component['name']}, '_remap'), $parts);
+    } elseif (method_exists($this->{$component['name']}, $method)) {      
+      return call_user_func_array(array(&$this->{$component['name']}, $method), $parts);      
+    } else {      
+      return FALSE;
+    }
   }
 }
