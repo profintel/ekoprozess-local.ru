@@ -95,11 +95,12 @@ class Clients_admin extends CI_Component {
     $offset = $limit * ($page - 1);
     $cnt = $this->clients_model->get_clients_cnt($where );
     $pages = get_pages($page, $cnt, $limit);
-    $postfix = '?';
+    $postfix = '&';
     foreach ($get_params as $key => $value) {
       $postfix .= $key.'='.$value.'&';
     }
     $pagination_data = array(
+      'ajax'    => true,
       'pages'   => $pages,
       'page'    => $page,
       'prefix'  => '/admin'.$this->params['path'].'clients_report/',
@@ -110,7 +111,7 @@ class Clients_admin extends CI_Component {
       'title'           => 'Клиенты',
       'client_params'   => $this->clients_model->get_client_params(0,0,array('active' => 1)),
       'items'           => $items,
-      'pagination'      => $this->load->view('admin/pagination', $pagination_data, true),
+      'pagination'      => $this->load->view('templates/pagination', $pagination_data, true),
       'quick_form' => $this->view->render_form(array(
         'method'  => 'GET',
         'action'  => $this->lang_prefix .'/admin'. $this->params['path'] .'clients_report/',

@@ -299,10 +299,10 @@ function handle_answer(answer, reaction, context, data_type) {
 *         answer - json результат запроса формы
 */
 function handle_ajaxResultHTML(answer) {
-  
-  window.history.pushState(null,document.title,document.location+'?sd=sd');
+  var element = '#ajax_result';
+  // window.history.pushState(null,document.title,document.location+'?sd=sd');
   // console.log(window.history.state);
-  var container = $(answer).find('#ajax_result');
+  var container = $(answer).find(element);
   if(container.length){
     $(document).find('#ajax_result').fadeOut(400,function(){
       $(this).html($(container).html())

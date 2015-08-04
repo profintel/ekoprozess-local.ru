@@ -1,5 +1,5 @@
 <div>
-  <div id="ajax_result">
+  <div id="ajax_result"><div>
   <? if($items) { ?>
     <table class="table table-report table-hover table-bordered">
       <tr>
@@ -58,5 +58,5 @@
       <p>Попробуйте изменить параметры поиска</p>
     </div>
   <? } ?>
-  </div>
+  </div></div>
 </div>

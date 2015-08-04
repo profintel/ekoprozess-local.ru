@@ -1,3 +1,37 @@
+$(document).ready(function(){
+  //Постраничная навигация ajax
+  if($(document).find('#pagination_ajax').length && $.isFunction(window.history.pushState) === true){
+    $(document).on('click', '#pagination_ajax a', function(e){
+      e.preventDefault();
+      locationPagination($(this));
+    })  
+  }
+})
+
+/**
+* Обновление контента
+* в постраничной навигации
+*/
+function locationPagination(obj){
+  var href, element = '#ajax_result';
+  $(element).children("div").fadeOut(400, function(){
+    $(element).addClass('loading');
+    href = obj.attr('href');
+    //меняем путь и сохраняем в историю браузера ссылку
+    window.history.pushState({}, document.title, href);
+    //получаем html страницы
+    $.get(href,function(answer){
+      //отображаем результат
+      result = $.parseHTML(answer);
+      result = $(result).find(element);        
+      if(result.length){
+        $(document).find(element).html(result.html());
+        $(element).removeClass('loading');
+      }
+    })
+  })
+}
+
 /**
 * Меняет значения select регионов и городов в отчете по клиентам
 * @param el - текущий элемент DOM

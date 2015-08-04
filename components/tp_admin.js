@@ -1,4 +1,4 @@
-/*** Generated 31.07.2015 16:07:24 ***/
+/*** Generated 04.08.2015 22:25:04 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -3800,10 +3800,10 @@ function handle_answer(answer, reaction, context, data_type) {
 *         answer - json результат запроса формы
 */
 function handle_ajaxResultHTML(answer) {
-  
-  window.history.pushState(null,document.title,document.location+'?sd=sd');
+  var element = '#ajax_result';
+  // window.history.pushState(null,document.title,document.location+'?sd=sd');
   // console.log(window.history.state);
-  var container = $(answer).find('#ajax_result');
+  var container = $(answer).find(element);
   if(container.length){
     $(document).find('#ajax_result').fadeOut(400,function(){
       $(this).html($(container).html())
@@ -4288,6 +4288,40 @@ function loadEvents(type,client_id,admin_id){
 }
 
 /*** clients ***/
+
+$(document).ready(function(){
+  //Постраничная навигация ajax
+  if($(document).find('#pagination_ajax').length && $.isFunction(window.history.pushState) === true){
+    $(document).on('click', '#pagination_ajax a', function(e){
+      e.preventDefault();
+      locationPagination($(this));
+    })  
+  }
+})
+
+/**
+* Обновление контента
+* в постраничной навигации
+*/
+function locationPagination(obj){
+  var href, element = '#ajax_result';
+  $(element).children("div").fadeOut(400, function(){
+    $(element).addClass('loading');
+    href = obj.attr('href');
+    //меняем путь и сохраняем в историю браузера ссылку
+    window.history.pushState({}, document.title, href);
+    //получаем html страницы
+    $.get(href,function(answer){
+      //отображаем результат
+      result = $.parseHTML(answer);
+      result = $(result).find(element);        
+      if(result.length){
+        $(document).find(element).html(result.html());
+        $(element).removeClass('loading');
+      }
+    })
+  })
+}
 
 /**
 * Меняет значения select регионов и городов в отчете по клиентам
