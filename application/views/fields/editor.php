@@ -1,7 +1,7 @@
-<div class="input_block">
-  <div class="name">
+<div class="form-group">
+  <div class="col-sm-2">
     <? if (isset($vars['title']) && $vars['title']) { ?>
-      <div class="title">
+      <label class="control-label" for="<?=(isset($vars['id']) ? $vars['id'] : (isset($vars['name']) ? $vars['name'] : ''));?>" >
         <? if (isset($vars['icon'])) { ?>
           <img src="<?=$vars['icon'];?>" class="icon" />
         <? } ?>
@@ -9,17 +9,16 @@
         <?=$vars['title'];?>
         
         <? if (isset($vars['req']) && $vars['req']) { ?>
-          <span class="red"> *</span>
+          <span class="text-danger"> *</span>
         <? } ?>
-      </div>
+      </label>
     <? } ?>
     
     <? if (isset($vars['description']) && $vars['description']) { ?>
-      <div class="description"><?=$vars['description'];?></div>
+      <p class="help-block"><?=$vars['description'];?></p>
     <? } ?>
   </div>
-  
-  <div class="input">
+  <div class="col-sm-10">
     <? if (isset($vars['languages'])) { ?>
       <? foreach ($vars['languages'] as $language) { ?>
         <? if (count($vars['languages']) > 1) { ?>
@@ -37,7 +36,8 @@
         <? if ((isset($vars['id']) && $vars['id']) || (isset($vars['name']) && $vars['name'])) { ?>
           <script>
           CKEDITOR.replace('<?=(isset($vars['id']) && $vars['id'] ? $vars['id'] : $vars['name']) .'_'. $language['name'];?>', {
-            toolbar: '<?=(isset($vars['toolbar']) && $vars['toolbar'] ? $vars['toolbar'] : 'Basic');?>'
+            toolbar: '<?=(isset($vars['toolbar']) && $vars['toolbar'] ? $vars['toolbar'] : 'Basic');?>',
+            height:  '<?=(isset($vars['height']) && $vars['height'] ? $vars['height'] : 200);?>',
           });
           </script>
         <? } ?>
@@ -54,12 +54,11 @@
       <? if ((isset($vars['id']) && $vars['id']) || (isset($vars['name']) && $vars['name'])) { ?>
         <script>
         CKEDITOR.replace('<?=(isset($vars['id']) && $vars['id'] ? $vars['id'] : $vars['name']);?>', {
-          toolbar: '<?=(isset($vars['toolbar']) && $vars['toolbar'] ? $vars['toolbar'] : 'Basic');?>'
+          toolbar: '<?=(isset($vars['toolbar']) && $vars['toolbar'] ? $vars['toolbar'] : 'Basic');?>',
+            height:  '<?=(isset($vars['height']) && $vars['height'] ? $vars['height'] : 200);?>',
         });
         </script>
       <? } ?>
     <? } ?>
   </div>
-  
-  <div class="clear"></div>
 </div>

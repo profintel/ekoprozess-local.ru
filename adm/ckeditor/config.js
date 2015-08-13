@@ -26,7 +26,7 @@ CKEDITOR.editorConfig = function( config )
   ];
    
   config.toolbar_Basic = [
-    ['Bold', 'Italic', 'Underline', 'Strike', '-', 'Link', 'Unlink', 'Image', 'Table', '-', 'SpecialChar']
+    ['Bold', 'Italic', 'Underline', 'TextColor','BGColor', 'Strike', '-', 'Link', 'Unlink', '-', 'SpecialChar']
   ];
    
   config.toolbar_User = [

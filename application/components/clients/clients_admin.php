@@ -106,7 +106,7 @@ class Clients_admin extends CI_Component {
       'prefix'  => '/admin'.$this->params['path'].'clients_report/',
       'postfix' => $postfix
     );
-    $items = $this->clients_model->get_clients_report($limit, $offset, $where);
+    $items = $this->clients_model->get_clients_report($limit, $offset, $where, array('city.title_full'=>'asc'));
     $data = array(
       'title'           => 'Клиенты',
       'client_params'   => $this->clients_model->get_client_params(0,0,array('active' => 1)),
@@ -334,11 +334,12 @@ class Clients_admin extends CI_Component {
     $fields_params = array();
     foreach ($client_params as $key => $param) {
       $fields_params[] = array(
-        'view'      => 'fields/text',
+        'view'      => 'fields/'.($key == 0 ? 'editor' : 'text'),
         'rows'      => 2,
         'title'     => $param['title'],
         'name'      => 'param_'.$param['id'],
-        'languages' => $languages
+        'languages' => $languages,
+        'height'    => 60
       );
     }
     $fields_params[] = array(
@@ -408,6 +409,12 @@ class Clients_admin extends CI_Component {
           array(
             'title'   => 'Реквизиты',
             'fields'   => array(
+              array(
+                'view'      => 'fields/text',
+                'title'     => 'Наименование банка',
+                'name'      => 'bank',
+                'languages' => $languages
+              ),
               array(
                 'view'      => 'fields/text',
                 'title'     => 'ИНН',
@@ -512,6 +519,7 @@ class Clients_admin extends CI_Component {
     //значения по реквизитам
     $multiparams = array();
     foreach ($languages as $language) {
+      $multiparams[$language['name']]['bank'] = htmlspecialchars(trim($this->input->post('bank_'. $language['name'])));
       $multiparams[$language['name']]['inn'] = htmlspecialchars(trim($this->input->post('inn_'. $language['name'])));
       $multiparams[$language['name']]['kpp'] = htmlspecialchars(trim($this->input->post('kpp_'. $language['name'])));
       $multiparams[$language['name']]['ogrn'] = htmlspecialchars(trim($this->input->post('ogrn_'. $language['name'])));
@@ -569,12 +577,13 @@ class Clients_admin extends CI_Component {
     $fields_params = array();
     foreach ($client_params as $key => $param) {
       $fields_params[] = array(
-        'view'      => 'fields/text',
+        'view'      => 'fields/'.($key == 0 ? 'editor' : 'text'),
         'rows'      => 2,
         'title'     => $param['title'],
         'name'      => 'param_'.$param['id'],
         'value'     => $item['params'],
-        'languages' => $languages
+        'languages' => $languages,
+        'height'    => 60
       );
       //1 параметр - описание с телефонами, добавляем в событие по умолчанию
       if($key == 0){
@@ -687,6 +696,13 @@ class Clients_admin extends CI_Component {
           array(
             'title'   => 'Реквизиты',
             'fields'   => array(
+              array(
+                'view'      => 'fields/text',
+                'title'     => 'Наименование банка',
+                'name'      => 'bank',
+                'languages' => $languages,
+                'value'     => $item['main_params'],
+              ),
               array(
                 'view'      => 'fields/text',
                 'title'     => 'ИНН',
@@ -813,6 +829,7 @@ class Clients_admin extends CI_Component {
     //значения по реквизитам
     $multiparams = array();
     foreach ($languages as $language) {
+      $multiparams[$language['name']]['bank'] = htmlspecialchars(trim($this->input->post('bank_'. $language['name'])));
       $multiparams[$language['name']]['inn'] = htmlspecialchars(trim($this->input->post('inn_'. $language['name'])));
       $multiparams[$language['name']]['kpp'] = htmlspecialchars(trim($this->input->post('kpp_'. $language['name'])));
       $multiparams[$language['name']]['ogrn'] = htmlspecialchars(trim($this->input->post('ogrn_'. $language['name'])));
