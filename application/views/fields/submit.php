@@ -1,5 +1,5 @@
 <div class="clearfix">
-<a href="#"
+<a href="javascript:void(0)"
   <?=(isset($vars['id']) && $vars['id'] ? 'id="'. $vars['id'] .'"' : '');?>"
   class="btn btn-primary btn-xs pull-right <?=(isset($vars['class']) ? ' '. $vars['class'] : '');?>"
   <? if (isset($vars['onclick']) && $vars['onclick']) { ?>

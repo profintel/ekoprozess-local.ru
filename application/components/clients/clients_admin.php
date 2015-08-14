@@ -351,11 +351,13 @@ class Clients_admin extends CI_Component {
     return $this->render_template('admin/inner', array(
       'title' => 'Добавление карточки клиента',
       'html' => $this->view->render_form(array(
-        'view'   => 'forms/default',
+        'view'   => 'forms/form_blocks',
         'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'_create_client_process/',
         'blocks' => array(
           array(
-            'title'   => 'Основные параметры',
+            'title'       => 'Основные параметры',
+            'col'         => 1,
+            'height'      => 'auto',
             'fields'   => array(
               array(
                 'view'      => 'fields/autocomplete_input',
@@ -389,10 +391,11 @@ class Clients_admin extends CI_Component {
                 'empty'       => true
               ),
               array(
-                'view'  => 'fields/checkbox',
-                'title' => 'Вкл./Выкл.',
-                'name'  => 'active',
-                'checked' => 1
+                'view'    => 'fields/hidden',
+                'title'   => 'Вкл./Выкл.',
+                'name'    => 'active',
+                'checked' => 1,
+                'value'   => 1
               ),
               array(
                 'view'     => 'fields/submit',
@@ -403,11 +406,15 @@ class Clients_admin extends CI_Component {
             )
           ),
           array(
-            'title'   => 'Дополнительные параметры',
-            'fields'   => $fields_params
+            'title'       => 'Дополнительные параметры',
+            'col'         => 2,
+            'height'      => 'auto',
+            'fields'      => $fields_params
           ),
           array(
-            'title'   => 'Реквизиты',
+            'title'       => 'Реквизиты',
+            'col'         => 1,
+            'height'      => 'auto',
             'fields'   => array(
               array(
                 'view'      => 'fields/text',
@@ -594,7 +601,7 @@ class Clients_admin extends CI_Component {
       'view'     => 'fields/submit',
       'title'    => 'Сохранить',
       'type'     => 'ajax',
-      'reaction' => 'reload'
+      'reaction' => ''
     );
     //параметры для добавления события
     $event_params = json_encode(array(
@@ -631,20 +638,23 @@ class Clients_admin extends CI_Component {
     $acceptances = $this->clients_model->get_acceptances(50, 0, array('client_id'=>$id));
     //поля для формы
     $fields_acceptances = array();
-    $fields_acceptances[] = array(
-      'view'      => 'fields/readonly_value',
-      'title'     => '',
-      'value'     => '<br/>'.$this->load->view('../../application/components/clients/templates/admin_client_acceptances_tbl',array('items' => $acceptances),TRUE),
-    );
+    if($acceptances){
+      $fields_acceptances[] = array(
+        'view'      => 'fields/readonly_value',
+        'title'     => '',
+        'value'     => '<br/>'.$this->load->view('../../application/components/clients/templates/admin_client_acceptances_tbl',array('items' => $acceptances),TRUE),
+      );
+    }
     return $this->render_template('admin/inner', array(
       'title' => 'Карточка клиента',
       'html' => $this->view->render_form(array(
         'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'_edit_client_process/'.$id.'/',
-        'view'   => 'forms/form_tabs',
+        'view'   => 'forms/form_blocks',
         'blocks' => array(
           array(
             'title'   => 'Основные параметры',
-            'fields'   => array(
+            'col'     => 1,
+            'fields'  => array(
               array(
                 'view'      => 'fields/text',
                 'title'     => 'Название:',
@@ -676,26 +686,43 @@ class Clients_admin extends CI_Component {
                 'empty'       => true
               ),
               array(
-                'view'    => 'fields/checkbox',
+                'view'    => 'fields/hidden',
                 'title'   => 'Вкл./Выкл.',
                 'checked' => $item['active'],
+                'value'   => $item['active'],
                 'name'    => 'active'
               ),
               array(
                 'view'     => 'fields/submit',
                 'title'    => 'Сохранить',
                 'type'     => 'ajax',
-                'reaction' => 'reload'
+                'reaction' => ''
               )
             )
           ),
           array(
             'title'   => 'Дополнительные параметры',
-            'fields'   => $fields_params
+            'col'     => 2,
+            'fields'  => $fields_params
+          ),
+          array(
+            'title'         => 'События',
+            'col'           => 1,
+            'title_btn'     => $this->load->view('fields/submit', array('vars' => $event_btn), true),
+            'fields'        => $fields_events,
+            'aria-expanded' => true
+          ),
+          array(
+            'title'         => 'Акты приемки',
+            'col'           => 2,
+            'title_btn'     => $this->load->view('fields/submit', array('vars' => $acceptance_btn), true),
+            'fields'        => $fields_acceptances,
+            'aria-expanded' => true
           ),
           array(
             'title'   => 'Реквизиты',
-            'fields'   => array(
+            'col'     => 1,
+            'fields'  => array(
               array(
                 'view'      => 'fields/text',
                 'title'     => 'Наименование банка',
@@ -784,21 +811,9 @@ class Clients_admin extends CI_Component {
                 'view'     => 'fields/submit',
                 'title'    => 'Сохранить',
                 'type'     => 'ajax',
-                'reaction' => 'reload'
+                'reaction' => ''
               )
             )
-          ),
-          array(
-            'title'         => 'События',
-            'title_btn'     => $this->load->view('fields/submit', array('vars' => $event_btn), true),
-            'fields'        => $fields_events,
-            'aria-expanded' => false
-          ),
-          array(
-            'title'         => 'Акты приемки',
-            'title_btn'     => $this->load->view('fields/submit', array('vars' => $acceptance_btn), true),
-            'fields'        => $fields_acceptances,
-            'aria-expanded' => false
           ),
         )
       )),

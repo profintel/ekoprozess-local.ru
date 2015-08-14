@@ -354,6 +354,51 @@ div.quick_form_input+div{
   width: 30px;
 }
 
+.form_cols .panel{
+  box-shadow: 0px 0px 6px 0px #a2a5a4;
+}
+.form_cols .panel-body{
+  padding: 0;
+}
+.form_cols .panel-body__fields{
+  overflow: hidden;
+  padding: 15px;
+}
+.form_cols .panel-body__fields_more{
+  padding: 10px 15px 5px 15px;
+  /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ffffff+0,f3f3f4+27&amp;0+0,1+28 */
+  background: -moz-linear-gradient(top,  rgba(255,255,255,0) 0%, rgba(243,243,244,0.96) 27%, rgba(243,243,244,1) 28%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255,255,255,0)), color-stop(27%,rgba(243,243,244,0.96)), color-stop(28%,rgba(243,243,244,1))); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top,  rgba(255,255,255,0) 0%,rgba(243,243,244,0.96) 27%,rgba(243,243,244,1) 28%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top,  rgba(255,255,255,0) 0%,rgba(243,243,244,0.96) 27%,rgba(243,243,244,1) 28%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(top,  rgba(255,255,255,0) 0%,rgba(243,243,244,0.96) 27%,rgba(243,243,244,1) 28%); /* IE10+ */
+  background: linear-gradient(to bottom,  rgba(255,255,255,0) 0%,rgba(243,243,244,0.96) 27%,rgba(243,243,244,1) 28%); /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00ffffff', endColorstr='#f3f3f4',GradientType=0 ); /* IE6-9 */
+}
+.form_cols .panel-body__fields_more a,
+.form_cols .panel-body__fields_more a.hover,
+.form_cols .panel-body__fields_more a.focus,
+.form_cols .panel-heading a,
+.form_cols .panel-heading a.hover,
+.form_cols .panel-heading a.focus{
+  text-decoration: none;
+}
+.form_cols .panel-body__fields_more .glyphicon{
+  top: 3px;
+}
+.form_cols .panel-heading{
+  position: relative;
+  padding: 15px;
+}
+.form_cols .panel-heading .btn{
+  margin-top: 7px;
+}
+.form_cols .panel-heading__top_btn{
+  position: absolute;
+  top: 2px;
+  right: 10px;
+}
+
 #progress-main {
   display: none;
   width: 200px;
@@ -365,6 +410,16 @@ div.quick_form_input+div{
 }
 #progress-main .progress {
   margin: 0;
+}
+
+#alert_msg {
+  display: none;
+  min-width: 200px;
+  position: fixed;
+  top: 15px;
+  left: 50%;
+  margin-left: 0px;
+  z-index: 150;  
 }
 
 .pagination > .disabled > span,

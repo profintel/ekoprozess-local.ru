@@ -1,4 +1,4 @@
-/*** Generated 04.08.2015 22:25:04 ***/
+/*** Generated 14.08.2015 15:50:34 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -3661,6 +3661,19 @@ function sheet(action) {
   return false;
 }
 
+function alert_msg(type,message) {
+  $('#alert_msg').addClass('alert-'+type).text(message).fadeIn(400,function(){
+    setTimeout(function(){
+      $('#alert_msg').fadeOut(200,function(){
+        $('#alert_msg').addClass('alert-'+type);
+        $('#alert_msg').text("");
+      });
+    },2000)
+  });
+  
+  return false;
+}
+
 function send_confirm(message, url, data, reaction, context) {
   return my_modal('information', 'Требуется подтверждение', message, [
     {text: 'OK', handler: function() {
@@ -3723,6 +3736,7 @@ function handle_answer(answer, reaction, context, data_type) {
   if (!answer) {
     return my_modal('error', 'Возникли следующие ошибки:', 'Некорректный ответ сервера', 'OK');
   }
+      console.log(typeof(answer.success),answer.success);
 
   if(!data_type){
     data_type = 'json';
@@ -3765,10 +3779,12 @@ function handle_answer(answer, reaction, context, data_type) {
   } else {
     var form = $(context).parents('form');
     if (!reaction) {
+      sheet('hide');
+      if(typeof(answer.success) == 'object' && !$.isEmptyObject(answer.success)) {
+        alert_msg('success',answer.success);
+      }
       if (typeof(answer.messages) == 'object' && answer.messages.length) {
         return my_modal('information', 'Уведомление', answer.messages, 'OK');
-      } else {
-        sheet('hide');
       }
     } else if (typeof(reaction) == 'function') {
       if (typeof(answer.messages) == 'object' && answer.messages.length) {
@@ -3898,6 +3914,29 @@ function make_button(container, button) {
     .html(button.text ? (button.icon ? '<span class="glyphicon '+ button.icon +'"></span> ' : '')+button.text : '')
     .click(button.handler)
     .appendTo(container);
+}
+
+/**
+* Сворачивает/Разворачивает блоки 
+* в карточке клиента
+*/
+function togglePanel(obj){
+  var container = $(obj).parents('.panel-body').find('.panel-body__fields');
+  if(container.length){
+    if(container[0].scrollHeight > container.outerHeight()){
+      container.animate({
+        'max-height': container[0].scrollHeight+"px"
+      },200,function(){
+        $(obj).html('<span class="glyphicon glyphicon-menu-up"></span> свернуть');
+      })
+    } else {
+      container.animate({
+        'max-height': "250px"
+      },200,function(){
+        $(obj).html('<span class="glyphicon glyphicon-menu-down"></span> развернуть');
+      })
+    }
+  }
 }
 
 /*** projects ***/
