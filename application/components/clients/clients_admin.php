@@ -355,18 +355,18 @@ class Clients_admin extends CI_Component {
         'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'_create_client_process/',
         'blocks' => array(
           array(
-            'title'       => 'Основные параметры',
-            'col'         => 1,
-            'height'      => 'auto',
+            'title'    => 'Основные параметры',
+            'col'      => 1,
+            'small'    => false,
             'fields'   => array(
               array(
-                'view'      => 'fields/autocomplete_input',
-                'title'     => 'Название:',
-                'name'      => 'title',
-                'component' => $this->params['name'],
-                'method'    => 'client_search',
+                'view'        => 'fields/autocomplete_input',
+                'title'       => 'Название:',
+                'name'        => 'title',
+                'component'   => $this->params['name'],
+                'method'      => 'client_search',
                 'placeholder' => ' ',
-                'maxlength' => 256
+                'maxlength'   => 256
               ),
               array(
                 'view'  => 'fields/text',
@@ -406,15 +406,15 @@ class Clients_admin extends CI_Component {
             )
           ),
           array(
-            'title'       => 'Дополнительные параметры',
-            'col'         => 2,
-            'height'      => 'auto',
-            'fields'      => $fields_params
+            'title'    => 'Дополнительные параметры',
+            'col'      => 1,
+            'small'    => false,
+            'fields'   => $fields_params
           ),
           array(
-            'title'       => 'Реквизиты',
-            'col'         => 1,
-            'height'      => 'auto',
+            'title'    => 'Реквизиты',
+            'col'      => 2,
+            'small'    => false,
             'fields'   => array(
               array(
                 'view'      => 'fields/text',
@@ -654,6 +654,7 @@ class Clients_admin extends CI_Component {
           array(
             'title'   => 'Основные параметры',
             'col'     => 1,
+            'small'   => false,
             'fields'  => array(
               array(
                 'view'      => 'fields/text',
@@ -703,25 +704,29 @@ class Clients_admin extends CI_Component {
           array(
             'title'   => 'Дополнительные параметры',
             'col'     => 2,
+            'small'   => true,
             'fields'  => $fields_params
           ),
           array(
             'title'         => 'События',
             'col'           => 1,
+            'small'         => true,
             'title_btn'     => $this->load->view('fields/submit', array('vars' => $event_btn), true),
             'fields'        => $fields_events,
             'aria-expanded' => true
           ),
           array(
             'title'         => 'Акты приемки',
-            'col'           => 2,
+            'col'           => 1,
+            'small'         => true,
             'title_btn'     => $this->load->view('fields/submit', array('vars' => $acceptance_btn), true),
             'fields'        => $fields_acceptances,
             'aria-expanded' => true
           ),
           array(
             'title'   => 'Реквизиты',
-            'col'     => 1,
+            'col'     => 2,
+            'small'   => true,
             'fields'  => array(
               array(
                 'view'      => 'fields/text',

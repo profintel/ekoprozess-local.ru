@@ -361,11 +361,15 @@ div.quick_form_input+div{
   padding: 0;
 }
 .form_cols .panel-body__fields{
-  overflow: hidden;
   padding: 15px;
+}
+.form_cols .panel-body__fields.panel-body_sm{
+  overflow: hidden;
+  max-height: 250px;
 }
 .form_cols .panel-body__fields_more{
   padding: 10px 15px 5px 15px;
+  height: 40px;
   /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ffffff+0,f3f3f4+27&amp;0+0,1+28 */
   background: -moz-linear-gradient(top,  rgba(255,255,255,0) 0%, rgba(243,243,244,0.96) 27%, rgba(243,243,244,1) 28%); /* FF3.6+ */
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255,255,255,0)), color-stop(27%,rgba(243,243,244,0.96)), color-stop(28%,rgba(243,243,244,1))); /* Chrome,Safari4+ */
@@ -479,7 +483,7 @@ div.quick_form_input+div{
   border-color: #f04124;
 }
 
-@media (max-width: 950px) {
+@media (max-width: 1280px) {
   .navbar-static-side {
     width: 50px;
   }
@@ -493,10 +497,16 @@ div.quick_form_input+div{
   #side-menu > li > a {
     padding-left: 15px;
   }
-#side-menu > li.active > a {
-  padding-left: 11px;
-}
+  #side-menu > li.active > a {
+    padding-left: 11px;
+  }
   #side-menu .glyphicon{
     font-size: 18px;
+  }
+  .visible-lg-block {
+    display: none !important;
+  }
+  .hidden-lg {
+    display: block !important;
   }
 }

@@ -29,7 +29,7 @@
       <div class="sidebar-collapse">
         <ul id="side-menu" class="nav">
           <li class="nav-header">
-            <div class="hidden-xs">            
+            <div class="visible-lg-block">
               <div class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                   <span class="logo-element">
@@ -39,18 +39,16 @@
                       <img src="/components/accounts/media/user.png" class="img-circle" alt="<?=$_admin['username'];?>">
                     <? } ?>
                   </span>
-                  <div class="hidden-xs">
-                    <? if (isset($_admin['params']['name_'.$_language]) && $_admin['params']['name_'.$_language]) { ?>
-                      <div class=""><?=$_admin['params']['name_'.$_language];?></div>
+                  <? if (isset($_admin['params']['name_'.$_language]) && $_admin['params']['name_'.$_language]) { ?>
+                    <div class=""><?=$_admin['params']['name_'.$_language];?></div>
+                  <? } ?>
+                  <div class="">
+                    <? if (isset($_admin['params']['post_'.$_language]) && $_admin['params']['post_'.$_language]) { ?>
+                      <span><?=$_admin['params']['post_'.$_language];?></span>
+                    <? } else { ?>
+                      <span><?=$_admin['username'];?></span>
                     <? } ?>
-                    <div class="">
-                      <? if (isset($_admin['params']['post_'.$_language]) && $_admin['params']['post_'.$_language]) { ?>
-                        <span><?=$_admin['params']['post_'.$_language];?></span>
-                      <? } else { ?>
-                        <span><?=$_admin['username'];?></span>
-                      <? } ?>
-                      <b class="caret"></b>
-                    </div>
+                    <b class="caret"></b>
                   </div>
                 </a>
                 <ul class="dropdown-menu">
@@ -60,19 +58,13 @@
                 </ul>
               </div>
             </div>
-            <div class="menu-primary-element visible-xs-block">
+            <div class="menu-primary-element hidden-lg">
               <div class="dropdown">
                 <a href="#" class="dropdown-toggle btn btn-primary btn-xs" data-toggle="dropdown">
                   <span class="glyphicon glyphicon-align-justify"></span>
                 </a>
                 <ul class="dropdown-menu">
-                  <? foreach ($_menu_primary as $item) { ?>
-                    <li class="<?=($item['name'] == $_component['name'] ? 'active' : '');?>">
-                      <a href="<?=$_lang_prefix;?>/admin<?=$item['path'];?>">
-                        <?=$item['title'];?>
-                      </a>
-                    </li>
-                  <? } ?>
+                  <li><a href="/admin/administrators/edit_admin/<?=$_admin['id'];?>/">Редактировать профиль</a></li>
                   <li class="divider"></li>
                   <li><a href="/autorization/close/"><span class="glyphicon glyphicon-log-out"></span> Выйти</a></li>
                 </ul>
@@ -80,7 +72,7 @@
             </div>
           </li>
           <? foreach ($_menu_secondary as $item) { ?>
-            <li class="hidden-xs <?=($item['name'] == $_component['name'] ? 'active' : '');?>">
+            <li class="visible-lg-block <?=($item['name'] == $_component['name'] ? 'active' : '');?>">
               <a href="<?=$_lang_prefix;?>/admin<?=$item['path'];?>">
                 <span class="glyphicon <?=($item['icon']?$item['icon']:'glyphicon-ok');?>"></span><?=$item['title'];?>
                 <? if ($item['name']=='calendar') {?>
@@ -95,7 +87,7 @@
                 <?}?>
               </a>
             </li>
-            <li class="visible-xs-block el-tooltip <?=($item['name'] == $_component['name'] ? 'active' : '');?>" data-toggle="tooltip" data-placement="right" title="<?=$item['title'];?>">
+            <li class="hidden-lg el-tooltip <?=($item['name'] == $_component['name'] ? 'active' : '');?>" data-toggle="tooltip" data-placement="right" title="<?=$item['title'];?>">
               <a href="<?=$_lang_prefix;?>/admin<?=$item['path'];?>">
                 <span class="glyphicon <?=($item['icon']?$item['icon']:'glyphicon-ok');?>"></span>
               </a>
@@ -115,7 +107,7 @@
     <div id="page-wrapper">
       <div id="header">
         <nav class="navbar-default border-bottom">
-          <div class="collapse navbar-collapse">
+          <div class="navbar-collapse">
             <ul class="nav nav-pills navbar-left">
               <? foreach ($_menu_primary as $item) { ?>
                 <li class="<?=($item['name'] == $_component['name'] ? 'active' : '');?>">

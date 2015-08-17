@@ -8,7 +8,7 @@
     <?=($vars['onsubmit'] ? ' onSubmit="'. $vars['onsubmit'] .'"' : '');?>
   >
     <div class="form-error"></div>
-    <div class="col-sm-6">
+    <div class="col-md-6">
       <? foreach ($vars['blocks'] as $num=> $block) { ?>
         <? if (!isset($block['col']) || (isset($block['col']) && $block['col'] != 2)) { ?>
           <div class="panel <?=(isset($block['class']) ? ' '. $block['class'] : '');?>">
@@ -52,17 +52,23 @@
             <? } ?>
             <div id="collapse<?=$num;?>" class="panel-collapse collapse <?=(@$block['aria-expanded'] === FALSE ? '' : 'in');?>" role="tabpanel" aria-labelledby="heading<?=$num;?>">
               <div class="panel-body clearfix">
-                <div class="panel-body__fields" style="max-height:<?=(isset($block['height']) ? $block['height'] : '250px');?>">
+                <div class="panel-body__fields <?=(isset($block['small']) && $block['small'] ? 'panel-body_sm'  : '');?>">
                   <?=$block['fields'];?>
                 </div>
-                <div class="panel-body__fields_more"><a href="javascript:void(0)" onclick="togglePanel(this);"><span class="glyphicon glyphicon-menu-down"></span> развернуть</a></div>
+                <div class="panel-body__fields_more">
+                  <? if (isset($block['small']) && $block['small']) { ?>
+                    <a href="javascript:void(0)" onclick="togglePanel(this);">
+                      <span class="glyphicon glyphicon-menu-down"></span> развернуть
+                    </a>
+                  <? } ?>
+                </div>
               </div>
             </div>
           </div>
         <? } ?>
       <? } ?>
     </div>
-    <div class="col-sm-6">
+    <div class="col-md-6">
       <? foreach ($vars['blocks'] as $num=> $block) { ?>
         <? if (isset($block['col']) && $block['col'] == 2) { ?>
           <div class="panel <?=(isset($block['class']) ? ' '. $block['class'] : '');?>">
@@ -100,16 +106,22 @@
                       aria-controls="collapse<?=$num;?>">
                       <?=$block['title'];?>
                     </a>
-                  </h4>   
+                  </h4>
                 <? } ?>
               </div>
             <? } ?>
             <div id="collapse<?=$num;?>" class="panel-collapse collapse <?=(@$block['aria-expanded'] === FALSE ? '' : 'in');?>" role="tabpanel" aria-labelledby="heading<?=$num;?>">
               <div class="panel-body clearfix">
-                <div class="panel-body__fields" style="max-height:<?=(isset($block['height']) ? $block['height'] : '250px');?>">
+                <div class="panel-body__fields <?=(isset($block['small']) && $block['small'] ? 'panel-body_sm'  : '');?>">
                   <?=$block['fields'];?>
                 </div>
-                <div class="panel-body__fields_more"><a href="javascript:void(0)" onclick="togglePanel(this);"><span class="glyphicon glyphicon-menu-down"></span> развернуть</a></div>
+                <div class="panel-body__fields_more">
+                  <? if (isset($block['small']) && $block['small']) { ?>
+                    <a href="javascript:void(0)" onclick="togglePanel(this);">
+                      <span class="glyphicon glyphicon-menu-down"></span> развернуть
+                    </a>
+                  <? } ?>
+                </div>
               </div>
             </div>
           </div>
