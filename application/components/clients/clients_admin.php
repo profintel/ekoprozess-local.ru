@@ -54,6 +54,7 @@ class Clients_admin extends CI_Component {
     $error = '';
     $get_params = array(
       'title'     => ($this->uri->getParam('title') ? mysql_prepare($this->uri->getParam('title')) : ''),
+      'country_id' => ($this->uri->getParam('country_id') ? mysql_prepare($this->uri->getParam('country_id')) : 3159),
       'region_federal_id' => ($this->uri->getParam('region_federal_id') ? mysql_prepare($this->uri->getParam('region_federal_id')) : ''),
       'region_id' => ($this->uri->getParam('region_id') ? mysql_prepare($this->uri->getParam('region_id')) : ''),
       'city_id'   => ($this->uri->getParam('city_id') ? mysql_prepare($this->uri->getParam('city_id')) : ''),
@@ -70,6 +71,14 @@ class Clients_admin extends CI_Component {
     } else {
       if($get_params['title']){
         $where .= ($where ? ' AND ' : '').'pr_clients.title LIKE "'.$get_params['title'].'%"';
+      }
+      if($get_params['country_id'] && !$get_params['region_federal_id'] && !$get_params['region_id'] && !$get_params['city_id']){
+        //выборка городов по федеральному округу
+        $cities = $this->cities_model->get_cities(0,0,false,false,false,$get_params['country_id']);
+        if($cities){
+          $cities = array_simple($cities,'id');
+        }
+        $where .= ($where ? ' AND ' : '').'pr_clients.city_id IN ('.($cities ? implode(',', $cities) : 0).')';
       }
       if($get_params['region_federal_id'] && !$get_params['region_id'] && !$get_params['city_id']){
         //выборка городов по федеральному округу
@@ -156,10 +165,20 @@ class Clients_admin extends CI_Component {
             'fields'   => array(
               array(
                 'view'    => 'fields/select',
+                'title'   => 'Страна:',
+                'name'    => 'country_id',
+                'value'   => $get_params['country_id'],
+                'options' => $this->cities_model->get_countries(),
+                'onchange'=> "changeRegion(this, 'country'); submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+                'empty'   => false
+              ),
+              array(
+                'view'    => 'fields/select',
                 'title'   => 'Федеральный округ:',
+                'id'      => 'region_federal_id',
                 'name'    => 'region_federal_id',
                 'value'   => $get_params['region_federal_id'],
-                'options' => $this->cities_model->get_regions_federal(),
+                'options' => $this->cities_model->get_regions_federal(0,0,array('country_id'=>$get_params['country_id'])),
                 'onchange'=> "changeRegion(this, 'federal'); submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
                 'empty'   => true
               ),
@@ -168,7 +187,7 @@ class Clients_admin extends CI_Component {
                 'title'   => 'Регион:',
                 'name'    => 'region_id',
                 'value'   => $get_params['region_id'],
-                'options' => $this->cities_model->get_regions(0,0,false,false,$get_params['region_federal_id']),
+                'options' => $this->cities_model->get_regions(0,0,array('country_id'=>$get_params['country_id']),false,$get_params['region_federal_id']),
                 'onchange'=> "changeRegion(this); submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
                 'empty'   => true
               ),
@@ -177,7 +196,7 @@ class Clients_admin extends CI_Component {
                 'title'   => 'Город:',
                 'name'    => 'city_id',
                 'value'   => $get_params['city_id'],
-                'options' => $this->cities_model->get_cities(0,0,($get_params['region_id'] ? array('city.region_id'=>$get_params['region_id']) : false),false,$get_params['region_federal_id']),
+                'options' => $this->cities_model->get_cities(0,0,($get_params['region_id'] ? array('city.region_id'=>$get_params['region_id']) : false),false,$get_params['region_federal_id'],$get_params['country_id']),
                 'onchange'=> "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
                 'empty'   => true
               ),
@@ -235,7 +254,32 @@ class Clients_admin extends CI_Component {
     $result = array();
     $type = $this->input->post('type');
     $id = ((int)$this->input->post('id') ? (int)$this->input->post('id') : 0);
-    if($type == 'federal'){
+    if($type == 'country'){
+      //выборка федеральных округов по стране
+      $vars =array(
+        'view'    => 'fields/select',
+        'title'   => 'Федеральный округ:',
+        'id'      => 'region_federal_id',
+        'name'    => 'region_federal_id',
+        'options' => $this->cities_model->get_regions_federal(0,0,array('country_id'=>$id)),
+        'onchange'=> "changeRegion(this, 'federal'); submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+        'empty'   => true
+      );
+      $result['federal_regions'] = $this->load->view('fields/select', array('vars' => $vars), true); 
+      //выборка регионов по стране
+      $regions = $this->cities_model->get_regions(0,0,array('country_id'=>$id),false,false);
+      $vars = array(
+        'view'    => 'fields/select',
+        'title'   => 'Регион:',
+        'name'    => 'region_id',
+        'options' => $regions,
+        'onchange'=> "changeRegion(this); submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+        'empty'   => true
+      );
+      $result['regions'] = $this->load->view('fields/select', array('vars' => $vars), true); 
+      //выборка городов по федеральному округу
+      $cities = $this->cities_model->get_cities(0,0,false,false,false,$id);
+    } elseif ($type == 'federal'){
       //выборка регионов по федеральному округу
       $regions = $this->cities_model->get_regions(0,0,false,false,$id);
       $vars = array(

@@ -6,6 +6,49 @@ class Cities_model extends CI_Model {
     parent::__construct();
   }
 
+  /***Страны***/
+  function get_countries($where = array()) {   
+    if ($where) {
+      $this->db->where($where);
+    }
+    $items = $this->db->get('country')->result_array();
+    
+    return $items;
+  }
+  
+  function get_countries_cnt($where = '') {
+    if ($where) {
+      $this->db->where($where);
+    }
+    return $this->db->count_all_results('country');
+  }
+
+  function get_country($where = array()) {
+    $item = $this->db->get_where('country', $where)->row_array();
+    return $item;
+  }
+
+  function create_country($params) {
+    if ($this->db->insert('country', $params)) {
+      return $this->db->query("SELECT LAST_INSERT_ID() as id")->row()->id;
+    }
+    return false;
+  }
+
+  function update_country($id, $params) {
+    if ($this->db->update('country', $params, array('id' => $id))) {
+      return true;
+    }
+    return false;
+  }
+  
+  function delete_country($id) {
+    if ($this->db->delete('country', array('id' => $id))) {
+      return true;
+    }
+    return false;
+  }
+
   /***Федеральные округа***/
   function get_regions_federal($limit = 0, $offset = 0, $where = array(), $order_by = array()) {   
     if ($limit) {
@@ -99,8 +142,12 @@ class Cities_model extends CI_Model {
   /***Регионы***/
   function get_regions($limit = 0, $offset = 0, $where = array(), $order_by = array(), $region_federal_id = 0) {   
     $this->db->select('region.*');
-    if ($limit) {
-      $this->db->limit($limit, $offset);
+    if ($region_federal_id) {
+      $this->db->join('region_federal_regions','region_federal_regions.region_id = region.id');
+      $this->db->where(array('region_federal_regions.federal_id' => $region_federal_id));
+    }
+    if ($where) {
+      $this->db->where($where);
     }
     if ($order_by) {
       foreach ($order_by as $field => $dest) {
@@ -109,12 +156,8 @@ class Cities_model extends CI_Model {
     } else {
       $this->db->order_by('title','asc');
     }
-    if ($region_federal_id) {
-      $this->db->join('region_federal_regions','region_federal_regions.region_id = region.id');
-      $this->db->where(array('region_federal_regions.federal_id' => $region_federal_id));
-    }
-    if ($where) {
-      $this->db->where($where);
+    if ($limit) {
+      $this->db->limit($limit, $offset);
     }
     $items = $this->db->get('region')->result_array();
     
@@ -164,7 +207,7 @@ class Cities_model extends CI_Model {
   *        $order_by
   *        $region_federal_id - id Федерального округа
   */
-  function get_cities($limit = 0, $offset = 0, $where = array(), $order_by = array(), $region_federal_id = 0) {   
+  function get_cities($limit = 0, $offset = 0, $where = array(), $order_by = array(), $region_federal_id = 0, $country_id = 0) {   
     $this->db->select('city.*');
     if ($limit) {
       $this->db->limit($limit, $offset);
@@ -176,8 +219,13 @@ class Cities_model extends CI_Model {
     } else {
       $this->db->order_by('title','asc');
     }
-    if ($region_federal_id) {
+    if ($country_id || $region_federal_id) {
       $this->db->join('region','region.id = city.region_id');
+    }
+    if ($country_id) {      
+      $this->db->where(array('region.country_id' => $country_id));
+    }
+    if ($region_federal_id) {
       $this->db->join('region_federal_regions','region_federal_regions.region_id = region.id');
       $this->db->where(array('region_federal_regions.federal_id' => $region_federal_id));
     }

@@ -1,4 +1,4 @@
-/* Generated 30.08.2015 20:22:06 */
+/* Generated 30.08.2015 22:26:48 */
 
 /* components */
 
@@ -313,7 +313,7 @@
 
 /*** FILE /adm/css/main.css ***/
 
-html,body {
+.loadinghtml,body {
   width: 100%;
   height: 100%;
 }
@@ -379,7 +379,7 @@ a.glyphicon:focus{
   border-radius: 0;  
 }
 .loading{
-  text-indent: 9999px;
+  text-indent: 99999px;
   min-height: 16px;
   overflow: hidden;
   background:transparent url(/adm/images/loading_sm.gif) center center no-repeat;

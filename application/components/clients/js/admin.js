@@ -38,14 +38,28 @@ function locationPagination(obj){
 *        type - тип региона (федеральный округ или регион)
 */
 function changeRegion(el,type){
-  if(type == 'federal'){
+  if(type == 'country'){
+    $('#region_federal_id').parents('.form-group').addClass('loading');
+  }
+  if(type == 'federal' || type == 'country'){
     $('#region_id').parents('.form-group').addClass('loading');
   }
   $('#city_id').parents('.form-group').addClass('loading');
   //id федерального округа
   var html, id = $(el).val();
   $.post('/admin/clients/renderSelectsReport/', {type:type, id: id}, function(result) {
-    if(type == 'federal'){
+    if(type == 'country'){
+      //регионы
+      html = $(result.federal_regions).find('.col-sm-10').html();
+      $('#region_federal_id').parents('.form-group').find('.col-sm-10').html("").append(html);
+      $('#region_federal_id').chosen({
+        disable_search: true,
+        width: "100%",
+        allow_single_deselect: true
+      });
+      $('#region_federal_id').parents('.form-group').removeClass('loading');
+    }
+    if(type == 'federal' || type == 'country'){
       //регионы
       html = $(result.regions).find('.col-sm-10').html();
       $('#region_id').parents('.form-group').find('.col-sm-10').html("").append(html);
