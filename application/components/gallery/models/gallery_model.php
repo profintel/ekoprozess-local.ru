@@ -23,7 +23,7 @@ class Gallery_model extends CI_Model {
       foreach ($links as $link) {
         $item[$link['type']][] = $link['item_id'];
       }
-      $item['image'] = $this->get_gallery_image(array('gallery_id' => $item['id'], 'main' => 1));
+      $item['image'] = $this->get_gallery_image(array('gallery_images.gallery_id' => $item['id'], 'gallery_images.main' => 1));
       
       if ($images) {
         $item['images'] = $this->db->get_where('pr_gallery_images',array('gallery_id' => $item['id']))->result_array();
@@ -40,6 +40,10 @@ class Gallery_model extends CI_Model {
             }        
           }
           $image['params'] = $this->main_model->get_params('gallery_image', $image['id']);
+          //СЃСЃС‹Р»РєР° РЅР° СЃС‚СЂР°РЅРёС†Сѓ
+          if($image['page_id']){
+            $image['path'] = $this->db->get_where('pages', array('id' => $image['page_id']))->row()->path;
+          }
         }
         unset($image);
       }
@@ -70,50 +74,40 @@ class Gallery_model extends CI_Model {
     
     foreach ($links as $type => $items) {
       $now = array();
-      if (is_array($items)) {
-        if (!$this->db->query("DELETE FROM pr_gallery_links WHERE gallery_id = ". $id ." AND type = '". $type ."' AND item_id NOT IN (". ($items ? implode(',', $items) : 0) .")")) {
-          return false;
+      if (!$this->db->query("DELETE FROM pr_gallery_links WHERE gallery_id = ". $id ." AND type = '". $type ."' AND item_id NOT IN (". ($items ? (is_array($items) ? implode(',', $items) : $items) : 0) .")")) {
+        return false;
+      }
+      if ($items) {        
+        if (!is_array($items)) {
+          $items = array($items);
         }
-        if ($items) {
-          $now_items = $this->db->get_where('pr_gallery_links', array('gallery_id' => $id, 'type' => $type))->result_array();
-          foreach ($now_items as $now_item) {
-            $now[] = $now_item['item_id'];
-          }
-          foreach ($items as $item_id) {
-            if (!in_array($item_id, $now)) {
-              if (!$this->db->insert('pr_gallery_links', array('gallery_id' => $id, 'type' => $type, 'item_id' => $item_id))) {
-                return false;
-              }
-            }
-          }
+        $now_items = $this->db->get_where('pr_gallery_links', array('gallery_id' => $id, 'type' => $type))->result_array();
+        foreach ($now_items as $now_item) {
+          $now[] = $now_item['item_id'];
         }
-      } else {
-        $item_id = $items;
-        if (!$this->db->query("DELETE FROM pr_gallery_links WHERE gallery_id = ". $id ." AND type = '". $type ."' AND item_id NOT IN (".($item_id ? $item_id : 0).")" )) {
-          return false;
-        }
-        if ($item_id) {
-          $now_items = $this->db->get_where('pr_gallery_links', array('gallery_id' => $id, 'type' => $type))->result_array();
-          foreach ($now_items as $now_item) {
-            $now[] = $now_item['item_id'];
-          }
+        foreach ($items as $item_id) {
           if (!in_array($item_id, $now)) {
-            if (!$this->db->insert('pr_gallery_links', array('gallery_id' => $id, 'type' => $type, 'item_id' => $item_id))) {
-              return false;
+            $this->db->trans_begin();
+            $this->db->insert('pr_gallery_links', array('gallery_id' => $id, 'type' => $type, 'item_id' => (int)$item_id));
+            $id = $this->db->insert_id();
+            if ($this->db->trans_status() === FALSE) {
+              $this->db->trans_rollback();
+              return FALSE;
             }
+            $this->db->trans_commit();
           }
-        }      
+        }
       }
     }
     return true;
   }
   
   /**
-  * Вывод изображний галереи
-  * @param $where_params - параметры для вывода альбома
-  *        $limit = 0, $offset = 0 - параметры для вывода изображений
+  * Р’С‹РІРѕРґ РёР·РѕР±СЂР°Р¶РЅРёР№ РіР°Р»РµСЂРµРё
+  * @param $where_params - РїР°СЂР°РјРµС‚СЂС‹ РґР»СЏ РІС‹РІРѕРґР° Р°Р»СЊР±РѕРјР°
+  *        $limit = 0, $offset = 0 - РїР°СЂР°РјРµС‚СЂС‹ РґР»СЏ РІС‹РІРѕРґР° РёР·РѕР±СЂР°Р¶РµРЅРёР№
   **/
-  function get_gallery_images($where_params, $limit = 0, $offset = 0, $order_by = 'main DESC, id ASC') {
+  function get_gallery_images($where_params, $limit = 0, $offset = 0, $order_by = 'main DESC, order ASC') {
     if (!$where_params) {
       return false;
     }
@@ -125,7 +119,6 @@ class Gallery_model extends CI_Model {
       }
       $this->db->order_by($order_by);
       $images = $this->db->get_where('pr_gallery_images',array('gallery_id' => $album['id']))->result_array();
-
       foreach ($images as &$image) {
         $image['ext'] = get_ext($image['image']);
         $image['thumbs'] = $this->db->get_where('pr_gallery_thumbs',array('image_id' => $image['id']))->result_array();
@@ -139,11 +132,14 @@ class Gallery_model extends CI_Model {
   }
   
   /**
-  * Вывод изображения
+  * Р’С‹РІРѕРґ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ
   **/
   function get_gallery_image($params) {
     $this->db->where($params);
-    $image = $this->db->get('pr_gallery_images')->row_array();
+    $this->db->select('gallery_images.*');
+    $this->db->join('gallery_hierarchy','gallery_hierarchy.id = gallery_images.gallery_id');
+    $this->db->order_by('main DESC, order ASC');
+    $image = $this->db->get('gallery_images')->row_array();
     if ($image) {
       $image['params'] = $this->main_model->get_params('gallery_image', $image['id']);
       
@@ -155,9 +151,44 @@ class Gallery_model extends CI_Model {
     }
     return $image;
   }
+
+  /**
+  * РџРµСЂРµРјРµС‰РµРЅРёРµ РѕР±СЉРµРєС‚РѕРІ РіР°Р»РµСЂРµРё
+  **/
+  function move_gallery_image($id, $dest_id) {
+    $this->db->trans_begin();
+    
+    $item = $this->get_gallery_image(array('gallery_images.id' => $id));
+    
+    if ($dest_id) {
+      $dest = $this->get_gallery_image(array('gallery_images.id' => $dest_id));      
+      $params = array(
+        'order' => $dest['order'] + 1
+      );
+    } else {
+      $params = array(
+        'order' => (int)$this->db->select_min('order', 'min_order')->get('gallery_images')->row()->min_order
+      );
+    }
+    
+    $this->edit_gallery_image($item['id'], $params);
+    
+    $this->db->set('order', '`order` + 1', FALSE)->where(array(
+      'order >='   => $params['order'],
+      'id !='      => $item['id']
+    ))->update('gallery_images');
+    
+    if ($this->db->trans_status() === FALSE) {
+      $this->db->trans_rollback();
+      return FALSE;
+    }
+    
+    $this->db->trans_commit();
+    return TRUE;
+  }
   
   /**
-  * Добавление изображений в системную галерею  
+  * Р”РѕР±Р°РІР»РµРЅРёРµ РёР·РѕР±СЂР°Р¶РµРЅРёР№ РІ СЃРёСЃС‚РµРјРЅСѓСЋ РіР°Р»РµСЂРµСЋ  
   *  @param 
   *    $gallery_hierarchy_params = array(
   *      array(
@@ -209,33 +240,47 @@ class Gallery_model extends CI_Model {
       }
       $album = $this->db->get_where('pr_gallery_hierarchy',array('system_name' => $gallery['system_name'], 'parent_id' => $parent_id))->row_array();
       if (!$album) {
-        $album['path'] = $path . $gallery['system_name'].'/';
-        $this->db->insert('pr_gallery_hierarchy', array('parent_id' => $parent_id, 'title' => $gallery['title'], 'path' => $album['path'], 'system_name' => $gallery['system_name']));
-        $album['id'] = $this->db->query("SELECT LAST_INSERT_ID() as id")->row()->id;
+        $album_path = $path . $gallery['system_name'].'/';
+        $this->db->insert('pr_gallery_hierarchy', array('parent_id' => $parent_id, 'title' => $gallery['title'], 'path' => $album_path, 'system_name' => $gallery['system_name']));
+        $album_id = $this->db->query("SELECT LAST_INSERT_ID() as id")->row()->id;
       } else {
-        $album['id'] = $album['id'];
-        $album['path'] = $album['path'];
+        $album_id   = $album['id'];
+        $album_path = $album['path'];
       }
-      if (isset($gallery['images'])) {
+      if (@$gallery['images']){
         foreach($gallery['images'] as $image) {
           if (!$image) {
             continue;
           }
-          $this->db->insert('pr_gallery_images', array('gallery_id' => $album['id'], 'image' => $image['image'], 'type' => (isset($image['type']) && $image['type'] ? $image['type'] : 'image')));
+          $image_params = array(
+            'gallery_id' => $album_id,
+            'image' => $image['image'],
+            'type' => (isset($image['type']) && $image['type'] ? $image['type'] : 'image'),
+            'order' => $this->get_images_order()
+          );
+          $this->db->insert('pr_gallery_images', $image_params);
           $image_id = $this->db->query("SELECT LAST_INSERT_ID() as id")->row()->id;
           if (!isset($image['images_thumbs'])) {
             continue;
           }
+          $multiparams = array();
           foreach($image['images_thumbs'] as $thumb) {
             $this->db->insert('pr_gallery_thumbs', array('image_id' => $image_id, 'thumb' => $thumb['thumb'], 'width' => $thumb['width'], 'height' => $thumb['height']));
+            $multiparams['thumb_width'] = $thumb['width'];
+            $multiparams['thumb_height'] = $thumb['height'];
           }
+          $this->main_model->set_params('gallery_image', $image_id, $multiparams);
         }
       }
-      if (isset($gallery['childrens']) && $gallery['childrens']) {
-        $this->add_gallery_images($gallery['childrens'],$album['id'],$album['path']);
+      if (@$gallery['childrens']) {
+        $this->add_gallery_images($gallery['childrens'], $album_id, $album_path);
       }
     }
     return true;
+  }
+
+  function get_images_order() {
+    return (int)$this->db->select_max('order', 'max_order')->get('pr_gallery_images')->row()->max_order + 1;
   }
   
   function set_gallery_hierarchy($gallery_hierarchy_params, $parent_id = 0, $path = '/') {
@@ -273,7 +318,7 @@ class Gallery_model extends CI_Model {
   }
   
   /**
-  * Удаление галереи изображений
+  * РЈРґР°Р»РµРЅРёРµ РіР°Р»РµСЂРµРё РёР·РѕР±СЂР°Р¶РµРЅРёР№
   * @param
   **/  
   function delete_gallery_images($where_params = array()) {
@@ -305,7 +350,7 @@ class Gallery_model extends CI_Model {
   }
   
   /**
-  * Удаление изображения и его превью
+  * РЈРґР°Р»РµРЅРёРµ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ Рё РµРіРѕ РїСЂРµРІСЊСЋ
   **/
   function delete_image($where_params, $unlink = true) {
     if (!$where_params) {
@@ -328,7 +373,7 @@ class Gallery_model extends CI_Model {
   }
   
   /**
-  * Удаление файлов и его превью, без удаления из базы
+  * РЈРґР°Р»РµРЅРёРµ С„Р°Р№Р»РѕРІ Рё РµРіРѕ РїСЂРµРІСЊСЋ, Р±РµР· СѓРґР°Р»РµРЅРёСЏ РёР· Р±Р°Р·С‹
   **/
   function delete_image_files($where_params) {
     if (!$where_params) {

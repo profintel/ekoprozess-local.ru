@@ -235,7 +235,6 @@ function handle_answer(answer, reaction, context, data_type) {
   if (!answer) {
     return my_modal('error', 'Возникли следующие ошибки:', 'Некорректный ответ сервера', 'OK');
   }
-      console.log(typeof(answer.success),answer.success);
 
   if(!data_type){
     data_type = 'json';

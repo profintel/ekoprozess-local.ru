@@ -3,7 +3,6 @@
   <? if($items) { ?>
     <table class="table table-report table-hover table-bordered">
       <tr>
-        <th>ID</th>
         <th>Населенный пункт</th>
         <th>Менеджер</th>
         <th>Название</th>
@@ -14,7 +13,6 @@
       </tr>
       <? foreach ($items as $item) { ?>
         <tr>
-          <td onclick="window.open('/admin/clients/edit_client/<?=$item['id'];?>/','_client_<?=$item['id'];?>')"><?=$item['id'];?></td>
           <td onclick="window.open('/admin/clients/edit_client/<?=$item['id'];?>/','_client_<?=$item['id'];?>')">
             <?=$item['city_title'];?>
             <?if ($item['city_number']) {?>

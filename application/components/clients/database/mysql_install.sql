@@ -2,6 +2,8 @@ DROP TABLE IF EXISTS `pr_client_acceptance_emails`;
 
 DROP TABLE IF EXISTS `pr_client_acceptances`;
 
+DROP TABLE IF EXISTS `pr_products`;
+
 DROP TABLE IF EXISTS `pr_client_params`;
 
 DROP TABLE IF EXISTS `pr_clients`;
@@ -14,6 +16,7 @@ CREATE TABLE IF NOT EXISTS `pr_clients` (
   `admin_id` int(10) unsigned DEFAULT NULL,
   `email` varchar(128) NOT NULL DEFAULT '',
   `title` varchar(128) NOT NULL DEFAULT '',
+  `title_full` varchar(1000) NOT NULL DEFAULT '',
   `order` int(10) unsigned NOT NULL DEFAULT '0',
   `active` boolean NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`),
@@ -47,6 +50,19 @@ CREATE TABLE IF NOT EXISTS `pr_client_param_values` (
 ALTER TABLE `pr_client_param_values`
   ADD CONSTRAINT `pr_client_param_values_ibfk_2` FOREIGN KEY (`client_id`) REFERENCES `pr_clients` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `pr_client_param_values_ibfk_1` FOREIGN KEY (`param_id`) REFERENCES `pr_client_params` (`id`) ON DELETE CASCADE;
+
+CREATE TABLE `pr_products` (
+  `id` int(10) unsigned NOT NULL auto_increment,
+  `parent_id` int(10) unsigned default NULL,
+  `title` varchar(256) NOT NULL,
+  `order` int(10) unsigned NOT NULL DEFAULT '0',
+  `tm` timestamp NOT NULL default CURRENT_TIMESTAMP,
+  PRIMARY KEY  (`id`),
+  KEY `parent_id` (`parent_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+ALTER TABLE `pr_products`
+  ADD CONSTRAINT `pr_products_ibfk_1` FOREIGN KEY (`parent_id`) REFERENCES `pr_products` (`id`) ON DELETE CASCADE;
 
 CREATE TABLE IF NOT EXISTS `pr_client_acceptances` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,

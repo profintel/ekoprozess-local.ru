@@ -15,12 +15,77 @@ class Gallery_admin extends CI_Component {
   function index($parent_id = 0, $page = 1) {
     $data = array(
       'parent_id' => $parent_id,
-      'category' => $this->gallery_model->get_gallery_one(array('id' => $parent_id)),
-      'albums' => $this->gallery_model->get_gallery_albums($parent_id),
-      'images' => $this->gallery_model->get_gallery_images(array('id' => $parent_id))
+      'category'  => $this->gallery_model->get_gallery_one(array('id' => $parent_id)),
+      'albums'    => $this->gallery_model->get_gallery_albums($parent_id)
     );
 
-    return $this->render_template('templates/index', $data);
+    return $this->render_template('templates/admin_albums', $data);
+  }
+  
+  /**
+  * Возвращает шаблон с объектами галереи
+  * @params: $id - id альбома
+  */
+  function render_gallery_items($id, $type = '') {
+    $data = array(
+      'items'     => $this->gallery_model->get_gallery_images(array('id' => $id)),
+      'move_path' => '/admin/gallery/move_gallery_image/',
+      'type'      => $type,
+    );
+
+    return $this->render_template('templates/admin_gallery_images', $data);
+  }
+  
+  /**
+  * Возвращает шаблон с объектами галереи
+  * @params: $id - id альбома
+  */
+  function render_gallery_item($id, $type = '') {
+    $item = $this->gallery_model->get_gallery_image(array('gallery_images.id' => $id));
+    if(!$item){
+      return false;
+    }
+    $template = 'templates/admin_gallery_item';    
+    if($item['type'] == 'image' && in_array($item['ext'], array('jpeg', 'jpg', 'gif', 'png'))){
+      $template = 'templates/admin_gallery_image';
+    }
+    if($item['type'] == 'image' && $item['ext'] == 'swf'){
+      $template = 'templates/admin_gallery_swf';
+    }
+    if($item['type'] == 'video'){
+      $template = 'templates/admin_gallery_video';
+    }
+    if($item['type'] == 'youtube'){
+      $template = 'templates/admin_gallery_youtube';
+    }
+    if($type == 'list'){
+      $template = 'templates/admin_gallery_item';
+    }
+    return $this->render_template($template, array('item'=>$item));
+  }
+
+  /**
+   * Перемещение объектов галереи
+  **/ 
+  function move_gallery_image() {
+    $id = (int)str_replace('item-', '', $this->input->post('page'));
+    $item = $this->gallery_model->get_gallery_image(array('gallery_images.id' => $id));
+    if (!$item) {
+      send_answer(array('messages' => array('Перемещаемый объект не найден')));
+    }
+    
+    $dest_id = $this->input->post('dest');
+    $dest_id = (int)str_replace('item-', '', $dest_id);
+    $dest = $this->gallery_model->get_gallery_image(array('gallery_images.id' => $dest_id));
+    if (!$dest) {
+      send_answer(array('messages' => array('Целевой объект не найден')));
+    }
+
+    if (!$this->gallery_model->move_gallery_image($id, $dest_id)) {
+      send_answer(array('messages' => array('Не удалось переместить')));
+    }
+    
+    send_answer();
   }
   
   /**
@@ -79,7 +144,7 @@ class Gallery_admin extends CI_Component {
               ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => '',
+                'class'    => 'icon_small accept_i_s',
                 'title'    => 'Создать',
                 'type'     => 'ajax',
                 'reaction' => $this->lang_prefix .'/admin'. $this->params['path']
@@ -91,8 +156,8 @@ class Gallery_admin extends CI_Component {
             'fields' => array(
               array(
                 'view'         => 'fields/select',
-                'title'       => 'Связанные страницы:',
-                'description' => 'Укажите страницы, на которой будут отображаться изображения данного альбома',
+                'title'        => 'Связанные страницы:',
+                'description'  => 'Укажите страницы, на которой будут отображаться изображения данного альбома',
                 'name'         => 'pages[]',
                 'options'      => $pages,
                 'multiple'     => true
@@ -127,7 +192,7 @@ class Gallery_admin extends CI_Component {
               ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => '',
+                'class'    => 'icon_small accept_i_s',
                 'title'    => 'Создать',
                 'type'     => 'ajax',
                 'reaction' => $this->lang_prefix .'/admin'. $this->params['path']
@@ -182,7 +247,7 @@ class Gallery_admin extends CI_Component {
     }
     
     if (!$this->main_model->set_params('gallery', $id, $multiparams)) {
-      $this->gallery_model->delete_gallery($id);
+      $this->delete_gallery($id);
       send_answer(array('errors' => array('Не удалось сохранить параметры')));
     }
 
@@ -260,7 +325,7 @@ class Gallery_admin extends CI_Component {
               ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => '',
+                'class'    => 'icon_small accept_i_s',
                 'title'    => 'Редактировать',
                 'type'     => 'ajax',
                 'reaction' => 1
@@ -313,7 +378,7 @@ class Gallery_admin extends CI_Component {
               ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => '',
+                'class'    => 'icon_small accept_i_s',
                 'title'    => 'Редактировать',
                 'type'     => 'ajax',
                 'reaction' => 1
@@ -369,7 +434,6 @@ class Gallery_admin extends CI_Component {
     }
     
     if (!$this->main_model->set_params('gallery', $id, $multiparams)) {
-      $this->gallery_model->delete_gallery($id);
       send_answer(array('errors' => array('Не удалось сохранить параметры')));
     }
     
@@ -400,6 +464,14 @@ class Gallery_admin extends CI_Component {
   function add_image($album_id) {
     $languages = $this->languages_model->get_languages(1, 0);
     $album =  $this->gallery_model->get_gallery_one(array('id' => $album_id));
+    $pages = $this->db->get('pr_pages')->result_array();
+    if ($pages) {
+      foreach ($pages as &$page) {
+        $project = $this->db->get('pr_projects',array('id', $page['project_id']))->row_array();
+        $page['title'] = $project['title'].': '.$page['title'];
+      }
+      unset($page);
+    }
     
     return $this->render_template('admin/inner', array(
       'title' => 'Добавление изображения в альбом "'.$album['title'].'"',
@@ -420,7 +492,7 @@ class Gallery_admin extends CI_Component {
               ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => '',
+                'class'    => 'icon_small accept_i_s',
                 'title'    => 'Создать',
                 'type'     => 'ajax',
                 'reaction' => $this->lang_prefix .'/admin'. $this->params['path']. $album_id .'/'
@@ -457,7 +529,7 @@ class Gallery_admin extends CI_Component {
               ),  
               array(
                 'view'     => 'fields/submit',
-                'class'    => '',
+                'class'    => 'icon_small accept_i_s',
                 'title'    => 'Создать',
                 'type'     => 'ajax',
                 'reaction' => $this->lang_prefix .'/admin'. $this->params['path']. $album_id .'/'
@@ -480,8 +552,16 @@ class Gallery_admin extends CI_Component {
                 'languages' => $languages
               ),
               array(
+                'view'         => 'fields/select',
+                'title'        => 'Связанные страницы:',
+                'description'  => 'Укажите страницу, на которую будет отправлять ссылка изображения',
+                'name'         => 'page_id',
+                'options'      => $pages,
+                'empty'        => true,
+              ),
+              array(
                 'view'     => 'fields/submit',
-                'class'    => '',
+                'class'    => 'icon_small accept_i_s',
                 'title'    => 'Создать',
                 'type'     => 'ajax',
                 'reaction' => $this->lang_prefix .'/admin'. $this->params['path']. $album_id .'/'
@@ -501,7 +581,9 @@ class Gallery_admin extends CI_Component {
       'type'        => 'image',
       'title'       => htmlspecialchars(trim($this->input->post('title'))),
       'gallery_id'  => $album_id,
-      'main'        => ($this->input->post('main') ? 1 : 0)
+      'page_id'     => ($this->input->post('page_id') ? $this->input->post('page_id') : null),
+      'main'        => ($this->input->post('main') ? 1 : 0),
+      'order'       => $this->gallery_model->get_images_order()
     );
     
     if ($params['main'] == 1) {
@@ -557,7 +639,7 @@ class Gallery_admin extends CI_Component {
       'height' => 135
     );
     if (!$this->gallery_model->create_thumb_gallery_image($thumb_params)){
-      $this->gallery_model->delete_image($id);
+      $this->gallery_model->delete_image(array('id' => $id));
       send_answer(array('errors' => array('Не удалось сохранить стандартную миниатюру')));
     }
 
@@ -569,13 +651,13 @@ class Gallery_admin extends CI_Component {
         'height' => $multiparams['thumb_height']
       );
       if (!$this->gallery_model->create_thumb_gallery_image($thumb_params)){
-        $this->gallery_model->delete_image($id);
+        $this->gallery_model->delete_image(array('id' => $id));
         send_answer(array('errors' => array('Не удалось сохранить миниатюру')));
       }
     };
     
     if (!$this->main_model->set_params('gallery_image', $id, $multiparams)) {
-      $this->gallery_model->delete_image($id);
+      $this->gallery_model->delete_image(array('id' => $id));
       send_answer(array('errors' => array('Не удалось сохранить параметры')));
     }
     
@@ -587,7 +669,15 @@ class Gallery_admin extends CI_Component {
   **/
   function edit_image($id) {
     $languages = $this->languages_model->get_languages(1, 0);
-    $item =  $this->gallery_model->get_gallery_image(array('id' => $id));
+    $item =  $this->gallery_model->get_gallery_image(array('gallery_images.id' => $id));
+    $pages = $this->db->get('pr_pages')->result_array();
+    if ($pages) {
+      foreach ($pages as &$page) {
+        $project = $this->db->get('pr_projects',array('id', $page['project_id']))->row_array();
+        $page['title'] = $project['title'].': '.$page['title'];
+      }
+      unset($page);
+    }
     
     return $this->render_template('admin/inner', array(
       'title' => 'Редактирование изображения',
@@ -609,7 +699,7 @@ class Gallery_admin extends CI_Component {
               ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => '',
+                'class'    => 'icon_small accept_i_s',
                 'title'    => 'Редактировать',
                 'type'     => 'ajax',
                 'reaction' => 1
@@ -636,7 +726,7 @@ class Gallery_admin extends CI_Component {
                 'view'      => 'fields/text',
                 'title'     => 'Ширина миниатюры:',
                 'name'      => 'thumb_width',
-                'value'     => $item['params']['thumb_width'],
+                'value'     => (isset($item['params']['thumb_width']) ? $item['params']['thumb_width'] : ""),
                 'maxlength' => 4,
               ),
               array(
@@ -648,7 +738,7 @@ class Gallery_admin extends CI_Component {
               ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => '',
+                'class'    => 'icon_small accept_i_s',
                 'title'    => 'Редактировать',
                 'type'     => 'ajax',
                 'reaction' => 1
@@ -673,8 +763,17 @@ class Gallery_admin extends CI_Component {
                 'languages' => $languages
               ),
               array(
+                'view'         => 'fields/select',
+                'title'        => 'Связанные страницы:',
+                'description'  => 'Укажите страницу, на которую будет отправлять ссылка изображения',
+                'name'         => 'page_id',
+                'options'      => $pages,
+                'value'        => $item['page_id'],
+                'empty'        => true
+              ),
+              array(
                 'view'     => 'fields/submit',
-                'class'    => '',
+                'class'    => 'icon_small accept_i_s',
                 'title'    => 'Редактировать',
                 'type'     => 'ajax',
                 'reaction' => 1
@@ -688,12 +787,13 @@ class Gallery_admin extends CI_Component {
   }
   
   function _edit_image_process($id) {
-    $item =  $this->gallery_model->get_gallery_image(array('id' => $id));
+    $item =  $this->gallery_model->get_gallery_image(array('gallery_images.id' => $id));
     $languages = $this->languages_model->get_languages(1, 0);
     
     $params = array(
       'type'        => 'image',
       'title'       => htmlspecialchars(trim($this->input->post('title'))),
+      'page_id'     => ($this->input->post('page_id') ? $this->input->post('page_id') : null),
       'main'        => ($this->input->post('main') ? 1 : 0)
     ); 
     
@@ -732,9 +832,9 @@ class Gallery_admin extends CI_Component {
         send_answer(array('errors' => array('Не удалось создать стандартную миниатюру')));
       };       
       $thumb_params = array(
-        'image_id' => $id, 
-        'thumb'  => $this->gallery_model->thumb($params['image'],180,135), 
-        'width'  => 180, 
+        'image_id' => $id,
+        'thumb'  => $this->gallery_model->thumb($params['image'],180,135),
+        'width'  => 180,
         'height' => 135
       );
       if (!$this->gallery_model->create_thumb_gallery_image($thumb_params)){
@@ -798,7 +898,7 @@ class Gallery_admin extends CI_Component {
               ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => '',
+                'class'    => 'icon_small accept_i_s',
                 'title'    => 'Создать',
                 'type'     => 'ajax',
                 'reaction' => $this->lang_prefix .'/admin'. $this->params['path']. $album_id .'/'
@@ -830,7 +930,7 @@ class Gallery_admin extends CI_Component {
               ),  
               array(
                 'view'     => 'fields/submit',
-                'class'    => '',
+                'class'    => 'icon_small accept_i_s',
                 'title'    => 'Создать',
                 'type'     => 'ajax',
                 'reaction' => $this->lang_prefix .'/admin'. $this->params['path']. $album_id .'/'
@@ -854,7 +954,7 @@ class Gallery_admin extends CI_Component {
               ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => '',
+                'class'    => 'icon_small accept_i_s',
                 'title'    => 'Создать',
                 'type'     => 'ajax',
                 'reaction' => $this->lang_prefix .'/admin'. $this->params['path']. $album_id .'/'
@@ -873,7 +973,8 @@ class Gallery_admin extends CI_Component {
     $params = array(
       'type'        => 'video',
       'title'       => htmlspecialchars(trim($this->input->post('title'))),
-      'gallery_id'  => $album_id
+      'gallery_id'  => $album_id,
+      'order'       => $this->gallery_model->get_images_order()
     );
     
     if (!$params['title']) {
@@ -910,7 +1011,7 @@ class Gallery_admin extends CI_Component {
     };
     
     if (!$this->main_model->set_params('gallery_image', $id, $multiparams)) {
-      $this->gallery_model->delete_image($id);
+      $this->gallery_model->delete_image(array('id' => $id));
       send_answer(array('errors' => array('Не удалось сохранить параметры')));
     }
     
@@ -922,7 +1023,7 @@ class Gallery_admin extends CI_Component {
   **/
   function edit_video($id) {
     $languages = $this->languages_model->get_languages(1, 0);
-    $item =  $this->gallery_model->get_gallery_image(array('id' => $id));
+    $item =  $this->gallery_model->get_gallery_image(array('gallery_images.id' => $id));
     
     return $this->render_template('admin/inner', array(
       'title' => 'Редактирование видео',
@@ -944,7 +1045,7 @@ class Gallery_admin extends CI_Component {
               ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => '',
+                'class'    => 'icon_small accept_i_s',
                 'title'    => 'Редактировать',
                 'type'     => 'ajax',
                 'reaction' => 1
@@ -977,7 +1078,7 @@ class Gallery_admin extends CI_Component {
               ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => '',
+                'class'    => 'icon_small accept_i_s',
                 'title'    => 'Редактировать',
                 'type'     => 'ajax',
                 'reaction' => 1
@@ -1003,7 +1104,7 @@ class Gallery_admin extends CI_Component {
               ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => '',
+                'class'    => 'icon_small accept_i_s',
                 'title'    => 'Редактировать',
                 'type'     => 'ajax',
                 'reaction' => 1
@@ -1090,7 +1191,7 @@ class Gallery_admin extends CI_Component {
               ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => '',
+                'class'    => 'icon_small accept_i_s',
                 'title'    => 'Создать',
                 'type'     => 'ajax',
                 'reaction' => $this->lang_prefix .'/admin'. $this->params['path']. $album_id .'/'
@@ -1123,7 +1224,7 @@ class Gallery_admin extends CI_Component {
               ),  
               array(
                 'view'     => 'fields/submit',
-                'class'    => '',
+                'class'    => 'icon_small accept_i_s',
                 'title'    => 'Создать',
                 'type'     => 'ajax',
                 'reaction' => $this->lang_prefix .'/admin'. $this->params['path']. $album_id .'/'
@@ -1147,7 +1248,7 @@ class Gallery_admin extends CI_Component {
               ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => '',
+                'class'    => 'icon_small accept_i_s',
                 'title'    => 'Создать',
                 'type'     => 'ajax',
                 'reaction' => $this->lang_prefix .'/admin'. $this->params['path']. $album_id .'/'
@@ -1168,6 +1269,7 @@ class Gallery_admin extends CI_Component {
       'title'       => htmlspecialchars(trim($this->input->post('title'))),
       'gallery_id'  => $album_id,
       'image'       => htmlspecialchars(trim($this->input->post('image'))),
+      'order'       => $this->gallery_model->get_images_order()
     );
     
     if (!$params['title']) {
@@ -1194,7 +1296,7 @@ class Gallery_admin extends CI_Component {
     };
     
     if (!$this->main_model->set_params('gallery_image', $id, $multiparams)) {
-      $this->gallery_model->delete_image($id);
+      $this->gallery_model->delete_image(array('id' => $id));
       send_answer(array('errors' => array('Не удалось сохранить параметры')));
     }
     
@@ -1206,7 +1308,7 @@ class Gallery_admin extends CI_Component {
   **/
   function edit_youtube($id) {
     $languages = $this->languages_model->get_languages(1, 0);
-    $item =  $this->gallery_model->get_gallery_image(array('id' => $id));
+    $item =  $this->gallery_model->get_gallery_image(array('gallery_images.id' => $id));
     
     return $this->render_template('admin/inner', array(
       'title' => 'Редактирование видео c youtoube',
@@ -1228,7 +1330,7 @@ class Gallery_admin extends CI_Component {
               ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => '',
+                'class'    => 'icon_small accept_i_s',
                 'title'    => 'Редактировать',
                 'type'     => 'ajax',
                 'reaction' => 1
@@ -1262,7 +1364,7 @@ class Gallery_admin extends CI_Component {
               ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => '',
+                'class'    => 'icon_small accept_i_s',
                 'title'    => 'Редактировать',
                 'type'     => 'ajax',
                 'reaction' => 1
@@ -1288,7 +1390,7 @@ class Gallery_admin extends CI_Component {
               ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => '',
+                'class'    => 'icon_small accept_i_s',
                 'title'    => 'Редактировать',
                 'type'     => 'ajax',
                 'reaction' => 1

@@ -21,7 +21,7 @@
   
   <div class="col-sm-12">
     <? if (@$vars['multiple'] && @$vars['value']) { ?>
-      {{cmp:gallery->render_gallery_items<-<?=$vars['value'];?><-list}}<br/>
+        <a href="/admin/gallery/<?=$vars['value'];?>" target="_blank">Перейти в Галерею</a><br>
     <? } elseif (isset($vars['value']) && $vars['value']) { ?>
       <div class="input_file_value">
         <a href="<?=$vars['value'];?>" target="_blank"><?=$vars['value'];?></a>

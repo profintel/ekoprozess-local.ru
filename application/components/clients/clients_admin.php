@@ -31,12 +31,16 @@ class Clients_admin extends CI_Component {
           'link'  => $this->lang_prefix .'/admin'. $this->params['path'] .'client_params/'
         ),
         array(
-          'title' => 'Акты приемки',
-          'link'  => $this->lang_prefix .'/admin'. $this->params['path'] .'acceptances/'
-        ),
-        array(
           'title' => 'Импорт списка клиентов',
           'link'  => $this->lang_prefix .'/admin'. $this->params['path'] .'import/'
+        ),
+        array(
+          'title' => 'Виды вторсырья',
+          'link'  => $this->lang_prefix .'/admin'. $this->params['path'] .'product/'
+        ),
+        array(
+          'title' => 'Акты приемки',
+          'link'  => $this->lang_prefix .'/admin'. $this->params['path'] .'acceptances/'
         ),
       )
     ));
@@ -646,7 +650,7 @@ class Clients_admin extends CI_Component {
       );
     }
     return $this->render_template('admin/inner', array(
-      'title' => 'Карточка клиента',
+      'title' => 'Карточка клиента <small>(ID '.$item['id'].')</small>',
       'html' => $this->view->render_form(array(
         'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'_edit_client_process/'.$id.'/',
         'view'   => 'forms/form_blocks',
@@ -715,14 +719,14 @@ class Clients_admin extends CI_Component {
             'fields'        => $fields_events,
             'aria-expanded' => true
           ),
-          array(
+          /*array(
             'title'         => 'Акты приемки',
             'col'           => 1,
             'small'         => true,
             'title_btn'     => $this->load->view('fields/submit', array('vars' => $acceptance_btn), true),
             'fields'        => $fields_acceptances,
             'aria-expanded' => true
-          ),
+          ),*/
           array(
             'title'   => 'Реквизиты',
             'col'     => 2,
@@ -820,6 +824,27 @@ class Clients_admin extends CI_Component {
               )
             )
           ),
+          array(
+            'title'         => 'Документы',
+            'col'           => 1,
+            'small'         => true,
+            'fields'        => array(
+              array(
+                'view'      => 'fields/file',
+                'title'     => '',
+                'name'      => 'files[]',
+                'value'     => @$item['docs'][0]['gallery_id'],
+                'multiple'  => true
+              ),
+              array(
+                'view'     => 'fields/submit',
+                'title'    => 'Загрузить',
+                'type'     => 'ajax',
+                'reaction' => 'reload'
+              )
+            ),
+            'aria-expanded' => true
+          ),
         )
       )),
       'back' => $this->lang_prefix .'/admin'. $this->params['path'].'clients_report/'
@@ -834,6 +859,11 @@ class Clients_admin extends CI_Component {
       'admin_id'  => ((int)$this->input->post('admin_id') ? (int)$this->input->post('admin_id') : null),
       'active'    => ($this->input->post('active') ? 1 : 0)
     );
+    $city = $this->cities_model->get_city(array('id' => $params['city_id']));
+    if(!$city){
+      send_answer(array('errors' => array('Не найден город')));
+    }
+    $params['title_full'] = $city['title_full'].' '.$params['title'];
     $languages = $this->languages_model->get_languages(1, 0);
 
     $client_params = $this->clients_model->get_client_params();
@@ -885,6 +915,67 @@ class Clients_admin extends CI_Component {
     if (!$this->main_model->set_params('clients', $id, $multiparams)) {
       $this->clients_model->delete_client($id);
       send_answer(array('errors' => array('Не удалось сохранить реквизиты')));
+    }
+
+    //загружаем файлы
+    if ($_FILES['files']['name'][0]) {
+      $upload = multiple_upload_file($_FILES['files'],false);
+      if (!$upload) {
+        send_answer(array('errors' => array('Ошибка при загрузке файлов')));
+      }
+      $files = array();
+      foreach ($upload['files_path'] as $key => $file) {
+        $images_thumbs = array();
+        if ($this->gallery_model->validate_file($file, array('jpeg', 'jpg', 'gif', 'png'))) {
+          resize_image($file, 180, 135);
+          resize_image($file, 60, 60);
+          $images_thumbs = array(
+            array(
+              'thumb'   => $this->gallery_model->thumb($file,180,135),
+              'width'   => 180,
+              'height'  => 135
+            ),
+            array(
+              'thumb'   => $this->gallery_model->thumb($file,60,60),
+              'width'   => 60,
+              'height'  => 60
+            )
+          );
+        }
+        $files[] = array(
+          'image'         => $file,
+          'images_thumbs' => $images_thumbs
+        );
+      }
+      $item = $this->clients_model->get_client(array('id'=>$id));
+      $gallery_params = array(
+        array(
+          'system_name' => 'gallery_system',
+          'title' => 'Системная',      
+          'childrens'   => array(
+            array(
+              'system_name' => $this->component['name'],
+              'title'       => $this->component['title'],
+              'childrens'   => array(
+                array(
+                  'system_name' => $item['id'],
+                  'title'       => $item['title_full'],
+                  'childrens'   => array(
+                    array(
+                      'system_name' => 'docs',
+                      'title'       => 'Документы',
+                      'images'      => $files
+                    ),
+                  ),
+                )
+              ),
+            ),
+          ),
+        )
+      );
+      if (!$this->gallery_model->add_gallery_images($gallery_params)) {
+        send_answer(array('errors' => array('Не удалось сохранить документы')));
+      }
     }
 
     send_answer(array('success' => array('Изменения успешно сохранены')));
@@ -1258,6 +1349,195 @@ class Clients_admin extends CI_Component {
     }
 
     send_answer(array('messages' => array('Файл успешно обработан')));
+  }
+  
+  /**
+  * Просмотр списка товаров
+  **/
+  function product($parent_id = null) {
+    return $this->render_template('admin/items', array(
+      'title'           => 'Виды вторсырья',
+      'search_path'     => '/admin'.$this->params['path'].'product/',
+      'search_title'    => '',
+      'parent_id'       => $parent_id,
+      'component_item'  => array('name' => 'product', 'title' => ''),
+      'move_path'       => '/admin/clients/move_product/',
+      'items'           => $this->clients_model->get_products(array('parent_id' => $parent_id)),
+      'back'            => $this->lang_prefix .'/admin'. $this->params['path'],
+    ));
+  }
+
+  /**
+   *  Создание товара
+   */  
+  function create_product($parent_id = null) {
+    return $this->render_template('admin/inner', array(
+      'title' => 'Добавление товара',
+      'html'  => $this->view->render_form(array(
+        'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'_create_product_process/',
+        'blocks' => array(
+          array(
+            'title'   => 'Основные параметры',
+            'fields'   => array(
+              array(
+                'view'        => 'fields/text',
+                'title'       => 'Название:',
+                'name'        => 'title',
+                'id'          => 'admin-item-title',
+                'maxlength'   => 256,
+                'req'         => true
+              ),
+              array(
+                'view'        => 'fields/hidden',
+                'title'       => 'Категория:',
+                'name'        => 'parent_id',
+                'value'       => $parent_id,
+              ),
+              array(
+                'view'     => 'fields/submit',
+                'title'    => 'Создать',
+                'type'     => 'ajax',
+                'reaction' => $this->lang_prefix .'/admin'. $this->params['path'] .'product/'
+              )
+            )
+          ),
+        )
+      )),
+      'back'  => $this->lang_prefix .'/admin'. $this->params['path'] .'product/'
+    ), true);
+  }
+
+  function _create_product_process() {    
+    $params = array(
+      'title'       => htmlspecialchars(trim($this->input->post('title'))),
+      'parent_id'   => ($this->input->post('parent_id') ? $this->input->post('parent_id') : null),
+      'order'       => $this->clients_model->get_product_order($this->input->post('parent_id'))
+    );
+
+    $errors = $this->_validate_product_params($params);
+    if ($errors) {
+      send_answer(array('errors' => $errors));
+    } 
+    
+    $id = $this->clients_model->create_product($params);
+    if (!$id) {
+      send_answer(array('errors' => array('Не удалось создать объект')));
+    }
+
+    send_answer();
+  }
+  
+  function _validate_product_params($params) {
+    $errors = array();
+    if (!$params['title']) { $errors[] = 'Не указано внутреннее имя'; }
+    return $errors;
+  }
+
+  /*
+  *  Редактирование товара
+  */  
+  function edit_product($id) {
+    $item = $this->clients_model->get_product(array('id' => $id));
+    return $this->render_template('admin/inner', array(
+      'title' => 'Редактирование товара',
+      'html'  => $this->view->render_form(array(
+        'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'_edit_product_process/'.$id.'/',
+        'blocks' => array(
+          array(
+            'title'   => 'Основные параметры',
+            'fields'   => array(
+              array(
+                'view'  => 'fields/text',
+                'id'    => 'admin-item-title',
+                'title' => 'Название:',
+                'name'  => 'title',
+                'value' => $item['title'],
+                'req'   => true
+              ),
+              array(
+                'view'     => 'fields/submit',
+                'title'    => 'Сохранить',
+                'type'     => 'ajax',
+                'reaction' => 'reload'
+              )
+            )
+          )
+        )
+      )),
+      'back'  => $this->lang_prefix .'/admin'. $this->params['path'] .'product/'
+    ), true);
+  }
+
+  function _edit_product_process($id) {    
+    $params = array(
+      'title'     => htmlspecialchars(trim($this->input->post('title'))),
+    );
+
+    $errors = $this->_validate_product_params($params);
+    if ($errors) {
+      send_answer(array('errors' => $errors));
+    } 
+    
+    if (!$this->clients_model->update_product($id,$params)) {
+      send_answer(array('errors' => array('Не удалось сохранить изменения')));
+    }
+
+    send_answer();
+  }
+  
+  /**
+   * Перемещение товара
+  **/
+  function move_product() {
+    $item_id = (int)str_replace('item-', '', $this->input->post('page'));
+    $item = $this->clients_model->get_product(array('id'=>(int)$item_id));
+    
+    if (!$item) {
+      send_answer(array('messages' => array('Перемещаемый объект не найден')));
+    }
+    
+    $dest_id = (int)str_replace('item-', '', $this->input->post('dest'));
+    $dest = $this->clients_model->get_product(array('id'=>(int)$dest_id));
+    if (!$dest) {
+      send_answer(array('messages' => array('Целевой объект не найден')));
+    }
+    
+    $placement = trim($this->input->post('placement'));
+    
+    if (!$this->clients_model->move_product($item_id, $dest_id, $placement)) {
+      send_answer(array('messages' => array('Не удалось переместить объект')));
+    }
+    
+    send_answer();
+  }
+
+  /**
+   *  Включение товара
+   * @param $id - id товара
+   */
+  function enable_product($id) {
+    $this->clients_model->update_product((int)$id, array('active' => 1));
+    header('Location: '.$_SERVER['HTTP_REFERER']);
+  }
+
+  /**
+   *  Выключение товара
+   * @param $id - id товара
+   */      
+  function disable_product($id) {
+    $this->clients_model->update_product((int)$id, array('active' => 0));
+    header('Location: '.$_SERVER['HTTP_REFERER']);
+  }
+
+  /**
+   *  Удаление товара
+   * @param $id - id товара
+   */      
+  function delete_product($id) {
+    $this->gallery_model->delete_gallery_images(array('path' => '/gallery_system/clients/products/'.$id.'/'));
+    $this->main_model->delete_params('products', $id);
+    $this->clients_model->delete_product((int)$id);
+    send_answer();
   }
 
   /**

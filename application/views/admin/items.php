@@ -25,7 +25,7 @@
     <? if (count($items) > 20) { ?>
       <a class="btn btn-default btn-xs" href="/admin<?=$_component['path'];?>"><span class="glyphicon glyphicon-backward"></span> Назад</a>
     <? } ?>
-    <a href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>create_<?=$component_item['name'];?>/" class="btn btn-primary btn-xs pull-right">
+    <a href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>create_<?=$component_item['name'];?>/<?=(isset($parent_id) ? $parent_id.'/' : '');?>" class="btn btn-primary btn-xs pull-right">
       <span class="glyphicon glyphicon-plus"></span> Создать <?=@$component_item['title'];?>
     </a>
   </div>
@@ -53,6 +53,9 @@
             <li><a href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>enable_<?=$component_item['name'];?>/<?=$item['id'];?>/" title="Включить"><span class="glyphicon glyphicon-unchecked"></span> Включить</a></li>
           <? } */?>
           <li><a href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>edit_<?=$component_item['name'];?>/<?=$item['id'];?>/" title="Редактировать"><span class="glyphicon glyphicon-edit"></span> Редактировать</a></li>
+          <? if (array_key_exists('parent_id',$item) && is_null($item['parent_id'])) { ?>
+            <li><a href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>create_<?=$component_item['name'];?>/<?=$item['id'];?>/" title="Создать подраздел"><span class="glyphicon glyphicon-plus"></span> Создать подраздел</a></li>
+          <? } ?>
           <li class="divider"></li>
           <li>
             <a href="#"
@@ -67,7 +70,37 @@
           </li>
         </ul>
       </li>
-  <? } ?>
+      <? if(isset($item['childs'])) {?>
+        <? foreach ($item['childs'] as $child) {?>
+          <li class="clearfix list-group-item">
+            <a class="pull-left icon" data-toggle="dropdown">
+              <span class="glyphicon glyphicon-cog"></span>
+            </a>
+            <a class="col-md-11 col-sm-11 col-xs-11 dropdown-toggle" data-toggle="dropdown">
+              &emsp;-&nbsp;<?=$child['title'];?>
+            </a>
+            <ul class="dropdown-menu">
+              <li><a href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>edit_<?=$component_item['name'];?>/<?=$child['id'];?>/" title="Редактировать"><span class="glyphicon glyphicon-edit"></span> Редактировать</a></li>
+              <? if (array_key_exists('parent_id',$child) && is_null($child['parent_id'])) { ?>
+                <li><a href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>create_<?=$component_item['name'];?>/<?=$child['id'];?>/" title="Создать подраздел"><span class="glyphicon glyphicon-plus"></span> Создать подраздел</a></li>
+              <? } ?>
+              <li class="divider"></li>
+              <li>
+                <a href="#"
+                  onClick="return send_confirm(
+                    'Вы уверены, что хотите удалить объект - <?=$child['title'];?>?',
+                    '<?=$_lang_prefix;?>/admin<?=$_component['path'];?>delete_<?=$component_item['name'];?>/<?=$child['id'];?>/',
+                    {},
+                    'reload'
+                  );"                    
+                  title="Удалить"
+                ><span class="glyphicon glyphicon-trash"></span> Удалить</a>
+              </li>
+            </ul>
+          </li>
+        <? } ?>
+      <? } ?>
+    <? } ?>
   </ul>
   <?=(isset($pagination) && $pagination ? $pagination : '');?>
   <a class="btn btn-default btn-xs" href="/admin<?=$_component['path'];?>"><span class="glyphicon glyphicon-backward"></span> Назад</a>

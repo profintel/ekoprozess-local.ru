@@ -1,4 +1,4 @@
-/*** Generated 17.08.2015 18:08:12 ***/
+/*** Generated 30.08.2015 20:22:06 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -3736,7 +3736,6 @@ function handle_answer(answer, reaction, context, data_type) {
   if (!answer) {
     return my_modal('error', 'Возникли следующие ошибки:', 'Некорректный ответ сервера', 'OK');
   }
-      console.log(typeof(answer.success),answer.success);
 
   if(!data_type){
     data_type = 'json';
