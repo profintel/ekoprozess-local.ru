@@ -319,9 +319,9 @@ function handle_ajaxResultHTML(answer) {
   // console.log(window.history.state);
   var container = $(answer).find(element);
   if(container.length){
-    $(document).find('#ajax_result').fadeOut(400,function(){
+    $(document).find('#ajax_result').fadeOut(100,function(){
       $(this).html($(container).html())
-      $(this).fadeIn(400,function(){      
+      $(this).fadeIn(200,function(){      
         sheet('hide');
       });
     })
