@@ -577,7 +577,6 @@ class Clients_admin extends CI_Component {
   **/  
   function edit_client($id) {
     $item = $this->clients_model->get_client(array('id'=>$id));
-    $city = $this->cities_model->get_city(array('id'=>$item['city_id']));
     if(!$item){
       show_error('Объект не найден');
     }
@@ -611,7 +610,7 @@ class Clients_admin extends CI_Component {
     $event_params = json_encode(array(
       'start'       => date("Y-m-d H:i:s", mktime(0,0,0,date("m"),date("d")+1,date("Y"))),
       'client_id'   => $item['id'],
-      'title'       => @$city['title_full'].' '.$item['title'],
+      'title'       => $item['title_full'],
       'description' => @$event_desc,
       'allDay'      => true,
     ));
