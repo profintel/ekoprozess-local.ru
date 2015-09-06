@@ -24,7 +24,7 @@ $id = (isset($vars['id']) ?
 <div class="form-group">
   <div class="col-sm-2">
     <? if (isset($vars['title']) && $vars['title']) { ?>
-      <label>
+      <label class="control-label" >
         <? if (isset($vars['icon'])) { ?>
           <img src="<?=$vars['icon'];?>" class="icon" />
         <? } ?>
@@ -56,24 +56,49 @@ $id = (isset($vars['id']) ?
       <? if (isset($vars['empty']) && $vars['empty']) { ?>
         <option value="0"></option>
       <? } ?>
-      
-      <? foreach ($vars['options'] as $option) { ?>
-        <option
-          value="<?=$option[(isset($vars['value_field']) ? $vars['value_field'] : 'id')];?>"
-          <?
-          if (isset($vars['value'])) {
-            if (is_array($vars['value'])) {
-              if (in_array($option[(isset($vars['value_field']) ? $vars['value_field'] : 'id')], $vars['value'])) {
-                echo ' selected';
-              }
-            } else {
-              if ($vars['value'] == $option[(isset($vars['value_field']) ? $vars['value_field'] : 'id')]) {
-                echo ' selected';
+
+      <? if (isset($vars['optgroup']) && $vars['optgroup']) { ?>
+        <? foreach ($vars['options'] as $optgroup) { ?>
+          <optgroup label="<?=$optgroup[(isset($vars['text_field']) ? $vars['text_field'] : 'title')];?>">
+            <? foreach ($optgroup['childs'] as $option) { ?>
+              <option
+                value="<?=$option[(isset($vars['value_field']) ? $vars['value_field'] : 'id')];?>"
+                <?
+                if (isset($vars['value'])) {
+                  if (is_array($vars['value'])) {
+                    if (in_array($option[(isset($vars['value_field']) ? $vars['value_field'] : 'id')], $vars['value'])) {
+                      echo ' selected';
+                    }
+                  } else {
+                    if ($vars['value'] == $option[(isset($vars['value_field']) ? $vars['value_field'] : 'id')]) {
+                      echo ' selected';
+                    }
+                  }
+                }
+                ?>
+              ><?=$optgroup[(isset($vars['text_field']) ? $vars['text_field'] : 'title')];?>, <?=$option[(isset($vars['text_field']) ? $vars['text_field'] : 'title')];?></option>
+            <? } ?>
+          </optgroup>
+        <? } ?>
+      <? } else { ?>
+        <? foreach ($vars['options'] as $option) { ?>
+          <option
+            value="<?=$option[(isset($vars['value_field']) ? $vars['value_field'] : 'id')];?>"
+            <?
+            if (isset($vars['value'])) {
+              if (is_array($vars['value'])) {
+                if (in_array($option[(isset($vars['value_field']) ? $vars['value_field'] : 'id')], $vars['value'])) {
+                  echo ' selected';
+                }
+              } else {
+                if ($vars['value'] == $option[(isset($vars['value_field']) ? $vars['value_field'] : 'id')]) {
+                  echo ' selected';
+                }
               }
             }
-          }
-          ?>
-        ><?=$option[(isset($vars['text_field']) ? $vars['text_field'] : 'title')];?></option>
+            ?>
+          ><?=$option[(isset($vars['text_field']) ? $vars['text_field'] : 'title')];?></option>
+        <? } ?>
       <? } ?>
     </select>
   </div>

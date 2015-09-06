@@ -1,7 +1,7 @@
 <div class="clearfix">
 <a href="javascript:void(0)"
   <?=(isset($vars['id']) && $vars['id'] ? 'id="'. $vars['id'] .'"' : '');?>"
-  class="btn btn-primary btn-xs pull-right <?=(isset($vars['class']) ? ' '. $vars['class'] : '');?>"
+  class="btn btn-xs pull-right <?=(isset($vars['class']) ? $vars['class'] : 'btn-primary');?>"
   <? if (isset($vars['onclick']) && $vars['onclick']) { ?>
     onClick='<?=$vars['onclick'];?>'
   <? } else { ?>

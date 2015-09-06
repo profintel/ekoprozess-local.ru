@@ -64,23 +64,37 @@ CREATE TABLE `pr_products` (
 ALTER TABLE `pr_products`
   ADD CONSTRAINT `pr_products_ibfk_1` FOREIGN KEY (`parent_id`) REFERENCES `pr_products` (`id`) ON DELETE CASCADE;
 
+DROP TABLE IF EXISTS `pr_client_acceptance_emails`;
+
+DROP TABLE IF EXISTS `pr_client_acceptances`;
+
 CREATE TABLE IF NOT EXISTS `pr_client_acceptances` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `date` date NOT NULL,
+  `date_time` datetime DEFAULT NULL,
+  `parent_id` int(10) unsigned DEFAULT NULL,
   `client_id` int(10) unsigned DEFAULT NULL,
+  `company` varchar(100) DEFAULT NULL,
+  `date_num` varchar(100) DEFAULT NULL,
+  `transport` varchar(100) DEFAULT NULL,
+  `product_id` int(10) unsigned DEFAULT NULL,
   `price` float NOT NULL,
+  `weight_ttn` float NOT NULL,
+  `weight_pack` float NOT NULL,
+  `weight_defect` float NOT NULL,
   `gross` float NOT NULL,
   `net` float NOT NULL,
-  `color` varchar(100) NOT NULL DEFAULT '',
-  `result` varchar(500) NOT NULL DEFAULT '',
-  `comment` varchar(1000) NOT NULL DEFAULT '',
   `tm` timestamp NOT NULL default CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `client_id` (`client_id`)
+  KEY `client_id` (`client_id`),
+  KEY `parent_id` (`parent_id`),
+  KEY `product_id` (`product_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 ALTER TABLE `pr_client_acceptances`
-  ADD CONSTRAINT `pr_client_acceptances_ibfk_2` FOREIGN KEY (`client_id`) REFERENCES `pr_clients` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `pr_client_acceptances_ibfk_3` FOREIGN KEY (`product_id`) REFERENCES `pr_products` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `pr_client_acceptances_ibfk_2` FOREIGN KEY (`client_id`) REFERENCES `pr_clients` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `pr_client_acceptances_ibfk_1` FOREIGN KEY (`parent_id`) REFERENCES `pr_client_acceptances` (`id`) ON DELETE CASCADE;
 
 CREATE TABLE IF NOT EXISTS `pr_client_acceptance_emails` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -104,3 +118,4 @@ CREATE TABLE IF NOT EXISTS `pr_client_acceptance_emails` (
 ALTER TABLE `pr_client_acceptance_emails`
   ADD CONSTRAINT `pr_client_acceptance_emails_ibfk_2` FOREIGN KEY (`admin_id`) REFERENCES `pr_admins` (`id`) ON DELETE SET NULL,
   ADD CONSTRAINT `pr_client_acceptance_emails_ibfk_1` FOREIGN KEY (`acceptance_id`) REFERENCES `pr_client_acceptances` (`id`) ON DELETE CASCADE;
+  

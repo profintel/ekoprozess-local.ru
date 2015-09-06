@@ -1682,66 +1682,146 @@ class Clients_admin extends CI_Component {
 
     echo json_encode($result);
   }
-  
+   
+  /**
+  * Формирует блок с вторсырьем для формы
+  * акта приемки
+  * $return - тип данных в результате
+  */ 
+  function renderProductsFields($return = 'array') {
+    $result = array(
+      'title'   => 'Вторсырье',
+      'fields'   => array(
+        array(
+          'view'    => 'fields/select',
+          'title'   => 'Вид вторсырья:',
+          'name'    => 'product_id',
+          'optgroup'=> true,
+          'options' => $this->clients_model->get_products(array('parent_id' => null))
+        ),
+        array(
+          'view'  => 'fields/text',
+          'title' => 'Вес в ТТН Поставщика, (кг):',
+          'name'  => 'weight_ttn',
+        ),
+        array(
+          'view'  => 'fields/text',
+          'title' => 'Брутто, (кг):',
+          'name'  => 'gross',
+        ),
+        array(
+          'view'  => 'fields/text',
+          'title' => 'Упаковка, (кг):',
+          'name'  => 'weight_pack',
+        ),
+        array(
+          'view'  => 'fields/text',
+          'title' => 'Засор, (%):',
+          'name'  => 'weight_defect',
+        ),
+        array(
+          'view'  => 'fields/text',
+          'title' => 'Нетто, (кг):',
+          'name'  => 'net',
+        ),
+        array(
+          'view'  => 'fields/text',
+          'title' => 'Цена, (кг):',
+          'name'  => 'price',
+        ),
+        array(
+          'view'     => 'fields/submit',
+          'title'    => 'Добавить еще',
+          'type'     => 'ajax',
+          'class'    => 'btn-default',
+          'icon'     => 'glyphicon-plus',
+          'onclick'  => 'renderFieldsProducts(this);',
+          'reaction' => ''
+        )
+      )
+    );
+    if($return == 'html'){
+      $html = '<div class="form_block">
+        <div class="panel-heading">
+          <h4>'.$result['title'].'</h4>
+        </div>
+        <div class="panel-collapse collapse in" role="tabpanel" aria-labelledby="">
+          <div class="panel-body clearfix">
+            '.$this->view->render_fields($result['fields']).'
+          </div>
+        </div>
+      </div>';
+      return $html;
+    }
+    
+    return $result;
+  }
+
   /**
    *  Создание акта приемки
   **/  
   function create_acceptance() {
     $client_id = ($this->uri->getParam('client_id') ? mysql_prepare($this->uri->getParam('client_id')) : 0);
+    $products = $this->renderProductsFields();
     return $this->render_template('admin/inner', array(
       'title' => 'Добавление акта приемки',
       'html' => $this->view->render_form(array(
+        'view'   => 'forms/default',
         'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'_create_acceptance_process/',
         'blocks' => array(
-          array(
+          0 => array(
             'title'   => 'Основные параметры',
             'fields'   => array(
               array(
                 'view'  => 'fields/datetime',
-                'title' => 'Дата:',
-                'name'  => 'date'
+                'title' => 'Дата приемки:',
+                'name'  => 'date',
+                'value' => date('d.m.Y')
+              ),
+              array(
+                'view'  => 'fields/text',
+                'title' => 'Дата и номер ТН:',
+                'name'  => 'date_num',
+              ),
+              array(
+                'view'  => 'fields/text',
+                'title' => 'Транспорт:',
+                'name'  => 'transport',
               ),
               array(
                 'view'    => 'fields/select',
-                'title'   => 'Компания:',
+                'title'   => 'Клиент:',
                 'name'    => 'client_id',
                 'options' => $this->clients_model->get_clients(),
                 'value'   => $client_id,
+                'empty'   => true,
               ),
               array(
-                'view'    => 'fields/text',
-                'title'   => 'Брутто (кг):',
-                'name'    => 'gross',
+                'view'        => 'fields/text',
+                'title'       => 'Поставщик:',
+                'description' => 'Укажите в случае, если поставщика нет в базе клиентов:',
+                'name'        => 'company',
               ),
               array(
-                'view'    => 'fields/text',
-                'title'   => 'Нетто (кг):',
-                'name'    => 'net',
-              ),
-              array(
-                'view'    => 'fields/text',
-                'title'   => 'Упаковка + засор, %:',
-                'name'    => 'result',
-              ),
-              array(
-                'view'    => 'fields/text',
-                'title'   => 'Цвет:',
-                'name'    => 'color',
-              ),
-              array(
-                'view'    => 'fields/text',
-                'title'   => 'Цена:',
-                'name'    => 'price',
-              ),
-              array(
-                'view'    => 'fields/text',
-                'title'   => 'Примечание:',
-                'name'    => 'comment',
-                'value'   => 'т- тюки, 1кг- вес упаковки, засор %'
+                'view'  => 'fields/datetime',
+                'title' => 'Дата и время прибытия:',
+                'name'  => 'date_time',
               ),
               array(
                 'view'     => 'fields/submit',
-                'title'    => 'Создать',
+                'title'    => 'Создать акт',
+                'type'     => 'ajax',
+                'reaction' => $this->lang_prefix .'/admin'. $this->params['path'].'acceptances/'
+              )
+            )
+          ),
+          1 => $products,
+          2 => array(
+            'title'   => '&nbsp;',
+            'fields'   => array(
+              array(
+                'view'     => 'fields/submit',
+                'title'    => 'Создать акт',
                 'type'     => 'ajax',
                 'reaction' => $this->lang_prefix .'/admin'. $this->params['path'].'acceptances/'
               )
@@ -1755,14 +1835,18 @@ class Clients_admin extends CI_Component {
   
   function _create_acceptance_process() {    
     $params = array(
-      'client_id'=> (int)$this->input->post('client_id'),
-      'gross'    => (float)$this->input->post('gross'),
-      'result'   => $this->input->post('result'),
-      'net'      => (float)$this->input->post('net'),
-      'price'    => (float)$this->input->post('price'),
-      'color'    => $this->input->post('color'),
-      'date'     => ($this->input->post('date') ? date('Y-m-d', strtotime($this->input->post('date'))) : NULL),
-      'comment'  => $this->input->post('comment'),
+      'date'          => ($this->input->post('date') ? date('Y-m-d', strtotime($this->input->post('date'))) : NULL),
+      'date_num'      => htmlspecialchars(trim($this->input->post('date_num'))),
+      'transport'     => htmlspecialchars(trim($this->input->post('transport'))),
+      'client_id'     => ((int)$this->input->post('client_id') ? (int)$this->input->post('client_id') : NULL),
+      'company'       => htmlspecialchars(trim($this->input->post('company'))),
+      'date_time'     => ($this->input->post('date_time') ? date('Y-m-d', strtotime($this->input->post('date_time'))) : NULL),
+      'weight_ttn'    => (float)$this->input->post('weight_ttn'),
+      'gross'         => (float)$this->input->post('gross'),
+      'weight_pack'   => (float)$this->input->post('weight_pack'),
+      'weight_defect' => (float)$this->input->post('weight_defect'),
+      'net'           => (float)$this->input->post('net'),
+      'price'         => (float)$this->input->post('price'),
     );
 
     $errors = $this->_validate_acceptance($params);
@@ -1884,11 +1968,13 @@ class Clients_admin extends CI_Component {
   
   function _validate_acceptance($params) {
     $errors = array();
-    if (!$params['client_id']) { $errors['client_id'] = 'Не указана компания'; }
-    if (!$params['gross'])     { $errors['gross'] = 'Не указан параметр Брутто'; }
+    if (!$params['client_id'] && !$params['company']) { 
+      $errors['client_id'] = 'Не указан поставщик';
+      $errors['company'] = 'Не указана поставщик'; 
+    }
+    /*if (!$params['gross'])     { $errors['gross'] = 'Не указан параметр Брутто'; }
     if (!$params['net'])       { $errors['net'] = 'Не указан параметр Нетто'; }
-    if (!$params['price'])     { $errors['price'] = 'Не указан параметр Цена'; }
-    if (!$params['color'])     { $errors['color'] = 'Не указан параметр Цвет'; }
+    if (!$params['price'])     { $errors['price'] = 'Не указан параметр Цена'; }*/
     return $errors;
   }
 

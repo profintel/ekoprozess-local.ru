@@ -23,7 +23,7 @@ function locationPagination(obj){
     $.get(href,function(answer){
       //отображаем результат
       result = $.parseHTML(answer);
-      result = $(result).find(element);        
+      result = $(result).find(element);
       if(result.length){
         $(document).find(element).html(result.html());
         $(element).removeClass('loading');
@@ -78,4 +78,19 @@ function changeRegion(el,type){
     });
     $('#city_id').parents('.form-group').removeClass('loading');
   },'json')
+}
+
+/**
+* Форма акта приемки
+* добавляет в форму блок с вторсырьем
+*/
+function renderFieldsProducts(obj){
+  $.post('/admin/clients/renderProductsFields/html/', {}, function(result) {
+    //отображаем результат
+    result = $.parseHTML(result);
+    result = $(result).find('.form_block');
+    if(result.length){
+      $(obj).parents('.form_block').after($(result).html());
+    }
+  });
 }

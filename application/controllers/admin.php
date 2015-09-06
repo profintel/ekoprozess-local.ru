@@ -164,7 +164,7 @@ class Admin extends PR_Controller {
     return $result;
   }
   
-  function _parse_template($template, $data = array()) {    
+  function _parse_template($template, $data = array()) {
     preg_match_all('/{{(.+):(.+)}}/u', $template, $matches, PREG_SET_ORDER);
     foreach ($matches as $match) {
       if (method_exists($this, '_handle_'. $match[1])) {
