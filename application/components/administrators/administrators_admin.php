@@ -269,7 +269,6 @@ class Administrators_admin extends CI_Component {
               ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => '',
                 'title'    => 'Сохранить',
                 'type'     => 'ajax',
                 'reaction' => 'reload'
@@ -295,7 +294,6 @@ class Administrators_admin extends CI_Component {
               ),
               array(
                 'view'     => 'fields/submit',
-                'class'    => '',
                 'title'    => 'Сохранить',
                 'type'     => 'ajax',
                 'reaction' => 'reload'
