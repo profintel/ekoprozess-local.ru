@@ -1883,7 +1883,7 @@ class Clients_admin extends CI_Component {
           'name'  => 'date_time',
         ),
         array(
-          'view'  => 'fields/datetime',
+          'view'  => 'fields/text',
           'title' => 'Дополнительные расходы:',
           'name'  => 'add_expenses',
         ),
@@ -2030,7 +2030,7 @@ class Clients_admin extends CI_Component {
           'value' => ($item['date_time'] ? date('d.m.Y H:i:s', strtotime($item['date_time'])) : '')
         ),
         array(
-          'view'  => 'fields/datetime',
+          'view'  => 'fields/text',
           'title' => 'Дополнительные расходы:',
           'name'  => 'add_expenses',
           'value' => $item['add_expenses'],
