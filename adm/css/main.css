@@ -304,7 +304,7 @@ input[type="file"]{
 #accordion .form_block .panel-heading h4 a:focus{
   text-decoration: none;
 }
-#accordion .form_block .panel-heading h4 a:before{
+#accordion .form_block .panel-heading h4 a[data-toggle="collapse"]:before{
   display: block;
   position: absolute;
   top:6px;
@@ -356,6 +356,7 @@ div.quick_form_input+div{
 .quick_form_btn{
   height: 30px;
   width: 30px;
+  float: none !important;
 }
 
 .form_cols .panel{

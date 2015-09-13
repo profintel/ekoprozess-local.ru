@@ -13,7 +13,7 @@
         <? if (!isset($block['col']) || (isset($block['col']) && $block['col'] != 2)) { ?>
           <div class="panel <?=(isset($block['class']) ? ' '. $block['class'] : '');?>">
             <? if (isset($block['title']) && $block['title']) { ?>
-              <div class="panel-heading">
+              <div class="panel-heading clearfix">
                 <div class="panel-heading__top_btn">
                   <a role="button" 
                     data-toggle="collapse" 

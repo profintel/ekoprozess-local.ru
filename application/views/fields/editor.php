@@ -1,4 +1,4 @@
-<div class="form-group">
+<div class="form-group clearfix">
   <div class="col-sm-2">
     <? if (isset($vars['title']) && $vars['title']) { ?>
       <label class="control-label" for="<?=(isset($vars['id']) ? $vars['id'] : (isset($vars['name']) ? $vars['name'] : ''));?>" >

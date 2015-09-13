@@ -53,12 +53,9 @@
         <th>Кому</th>
         <td>
           <div class="">
-            <input type="text" class="form-control" name="to" value="<?=$item['email'];?>" />
+            <input type="text" class="form-control" name="to" value="<?=(isset($item['email']) ? $item['email'] : '');?>" />
           </div>          
         </td>
-      </tr>
-      <tr>
-        <th colspan="2">Текст письма</th>
       </tr>
       <tr>
         <td colspan="2">

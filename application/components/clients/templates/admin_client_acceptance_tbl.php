@@ -1,28 +1,69 @@
-<table border="1" width="100%" cellpadding="4" style="border-collapse: collapse; font-size:11px;" class="table table-bordered">
-  <tr>
-    <th>Дата</th>
-    <th>Компания</th>
-    <th>Брутто, кг</th>
-    <th>Упаковка + засор, %</th>
-    <th>Нетто, кг</th>
-    <th>Цвет</th>
-    <th>Цена</th>
-    <th>Стоимость</th>
-  </tr>
-  <tr>
-    <td><?=date('d.m.Y',strtotime($item['date']));?></td>
-    <td><?=$item['client'];?></td>
-    <td><?=$item['gross'];?></td>
-    <td><?=$item['result'];?></td>
-    <td><?=$item['net'];?></td>
-    <td><?=$item['color'];?></td>
-    <td><?=$item['price'];?></td>
-    <td><?=number_format($item['price']*$item['net'],2,'.',' ');?></td>
-  </tr>
-  <tr>
-    <td colspan="8" align="center">Примечание: <?=$item['comment'];?></td>
-  </tr>
-  <tr>
-    <td colspan="8" align="center">Сумма к оплате: <?=number_format($item['price']*$item['net'],2,'.',' ');?> рублей</td>
-  </tr>
-</table>
+<? 
+  $allSum=0-$item['add_expenses'];
+  $gross=0;
+  foreach ($item['childs'] as $key => $child) {
+    $allSum+=$child['net']*$child['price'];
+    $gross+=$child['gross'];
+  }
+?>
+<div style="background-color:#ffffff; padding:20px;">
+  <h3 style="text-align:center;">Акт приемки</h3>
+  <table border="1" width="100%" style="border-collapse: collapse; font-size:14px;" class="table table-bordered">
+    <tr>
+      <th align="left" width="20%">Дата и номер ТН</th>
+      <td><?=$item['date_num'];?></td>
+    </tr>
+    <tr>
+      <th align="left">Транспорт</th>
+      <td><?=$item['transport'];?></td>
+    </tr>
+    <tr>
+      <th align="left">Поставщик</th>
+      <td><?=$item['client_title'];?></td>
+    </tr>
+    <tr>
+      <th align="left">Дата и время прибытия</th>
+      <td><?=date('d.m.Y г. H-i ',strtotime($item['date_time']));?></td>
+    </tr>
+    <tr>
+      <th align="left">Вес груза брутто, кг</th>
+      <td><?=$gross;?></td>
+    </tr>
+  </table>
+  <br/>
+  <table border="1" width="100%" style="border-collapse: collapse; font-size:14px;" class="table table-bordered">
+    <tr>
+      <th align="center">Наименование товара</th>
+      <th align="center">Вес в ТТН Поставщика, кг</th>
+      <th align="center">Брутто, кг</th>
+      <th align="center">Упаковка, кг</th>
+      <th align="center">Засор, %</th>
+      <th align="center">Нетто, кг</th>
+      <th align="center">Цена, руб.</th>
+      <th align="center">Стоимость, руб.</th>
+    </tr>
+    <? foreach ($item['childs'] as $key => $child) {?>
+      <tr>
+        <td><?=$child['product']['title_full'];?></td>
+        <td align="center"><?=$child['weight_ttn'];?></td>
+        <td align="center"><?=$child['gross'];?></td>
+        <td align="center"><?=$child['weight_pack'];?></td>
+        <td align="center"><?=$child['weight_defect'];?></td>
+        <td align="center"><?=$child['net'];?></td>
+        <td align="center"><?=$child['price'];?></td>
+        <td align="center"><?=($child['net']*$child['price']);?></td>
+      </tr>
+    <?}?>
+    <? if ($item['add_expenses']) {?>
+    <tr>
+      <td align="left" colspan="7">Дополнительные расходы</td>
+      <td colspan="" align="center"><?=$item['add_expenses'];?></td>
+    </tr>
+    <?}?>
+    <tr>
+      <th align="left" colspan="7">Итого к оплате</th>
+      <td colspan="" align="center"><?=$allSum;?></td>
+    </tr>
+  </table>
+</div>
+<br/>

@@ -173,13 +173,22 @@ function alert_msg(type,message) {
   return false;
 }
 
-function send_confirm(message, url, data, reaction, context) {
+function send_confirm(message, url, data, reaction, context, reactionCancel) {
   return my_modal('information', 'Требуется подтверждение', message, [
-    {text: 'OK', handler: function() {
+    {text: 'OK', handler: function(){
       my_modal('hide');
-      return send_request(url, data, reaction, context);
+      if(!url && typeof(reaction) == 'function'){
+        reaction.call();
+      } else {
+        return send_request(url, data, reaction, context);
+      }
     }, icon: 'glyphicon-ok'},
-    'CANCEL'
+    {text: 'Отмена', handler: function(){
+      my_modal('hide'); sheet('hide');
+      if(typeof(reactionCancel) == 'function'){
+        reactionCancel.call();
+      }
+    }, icon: 'glyphicon-remove', class: 'btn-default'}
   ]);
 }
 

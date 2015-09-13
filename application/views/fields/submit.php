@@ -1,4 +1,3 @@
-<div class="clearfix">
 <a href="javascript:void(0)"
   <?=(isset($vars['id']) && $vars['id'] ? 'id="'. $vars['id'] .'"' : '');?>"
   class="btn btn-xs pull-right <?=(isset($vars['class']) ? $vars['class'] : 'btn-primary');?>"
@@ -14,4 +13,3 @@
 >
   <span class="glyphicon <?=(isset($vars['icon']) && $vars['icon'] ? $vars['icon'] : 'glyphicon-save');?>"></span> <?=(isset($vars['title']) ? ' '. $vars['title'] : 'Отправить');?>
 </a>
-</div>

@@ -11,8 +11,10 @@
     <? foreach ($vars['blocks'] as $num=> $block) { ?>
       <div class="form_block  <?=(isset($block['class']) ? ' '. $block['class'] : '');?>">
         <? if (isset($block['title']) && $block['title']) { ?>
-          <div class="panel-heading" role="tab" id="heading<?=$num;?>">
-            <? if (isset($block['title_btn']) && $block['title_btn']) { ?>
+          <div class="panel-heading clearfix" role="tab" id="heading<?=$num;?>">
+            <? if (isset($block['collapse']) && !$block['collapse']) { ?>
+              <h4 class="pull-left"><span><?=$block['title'];?></span></h4>
+            <? } else { ?>
               <h4 class="pull-left">
                 <a role="button" 
                   data-toggle="collapse" 
@@ -21,20 +23,11 @@
                   aria-expanded="<?=(@$block['aria-expanded'] === FALSE ? 'false' : 'true');?>" 
                   aria-controls="collapse<?=$num;?>">
                   <?=$block['title'];?>
-                </a>                
-              </h4>
-              <?=$block['title_btn'];?>
-            <? } else { ?>
-              <h4>
-                <a role="button" 
-                  data-toggle="collapse" 
-                  data-parent="#accordion" 
-                  href="#collapse<?=$num;?>" 
-                  aria-expanded="<?=(@$block['aria-expanded'] === FALSE ? 'false' : 'true');?>" 
-                  aria-controls="collapse<?=$num;?>">
-                  <?=$block['title'];?>
                 </a>
-              </h4>   
+              </h4>
+            <? } ?>
+            <? if (isset($block['title_btn']) && $block['title_btn']) { ?>
+              <?=$block['title_btn'];?>
             <? } ?>
           </div>
         <? } ?>

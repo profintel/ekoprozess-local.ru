@@ -1,4 +1,4 @@
-/*** Generated 06.09.2015 22:09:16 ***/
+/*** Generated 13.09.2015 19:34:23 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -3674,13 +3674,22 @@ function alert_msg(type,message) {
   return false;
 }
 
-function send_confirm(message, url, data, reaction, context) {
+function send_confirm(message, url, data, reaction, context, reactionCancel) {
   return my_modal('information', 'Требуется подтверждение', message, [
-    {text: 'OK', handler: function() {
+    {text: 'OK', handler: function(){
       my_modal('hide');
-      return send_request(url, data, reaction, context);
+      if(!url && typeof(reaction) == 'function'){
+        reaction.call();
+      } else {
+        return send_request(url, data, reaction, context);
+      }
     }, icon: 'glyphicon-ok'},
-    'CANCEL'
+    {text: 'Отмена', handler: function(){
+      my_modal('hide'); sheet('hide');
+      if(typeof(reactionCancel) == 'function'){
+        reactionCancel.call();
+      }
+    }, icon: 'glyphicon-remove', class: 'btn-default'}
   ]);
 }
 
@@ -4419,7 +4428,22 @@ function renderFieldsProducts(obj){
     result = $.parseHTML(result);
     result = $(result).find('.form_block');
     if(result.length){
-      $(obj).parents('.form_block').after($(result).html());
+      $(obj).parents('.form_block').before($(result));
+      $('#'+$(result).find('select').attr('id')).chosen({
+        width: "100%",
+        allow_single_deselect: true
+      });
     }
   });
+}
+
+/**
+* Удаление html блока с классом form_block
+* в стандартном шаблоне формы
+*/
+function removeFormBlock(obj,path){
+  return send_confirm('Вы уверены, что хотите удалить блок?',
+    (typeof(path) != 'undefined' ? path : ''),{},
+    function(){$(obj).parents(".form_block").remove();sheet('hide');}
+  );
 }

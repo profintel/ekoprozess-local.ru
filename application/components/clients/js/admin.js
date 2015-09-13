@@ -90,7 +90,22 @@ function renderFieldsProducts(obj){
     result = $.parseHTML(result);
     result = $(result).find('.form_block');
     if(result.length){
-      $(obj).parents('.form_block').after($(result).html());
+      $(obj).parents('.form_block').before($(result));
+      $('#'+$(result).find('select').attr('id')).chosen({
+        width: "100%",
+        allow_single_deselect: true
+      });
     }
   });
+}
+
+/**
+* Удаление html блока с классом form_block
+* в стандартном шаблоне формы
+*/
+function removeFormBlock(obj,path){
+  return send_confirm('Вы уверены, что хотите удалить блок?',
+    (typeof(path) != 'undefined' ? path : ''),{},
+    function(){$(obj).parents(".form_block").remove();sheet('hide');}
+  );
 }

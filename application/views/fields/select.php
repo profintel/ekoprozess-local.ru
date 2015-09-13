@@ -2,9 +2,9 @@
 $id = (isset($vars['id']) ?
   $vars['id']
 : (isset($vars['name']) ?
-    preg_replace('/\[\]$/', '-'+ rnd() ,$vars['name'])
+    preg_replace('/\[\]$/', '-'+ rand() ,$vars['name'])
   :
-    'default-generated-'+ rnd()
+    'default-generated-'+ rand()
   )
 );
 ?>

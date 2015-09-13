@@ -308,16 +308,31 @@ class Clients_model extends CI_Model {
 
   /***Акты приемки***/
   function get_acceptances($limit = 0, $offset = 0, $where = array(), $order_by = array()) {
-    $this->db->select('client_acceptances.*,clients.title as client');
+    $this->db->select('client_acceptances.*');
     if ($limit) {
       $this->db->limit($limit, $offset);
     }
-    $this->db->order_by('tm','desc');
+    if ($order_by) {
+      foreach ($order_by as $field => $dest) {
+        $this->db->order_by($field,$dest);
+      }
+    } else {
+      $this->db->order_by('tm','desc');
+    }
     if ($where) {
       $this->db->where($where);
     }
-    $this->db->join('clients','clients.id=client_acceptances.client_id');
     $items = $this->db->get('client_acceptances')->result_array();
+    foreach ($items as $key => &$item) {
+      $item['client_title'] = $item['company'];
+      if($item['client_id']){
+        $item['client'] = $this->get_client(array('id'=>$item['client_id']));
+        if($item['client']){
+          $item['client_title'] = $item['client']['title'];
+        }
+      }
+    }
+    unset($item);
     
     return $items;
   }
@@ -330,9 +345,22 @@ class Clients_model extends CI_Model {
   }
 
   function get_acceptance($where = array()) {
-    $this->db->select('client_acceptances.*,clients.title as client,clients.email as email');
-    $this->db->join('clients','clients.id=client_acceptances.client_id');
+    $this->db->select('client_acceptances.*');
     $item = $this->db->get_where('client_acceptances', $where)->row_array();
+    if($item){
+      $item['client_title'] = $item['company'];
+      if($item['client_id']){
+        $item['client'] = $this->get_client(array('id'=>$item['client_id']));
+        if($item['client']){
+          $item['client_title'] = $item['client']['title'];
+        }
+      }
+      $item['childs'] = $this->get_acceptances(0,0,array('parent_id'=>$item['id']),array('id'=>'asc'));
+      foreach ($item['childs'] as $key => &$child) {
+        $child['product'] = $this->get_product(array('id' => $child['product_id']));
+      }
+      unset($child);
+    }
 
     return $item;
   }
