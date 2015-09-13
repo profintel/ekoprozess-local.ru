@@ -387,17 +387,14 @@ class Clients_model extends CI_Model {
   }
 
   function get_acceptance_emails($where = array(), $order_by = array()) {
-    $this->db->select('client_acceptance_emails.*,admins.username as username,clients.title as client');
+    $this->db->select('client_acceptance_emails.*,admins.username as username');
     $this->db->order_by('tm','desc');
     if ($where) {
       $this->db->where($where);
     }
     $this->db->join('admins','admins.id=client_acceptance_emails.admin_id');
-    $this->db->join('clients','clients.id=client_acceptance_emails.client_id');
     $items = $this->db->get('client_acceptance_emails')->result_array();
-    foreach ($items as $key => &$item) {
-      $item['message'] = $this->load->view('../../application/components/clients/templates/admin_client_acceptance_tbl',array('item'  => $item),TRUE);
-    }
+
     return $items;
   }
 

@@ -2169,7 +2169,6 @@ class Clients_admin extends CI_Component {
           'value' => $this->load->view('../../application/components/clients/templates/admin_client_acceptance_tbl',array('item'  => $item),TRUE),
         ))
       ),
-      // 'html'  => ,
       'item'  => $item,
       'emails'=> $this->clients_model->get_acceptance_emails(array('acceptance_id'=>$item['id']))
     ));
@@ -2201,14 +2200,7 @@ class Clients_admin extends CI_Component {
       'acceptance_id'=> $item['id'],
       'from'         => $from,
       'to'           => $to,
-      'client_id'    => $item['client_id'],
-      'gross'        => $item['gross'],
-      'result'       => $item['result'],
-      'net'          => $item['net'],
-      'price'        => $item['price'],
-      'color'        => $item['color'],
-      'date'         => $item['date'],
-      'comment'      => $item['comment'],
+      'message'      => $message 
     );
     if(!$this->clients_model->create_acceptance_email($params)){
       send_answer(array('errors' => array('Сообщение успешно отправлено. Не удалось сохранить письмо в истории')));

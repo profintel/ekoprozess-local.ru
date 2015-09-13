@@ -65,7 +65,6 @@ CREATE TABLE `pr_products` (
 ALTER TABLE `pr_products`
   ADD CONSTRAINT `pr_products_ibfk_1` FOREIGN KEY (`parent_id`) REFERENCES `pr_products` (`id`) ON DELETE CASCADE;
 
-DROP TABLE IF EXISTS `pr_client_acceptance_emails`;
 
 DROP TABLE IF EXISTS `pr_client_acceptances`;
 
@@ -86,6 +85,7 @@ CREATE TABLE IF NOT EXISTS `pr_client_acceptances` (
   `gross` float NOT NULL,
   `net` float NOT NULL,
   `add_expenses` float NOT NULL,
+  `comment` varchar(1000) NOT NULL DEFAULT '',
   `tm` timestamp NOT NULL default CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `client_id` (`client_id`),
@@ -98,6 +98,8 @@ ALTER TABLE `pr_client_acceptances`
   ADD CONSTRAINT `pr_client_acceptances_ibfk_2` FOREIGN KEY (`client_id`) REFERENCES `pr_clients` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `pr_client_acceptances_ibfk_1` FOREIGN KEY (`parent_id`) REFERENCES `pr_client_acceptances` (`id`) ON DELETE CASCADE;
 
+DROP TABLE IF EXISTS `pr_client_acceptance_emails`;
+
 CREATE TABLE IF NOT EXISTS `pr_client_acceptance_emails` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `admin_id` int(10) unsigned DEFAULT NULL,
@@ -105,16 +107,9 @@ CREATE TABLE IF NOT EXISTS `pr_client_acceptance_emails` (
   `from` varchar(100) NOT NULL DEFAULT '',
   `to` varchar(100) NOT NULL DEFAULT '',
   `date` date NOT NULL,
-  `client_id` int(10) unsigned DEFAULT NULL,
-  `price` float NOT NULL,
-  `gross` float NOT NULL,
-  `net` float NOT NULL,
-  `color` varchar(100) NOT NULL DEFAULT '',
-  `result` varchar(500) NOT NULL DEFAULT '',
-  `comment` varchar(1000) NOT NULL DEFAULT '',
+  `message` varchar(4000) NOT NULL DEFAULT '',
   `tm` timestamp NOT NULL default CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `client_id` (`client_id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 ALTER TABLE `pr_client_acceptance_emails`
