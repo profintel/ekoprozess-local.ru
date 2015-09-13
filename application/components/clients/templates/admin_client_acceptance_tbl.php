@@ -8,7 +8,7 @@
 ?>
 <div style="background-color:#ffffff; padding:20px;">
   <h3 style="text-align:center;">Акт приемки</h3>
-  <h4 style="text-align:right;"><?=date('d.m.Y г.',strtotime($item['date']));?></h4>
+  <h4 style="text-align:right;"><?=rus_date($item['date'],'d m Y г.');?></h4>
   <table border="1" width="100%" style="border-collapse: collapse; font-size:14px;" class="table table-bordered">
     <tr>
       <th align="left" width="20%">Дата и номер ТН</th>
