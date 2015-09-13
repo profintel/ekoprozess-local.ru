@@ -1,7 +1,15 @@
-<div class="block-title">
-  <h1><span class="glyphicon <?=($_component['icon']?$_component['icon']:'glyphicon-ok');?>"></span>
-    <?=$title;?>
-  </h1>
+<div class="block-title row">
+  <div class="col-sm-9">
+    <h1><span class="glyphicon <?=($this->component['icon']?$this->component['icon']:'glyphicon-ok');?>"></span>
+      <?=(@$data['title'] ? $data['title'] : $this->component['title']);?>
+    </h1>
+    <p class="visible-xs-block">&nbsp;</p>
+  </div>
+  <div class="col-sm-3 text-right">
+    <? if (isset($block_title_btn) && $block_title_btn) { ?>
+      <?=$block_title_btn;?>
+    <? } ?>
+  </div>
 </div>
 
 <div class="container-fluid">
