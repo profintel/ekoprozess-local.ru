@@ -6,6 +6,8 @@ $(document).ready(function(){
       locationPagination($(this));
     })  
   }
+  //маска для поля с номером
+  $('input.number').number(true, 2, '.', ' ');
 })
 
 /**
@@ -90,11 +92,13 @@ function renderFieldsProducts(obj){
     result = $.parseHTML(result);
     result = $(result).find('.form_block');
     if(result.length){
-      $(obj).parents('.form_block').before($(result));
+      $(obj).parents('.form_block').after($(result));
       $('#'+$(result).find('select').attr('id')).chosen({
         width: "100%",
         allow_single_deselect: true
-      });
+      });      
+      //маска для поля с номером
+      $('input.number').number(true, 2, '.', ' ');
     }
   });
 }
@@ -106,6 +110,42 @@ function renderFieldsProducts(obj){
 function removeFormBlock(obj,path){
   return send_confirm('Вы уверены, что хотите удалить блок?',
     (typeof(path) != 'undefined' ? path : ''),{},
-    function(){$(obj).parents(".form_block").remove();sheet('hide');}
+    function(){
+      var form_block = $(obj).parents(".form_block")
+      //если строка с заголовками, удаляем только Input-ы и кнопки
+      if(form_block.hasClass('form_block_label')){
+        form_block.find('.col-sm-10').remove();
+        form_block.find('.btn').remove();
+      } else{
+        form_block.remove();
+      }
+      updateAcceptanceSumProduct();
+      sheet('hide');
+    }
   );
+}
+
+/**
+* Обновляет стоимость вторсырья в форме акта приемки
+*/
+function updateAcceptanceSumProduct(){
+  var form            = $(document).find('form'),
+      formBlockItems  = form.find('.form_block'),
+      containerAllSum = form.find('.all_sum'),
+      add_expenses    = form.find('.add_expenses').val(),
+      allSum  = 0;
+  formBlockItems.each(function(key,item){
+    var containerSum  = $(item).find('.sum_product'),
+        count         = $(item).find('.product_field_count').val(),
+        price         = $(item).find('.product_field_price').val(),
+        sum           = (count-0)*(price-0);
+    if(containerSum.length){
+      containerSum.text($.number(sum,2,'.'));
+      allSum = allSum+(sum-0);
+    }
+  })
+  //дополнительную стоимость вычитаем из общей суммы
+  allSum = allSum - add_expenses;
+
+  containerAllSum.text($.number(allSum,2,'.'));
 }

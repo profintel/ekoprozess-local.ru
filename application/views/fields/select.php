@@ -21,7 +21,7 @@ $id = (isset($vars['id']) ?
   </script>
 <? } ?>
 
-<div class="form-group">
+<div class="form-group <?=(isset($vars['form_group_class']) ? $vars['form_group_class'] : '');?>">
   <div class="col-sm-2">
     <? if (isset($vars['title']) && $vars['title']) { ?>
       <label class="control-label" >

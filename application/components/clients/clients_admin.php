@@ -1733,17 +1733,17 @@ class Clients_admin extends CI_Component {
     $result = array();
     if ($items) {
       foreach ($items as $key => $item) {
-        $result[] = $this->renderProductsField($item);
+        $result[] = $this->renderProductsField(($key==0?true:false), $item);
       }
     } else {
-      $result[] = $this->renderProductsField();
+      $result[] = $this->renderProductsField(($return_type=='array'?true:false));
     }
     $result[] = array(
       'title'   => '',
       'collapse'=> false,
       'fields'   => array(
         array(
-          'view'     => 'fields/submit',
+          'view'     => 'fields/hidden',
           'title'    => 'Добавить еще вторсырье',
           'type'     => 'ajax',
           'class'    => 'btn-default',
@@ -1756,11 +1756,6 @@ class Clients_admin extends CI_Component {
     if($return_type == 'html' && !$items){
       $html = '<div class="form_block">
         <div class="panel-heading clearfix">
-          <h4 class="pull-left">'.$result[0]['title'].'
-          </h4>
-          <a href="javascript:void(0)" class="btn btn-xs pull-right text-muted" onclick="removeFormBlock(this);">
-            <span class="glyphicon glyphicon-remove"></span><br>удалить
-          </a>
         </div>
         <div class="panel-collapse collapse in" role="tabpanel" aria-labelledby="">
           <div class="panel-body clearfix">
@@ -1777,18 +1772,14 @@ class Clients_admin extends CI_Component {
   /**
   * Формирует поля блока с вторсырьем
   * для формы акта приемки
+  * $label - указывает нади ли формировать заголовик
   * $item - массив с данными по вторсырью
   */ 
-  function renderProductsField($item = array()) {
+  function renderProductsField($label = true, $item = array()) {
     return array(
-      'title'    => 'Вторсырье',
-      'title_btn'=> ($item ? $this->load->view('fields/submit', 
-        array('vars' => array(
-          'title'    => '<br/>удалить',
-          'class'    => 'text-muted',
-          'icon'     => 'glyphicon-remove',
-          'onclick'  => 'removeFormBlock(this,"/admin/clients/delete_acceptance/'.$item['id'].'")',
-        )), true) : ''),
+      'title'    => ($label ? 'Вторсырье' : ''),
+      'collapse' => false,
+      'class'    => 'clearfix '.($label ? 'form_block_label' : ''),
       'fields'   => array(
         array(
           'view'    => 'fields/hidden',
@@ -1798,48 +1789,87 @@ class Clients_admin extends CI_Component {
         ),
         array(
           'view'    => 'fields/select',
-          'title'   => 'Вид вторсырья:',
+          'title'   => ($label ? 'Вид вторсырья:' : ''),
           'name'    => 'product_id[]',
           'empty'   => true,
           'optgroup'=> true,
           'options' => $this->clients_model->get_products(array('parent_id' => null)),
-          'value'   => ($item ? $item['product_id'] : '')
+          'value'   => ($item ? $item['product_id'] : ''),
+          'form_group_class' => 'form_group_product_field form_group_w20',
         ),
         array(
           'view'  => 'fields/text',
-          'title' => 'Вес в ТТН Поставщика, (кг):',
+          'title' => ($label ? 'Вес в ТТН Поставщика, (кг):' : ''),
           'name'  => 'weight_ttn[]',
-          'value' => ($item ? $item['weight_ttn'] : '')
+          'value' => ($item ? $item['weight_ttn'] : ''),
+          'class' => 'number',
+          'form_group_class' => 'form_group_product_field',
         ),
         array(
           'view'  => 'fields/text',
-          'title' => 'Брутто, (кг):',
+          'title' => ($label ? 'Брутто, (кг):' : ''),
           'name'  => 'gross[]',
-          'value' => ($item ? $item['gross'] : '')
+          'value' => ($item ? $item['gross'] : ''),
+          'class' => 'number',
+          'form_group_class' => 'form_group_product_field',
         ),
         array(
           'view'  => 'fields/text',
-          'title' => 'Упаковка, (кг):',
+          'title' => ($label ? 'Упаковка, (кг):' : ''),
           'name'  => 'weight_pack[]',
-          'value' => ($item ? $item['weight_pack'] : '')
+          'value' => ($item ? $item['weight_pack'] : ''),
+          'class' => 'number',
+          'form_group_class' => 'form_group_product_field',
         ),
         array(
           'view'  => 'fields/text',
-          'title' => 'Засор, (%):',
+          'title' => ($label ? 'Засор, (%):' : ''),
           'name'  => 'weight_defect[]',
-          'value' => ($item ? $item['weight_defect'] : '')
+          'value' => ($item ? $item['weight_defect'] : ''),
+          'class' => 'number',
+          'form_group_class' => 'form_group_product_field',
         ),
         array(
-          'view'  => 'fields/text',
-          'title' => 'Нетто, (кг):',
-          'name'  => 'net[]',
-          'value' => ($item ? $item['net'] : '')
+          'view'      => 'fields/text',
+          'title'     => ($label ? 'Нетто, (кг):' : ''),
+          'name'      => 'net[]',
+          'value'     => ($item ? $item['net'] : ''),
+          'onkeyup'   => 'updateAcceptanceSumProduct()',
+          'class'     => 'product_field_count number',
+          'form_group_class' => 'form_group_product_field',
         ),
         array(
-          'view'  => 'fields/text',
-          'title' => 'Цена, (кг):',
-          'name'  => 'price[]',
-          'value' => ($item ? $item['price'] : '')
+          'view'      => 'fields/text',
+          'title'     => ($label ? 'Цена, (руб.):' : ''),
+          'name'      => 'price[]',
+          'value'     => ($item ? $item['price'] : ''),
+          'onkeyup'   => 'updateAcceptanceSumProduct()',
+          'class'     => 'product_field_price number',
+          'form_group_class' => 'form_group_product_field',
+        ),
+        array(
+          'view'  => 'fields/readonly',
+          'title' => ($label ? 'Стоимость, (руб.):' : ''),
+          'value' => '<div class="sum_product">'.($item ? number_format(($item['price']*$item['net']),2,'.',' ') : '0.00').'</div>',
+          'num'   => ($item ? ($item['price']*$item['net']) : ''),
+          'class' => 'sum_product',
+          'form_group_class' => 'form_group_product_field',
+        ),
+        array(
+          'view'    => 'fields/submit',
+          'title'   => '',
+          'class'   => 'btn-default '.($label ? 'form_group_product_field_btn' : 'form_group_product_field_btn_m5'),
+          'icon'    => 'glyphicon-remove',
+          'onclick' =>  'removeFormBlock(this,"'.($item ? '/admin/clients/delete_acceptance/'.$item['id'] : '').'");',
+        ),
+        array(
+          'view'     => 'fields/submit',
+          'title'    => '',
+          'type'     => 'ajax',
+          'class'    => 'btn-primary '.($label ? 'form_group_product_field_btn' : 'form_group_product_field_btn_m5'),
+          'icon'     => 'glyphicon-plus',
+          'onclick'  => 'renderFieldsProducts(this);',
+          'reaction' => ''
         )
       )
     );
@@ -1881,7 +1911,7 @@ class Clients_admin extends CI_Component {
         array(
           'view'        => 'fields/text',
           'title'       => 'Поставщик:',
-          'description' => 'Укажите в случае, если поставщика нет в базе клиентов:',
+          'description' => 'Укажите в случае, если поставщика нет в базе клиентов',
           'name'        => 'company',
         ),
         array(
@@ -1889,16 +1919,35 @@ class Clients_admin extends CI_Component {
           'title' => 'Дата и время прибытия:',
           'name'  => 'date_time',
         ),
-        array(
-          'view'  => 'fields/text',
-          'title' => 'Дополнительные расходы:',
-          'name'  => 'add_expenses',
-        ),
       )
     ));
     foreach ($productsFields as $key => $productField) {
       $blocks[] = $productField;
     }
+    $blocks[] = array(
+      'title'   => '&nbsp;',
+      'collapse'=> false,
+      'fields'   => array(
+        array(
+          'view'     => 'fields/text',
+          'title'    => 'Дополнительные расходы:',
+          'name'     => 'add_expenses',
+          'class'    => 'add_expenses number',
+          'onkeyup'  => 'updateAcceptanceSumProduct()',
+        )
+      )
+    );
+    $blocks[] = array(
+      'title'   => '',
+      'collapse'=> false,
+      'fields'   => array(
+        array(
+          'view'  => 'fields/readonly',
+          'title' => 'ИТОГО:',
+          'value' => '<div class="all_sum">0.00</div>',
+        )
+      )
+    );
     $blocks[] = array(
       'title'   => '&nbsp;',
       'collapse'=> false,
@@ -1922,7 +1971,7 @@ class Clients_admin extends CI_Component {
     ), TRUE);
   }
   
-  function _create_acceptance_process() {    
+  function _create_acceptance_process() {
     $params = array(
       'date'          => ($this->input->post('date') ? date('Y-m-d', strtotime($this->input->post('date'))) : NULL),
       'date_num'      => htmlspecialchars(trim($this->input->post('date_num'))),
@@ -1930,13 +1979,7 @@ class Clients_admin extends CI_Component {
       'client_id'     => ((int)$this->input->post('client_id') ? (int)$this->input->post('client_id') : NULL),
       'company'       => htmlspecialchars(trim($this->input->post('company'))),
       'date_time'     => ($this->input->post('date_time') ? date('Y-m-d H:i:s', strtotime($this->input->post('date_time'))) : NULL),
-      'weight_ttn'    => (float)$this->input->post('weight_ttn'),
-      'gross'         => (float)$this->input->post('gross'),
-      'weight_pack'   => (float)$this->input->post('weight_pack'),
-      'weight_defect' => (float)$this->input->post('weight_defect'),
-      'net'           => (float)$this->input->post('net'),
-      'price'         => (float)$this->input->post('price'),
-      'add_expenses'  => (float)$this->input->post('add_expenses'),
+      'add_expenses'  => (float)str_replace(' ', '', $this->input->post('add_expenses')),
     );
 
     $errors = $this->_validate_acceptance($params);
@@ -1965,13 +2008,13 @@ class Clients_admin extends CI_Component {
           //по ключу собираем все параметры вторсырья
           $params = array(
             'parent_id'     => $id,
-            'product_id'    => $params_products['product_id'][$key],
-            'weight_ttn'    => $params_products['weight_ttn'][$key],
-            'gross'         => $params_products['gross'][$key],
-            'weight_pack'   => $params_products['weight_pack'][$key],
-            'weight_defect' => $params_products['weight_defect'][$key],
-            'net'           => $params_products['net'][$key],
-            'price'         => $params_products['price'][$key],
+            'product_id'    => (float)str_replace(' ', '', $params_products['product_id'][$key]),
+            'weight_ttn'    => (float)str_replace(' ', '', $params_products['weight_ttn'][$key]),
+            'gross'         => (float)str_replace(' ', '', $params_products['gross'][$key]),
+            'weight_pack'   => (float)str_replace(' ', '', $params_products['weight_pack'][$key]),
+            'weight_defect' => (float)str_replace(' ', '', $params_products['weight_defect'][$key]),
+            'net'           => (float)str_replace(' ', '', $params_products['net'][$key]),
+            'price'         => (float)str_replace(' ', '', $params_products['price'][$key]),
           );
           if (!$this->clients_model->create_acceptance($params)) {
             $this->delete_acceptance($id);
@@ -2026,7 +2069,7 @@ class Clients_admin extends CI_Component {
         array(
           'view'        => 'fields/text',
           'title'       => 'Поставщик:',
-          'description' => 'Укажите в случае, если поставщика нет в базе клиентов:',
+          'description' => 'Укажите в случае, если поставщика нет в базе клиентов',
           'name'        => 'company',
           'value'       => $item['company'],
         ),
@@ -2055,9 +2098,41 @@ class Clients_admin extends CI_Component {
       'collapse'=> false,
       'fields'  => array()
     ));
+    $all_sum = 0;
     foreach ($productsFields as $key => $productField) {
       $blocks[] = $productField;
+      foreach($productField['fields'] as $product_field){        
+        if(isset($product_field['class']) && $product_field['class'] == 'sum_product' && isset($product_field['num'])){
+          $all_sum += (float)$product_field['num'];
+        }
+      }
     }
+    $all_sum -= $item['add_expenses'];
+    $blocks[] = array(
+      'title'   => '&nbsp;',
+      'collapse'=> false,
+      'fields'   => array(
+        array(
+          'view'     => 'fields/text',
+          'title'    => 'Дополнительные расходы:',
+          'name'     => 'add_expenses',
+          'value'    => $item['add_expenses'],
+          'class'    => 'add_expenses number',
+          'onkeyup'  => 'updateAcceptanceSumProduct()',
+        )
+      )
+    );
+    $blocks[] = array(
+      'title'   => '',
+      'collapse'=> false,
+      'fields'   => array(
+        array(
+          'view'  => 'fields/readonly',
+          'title' => 'ИТОГО:',
+          'value' => '<div class="all_sum">'.number_format($all_sum,2,'.',' ').'</div>',
+        )
+      )
+    );
     $blocks[] = array(
       'title'   => '&nbsp;',
       'collapse'=> false,
@@ -2089,13 +2164,7 @@ class Clients_admin extends CI_Component {
       'client_id'     => ((int)$this->input->post('client_id') ? (int)$this->input->post('client_id') : NULL),
       'company'       => htmlspecialchars(trim($this->input->post('company'))),
       'date_time'     => ($this->input->post('date_time') ? date('Y-m-d H:i:s', strtotime($this->input->post('date_time'))) : NULL),
-      'weight_ttn'    => (float)$this->input->post('weight_ttn'),
-      'gross'         => (float)$this->input->post('gross'),
-      'weight_pack'   => (float)$this->input->post('weight_pack'),
-      'weight_defect' => (float)$this->input->post('weight_defect'),
-      'net'           => (float)$this->input->post('net'),
-      'price'         => (float)$this->input->post('price'),
-      'add_expenses'  => (float)$this->input->post('add_expenses'),
+      'add_expenses'  => (float)str_replace(' ', '', $this->input->post('add_expenses')),
     );
 
     $errors = $this->_validate_acceptance($params);
@@ -2125,13 +2194,13 @@ class Clients_admin extends CI_Component {
           //по ключу собираем все параметры вторсырья
           $params = array(
             'parent_id'     => $id,
-            'product_id'    => $params_products['product_id'][$key],
-            'weight_ttn'    => $params_products['weight_ttn'][$key],
-            'gross'         => $params_products['gross'][$key],
-            'weight_pack'   => $params_products['weight_pack'][$key],
-            'weight_defect' => $params_products['weight_defect'][$key],
-            'net'           => $params_products['net'][$key],
-            'price'         => $params_products['price'][$key],
+            'product_id'    => (float)str_replace(' ', '', $params_products['product_id'][$key]),
+            'weight_ttn'    => (float)str_replace(' ', '', $params_products['weight_ttn'][$key]),
+            'gross'         => (float)str_replace(' ', '', $params_products['gross'][$key]),
+            'weight_pack'   => (float)str_replace(' ', '', $params_products['weight_pack'][$key]),
+            'weight_defect' => (float)str_replace(' ', '', $params_products['weight_defect'][$key]),
+            'net'           => (float)str_replace(' ', '', $params_products['net'][$key]),
+            'price'         => (float)str_replace(' ', '', $params_products['price'][$key]),
           );
           if ($params_products['item_id'][$key] && 
             !$this->clients_model->update_acceptance($params_products['item_id'][$key], $params)) {

@@ -1,4 +1,4 @@
-<div class="form-group">
+<div class="form-group <?=(isset($vars['form_group_class']) ? $vars['form_group_class'] : '');?>">
   <div class="col-sm-2">
     <? if (isset($vars['title']) && $vars['title']) { ?>
       <label class="control-label" for="<?=(isset($vars['id']) ? $vars['id'] : (isset($vars['name']) ? $vars['name'] : ''));?>" >
@@ -34,6 +34,7 @@
           <?=(isset($vars['maxlength']) ? 'maxlength="'. $vars['maxlength'] .'"' : '');?>
           <?=(isset($vars['value']) && isset($vars['value'][$vars['name'] .'_'. $language['name']]) ? "value='". $vars['value'][$vars['name'] .'_'. $language['name']] ."'" : '');?>
           <?=(isset($vars['disabled']) && $vars['disabled'] ? 'disabled="disabled"' : '');?>
+          <?=(isset($vars['onkeyup']) && $vars['onkeyup'] ? 'onkeyup="'.$vars['onkeyup'].'"' : '');?>
         />
       <? } ?>
     <? } else { ?>
@@ -47,6 +48,7 @@
         <?=(isset($vars['value']) ? "value='". $vars['value'] ."'" : '');?>
         <?=(isset($vars['autofocus']) && $vars['autofocus'] ? 'autofocus="autofocus"' : '');?>
         <?=(isset($vars['disabled']) && $vars['disabled'] ? 'disabled="disabled"' : '');?>
+        <?=(isset($vars['onkeyup']) && $vars['onkeyup'] ? 'onkeyup="'.$vars['onkeyup'].'"' : '');?>
       />
     <? } ?>
   </div>

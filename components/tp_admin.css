@@ -1,4 +1,4 @@
-/* Generated 13.09.2015 19:34:23 */
+/* Generated 20.09.2015 18:50:47 */
 
 /* components */
 
@@ -319,6 +319,7 @@ html,body {
 }
 body {
   color: #676a6c;
+  font-size: 14px;
 }
 
 .modal-dialog{
@@ -590,6 +591,15 @@ a.glyphicon:focus{
 input[type="file"]{
   font-size: 12px;
 }
+.form-horizontal .control-label{
+  text-align: left;
+}
+.form-group{
+  margin-bottom: 10px;
+}
+.input-sm{
+  height: 30px;
+}
 
 .form-control{
   font-size: 12px;
@@ -615,6 +625,41 @@ input[type="file"]{
 .form_block .panel-body{
   padding: 0 15px;
 }
+
+/*Форма товаров в акте приемки*/
+.form_group_product_field{
+  margin: 0 !important;
+  width: 10%;
+  float: left;
+  padding: 5px 0;
+  background: none !important;
+}
+.form_group_product_field.form_group_w20{
+  width: 20%;
+}
+.form_group_product_field label{
+  display: block;
+  height: 40px;
+  line-height: 12px;
+}
+.form_group_product_field > [class^="col"]{
+  float: none;
+  width: 100%;
+  padding: 0 3px;
+}
+.form_group_product_field .sum_product{
+  padding: 5px;
+}
+.form_group_product_field_btn{
+  margin-top: 45px;
+  margin-left: 5px;
+}
+.form_group_product_field_btn_m5{
+  margin-top: 5px;
+  margin-left: 5px;
+}
+
+
 #accordion .form_block .panel-heading h4 a:hover,
 #accordion .form_block .panel-heading h4 a:focus{
   text-decoration: none;
@@ -756,7 +801,7 @@ div.quick_form_input+div{
 }
 
 .modal-body .panel{
-  box-shadow: none;.form-group:nth-child(2n+1)
+  box-shadow: none;
 }
 
 #events-danger {

@@ -1,9 +1,21 @@
-<div class="form-group">
+<div class="form-group <?=(isset($vars['form_group_class']) ? $vars['form_group_class'] : '');?>">
   <div class="col-sm-2">
-    <div class="title"><?=(isset($vars['title']) ? $vars['title'] : '');?></div>
-    <?=(isset($vars['req']) && $vars['req'] ? '<span class="red"> *</span>' : '');?>
+    <? if (isset($vars['title']) && $vars['title']) { ?>
+      <label class="control-label" for="<?=(isset($vars['id']) ? $vars['id'] : (isset($vars['name']) ? $vars['name'] : ''));?>" >
+        <? if (isset($vars['icon'])) { ?>
+          <img src="<?=$vars['icon'];?>" class="icon" />
+        <? } ?>
+        
+        <?=$vars['title'];?>
+        
+        <? if (isset($vars['req']) && $vars['req']) { ?>
+          <span class="text-danger"> *</span>
+        <? } ?>
+      </label>
+    <? } ?>
+    
     <? if (isset($vars['description']) && $vars['description']) { ?>
-      <span class="description"><?=$vars['description'];?></span>
+      <p class="help-block"><?=$vars['description'];?></p>
     <? } ?>
   </div>
   

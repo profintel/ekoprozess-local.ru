@@ -317,7 +317,8 @@ class Clients_model extends CI_Model {
         $this->db->order_by($field,$dest);
       }
     } else {
-      $this->db->order_by('tm','desc');
+      $this->db->order_by('date','asc');
+      $this->db->order_by('tm','asc');
     }
     if ($where) {
       $this->db->where($where);
