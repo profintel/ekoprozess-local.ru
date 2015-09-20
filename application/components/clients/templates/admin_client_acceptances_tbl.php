@@ -1,58 +1,114 @@
 <div>
   <div id="ajax_result"><div>
   <? if ($items) { ?>
-    <ul class="list-group">
-      <li class="clearfix list-group-item-head">
-        <div class="col-xs-1">Дата</div>
-        <div class="col-xs-2">Поставщик</div>
-        <div class="col-xs-2">Брутто, кг</div>
-        <div class="col-xs-2">Нетто, кг</div>
-        <div class="col-xs-2">Стоимость, руб.</div>
-        <div class="col-xs-2">Доп. расходы, руб.</div>
-        <div class="col-xs-1">ИТОГО</div>
-      </li>
+    <div class="well-sm text-right">
+      <a href="javascript:void(0)" onclick="window.print();" class="btn btn-primary btn-xs hidden-print">
+        <span class="glyphicon glyphicon-print"></span> 
+        Печать
+      </a>
+    </div>
+    <table class="table panel table-hover table-acceptances">
+      <tr>
+        <th>Дата приемки</th>
+        <th>Поставщик</th>
+        <th>Брутто, кг</th>
+        <th>Нетто, кг</th>
+        <th>Стоимость, руб.</th>
+        <th>Доп. расходы, руб.</th>
+        <th>ИТОГО</th>
+      </tr>
       <?$all_gross = $all_net = $all_price = $all_add_expenses = $all_sum = 0; ?>
       <? foreach ($items as $item) { ?>
-        <li class="clearfix list-group-item">
-          <a class="dropdown-toggle" data-toggle="dropdown">
-            <div class="col-xs-1"><?=date('d.m.Y',strtotime($item['date']));?></div>
-            <div class="col-xs-2"><?=$item['client_title'];?></div>
-            <div class="col-xs-2"><?=number_format($item['gross'],2,'.',' ');?></div>
-            <div class="col-xs-2"><?=number_format($item['net'],2,'.',' ');?></div>
-            <div class="col-xs-2"><?=number_format($item['price'],2,'.',' ');?></div>
-            <div class="col-xs-2"><?=number_format($item['add_expenses'],2,'.',' ');?></div>
-            <div class="col-xs-1"><?=number_format($item['sum'],2,'.',' ');?></div>
-          </a>
-          <ul class="dropdown-menu">
-            <li>
-              <a href="/admin/clients/acceptance/<?=$item['id'];?>/" title="Просмотреть">
-                <span class="glyphicon glyphicon-share"></span> Просмотреть
-              </a>
-              </li>
-            <li>
-              <a href="/admin/clients/edit_acceptance/<?=$item['id'];?>/" title="Редактировать">
-                <span class="glyphicon glyphicon-edit"></span> Редактировать
-              </a>
-            </li>
-            <li>
-              <a href="/admin/clients/client_acceptance_email/<?=$item['id'];?>/" target="_client_acceptance_email_<?=$item['id'];?>">
-                <span class="glyphicon glyphicon-envelope"></span> Отправить по email
-              </a>
-            </li>
-            <li class="divider"></li>
-            <li>
-              <a href="#"
-                onClick="return send_confirm(
-                  'Вы уверены, что хотите удалить акт - <?=date('d.m.Y',strtotime($item['date']));?>&emsp;<?=$item['client_title'];?>?',
-                  '/admin/clients/delete_acceptance/<?=$item['id'];?>/',
-                  {},
-                  'reload'
-                );"                    
-                title="Удалить"
-              ><span class="glyphicon glyphicon-trash"></span> Удалить</a>
-            </li>
-          </ul>
-        </li>
+        <tr>
+          <td>
+            <div class="dropdown">
+              <a class="dropdown-toggle" data-toggle="dropdown"><?=date('d.m.Y',strtotime($item['date']));?></a>
+              <ul class="dropdown-menu">
+                <li>
+                  <a href="/admin/clients/acceptance/<?=$item['id'];?>/" title="Просмотреть">
+                    <span class="glyphicon glyphicon-share"></span> Просмотреть
+                  </a>
+                  </li>
+                <li>
+                  <a href="/admin/clients/edit_acceptance/<?=$item['id'];?>/" title="Редактировать">
+                    <span class="glyphicon glyphicon-edit"></span> Редактировать
+                  </a>
+                </li>
+                <li>
+                  <a href="/admin/clients/client_acceptance_email/<?=$item['id'];?>/" target="_client_acceptance_email_<?=$item['id'];?>">
+                    <span class="glyphicon glyphicon-envelope"></span> Отправить по email
+                  </a>
+                </li>
+                <li class="divider"></li>
+                <li>
+                  <a href="#"
+                    onClick="return send_confirm(
+                      'Вы уверены, что хотите удалить акт - <?=date('d.m.Y',strtotime($item['date']));?>&emsp;<?=$item['client_title'];?>?',
+                      '/admin/clients/delete_acceptance/<?=$item['id'];?>/',
+                      {},
+                      'reload'
+                    );"
+                    title="Удалить"
+                  ><span class="glyphicon glyphicon-trash"></span> Удалить</a>
+                </li>
+              </ul>
+            </div>
+          </td>
+          <td>
+            <div class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown"><?=$item['client_title'];?></a>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a href="/admin/clients/acceptance/<?=$item['id'];?>/" title="Просмотреть">
+                      <span class="glyphicon glyphicon-share"></span> Просмотреть
+                    </a>
+                    </li>
+                  <li>
+                    <a href="/admin/clients/edit_acceptance/<?=$item['id'];?>/" title="Редактировать">
+                      <span class="glyphicon glyphicon-edit"></span> Редактировать
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/admin/clients/client_acceptance_email/<?=$item['id'];?>/" target="_client_acceptance_email_<?=$item['id'];?>">
+                      <span class="glyphicon glyphicon-envelope"></span> Отправить по email
+                    </a>
+                  </li>
+                  <li class="divider"></li>
+                  <li>
+                    <a href="#"
+                      onClick="return send_confirm(
+                        'Вы уверены, что хотите удалить акт - <?=date('d.m.Y',strtotime($item['date']));?>&emsp;<?=$item['client_title'];?>?',
+                        '/admin/clients/delete_acceptance/<?=$item['id'];?>/',
+                        {},
+                        'reload'
+                      );"                    
+                      title="Удалить"
+                    ><span class="glyphicon glyphicon-trash"></span> Удалить</a>
+                  </li>
+                </ul>
+              </div>
+          </td>
+          <td>
+            <span class="hidden-print"><?=number_format($item['gross'],2,'.',' ');?></span>
+            <span class="visible-print"><?=number_format($item['gross'],2,'.','');?></span>
+          </td>
+          <td>
+            <span class="hidden-print"><?=number_format($item['net'],2,'.',' ');?></span>
+            <span class="visible-print"><?=number_format($item['net'],2,'.','');?></span>
+          </td>
+          <td>
+            <span class="hidden-print"><?=number_format($item['price'],2,'.',' ');?></span>
+            <span class="visible-print"><?=number_format($item['price'],2,'.','');?></span>
+          </td>
+          <td>
+            <span class="hidden-print"><?=number_format($item['add_expenses'],2,'.',' ');?></span>
+            <span class="visible-print"><?=number_format($item['add_expenses'],2,'.','');?></span>
+          </td>
+          <td>
+            <span class="hidden-print"><?=number_format($item['sum'],2,'.',' ');?></span>
+            <span class="visible-print"><?=number_format($item['sum'],2,'.','');?></span>
+          </td>
+        </tr>
         <?
           $all_gross += $item['gross'];
           $all_net += $item['net'];
@@ -61,21 +117,37 @@
           $all_sum += $item['sum'];
         ?>
       <? } ?>
-      <li class="clearfix list-group-item-head">
-        <div class="col-xs-1"></div>
-        <div class="col-xs-2">ИТОГО:</div>
-        <div class="col-xs-2"><?=number_format($all_gross,2,'.',' ');?></div>
-        <div class="col-xs-2"><?=number_format($all_net,2,'.',' ');?></div>
-        <div class="col-xs-2"><?=number_format($all_price,2,'.',' ');?></div>
-        <div class="col-xs-2"><?=number_format($all_add_expenses,2,'.',' ');?></div>
-        <div class="col-xs-1"><?=number_format($all_sum,2,'.',' ');?></div>
-      </li>
-    </ul>
-    <?=(isset($pagination) && $pagination ? $pagination : '');?>
+      <tr>
+        <th>
+        </th>
+        <th>ИТОГО</th>
+        <th>
+          <span class="hidden-print"><?=number_format($all_gross,2,'.',' ');?></span>
+          <span class="visible-print"><?=number_format($all_gross,2,'.','');?></span>
+        </th>
+        <th>
+          <span class="hidden-print"><?=number_format($all_net,2,'.',' ');?></span>
+          <span class="visible-print"><?=number_format($all_net,2,'.','');?></span>
+        </th>
+        <th>
+          <span class="hidden-print"><?=number_format($all_price,2,'.',' ');?></span>
+          <span class="visible-print"><?=number_format($all_price,2,'.','');?></span>
+        </th>
+        <th>
+          <span class="hidden-print"><?=number_format($all_add_expenses,2,'.',' ');?></span>
+          <span class="visible-print"><?=number_format($all_add_expenses,2,'.','');?></span>
+        </th>
+        <th>
+          <span class="hidden-print"><?=number_format($all_sum,2,'.',' ');?></span>
+          <span class="visible-print"><?=number_format($all_sum,2,'.','');?></span>
+        </th>
+      </tr>
+    </table>
   <? } else { ?>
     <div class="alert alert-warning">
       <h2>Акты приемки не найдены</h2>
       <p>Попробуйте изменить параметры поиска</p>
     </div>
   <? } ?>
+  </div></div>
 </div>

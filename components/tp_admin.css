@@ -1,4 +1,4 @@
-/* Generated 20.09.2015 20:46:59 */
+/* Generated 20.09.2015 22:34:37 */
 
 /* components */
 
@@ -406,6 +406,11 @@ a.glyphicon:focus{
   margin: 0 0 0 220px;
   position: inherit;
 }
+@media print {
+  #page-wrapper {
+    margin: 0;
+  }
+}
 
 .navbar-default .navbar-nav > .active > a,
 .navbar-default .navbar-nav > .active > a:focus,
@@ -459,6 +464,9 @@ a.glyphicon:focus{
 #side-menu .nav-header .dropdown .glyphicon-align-justify{
   font-size: 12px;
   padding-right:0px; 
+}
+[data-toggle="dropdown"]{
+  cursor: pointer;
 }
 .dropdown-menu {
   font-size: 12px;
@@ -830,6 +838,15 @@ div.quick_form_input+div{
 }
 .table-report td:last-child {
   cursor: inherit;
+}
+
+.table-acceptances tr > td:nth-child(3,4,5,6,7){
+  white-space: nowrap;
+}
+@media print {
+  .table-acceptances tr > td:nth-child(3,4,5,6,7){
+    white-space: nowrap;
+  }
 }
 
 .ui-datepicker{

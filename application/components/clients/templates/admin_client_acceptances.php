@@ -1,5 +1,5 @@
 <div class="container-fluid padding_0">
-  <div class="block-title row">
+  <div class="block-title row hidden-print">
     <div class="col-sm-3">
       <h1><span class="glyphicon <?=($_component['icon']?$_component['icon']:'glyphicon-ok');?>"></span>
         <?=(@$title ? $title : $_component['title']);?>
@@ -15,14 +15,16 @@
   </div>
 </div>
 <div class="container-fluid">
-  <div class="clearfix">
-    <a class="btn btn-default btn-xs pull-left" href="/admin<?=$this->component['path'];?>"><span class="glyphicon glyphicon-backward"></span> Назад</a>
-    <a  class="btn btn-default btn-xs pull-right" href="/admin<?=$this->component['path'];?>acceptances/">Очистить параметры</a>   
-  </div><br/>
-  <?=$data['form'];?>
+  <div class="hidden-print">
+    <div class="clearfix">
+      <a class="btn btn-default btn-xs pull-left" href="/admin<?=$this->component['path'];?>"><span class="glyphicon glyphicon-backward"></span> Назад</a>
+      <a  class="btn btn-default btn-xs pull-right" href="/admin<?=$this->component['path'];?>acceptances/">Очистить параметры</a>   
+    </div><br/>
+    <?=$data['form'];?>
+  </div>
   <div id="ajax_result">
     {{cmp:clients->render_client_acceptances_table<-<?=base64_encode(serialize($data));?>}}
   </div>
-  <a class="btn btn-default btn-xs" href="/admin<?=$_component['path'];?>"><span class="glyphicon glyphicon-backward"></span> Назад</a>
+  <a class="btn btn-default btn-xs hidden-print" href="/admin<?=$_component['path'];?>"><span class="glyphicon glyphicon-backward"></span> Назад</a>
 </div>
 <br/>

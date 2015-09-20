@@ -25,7 +25,7 @@
 </head>
 <body class="">
   <div id="wrapper" class="gray-bg">
-    <nav role="navigation" class="navbar-default navbar-static-side">
+    <nav role="navigation" class="navbar-default navbar-static-side hidden-print">
       <div class="sidebar-collapse">
         <ul id="side-menu" class="nav">
           <li class="nav-header">
@@ -106,7 +106,7 @@
     </nav>
     <div id="page-wrapper">
       <div id="header">
-        <nav class="navbar-default border-bottom">
+        <nav class="navbar-default border-bottom hidden-print">
           <div class="navbar-collapse">
             <ul class="nav nav-pills navbar-left">
               <? foreach ($_menu_primary as $item) { ?>
@@ -128,7 +128,7 @@
       <div id="content" class="">
         <?=$_html;?>
       </div>
-      <div id="progress-main" class="well">
+      <div id="progress-main" class="well hidden-print">
         <div class="progress">
           <div class="progress-bar progress-bar-striped" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
         </div>
@@ -136,7 +136,7 @@
       <div class="alert" id="alert_msg"></div>
     </div>
   </div>
-  <div id="modal" class="modal fade">
+  <div id="modal" class="modal fade hidden-print">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
