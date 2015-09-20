@@ -23,7 +23,14 @@
             <?}?>
           </td>
           <td onclick="window.open('/admin/clients/edit_client/<?=$item['id'];?>/','_client_<?=$item['id'];?>')"><?=($item['admin'] ? $item['admin']['params']['name_'.$this->language] : 'Не указан');?></td>
-          <td onclick="window.open('/admin/clients/edit_client/<?=$item['id'];?>/','_client_<?=$item['id'];?>')"><?=$item['title'];?></td>
+          <td>
+            <?=$item['title'];?>
+            <div class="well-sm text-center">
+              <a href="/admin/clients/create_acceptance/?client_id=<?=$item['id'];?>" class="label label-primary">
+                <span class="glyphicon glyphicon-plus"></span> Акт приемки
+              </a>
+            </div>
+          </td>
           <?foreach ($client_params as $key => $value) {?>
             <td onclick="window.open('/admin/clients/edit_client/<?=$item['id'];?>/','_client_<?=$item['id'];?>')"><?=@$item['params']['param_'.$value['id'].'_'.$this->language];?></td>
           <?}?>

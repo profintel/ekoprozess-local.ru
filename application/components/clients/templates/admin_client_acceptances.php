@@ -15,7 +15,14 @@
   </div>
 </div>
 <div class="container-fluid">
-  <?=$html?>
+  <div class="clearfix">
+    <a class="btn btn-default btn-xs pull-left" href="/admin<?=$this->component['path'];?>"><span class="glyphicon glyphicon-backward"></span> Назад</a>
+    <a  class="btn btn-default btn-xs pull-right" href="/admin<?=$this->component['path'];?>acceptances/">Очистить параметры</a>   
+  </div><br/>
+  <?=$data['form'];?>
+  <div id="ajax_result">
+    {{cmp:clients->render_client_acceptances_table<-<?=base64_encode(serialize($data));?>}}
+  </div>
   <a class="btn btn-default btn-xs" href="/admin<?=$_component['path'];?>"><span class="glyphicon glyphicon-backward"></span> Назад</a>
 </div>
 <br/>

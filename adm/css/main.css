@@ -222,11 +222,19 @@ a.glyphicon:focus{
   vertical-align: middle;
 }
 
-.list-group-item {
+.list-group-item,
+.list-group-item-head{
+  list-style: none;
   padding: 5px;
+}
+.list-group-item-head{
+  font-weight: bold;
+  background-color: #ffffff;
+  border: 1px solid #dddddd;
 }
 .list-group-item a {
   cursor: pointer;
+  display: block;
 }
 .list-group-item .icon .glyphicon {
   display: none;

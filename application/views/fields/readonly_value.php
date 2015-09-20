@@ -1,4 +1,4 @@
-<div class="form-group">
+<div class="">
   <?if($vars['title']){?>
     <div class="">
       <div class="title"><?=(isset($vars['title']) ? $vars['title'] : '');?></div>

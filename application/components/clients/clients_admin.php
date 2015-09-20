@@ -664,7 +664,7 @@ class Clients_admin extends CI_Component {
       'onclick'  => 'createLocalEvent('.$event_params.', "reload")',
     );
     //список событий клиента
-    $events = $this->calendar_model->get_events(50,0,array('client_id' => $item['id']),array('start'=>'desc'));
+    $events = $this->calendar_model->get_events(5,0,array('client_id' => $item['id']),array('start'=>'desc'));
     //поля для формы
     $fields_events = array();
     foreach ($events as $key => $value) {
@@ -682,14 +682,14 @@ class Clients_admin extends CI_Component {
       'onclick'  => 'window.open("/admin/clients/create_acceptance/?client_id='.$item['id'].'","_client_acceptance_create_'.$item['id'].'")',
     );
     //список актов приемки
-    $acceptances = $this->clients_model->get_acceptances(50, 0, array('client_id'=>$id));
+    $acceptances = $this->clients_model->get_acceptances(3, 0, array('client_id'=>$id), array('tm'=>'desc'));
     //поля для формы
     $fields_acceptances = array();
     if($acceptances){
       $fields_acceptances[] = array(
         'view'      => 'fields/readonly_value',
         'title'     => '',
-        'value'     => '<br/>'.$this->load->view('../../application/components/clients/templates/admin_client_acceptances_tbl',array('items' => $acceptances),TRUE),
+        'value'     => $this->load->view('../../application/components/clients/templates/admin_client_acceptances_tbl_sm',array('items' => $acceptances,'client_id'=>$id),TRUE),
       );
     }
     return $this->render_template('admin/inner', array(
@@ -757,29 +757,29 @@ class Clients_admin extends CI_Component {
           ),
           array(
             'title'   => 'Дополнительные параметры',
-            'col'     => 2,
+            'col'     => 1,
             'small'   => true,
             'fields'  => $fields_params
           ),
           array(
+            'title'         => 'Акты приемки',
+            'col'           => 2,
+            'small'         => false,
+            'title_btn'     => $this->load->view('fields/submit', array('vars' => $acceptance_btn), true),
+            'fields'        => $fields_acceptances,
+            'aria-expanded' => true
+          ),
+          array(
             'title'         => 'События',
-            'col'           => 1,
+            'col'           => 2,
             'small'         => true,
             'title_btn'     => $this->load->view('fields/submit', array('vars' => $event_btn), true),
             'fields'        => $fields_events,
             'aria-expanded' => true
           ),
-          /*array(
-            'title'         => 'Акты приемки',
-            'col'           => 1,
-            'small'         => true,
-            'title_btn'     => $this->load->view('fields/submit', array('vars' => $acceptance_btn), true),
-            'fields'        => $fields_acceptances,
-            'aria-expanded' => true
-          ),*/
           array(
             'title'   => 'Реквизиты',
-            'col'     => 2,
+            'col'     => 1,
             'small'   => true,
             'fields'  => array(
               array(
@@ -876,7 +876,7 @@ class Clients_admin extends CI_Component {
           ),
           array(
             'title'         => 'Документы',
-            'col'           => 1,
+            'col'           => 2,
             'small'         => true,
             'fields'        => array(
               array(
@@ -1614,68 +1614,84 @@ class Clients_admin extends CI_Component {
   *  Просмотр списка актов приемки
   *
   */
-  function acceptances($page = 1) {
+  function acceptances() {
     $where = array('parent_id'=>null);
-    $title = ($this->uri->getParam('title') ? mysql_prepare($this->uri->getParam('title')) : '');
-    $client_id = ($this->uri->getParam('client_id') ? mysql_prepare($this->uri->getParam('client_id')) : '');
-    if($client_id){
-      $where['client_id'] = $client_id;
-      $client = $this->clients_model->get_client(array('id'=>$client_id));
-      if($client){
-        $title = $client['title'];
-      }
+    $error = '';
+    $get_params = array(
+      'date_start' => ($this->uri->getParam('date_start') ? date('Y-m-d',strtotime($this->uri->getParam('date_start'))) : date('Y-m-1')),
+      'date_end' => ($this->uri->getParam('date_end') ? date('Y-m-d',strtotime($this->uri->getParam('date_end'))) : ''),
+      'client_id'  => ($this->uri->getParam('client_id') ? mysql_prepare($this->uri->getParam('client_id')) : ''),
+    );
+    if($get_params['date_start']){
+      $where['date >='] = $get_params['date_start'];
     }
-    if($title){
-      $client = $this->clients_model->get_client(array('title LIKE '=>$title.'%'));
-      if($client){
-        $where['client_id'] = $client['id'];
-        $title = $client['title'];
-      }
+    if($get_params['date_end']){
+      $where['date <='] = $get_params['date_end'];
     }
-    $limit = 50;
+    if($get_params['client_id']){
+      $where['client_id'] = $get_params['client_id'];
+    }
+    $page = ($this->uri->getParam('page') ? $this->uri->getParam('page') : 1);
+    $limit = 100;
     $offset = $limit * ($page - 1);
     $cnt = $this->clients_model->get_acceptances_cnt($where);
     $pages = get_pages($page, $cnt, $limit);
+    $postfix = '&';
+    foreach ($get_params as $key => $value) {
+      $postfix .= $key.'='.$value.'&';
+    }
     $pagination_data = array(
+      'ajax'    => true,
       'pages' => $pages,
       'page' => $page,
       'prefix' => '/admin'.$this->params['path'].'acceptances/',
-      'postfix' => ($client_id ? '?client_id='.$client_id : '')
+      'postfix' => $postfix
     );
     $items = $this->clients_model->get_acceptances($limit, $offset, $where);
     $data = array(
       'title' => 'Акты приемки',
-      'html'  => $this->load->view('../../application/components/clients/templates/admin_client_acceptances_tbl',array('items' => $items),TRUE),
-      'search_path'     => '/admin'.$this->params['path'].'acceptances/',
-      'search_title'    => @$title,
+      'items' => $items,
       'component_item'  => array('name' => 'acceptance', 'title' => 'акт приемки'),
       'items'           => $items,
-      'pagination'      => $this->load->view('admin/pagination', $pagination_data, true),
-      'quick_form' => $this->view->render_form(array(
+      'pagination'      => $this->load->view('templates/pagination', $pagination_data, true),
+      'form' => $this->view->render_form(array(
         'method' => 'GET',
-        'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'acceptances/',
-        'view'   => 'forms/form_inline',
+        'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'acceptances/',        
+        'enctype' => '',
         'blocks' => array(
           array(
-            'title'    => '',
+            'title'         => 'Параметры отчета',
             'fields'   => array(
               array(
-                'view'      => 'fields/autocomplete_input',
-                'class'     => 'col-xs-11 quick_form_input',
-                'title'     => 'Название:',
-                'name'      => 'title',
-                'value'     => @$title,
-                'component' => $this->params['name'],
-                'method'    => 'client_search_acceptances',
-                'maxlength' => 256
+                'view'        => 'fields/datetime',
+                'title'       => 'Дата приемки (от):',
+                'name'        => 'date_start',
+                'value'       => ($get_params['date_start']? date('d.m.Y',strtotime($get_params['date_start'])) : ''),
+                'onchange'    => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
               ),
               array(
-                'view'     => 'fields/submit',
-                'class'    => 'btn-primary col-xs-1 quick_form_btn',
-                'icon'     => 'glyphicon-search',
-                'title'    => '',
-                'type'     => '',
-                'reaction' => $this->lang_prefix .'/admin'. $this->params['path']
+                'view'        => 'fields/datetime',
+                'title'       => 'Дата приемки (до):',
+                'name'        => 'date_end',
+                'value'       => ($get_params['date_end']? date('d.m.Y',strtotime($get_params['date_end'])) : ''),
+                'onchange'    => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+              ),
+              array(
+                'view'    => 'fields/select',
+                'title'   => 'Поставщик:',
+                'name'    => 'client_id',
+                'value'   => $get_params['client_id'],
+                'options' => $this->clients_model->get_clients(),
+                'empty'   => true
+              ),
+              array(
+                'view'          => 'fields/submit',
+                'title'         => 'Сформировать',
+                'type'          => 'ajax',
+                'failure'       => '?ajax=1',
+                'reaction_func' => true,
+                'reaction'      => 'handle_ajaxResultHTML',
+                'data_type'     => 'html'
               )
             )
           )
@@ -1683,7 +1699,16 @@ class Clients_admin extends CI_Component {
       )),
     );
 
-    return $this->render_template('templates/admin_client_acceptances', $data);
+    if($this->uri->getParam('ajax') == 1){
+      echo $this->load->view('../../application/components/clients/templates/admin_client_acceptances_tbl',$data,true);
+    } else {
+      return $this->render_template('templates/admin_client_acceptances', $data);
+    }
+  }
+
+  function render_client_acceptances_table($data){
+    $data = unserialize(base64_decode($data));
+    return $this->load->view('../../application/components/clients/templates/admin_client_acceptances_tbl',$data,true);
   }
 
   /**
@@ -1789,7 +1814,7 @@ class Clients_admin extends CI_Component {
         ),
         array(
           'view'    => 'fields/select',
-          'title'   => ($label ? 'Вид вторсырья:' : ''),
+          'title'   => ($label ? 'Вид вторсырья' : ''),
           'name'    => 'product_id[]',
           'empty'   => true,
           'optgroup'=> true,
@@ -1799,7 +1824,7 @@ class Clients_admin extends CI_Component {
         ),
         array(
           'view'  => 'fields/text',
-          'title' => ($label ? 'Вес в ТТН Поставщика, (кг):' : ''),
+          'title' => ($label ? 'Вес в ТТН Поставщика, (кг)' : ''),
           'name'  => 'weight_ttn[]',
           'value' => ($item ? $item['weight_ttn'] : ''),
           'class' => 'number',
@@ -1807,7 +1832,7 @@ class Clients_admin extends CI_Component {
         ),
         array(
           'view'  => 'fields/text',
-          'title' => ($label ? 'Брутто, (кг):' : ''),
+          'title' => ($label ? 'Брутто, (кг)' : ''),
           'name'  => 'gross[]',
           'value' => ($item ? $item['gross'] : ''),
           'class' => 'number',
@@ -1815,7 +1840,7 @@ class Clients_admin extends CI_Component {
         ),
         array(
           'view'  => 'fields/text',
-          'title' => ($label ? 'Упаковка, (кг):' : ''),
+          'title' => ($label ? 'Упаковка, (кг)' : ''),
           'name'  => 'weight_pack[]',
           'value' => ($item ? $item['weight_pack'] : ''),
           'class' => 'number',
@@ -1823,7 +1848,7 @@ class Clients_admin extends CI_Component {
         ),
         array(
           'view'  => 'fields/text',
-          'title' => ($label ? 'Засор, (%):' : ''),
+          'title' => ($label ? 'Засор, (%)' : ''),
           'name'  => 'weight_defect[]',
           'value' => ($item ? $item['weight_defect'] : ''),
           'class' => 'number',
@@ -1831,7 +1856,7 @@ class Clients_admin extends CI_Component {
         ),
         array(
           'view'      => 'fields/text',
-          'title'     => ($label ? 'Нетто, (кг):' : ''),
+          'title'     => ($label ? 'Нетто, (кг)' : ''),
           'name'      => 'net[]',
           'value'     => ($item ? $item['net'] : ''),
           'onkeyup'   => 'updateAcceptanceSumProduct()',
@@ -1840,7 +1865,7 @@ class Clients_admin extends CI_Component {
         ),
         array(
           'view'      => 'fields/text',
-          'title'     => ($label ? 'Цена, (руб.):' : ''),
+          'title'     => ($label ? 'Цена, (руб.)' : ''),
           'name'      => 'price[]',
           'value'     => ($item ? $item['price'] : ''),
           'onkeyup'   => 'updateAcceptanceSumProduct()',
@@ -1849,7 +1874,7 @@ class Clients_admin extends CI_Component {
         ),
         array(
           'view'  => 'fields/readonly',
-          'title' => ($label ? 'Стоимость, (руб.):' : ''),
+          'title' => ($label ? 'Стоимость, (руб.)' : ''),
           'value' => '<div class="sum_product">'.($item ? number_format(($item['price']*$item['net']),2,'.',' ') : '0.00').'</div>',
           'num'   => ($item ? ($item['price']*$item['net']) : ''),
           'class' => 'sum_product',
@@ -1978,7 +2003,7 @@ class Clients_admin extends CI_Component {
       'transport'     => htmlspecialchars(trim($this->input->post('transport'))),
       'client_id'     => ((int)$this->input->post('client_id') ? (int)$this->input->post('client_id') : NULL),
       'company'       => htmlspecialchars(trim($this->input->post('company'))),
-      'date_time'     => ($this->input->post('date_time') ? date('Y-m-d H:i:s', strtotime($this->input->post('date_time'))) : NULL),
+      'date_time'     => ($this->input->post('date_time') != '00.00.0000 00:00:00' ? date('Y-m-d H:i:s', strtotime($this->input->post('date_time'))) : NULL),
       'add_expenses'  => (float)str_replace(' ', '', $this->input->post('add_expenses')),
     );
 
@@ -2080,23 +2105,12 @@ class Clients_admin extends CI_Component {
           'value' => ($item['date_time'] ? date('d.m.Y H:i:s', strtotime($item['date_time'])) : '')
         ),
         array(
-          'view'  => 'fields/text',
-          'title' => 'Дополнительные расходы:',
-          'name'  => 'add_expenses',
-          'value' => $item['add_expenses'],
-        ),
-        array(
           'view'     => 'fields/submit',
           'title'    => 'Сохранить',
           'type'     => 'ajax',
           'reaction' => 'reload'
         )
       )
-    ),
-    array(
-      'title'   => '&nbsp;',
-      'collapse'=> false,
-      'fields'  => array()
     ));
     $all_sum = 0;
     foreach ($productsFields as $key => $productField) {
@@ -2146,7 +2160,7 @@ class Clients_admin extends CI_Component {
       )
     );
     return $this->render_template('admin/inner', array(
-      'title' => 'Редактирование акта приемки',
+      'title' => 'Карточка акта приемки <small>(ID '.$item['id'].')</small>',
       'html' => $this->view->render_form(array(
         'view'   => 'forms/default',
         'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'_edit_acceptance_process/'.$id.'/',

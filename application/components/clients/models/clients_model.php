@@ -332,6 +332,17 @@ class Clients_model extends CI_Model {
           $item['client_title'] = $item['client']['title'];
         }
       }
+      //считаем общие параметры
+      if(is_null($item['parent_id'])){
+        $item['childs'] = $this->get_acceptances(0,0,array('parent_id'=>$item['id']));
+        $item['gross'] = $item['net'] = $item['price'] = $item['sum'] = 0;
+        foreach ($item['childs'] as $key => $child) {
+          $item['gross'] += $child['gross'];
+          $item['net'] += $child['net'];
+          $item['price'] += ($child['price']*$child['net']);
+          $item['sum'] = $item['price']-$item['add_expenses'];
+        }
+      }
     }
     unset($item);
     

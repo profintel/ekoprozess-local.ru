@@ -1,4 +1,4 @@
-/* Generated 20.09.2015 18:50:47 */
+/* Generated 20.09.2015 20:46:59 */
 
 /* components */
 
@@ -537,11 +537,19 @@ a.glyphicon:focus{
   vertical-align: middle;
 }
 
-.list-group-item {
+.list-group-item,
+.list-group-item-head{
+  list-style: none;
   padding: 5px;
+}
+.list-group-item-head{
+  font-weight: bold;
+  background-color: #ffffff;
+  border: 1px solid #dddddd;
 }
 .list-group-item a {
   cursor: pointer;
+  display: block;
 }
 .list-group-item .icon .glyphicon {
   display: none;
