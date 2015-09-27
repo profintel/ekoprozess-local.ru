@@ -21,7 +21,7 @@
   </div><br/>
   <?=$data['form'];?>
   <div id="ajax_result">
-    {{cmp:clients->render_clients_report_table<-<?=base64_encode(serialize($data));?>}}
+    {{cmp:clients->_render_clients_report_table<-<?=base64_encode(serialize($data));?>}}
   </div>
   <a class="btn btn-default btn-xs" href="/admin<?=$this->component['path'];?>"><span class="glyphicon glyphicon-backward"></span> Назад</a>
 </div>

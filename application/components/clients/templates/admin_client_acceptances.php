@@ -23,7 +23,7 @@
     <?=$data['form'];?>
   </div>
   <div id="ajax_result">
-    {{cmp:clients->render_client_acceptances_table<-<?=base64_encode(serialize($data));?>}}
+    {{cmp:clients->_render_client_acceptances_table<-<?=base64_encode(serialize($data));?>}}
   </div>
   <a class="btn btn-default btn-xs hidden-print" href="/admin<?=$_component['path'];?>"><span class="glyphicon glyphicon-backward"></span> Назад</a>
 </div>

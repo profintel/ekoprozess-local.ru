@@ -47,6 +47,11 @@ class Clients_admin extends CI_Component {
   }
 
   /**
+  * Просмотр списка клиентов всех менеджеров
+  */
+  function clients_report_allClients(){}
+
+  /**
   * Просмотр отчета по базе клиентов
   */
   function clients_report() {
@@ -63,8 +68,12 @@ class Clients_admin extends CI_Component {
     );
     //если указан не текущий менеджер,
     //то проверяем на доступ к просмотру клиентов других менеджеров
-    if($get_params['admin_id'] != $this->admin_id && !$this->admin['superuser']){
-      $error = 'У вас нет прав на просмотр клиентов всех менеджеров';
+    if($get_params['admin_id'] != $this->admin_id && !$this->permits_model->check_access($this->admin_id, $this->component['name'], $method = 'clients_report_allClients')){
+      if(!$get_params['admin_id']){
+        $get_params['admin_id'] = $this->admin_id;
+      } else {
+        $error = 'У вас нет прав на просмотр клиентов других менеджеров';
+      }
     }
     if($get_params['client_id']){
       $where .= ($where ? ' AND ' : '').'pr_clients.id = '.$get_params['client_id'];
@@ -123,6 +132,7 @@ class Clients_admin extends CI_Component {
     $data = array(
       'title'           => 'Клиенты',
       'client_params'   => $this->clients_model->get_client_params(0,0,array('active' => 1)),
+      'error'           => $error,
       'items'           => $items,
       'pagination'      => $this->load->view('templates/pagination', $pagination_data, true),
       'quick_form' => $this->view->render_form(array(
@@ -140,7 +150,7 @@ class Clients_admin extends CI_Component {
                 'name'      => 'title',
                 'value'     => $get_params['title'],
                 'component' => $this->params['name'],
-                'method'    => 'client_search',
+                'method'    => '_client_search',
                 'maxlength' => 256
               ),
               array(
@@ -241,7 +251,7 @@ class Clients_admin extends CI_Component {
 
   }
 
-  function render_clients_report_table($data){
+  function _render_clients_report_table($data){
     $data = unserialize(base64_decode($data));
     return $this->load->view('../../application/components/clients/templates/admin_report_table',$data,true);
   }
@@ -311,7 +321,7 @@ class Clients_admin extends CI_Component {
   /**
   *  Просмотр списка клиентов
   */
-  function clients_list($page = 1) {
+  function _clients_list($page = 1) {
     $where = array();
     $title = ($this->uri->getParam('title') ? mysql_prepare($this->uri->getParam('title')) : '');
     if($title){
@@ -351,7 +361,7 @@ class Clients_admin extends CI_Component {
   /**
   *  Поиск клиентов
   */
-  function client_search() {
+  function _client_search() {
     $where = array();
     $title = $this->input->post('search_string');
     if($title){
@@ -412,7 +422,7 @@ class Clients_admin extends CI_Component {
                 'title'       => 'Название:',
                 'name'        => 'title',
                 'component'   => $this->params['name'],
-                'method'      => 'client_search',
+                'method'      => '_client_search',
                 'placeholder' => ' ',
                 'maxlength'   => 256
               ),
@@ -437,13 +447,6 @@ class Clients_admin extends CI_Component {
                 'options'     => $this->administrators_model->get_admins(),
                 'value'       => $this->admin_id,
                 'empty'       => true
-              ),
-              array(
-                'view'    => 'fields/hidden',
-                'title'   => 'Вкл./Выкл.',
-                'name'    => 'active',
-                'checked' => 1,
-                'value'   => 1
               ),
               array(
                 'view'     => 'fields/submit',
@@ -556,7 +559,7 @@ class Clients_admin extends CI_Component {
       'email'       => htmlspecialchars(trim($this->input->post('email'))),
       'city_id'     => (int)$this->input->post('city_id'),
       'admin_id'    => ((int)$this->input->post('admin_id') ? (int)$this->input->post('admin_id') : null),
-      'active'      => ($this->input->post('active') ? 1 : 0),
+      'active'      => 1,
       'order'       => $this->clients_model->get_client_order()
     );    
     $languages = $this->languages_model->get_languages(1, 0);
@@ -741,13 +744,6 @@ class Clients_admin extends CI_Component {
                 'empty'       => true
               ),
               array(
-                'view'    => 'fields/hidden',
-                'title'   => 'Вкл./Выкл.',
-                'checked' => $item['active'],
-                'value'   => $item['active'],
-                'name'    => 'active'
-              ),
-              array(
                 'view'     => 'fields/submit',
                 'title'    => 'Сохранить',
                 'type'     => 'ajax',
@@ -907,7 +903,7 @@ class Clients_admin extends CI_Component {
       'email'     => htmlspecialchars(trim($this->input->post('email'))),
       'city_id'   => (int)$this->input->post('city_id'),
       'admin_id'  => ((int)$this->input->post('admin_id') ? (int)$this->input->post('admin_id') : null),
-      'active'    => ($this->input->post('active') ? 1 : 0)
+      'active'    => 1
     );
     $city = $this->cities_model->get_city(array('id' => $params['city_id']));
     if(!$city){
@@ -1056,24 +1052,6 @@ class Clients_admin extends CI_Component {
   }
 
   /**
-   *  Включение клиента
-   * @param $id - id вложения
-   */   
-  function enable_client($id) {
-    $this->clients_model->update_client((int)$id, array('active' => 1));
-    header('Location: '. $this->lang_prefix .'/admin'. $this->params['path'].'clients_list/');
-  }
-
-  /**
-   *  Выключение клиента
-   * @param $id - id вложения
-   */     
-  function disable_client($id) {
-    $this->clients_model->update_client((int)$id, array('active' => 0));
-    header('Location: '. $this->lang_prefix .'/admin'. $this->params['path'].'clients_list/');
-  }
-
-  /**
    * Удаление клиента
   **/
   function delete_client($id) {
@@ -1136,12 +1114,6 @@ class Clients_admin extends CI_Component {
                 'maxlength' => 256
               ),
               array(
-                'view'    => 'fields/checkbox',
-                'title'   => 'Вкл./Выкл.',
-                'name'    => 'active',
-                'checked' => 1
-              ),
-              array(
                 'view'     => 'fields/submit',
                 'title'    => 'Создать',
                 'type'     => 'ajax',
@@ -1158,7 +1130,7 @@ class Clients_admin extends CI_Component {
   function _create_client_param_process() {    
     $params = array(
       'title'       => htmlspecialchars(trim($this->input->post('title'))),
-      'active'      => ($this->input->post('active') ? 1 : 0)
+      'active'      => 1
     );
     $params['order'] = $this->clients_model->get_client_param_order();
 
@@ -1200,12 +1172,6 @@ class Clients_admin extends CI_Component {
                 'maxlength' => 256
               ),
               array(
-                'view'    => 'fields/checkbox',
-                'title'   => 'Вкл./Выкл.',
-                'checked' => $item['active'],
-                'name'    => 'active'
-              ),
-              array(
                 'view'     => 'fields/submit',
                 'title'    => 'Сохранить',
                 'type'     => 'ajax',
@@ -1222,7 +1188,7 @@ class Clients_admin extends CI_Component {
   function _edit_client_param_process($id) {    
     $params = array(
       'title'     => htmlspecialchars(trim($this->input->post('title'))),
-      'active'    => ($this->input->post('active') ? 1 : 0)
+      'active'    => 1
     );
 
     $errors = $this->_validate_client_param($params);
@@ -1241,24 +1207,6 @@ class Clients_admin extends CI_Component {
     $errors = array();
     if (!$params['title']) { $errors['title'] = 'Не указано название'; }
     return $errors;
-  }
-
-  /**
-   *  Включение параметра таблицы клиента
-   * @param $id - id вложения
-   */   
-  function enable_client_param($id) {
-    $this->clients_model->update_client_param((int)$id, array('active' => 1));
-    header('Location: '. $this->lang_prefix .'/admin'. $this->params['path'].'client_params/');
-  }
-
-  /**
-   *  Выключение параметра таблицы клиента
-   * @param $id - id вложения
-   */     
-  function disable_client_param($id) {
-    $this->clients_model->update_client_param((int)$id, array('active' => 0));
-    header('Location: '. $this->lang_prefix .'/admin'. $this->params['path'].'client_params/');
   }
 
   /**
@@ -1411,7 +1359,7 @@ class Clients_admin extends CI_Component {
       'search_title'    => '',
       'parent_id'       => $parent_id,
       'component_item'  => array('name' => 'product', 'title' => ''),
-      'move_path'       => '/admin/clients/move_product/',
+      'move_path'       => '/admin/clients/_move_product/',
       'items'           => $this->clients_model->get_products(array('parent_id' => $parent_id)),
       'back'            => $this->lang_prefix .'/admin'. $this->params['path'],
     ));
@@ -1558,7 +1506,7 @@ class Clients_admin extends CI_Component {
   /**
    * Перемещение товара
   **/
-  function move_product() {
+  function _move_product() {
     $item_id = (int)str_replace('item-', '', $this->input->post('page'));
     $item = $this->clients_model->get_product(array('id'=>(int)$item_id));
     
@@ -1579,24 +1527,6 @@ class Clients_admin extends CI_Component {
     }
     
     send_answer();
-  }
-
-  /**
-   *  Включение товара
-   * @param $id - id товара
-   */
-  function enable_product($id) {
-    $this->clients_model->update_product((int)$id, array('active' => 1));
-    header('Location: '.$_SERVER['HTTP_REFERER']);
-  }
-
-  /**
-   *  Выключение товара
-   * @param $id - id товара
-   */      
-  function disable_product($id) {
-    $this->clients_model->update_product((int)$id, array('active' => 0));
-    header('Location: '.$_SERVER['HTTP_REFERER']);
   }
 
   /**
@@ -1725,7 +1655,7 @@ class Clients_admin extends CI_Component {
     }
   }
 
-  function render_client_acceptances_table($data){
+  function _render_client_acceptances_table($data){
     $data = unserialize(base64_decode($data));
     $type_report = ($data['get_params']['type_report'] == 'short' ? 'short' : 'long');
     return $this->load->view('../../application/components/clients/templates/admin_client_acceptances_tbl_'.$type_report,$data,true);
@@ -1744,44 +1674,20 @@ class Clients_admin extends CI_Component {
     );
     return $this->render_template('admin/inner', $data);
   }
-
-  /**
-  *  Поиск клиентов по актам приемки
-  */
-  function client_search_acceptances($location=true) {
-    $where = array();
-    $title = $this->input->post('search_string');
-    if($title){
-      $where['title LIKE'] = $title.'%';
-    }
-    $limit = 20;
-    $offset = 0;
-    $items = $this->clients_model->get_clients($limit, $offset, $where);
-    $result = array('items'=>array());
-    foreach ($items as $key => $item) {
-      $result['items'][] = array(
-        'id'        => $item['id'],
-        'title'     => $item['title'],
-        'location'  => '/admin'.$this->params['path'].'acceptances/?client_id='.$item['id'],
-      );
-    }
-
-    echo json_encode($result);
-  }
    
   /**
   * Формирует блок с вторсырьем
   * для формы акта приемки
   * $return_type - тип данных в результате
   */ 
-  function renderProductsFields($return_type = 'array',$items = array()) {
+  function _renderProductsFields($return_type = 'array',$items = array()) {
     $result = array();
     if ($items) {
       foreach ($items as $key => $item) {
-        $result[] = $this->renderProductsField(($key==0?true:false), $item);
+        $result[] = $this->_renderProductsField(($key==0?true:false), $item);
       }
     } else {
-      $result[] = $this->renderProductsField(($return_type=='array'?true:false));
+      $result[] = $this->_renderProductsField(($return_type=='array'?true:false));
     }
     $result[] = array(
       'title'   => '',
@@ -1820,7 +1726,7 @@ class Clients_admin extends CI_Component {
   * $label - указывает нади ли формировать заголовик
   * $item - массив с данными по вторсырью
   */ 
-  function renderProductsField($label = true, $item = array()) {
+  function _renderProductsField($label = true, $item = array()) {
     return array(
       'title'    => ($label ? 'Вторсырье' : ''),
       'collapse' => false,
@@ -1925,7 +1831,7 @@ class Clients_admin extends CI_Component {
   **/  
   function create_acceptance(){
     $client_id = ($this->uri->getParam('client_id') ? mysql_prepare($this->uri->getParam('client_id')) : 0);
-    $productsFields = $this->renderProductsFields();
+    $productsFields = $this->_renderProductsFields();
     $blocks = array(array(
       'title'   => 'Основные параметры',
       'fields'   => array(
@@ -2080,7 +1986,7 @@ class Clients_admin extends CI_Component {
     if(!$item){
       show_error('Объект не найден');
     }
-    $productsFields = $this->renderProductsFields('array',$item['childs']);
+    $productsFields = $this->_renderProductsFields('array',$item['childs']);
     $blocks = array(array(
       'title'   => 'Основные параметры',
       'fields'   => array(
@@ -2265,6 +2171,9 @@ class Clients_admin extends CI_Component {
   */
   function client_acceptance_email($id) {
     $item = $this->clients_model->get_acceptance(array('client_acceptances.id'=>$id));
+    if($item['client_id']){
+      $item['email'] = $item['client']['email'];
+    }
     if(!$item){
       show_error('Объект не найден');
     }
@@ -2317,24 +2226,6 @@ class Clients_admin extends CI_Component {
     }
 
     send_answer(array('messages' => array('Сообщение успешно отправлено')));
-  }
-
-  /**
-   *  Включение акта приемки
-   * @param $id - id вложения
-   */   
-  function enable_acceptance($id) {
-    $this->clients_model->update_acceptance((int)$id, array('active' => 1));
-    header('Location: '.$_SERVER['HTTP_REFERER']);
-  }
-
-  /**
-   *  Выключение акта приемки
-   * @param $id - id вложения
-   */     
-  function disable_acceptance($id) {
-    $this->clients_model->update_acceptance((int)$id, array('active' => 0));
-    header('Location: '.$_SERVER['HTTP_REFERER']);
   }
 
   /**
