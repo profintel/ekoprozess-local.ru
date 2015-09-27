@@ -13,6 +13,7 @@
         <th width="20%">Поставщик</th>
         <th>Брутто, кг</th>
         <th>Нетто, кг</th>
+        <th>Засор, %</th>
         <th>Вид вторсырья</th>
         <th>Цена, руб.</th>
         <th>Стоимость, руб.</th>
@@ -95,6 +96,9 @@
           <td>
             <span class="text-nowrap"><?=number_format(@$item['childs'][0]['net'],2,'.',' ');?></span>
           </td>
+          <td>
+            <span class="text-nowrap"><?=number_format(@$item['childs'][0]['weight_defect'],2,'.',' ');?></span>
+          </td>
           <td><?=@$item['childs'][0]['product']['title_full'];?></td>
           <td>
             <span class="text-nowrap"><?=number_format(@$item['childs'][0]['price'],2,'.',' ');?></span>
@@ -114,6 +118,9 @@
             </td>
             <td>
               <span class="text-nowrap"><?=number_format($child['net'],2,'.',' ');?></span>
+            </td>
+            <td>
+              <span class="text-nowrap"><?=number_format($child['weight_defect'],2,'.',' ');?></span>
             </td>
             <td><?=$child['product']['title_full'];?></td>
             <td>
@@ -145,6 +152,7 @@
         </th>
         <th></th>
         <th></th>
+        <th></th>
         <th>
           <span class="text-nowrap"><?=number_format($all_price,2,'.',' ');?></span>
         </th>
@@ -153,7 +161,7 @@
         </th>
       </tr>
       <tr>
-        <td colspan="6" class="text-right"><span class="h4">ИТОГО</span></td>
+        <td colspan="7" class="text-right"><span class="h4">ИТОГО</span></td>
         <td colspan="2" class="text-center">
           <span class="h4"><?=number_format($all_sum,2,'.',' ');?></span>
         </td>
