@@ -383,8 +383,8 @@ class Clients_admin extends CI_Component {
   }
   
   /**
-   *  Создание клиента
-  **/  
+  *  Создание карточки своего клиента
+  */  
   function create_client() {
     $languages = $this->languages_model->get_languages(1, 0);
     //Дополнительные параметры
@@ -553,6 +553,12 @@ class Clients_admin extends CI_Component {
     ), TRUE);
   }
   
+  /**
+  *  Создание карточки клиента для других менеджеров
+  * (используется для проверки прав)
+  */  
+  function checkCreateCardOtherClients(){}
+  
   function _create_client_process() {    
     $params = array(
       'title'       => htmlspecialchars(trim($this->input->post('title'))),
@@ -564,6 +570,12 @@ class Clients_admin extends CI_Component {
     );    
     $languages = $this->languages_model->get_languages(1, 0);
     
+    //если указан не текущий менеджер,
+    //то проверяем на доступ к прикреплению других менеджеров
+    if($params['admin_id'] != $this->admin_id && !$this->permits_model->check_access($this->admin_id, $this->component['name'], $method = 'checkCreateCardOtherClients')){
+      send_answer(array('errors' => array('У вас нет прав на прикрепление клиентам других менеджеров')));
+    }
+
     $client_params = $this->clients_model->get_client_params();
     //значения по дополнительным параметрам клиента
     $client_multiparams = array();
@@ -620,12 +632,18 @@ class Clients_admin extends CI_Component {
   }
   
   /**
-   *  Редактирование клиента
+   *  Редактирование карточки своего клиента
   **/  
   function edit_client($id) {
     $item = $this->clients_model->get_client(array('id'=>$id));
     if(!$item){
       show_error('Объект не найден');
+    }
+
+    //если клиент не текущего менеджера,
+    //то проверяем на доступ
+    if($item['admin_id'] != $this->admin_id && !$this->permits_model->check_access($this->admin_id, $this->component['name'], $method = 'checkEditCardOtherClients')){
+      show_error('У вас нет прав на просмотр карточки клиента других менеджеров');
     }
 
     $languages = $this->languages_model->get_languages(1, 0);
@@ -896,6 +914,12 @@ class Clients_admin extends CI_Component {
       'back' => $this->lang_prefix .'/admin'. $this->params['path'].'clients_report/'
     ), TRUE);
   }
+
+  /**
+  *  Редактирование карточки клиента других менеджеров
+  * (используется для проверки прав)
+  */  
+  function checkEditCardOtherClients(){}
   
   function _edit_client_process($id) {    
     $params = array(
@@ -908,6 +932,11 @@ class Clients_admin extends CI_Component {
     $city = $this->cities_model->get_city(array('id' => $params['city_id']));
     if(!$city){
       send_answer(array('errors' => array('Не найден город')));
+    }
+    //если указан не текущий менеджер,
+    //то проверяем на доступ к прикреплению других менеджеров
+    if($params['admin_id'] != $this->admin_id && !$this->permits_model->check_access($this->admin_id, $this->component['name'], $method = 'checkCreateCardOtherClients')){
+      send_answer(array('errors' => array('У вас нет прав на прикрепление клиентам других менеджеров')));
     }
     $params['title_full'] = $city['title_full'].' '.$params['title'];
     $languages = $this->languages_model->get_languages(1, 0);

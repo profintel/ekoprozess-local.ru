@@ -218,7 +218,7 @@ function submit_form(context, reaction, uri_postfix, data_type) {
   var form = $(context).parents('form');
   var path = form.attr('action');
 
-  form.children('.form-error').text("");
+  form.children('.form-error').text("").removeClass('alert alert-danger');
   form.find('.has-error').removeClass('has-error');
   form.find('.error').remove();
   
