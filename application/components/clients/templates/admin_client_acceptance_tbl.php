@@ -24,7 +24,7 @@
     </tr>
     <tr>
       <th align="left">Дата и время прибытия</th>
-      <td><?=date('d.m.Y г. H-i ',strtotime($item['date_time']));?></td>
+      <td><?=($item['date_time'] ? date('d.m.Y г. H-i ',strtotime($item['date_time'])) : '');?></td>
     </tr>
     <tr>
       <th align="left">Вес груза брутто, кг</th>

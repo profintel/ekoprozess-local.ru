@@ -28,6 +28,8 @@
       <?=(isset($vars['value']) ? "value='". stripslashes($vars['value']) ."'" : '');?>
       <?=(isset($vars['autofocus']) && $vars['autofocus'] ? 'autofocus="autofocus"' : '');?>
       <?=(isset($vars['disabled']) && $vars['disabled'] ? 'disabled="disabled"' : '');?>
+      <?=(isset($vars['onkeyup']) && $vars['onkeyup'] ? 'onkeyup="'.$vars['onkeyup'].'"' : '');?>
+      <?=(isset($vars['onchange']) && $vars['onchange'] ? 'onchange="'.$vars['onchange'].'"' : '');?>
     />
   </div>
 </div>

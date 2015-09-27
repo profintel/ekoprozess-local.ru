@@ -1035,9 +1035,9 @@ class Clients_admin extends CI_Component {
     $errors = array();
     if (!$params['title']) { $errors['title'] = 'Не указано название'; }
     if (!$params['city_id']) { $errors['city_id'] = 'Не указан город'; }
-    if ($params['email'] && !preg_match('/^[-0-9a-z_\.]+@[-0-9a-z^\.]+\.[a-z]{2,4}$/i', $params['email'])) { 
-      $errors['email'] = 'Некорректный Email'; 
-    }
+    // if ($params['email'] && !preg_match('/^[-0-9a-z_\.]+@[-0-9a-z^\.]+\.[a-z]{2,4}$/i', $params['email'])) { 
+    //   $errors['email'] = 'Некорректный Email'; 
+    // }
     return $errors;
   }
   
@@ -1618,9 +1618,10 @@ class Clients_admin extends CI_Component {
     $where = array('parent_id'=>null);
     $error = '';
     $get_params = array(
-      'date_start' => ($this->uri->getParam('date_start') ? date('Y-m-d',strtotime($this->uri->getParam('date_start'))) : date('Y-m-1')),
-      'date_end' => ($this->uri->getParam('date_end') ? date('Y-m-d',strtotime($this->uri->getParam('date_end'))) : ''),
-      'client_id'  => ($this->uri->getParam('client_id') ? mysql_prepare($this->uri->getParam('client_id')) : ''),
+      'date_start'  => ($this->uri->getParam('date_start') ? date('Y-m-d',strtotime($this->uri->getParam('date_start'))) : date('Y-m-1')),
+      'date_end'    => ($this->uri->getParam('date_end') ? date('Y-m-d',strtotime($this->uri->getParam('date_end'))) : ''),
+      'client_id'   => ($this->uri->getParam('client_id') ? mysql_prepare($this->uri->getParam('client_id')) : ''),
+      'type_report' => ($this->uri->getParam('type_report') == 'short' ? 'short' : 'long'),
     );
     if($get_params['date_start']){
       $where['date >='] = $get_params['date_start'];
@@ -1650,9 +1651,9 @@ class Clients_admin extends CI_Component {
     $items = $this->clients_model->get_acceptances($limit, $offset, $where);
     $data = array(
       'title' => 'Акты приемки',
-      'items' => $items,
       'component_item'  => array('name' => 'acceptance', 'title' => 'акт приемки'),
       'items'           => $items,
+      'get_params'      => $get_params,
       'pagination'      => $this->load->view('templates/pagination', $pagination_data, true),
       'form' => $this->view->render_form(array(
         'method' => 'GET',
@@ -1662,6 +1663,23 @@ class Clients_admin extends CI_Component {
           array(
             'title'         => 'Параметры отчета',
             'fields'   => array(
+              array(
+                'view'    => 'fields/select',
+                'title'   => 'Вид отчета:',
+                'name'    => 'type_report',
+                'value'   => $get_params['type_report'],
+                'options' => array(
+                  array(
+                    'id'    => 'short',
+                    'title' => 'Свернутый',
+                  ),
+                  array(
+                    'id'    => 'long',
+                    'title' => 'Расширенный',
+                  )
+                ),
+                'onchange' => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+              ),
               array(
                 'view'        => 'fields/datetime',
                 'title'       => 'Дата приемки (от):',
@@ -1674,15 +1692,16 @@ class Clients_admin extends CI_Component {
                 'title'       => 'Дата приемки (до):',
                 'name'        => 'date_end',
                 'value'       => ($get_params['date_end']? date('d.m.Y',strtotime($get_params['date_end'])) : ''),
-                'onchange'    => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+                'onchange1'    => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
               ),
               array(
-                'view'    => 'fields/select',
-                'title'   => 'Поставщик:',
-                'name'    => 'client_id',
-                'value'   => $get_params['client_id'],
-                'options' => $this->clients_model->get_clients(),
-                'empty'   => true
+                'view'     => 'fields/select',
+                'title'    => 'Поставщик:',
+                'name'     => 'client_id',
+                'value'    => $get_params['client_id'],
+                'options'  => $this->clients_model->get_clients(),
+                'empty'    => true,
+                'onchange1' => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
               ),
               array(
                 'view'          => 'fields/submit',
@@ -1700,7 +1719,7 @@ class Clients_admin extends CI_Component {
     );
 
     if($this->uri->getParam('ajax') == 1){
-      echo $this->load->view('../../application/components/clients/templates/admin_client_acceptances_tbl',$data,true);
+      echo $this->load->view('../../application/components/clients/templates/admin_client_acceptances_tbl_'.$get_params['type_report'],$data,true);
     } else {
       return $this->render_template('templates/admin_client_acceptances', $data);
     }
@@ -1708,7 +1727,8 @@ class Clients_admin extends CI_Component {
 
   function render_client_acceptances_table($data){
     $data = unserialize(base64_decode($data));
-    return $this->load->view('../../application/components/clients/templates/admin_client_acceptances_tbl',$data,true);
+    $type_report = ($data['get_params']['type_report'] == 'short' ? 'short' : 'long');
+    return $this->load->view('../../application/components/clients/templates/admin_client_acceptances_tbl_'.$type_report,$data,true);
   }
 
   /**
@@ -2003,7 +2023,7 @@ class Clients_admin extends CI_Component {
       'transport'     => htmlspecialchars(trim($this->input->post('transport'))),
       'client_id'     => ((int)$this->input->post('client_id') ? (int)$this->input->post('client_id') : NULL),
       'company'       => htmlspecialchars(trim($this->input->post('company'))),
-      'date_time'     => ($this->input->post('date_time') != '00.00.0000 00:00:00' ? date('Y-m-d H:i:s', strtotime($this->input->post('date_time'))) : NULL),
+      'date_time'     => ($this->input->post('date_time') ? date('Y-m-d H:i:s', strtotime($this->input->post('date_time'))) : NULL),
       'add_expenses'  => (float)str_replace(' ', '', $this->input->post('add_expenses')),
     );
 
@@ -2170,7 +2190,7 @@ class Clients_admin extends CI_Component {
     ), TRUE);
   }
   
-  function _edit_acceptance_process($id) {    
+  function _edit_acceptance_process($id) {
     $params = array(
       'date'          => ($this->input->post('date') ? date('Y-m-d', strtotime($this->input->post('date'))) : NULL),
       'date_num'      => htmlspecialchars(trim($this->input->post('date_num'))),

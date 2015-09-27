@@ -336,12 +336,15 @@ class Clients_model extends CI_Model {
       if(is_null($item['parent_id'])){
         $item['childs'] = $this->get_acceptances(0,0,array('parent_id'=>$item['id']));
         $item['gross'] = $item['net'] = $item['price'] = $item['sum'] = 0;
-        foreach ($item['childs'] as $key => $child) {
+        foreach ($item['childs'] as $key => &$child) {
+          $child['product'] = $this->get_product(array('id' => $child['product_id']));
+          $child['sum'] = $child['price']*$child['net'];
           $item['gross'] += $child['gross'];
           $item['net'] += $child['net'];
           $item['price'] += ($child['price']*$child['net']);
           $item['sum'] = $item['price']-$item['add_expenses'];
         }
+        unset($child);
       }
     }
     unset($item);
