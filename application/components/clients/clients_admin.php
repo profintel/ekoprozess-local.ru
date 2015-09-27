@@ -1685,7 +1685,7 @@ class Clients_admin extends CI_Component {
                 'title'       => 'Дата приемки (от):',
                 'name'        => 'date_start',
                 'value'       => ($get_params['date_start']? date('d.m.Y',strtotime($get_params['date_start'])) : ''),
-                'onchange'    => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+                'onchange1'    => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
               ),
               array(
                 'view'        => 'fields/datetime',
