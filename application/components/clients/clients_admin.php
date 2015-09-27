@@ -1701,7 +1701,7 @@ class Clients_admin extends CI_Component {
                 'value'    => $get_params['client_id'],
                 'options'  => $this->clients_model->get_clients(),
                 'empty'    => true,
-                'onchange1' => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+                'onchange' => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
               ),
               array(
                 'view'          => 'fields/submit',
