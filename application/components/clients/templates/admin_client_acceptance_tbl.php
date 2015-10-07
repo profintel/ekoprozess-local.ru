@@ -6,6 +6,12 @@
     $gross+=$child['gross'];
   }
 ?>
+<div class="well-sm text-right">
+  <a href="javascript:void(0)" onclick="window.print();" class="btn btn-primary btn-xs hidden-print">
+    <span class="glyphicon glyphicon-print"></span> 
+    Печать
+  </a>
+</div>
 <div style="background-color:#ffffff; padding:20px;">
   <h3 style="text-align:center;">Акт приемки</h3>
   <h4 style="text-align:right;"><?=rus_date($item['date'],'d m Y г.');?></h4>

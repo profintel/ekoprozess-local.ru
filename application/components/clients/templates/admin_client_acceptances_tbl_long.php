@@ -167,6 +167,7 @@
         </td>
       </tr>
     </table>
+    <?=(isset($pagination) && $pagination ? $pagination : '');?>
   <? } else { ?>
     <div class="alert alert-warning">
       <h2>Акты приемки не найдены</h2>

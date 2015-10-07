@@ -91,11 +91,6 @@ a.glyphicon:focus{
   margin: 0 0 0 220px;
   position: inherit;
 }
-@media print {
-  #page-wrapper {
-    margin: 0;
-  }
-}
 
 .navbar-default .navbar-nav > .active > a,
 .navbar-default .navbar-nav > .active > a:focus,
@@ -583,5 +578,11 @@ div.quick_form_input+div{
   }
   .hidden-lg {
     display: block !important;
+  }
+}
+
+@media print {
+  #page-wrapper {
+    margin: 0;
   }
 }

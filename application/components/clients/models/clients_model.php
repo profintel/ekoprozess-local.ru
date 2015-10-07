@@ -307,8 +307,12 @@ class Clients_model extends CI_Model {
   }
 
   /***Акты приемки***/
-  function get_acceptances($limit = 0, $offset = 0, $where = array(), $order_by = array()) {
+  function get_acceptances($limit = 0, $offset = 0, $where = array(), $order_by = array(), $product_id = 0) {
     $this->db->select('client_acceptances.*');
+    if ($product_id) {
+      $this->db->join('client_acceptances t2','t2.parent_id = client_acceptances.id');
+      $this->db->where(array('t2.product_id'=>$product_id));
+    }
     if ($limit) {
       $this->db->limit($limit, $offset);
     }
@@ -334,7 +338,11 @@ class Clients_model extends CI_Model {
       }
       //считаем общие параметры
       if(is_null($item['parent_id'])){
-        $item['childs'] = $this->get_acceptances(0,0,array('parent_id'=>$item['id']));
+        $where = array('parent_id'=>$item['id']);
+        if ($product_id) {
+          $where['client_acceptances.product_id'] = $product_id;
+        }
+        $item['childs'] = $this->get_acceptances(0,0,$where);
         $item['gross'] = $item['net'] = $item['price'] = $item['sum'] = 0;
         foreach ($item['childs'] as $key => &$child) {
           $child['product'] = $this->get_product(array('id' => $child['product_id']));
@@ -352,9 +360,13 @@ class Clients_model extends CI_Model {
     return $items;
   }
   
-  function get_acceptances_cnt($where = '') {
+  function get_acceptances_cnt($where = '', $product_id = 0) {
     if ($where) {
       $this->db->where($where);
+    }
+    if ($product_id) {
+      $this->db->join('client_acceptances t2','t2.parent_id = client_acceptances.id');
+      $this->db->where(array('t2.product_id'=>$product_id));
     }
     return $this->db->count_all_results('client_acceptances');
   }

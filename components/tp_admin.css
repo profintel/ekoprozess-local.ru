@@ -1,4 +1,4 @@
-/* Generated 27.09.2015 23:48:36 */
+/* Generated 07.10.2015 22:53:02 */
 
 /* components */
 
@@ -405,11 +405,6 @@ a.glyphicon:focus{
 #page-wrapper {
   margin: 0 0 0 220px;
   position: inherit;
-}
-@media print {
-  #page-wrapper {
-    margin: 0;
-  }
 }
 
 .navbar-default .navbar-nav > .active > a,
@@ -898,5 +893,11 @@ div.quick_form_input+div{
   }
   .hidden-lg {
     display: block !important;
+  }
+}
+
+@media print {
+  #page-wrapper {
+    margin: 0;
   }
 }

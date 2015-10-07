@@ -260,7 +260,7 @@ class Clients_admin extends CI_Component {
   * Формирует html select-ов для отчета
   * return json
   */
-  function renderSelectsReport() {
+  function _renderSelectsReport() {
     $result = array();
     $type = $this->input->post('type');
     $id = ((int)$this->input->post('id') ? (int)$this->input->post('id') : 0);
@@ -1574,27 +1574,28 @@ class Clients_admin extends CI_Component {
   *
   */
   function acceptances() {
-    $where = array('parent_id'=>null);
+    $where = array('client_acceptances.parent_id'=>null);
     $error = '';
     $get_params = array(
       'date_start'  => ($this->uri->getParam('date_start') ? date('Y-m-d',strtotime($this->uri->getParam('date_start'))) : date('Y-m-1')),
       'date_end'    => ($this->uri->getParam('date_end') ? date('Y-m-d',strtotime($this->uri->getParam('date_end'))) : ''),
       'client_id'   => ($this->uri->getParam('client_id') ? mysql_prepare($this->uri->getParam('client_id')) : ''),
       'type_report' => ($this->uri->getParam('type_report') == 'short' ? 'short' : 'long'),
+      'product_id'  => ($this->uri->getParam('product_id') ? (int)$this->uri->getParam('product_id') : ''),
     );
     if($get_params['date_start']){
-      $where['date >='] = $get_params['date_start'];
+      $where['client_acceptances.date >='] = $get_params['date_start'];
     }
     if($get_params['date_end']){
-      $where['date <='] = $get_params['date_end'];
+      $where['client_acceptances.date <='] = $get_params['date_end'];
     }
     if($get_params['client_id']){
-      $where['client_id'] = $get_params['client_id'];
+      $where['client_acceptances.client_id'] = $get_params['client_id'];
     }
     $page = ($this->uri->getParam('page') ? $this->uri->getParam('page') : 1);
     $limit = 100;
     $offset = $limit * ($page - 1);
-    $cnt = $this->clients_model->get_acceptances_cnt($where);
+    $cnt = $this->clients_model->get_acceptances_cnt($where, $get_params['product_id']);
     $pages = get_pages($page, $cnt, $limit);
     $postfix = '&';
     foreach ($get_params as $key => $value) {
@@ -1607,7 +1608,7 @@ class Clients_admin extends CI_Component {
       'prefix' => '/admin'.$this->params['path'].'acceptances/',
       'postfix' => $postfix
     );
-    $items = $this->clients_model->get_acceptances($limit, $offset, $where);
+    $items = $this->clients_model->get_acceptances($limit, $offset, $where, false, $get_params['product_id']);
     $data = array(
       'title' => 'Акты приемки',
       'component_item'  => array('name' => 'acceptance', 'title' => 'акт приемки'),
@@ -1660,6 +1661,16 @@ class Clients_admin extends CI_Component {
                 'value'    => $get_params['client_id'],
                 'options'  => $this->clients_model->get_clients(),
                 'empty'    => true,
+                'onchange' => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+              ),
+              array(
+                'view'     => 'fields/select',
+                'title'    => 'Вид вторсырья:',
+                'name'     => 'product_id',
+                'empty'    => true,
+                'optgroup' => true,
+                'options'  => $this->clients_model->get_products(array('parent_id' => null)),
+                'value'    => $get_params['product_id'],
                 'onchange' => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
               ),
               array(
@@ -2004,7 +2015,7 @@ class Clients_admin extends CI_Component {
       }
     }
 
-    send_answer();
+    send_answer(array('redirect' => '/admin'.$this->params['path'].'acceptance/'.$id.'/'));
   }
   
   /**

@@ -1,4 +1,4 @@
-<div class="block-title row">
+<div class="block-title row hidden-print">
   <div class="col-sm-9">
     <h1><span class="glyphicon <?=($this->component['icon']?$this->component['icon']:'glyphicon-ok');?>"></span>
       <?=(@$data['title'] ? $data['title'] : $this->component['title']);?>
@@ -13,9 +13,9 @@
 </div>
 
 <div class="container-fluid">
-  <a class="btn btn-default btn-xs " href="<?=(isset($back) ? $back : $_lang_prefix .'/admin'. $_component['path']);?>"><span class="glyphicon glyphicon-backward"></span> Назад</a><br/><br/>
+  <a class="btn btn-default btn-xs hidden-print" href="<?=(isset($back) ? $back : $_lang_prefix .'/admin'. $_component['path']);?>"><span class="glyphicon glyphicon-backward"></span> Назад</a><br/><br/>
 
   <?=$html;?>
 
-  <a class="btn btn-default btn-xs " href="<?=(isset($back) ? $back : $_lang_prefix .'/admin'. $_component['path']);?>"><span class="glyphicon glyphicon-backward"></span> Назад</a>
+  <a class="btn btn-default btn-xs hidden-print" href="<?=(isset($back) ? $back : $_lang_prefix .'/admin'. $_component['path']);?>"><span class="glyphicon glyphicon-backward"></span> Назад</a>
 </div>

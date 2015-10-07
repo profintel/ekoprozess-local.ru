@@ -49,7 +49,7 @@ function changeRegion(el,type){
   $('#city_id').parents('.form-group').addClass('loading');
   //id федерального округа
   var html, id = $(el).val();
-  $.post('/admin/clients/renderSelectsReport/', {type:type, id: id}, function(result) {
+  $.post('/admin/clients/_renderSelectsReport/', {type:type, id: id}, function(result) {
     if(type == 'country'){
       //регионы
       html = $(result.federal_regions).find('.col-sm-10').html();
@@ -87,7 +87,7 @@ function changeRegion(el,type){
 * добавляет в форму блок с вторсырьем
 */
 function renderFieldsProducts(obj){
-  $.post('/admin/clients/renderProductsFields/html/', {}, function(result) {
+  $.post('/admin/clients/_renderProductsFields/html/', {}, function(result) {
     //отображаем результат
     result = $.parseHTML(result);
     result = $(result).find('.form_block');
