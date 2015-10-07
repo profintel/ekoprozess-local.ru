@@ -2070,12 +2070,12 @@ class Clients_admin extends CI_Component {
           'name'  => 'date_time',
           'value' => ($item['date_time'] ? date('d.m.Y H:i:s', strtotime($item['date_time'])) : '')
         ),
-        array(
-          'view'     => 'fields/submit',
-          'title'    => 'Сохранить',
-          'type'     => 'ajax',
-          'reaction' => 'reload'
-        )
+        // array(
+        //   'view'     => 'fields/submit',
+        //   'title'    => 'Сохранить',
+        //   'type'     => 'ajax',
+        //   'reaction' => 'reload'
+        // )
       )
     ));
     $all_sum = 0;
@@ -2122,6 +2122,12 @@ class Clients_admin extends CI_Component {
           'title'    => 'Сохранить',
           'type'     => 'ajax',
           'reaction' => 'reload'
+        ),
+        array(
+          'view'     => 'fields/submit',
+          'title'    => 'Сохранить и просмотреть',
+          'type'     => 'ajax',
+          'reaction' => '/admin'.$this->params['path'].'acceptance/'.$id.'/'
         )
       )
     );

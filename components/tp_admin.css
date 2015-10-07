@@ -1,4 +1,4 @@
-/* Generated 07.10.2015 22:53:02 */
+/* Generated 07.10.2015 23:39:10 */
 
 /* components */
 
@@ -635,6 +635,9 @@ input[type="file"]{
 }
 .form_block .panel-body{
   padding: 0 15px;
+}
+.form_block .btn{
+  margin-left: 10px;
 }
 
 /*Форма товаров в акте приемки*/

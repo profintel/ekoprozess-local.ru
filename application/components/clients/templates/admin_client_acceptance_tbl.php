@@ -6,8 +6,11 @@
     $gross+=$child['gross'];
   }
 ?>
-<div class="well-sm text-right">
-  <a href="javascript:void(0)" onclick="window.print();" class="btn btn-primary btn-xs hidden-print">
+<div class="well-sm clearfix">
+  <a href="/admin/clients/edit_acceptance/<?=$item['id'];?>/" title="Редактировать" class="btn btn-primary btn-xs hidden-print pull-left">
+    <span class="glyphicon glyphicon-edit"></span> Редактировать
+  </a>
+  <a href="javascript:void(0)" onclick="window.print();" class="btn btn-primary btn-xs hidden-print pull-right">
     <span class="glyphicon glyphicon-print"></span> 
     Печать
   </a>
