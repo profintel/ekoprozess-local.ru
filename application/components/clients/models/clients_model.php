@@ -333,7 +333,7 @@ class Clients_model extends CI_Model {
       if($item['client_id']){
         $item['client'] = $this->get_client(array('id'=>$item['client_id']));
         if($item['client']){
-          $item['client_title'] = $item['client']['title'];
+          $item['client_title'] = $item['client']['title_full'];
         }
       }
       //считаем общие параметры
