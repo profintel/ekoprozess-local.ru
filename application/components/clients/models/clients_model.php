@@ -380,6 +380,9 @@ class Clients_model extends CI_Model {
         $item['client'] = $this->get_client(array('id'=>$item['client_id']));
         if($item['client']){
           $item['client_title'] = $item['client']['title'];
+          if($item['client']['city_id']){
+            $item['city'] = $this->cities_model->get_city(array('id' => $item['client']['city_id']));
+          }
         }
       }
       $item['childs'] = $this->get_acceptances(0,0,array('parent_id'=>$item['id']),array('id'=>'asc'));

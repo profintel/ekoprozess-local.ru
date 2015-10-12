@@ -374,7 +374,7 @@ class Clients_admin extends CI_Component {
     foreach ($items as $key => $item) {
       $result['items'][] = array(
         'id'        => $item['id'],
-        'title'     => $item['title'],
+        'title'     => $item['title_full'],
         'location'  => '/admin'.$this->params['path'].'edit_client/'.$item['id'].'/',
       );
     }
@@ -1655,13 +1655,14 @@ class Clients_admin extends CI_Component {
                 'onchange1'    => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
               ),
               array(
-                'view'     => 'fields/select',
-                'title'    => 'Поставщик:',
-                'name'     => 'client_id',
-                'value'    => $get_params['client_id'],
-                'options'  => $this->clients_model->get_clients(),
-                'empty'    => true,
-                'onchange' => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+                'view'       => 'fields/select',
+                'title'      => 'Поставщик:',
+                'name'       => 'client_id',
+                'text_field' => 'title_full',
+                'value'      => $get_params['client_id'],
+                'options'    => $this->clients_model->get_clients(),
+                'empty'      => true,
+                'onchange'   => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
               ),
               array(
                 'view'     => 'fields/select',
@@ -1701,6 +1702,11 @@ class Clients_admin extends CI_Component {
     return $this->load->view('../../application/components/clients/templates/admin_client_acceptances_tbl_'.$type_report,$data,true);
   }
 
+  function _render_client_acceptance_table($data){
+    $data = unserialize(base64_decode($data));
+    return $this->load->view('../../application/components/clients/templates/admin_client_acceptance_tbl',$data,true);
+  }
+
   /**
   *  Просмотр акта приемки
   *
@@ -1709,7 +1715,7 @@ class Clients_admin extends CI_Component {
     $item = $this->clients_model->get_acceptance(array('client_acceptances.id'=>$id));
     $data = array(
       'title' => 'Акт приемки',
-      'html'  => $this->load->view('../../application/components/clients/templates/admin_client_acceptance_tbl',array('item' => $item),TRUE),
+      'html'  => $this->load->view('../../application/components/clients/templates/admin_client_acceptance',array('item' => $item),TRUE),
       'back'  => $this->lang_prefix .'/admin'. $this->params['path'].'acceptances/'
     );
     return $this->render_template('admin/inner', $data);
@@ -1876,6 +1882,21 @@ class Clients_admin extends CI_Component {
       'title'   => 'Основные параметры',
       'fields'   => array(
         array(
+          'view'      => 'fields/select',
+          'title'     => 'Клиент:',
+          'name'      => 'client_id',
+          'text_field'=> 'title_full',
+          'options'   => $this->clients_model->get_clients(),
+          'value'     => $client_id,
+          'empty'     => true,
+        ),
+        array(
+          'view'        => 'fields/text',
+          'title'       => 'Поставщик:',
+          'description' => 'Укажите в случае, если поставщика нет в базе клиентов',
+          'name'        => 'company',
+        ),
+        array(
           'view'  => 'fields/datetime',
           'title' => 'Дата приемки:',
           'name'  => 'date',
@@ -1890,20 +1911,6 @@ class Clients_admin extends CI_Component {
           'view'  => 'fields/text',
           'title' => 'Транспорт:',
           'name'  => 'transport',
-        ),
-        array(
-          'view'    => 'fields/select',
-          'title'   => 'Клиент:',
-          'name'    => 'client_id',
-          'options' => $this->clients_model->get_clients(),
-          'value'   => $client_id,
-          'empty'   => true,
-        ),
-        array(
-          'view'        => 'fields/text',
-          'title'       => 'Поставщик:',
-          'description' => 'Укажите в случае, если поставщика нет в базе клиентов',
-          'name'        => 'company',
         ),
         array(
           'view'  => 'fields/datetime',
@@ -2031,6 +2038,22 @@ class Clients_admin extends CI_Component {
       'title'   => 'Основные параметры',
       'fields'   => array(
         array(
+          'view'       => 'fields/select',
+          'title'      => 'Клиент:',
+          'name'       => 'client_id',
+          'text_field' => 'title_full',
+          'options'    => $this->clients_model->get_clients(),
+          'value'      => $item['client_id'],
+          'empty'      => true,
+        ),
+        array(
+          'view'        => 'fields/text',
+          'title'       => 'Поставщик:',
+          'description' => 'Укажите в случае, если поставщика нет в базе клиентов',
+          'name'        => 'company',
+          'value'       => $item['company'],
+        ),
+        array(
           'view'  => 'fields/datetime',
           'title' => 'Дата приемки:',
           'name'  => 'date',
@@ -2048,21 +2071,6 @@ class Clients_admin extends CI_Component {
           'title' => 'Транспорт:',
           'name'  => 'transport',
           'value' => $item['transport'],
-        ),
-        array(
-          'view'    => 'fields/select',
-          'title'   => 'Клиент:',
-          'name'    => 'client_id',
-          'options' => $this->clients_model->get_clients(),
-          'value'   => $item['client_id'],
-          'empty'   => true,
-        ),
-        array(
-          'view'        => 'fields/text',
-          'title'       => 'Поставщик:',
-          'description' => 'Укажите в случае, если поставщика нет в базе клиентов',
-          'name'        => 'company',
-          'value'       => $item['company'],
         ),
         array(
           'view'  => 'fields/datetime',
