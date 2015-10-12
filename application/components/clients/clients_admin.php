@@ -567,9 +567,19 @@ class Clients_admin extends CI_Component {
       'admin_id'    => ((int)$this->input->post('admin_id') ? (int)$this->input->post('admin_id') : null),
       'active'      => 1,
       'order'       => $this->clients_model->get_client_order()
-    );    
-    $languages = $this->languages_model->get_languages(1, 0);
-    
+    );
+    $city = $this->cities_model->get_city(array('id' => $params['city_id']));
+    if(!$city){
+      send_answer(array('errors' => array('Не найден город')));
+    }
+    //если указан не текущий менеджер,
+    //то проверяем на доступ к прикреплению других менеджеров
+    if($params['admin_id'] != $this->admin_id && !$this->permits_model->check_access($this->admin_id, $this->component['name'], $method = 'checkCreateCardOtherClients')){
+      send_answer(array('errors' => array('У вас нет прав на прикрепление клиентам других менеджеров')));
+    }
+    $params['title_full'] = $params['title'].', '.$city['title_full'];
+
+    $languages = $this->languages_model->get_languages(1, 0);  
     //если указан не текущий менеджер,
     //то проверяем на доступ к прикреплению других менеджеров
     if($params['admin_id'] != $this->admin_id && !$this->permits_model->check_access($this->admin_id, $this->component['name'], $method = 'checkCreateCardOtherClients')){
@@ -937,10 +947,10 @@ class Clients_admin extends CI_Component {
     //то проверяем на доступ к прикреплению других менеджеров
     if($params['admin_id'] != $this->admin_id && !$this->permits_model->check_access($this->admin_id, $this->component['name'], $method = 'checkCreateCardOtherClients')){
       send_answer(array('errors' => array('У вас нет прав на прикрепление клиентам других менеджеров')));
-    }
-    $params['title_full'] = $city['title_full'].' '.$params['title'];
-    $languages = $this->languages_model->get_languages(1, 0);
+    }    
+    $params['title_full'] = $params['title'].', '.$city['title_full'];
 
+    $languages = $this->languages_model->get_languages(1, 0);
     $client_params = $this->clients_model->get_client_params();
     //значения по дополнительным параметрам клиента
     $client_multiparams = array();
