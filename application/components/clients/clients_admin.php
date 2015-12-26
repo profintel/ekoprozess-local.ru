@@ -2246,11 +2246,19 @@ class Clients_admin extends CI_Component {
       'title' => 'Акт приемки',
       'html'  => $this->view->render_fields(array(
         array(
-          'view'  => 'fields/editor',
-          'title' => 'Текст письма:',
-          'name'  => 'text',
-          'value' => $this->load->view('../../application/components/clients/templates/admin_client_acceptance_tbl',array('item'  => $item),TRUE),
-        ))
+          'view'  => 'fields/text',
+          'title' => 'Тема письма:',
+          'name'  => 'subject',
+          'value' => 'Акт приемки. '.rus_date($item['date'],'d m Y г.'),
+        ),
+        array(
+          'view'    => 'fields/editor',
+          'title'   => 'Текст письма:',
+          'name'    => 'text',
+          'value'   => $this->load->view('../../application/components/clients/templates/admin_client_acceptance_tbl',array('item'  => $item),TRUE),
+          'toolbar' => ''
+        )
+      )
       ),
       'item'  => $item,
       'emails'=> $this->clients_model->get_acceptance_emails(array('acceptance_id'=>$item['id']))
@@ -2274,8 +2282,9 @@ class Clients_admin extends CI_Component {
     if (!preg_match('/^[-0-9a-z_\.]+@[-0-9a-z^\.]+\.[a-z]{2,4}$/i', $to)) { 
       send_answer(array('errors' => array('Некорректный еmail получателя')));
     }
-    $message = $this->load->view('../../application/components/clients/templates/admin_client_acceptance_tbl',array('item'  => $item),TRUE);
-    if(!send_mail($from, $to, 'Акт приемки', $message, $this->project)){
+    $subject = htmlspecialchars(trim($this->input->post('subject')));
+    $message = htmlspecialchars(trim($this->input->post('text')));
+    if(!send_mail($from, $to, $subject, $message)){
       send_answer(array('errors' => array('Не удалось отправить сообщение')));
     }
     $params = array(
@@ -2283,6 +2292,7 @@ class Clients_admin extends CI_Component {
       'acceptance_id'=> $item['id'],
       'from'         => $from,
       'to'           => $to,
+      'subject'      => $subject,
       'message'      => $message 
     );
     if(!$this->clients_model->create_acceptance_email($params)){

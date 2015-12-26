@@ -271,10 +271,9 @@ function add_logo_to_image($path_result_img, $path_dest_img,$path_logo,$dst_x = 
   return false;
 }
 
-function send_mail($from, $email, $subject, $message, $project) {
+function send_mail($from, $email, $subject, $message) {
   $CI =& get_instance();
   $data = array(
-      'domain'  => $project['domain'],
       'title'   => $subject,
       'content' => $message
     );

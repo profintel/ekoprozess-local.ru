@@ -107,6 +107,7 @@ CREATE TABLE IF NOT EXISTS `pr_client_acceptance_emails` (
   `from` varchar(100) NOT NULL DEFAULT '',
   `to` varchar(100) NOT NULL DEFAULT '',
   `date` date NOT NULL,
+  `subject` varchar(256) NOT NULL DEFAULT '',
   `message` varchar(4000) NOT NULL DEFAULT '',
   `tm` timestamp NOT NULL default CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)

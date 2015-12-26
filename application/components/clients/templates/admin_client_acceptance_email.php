@@ -40,36 +40,30 @@
     </table>
   <?}?>
   <form action="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>_client_acceptance_email/<?=$item['id'];?>/" method="POST" onsubmit="return false;">
-    <table class="table table-bordered panel">
-      <tr>
-        <th>От кого</th>
-        <td>
-          <div class="">
+    <div class="form-horizontal panel">
+      <div class="form_block panel-body">
+        <div class="form-group"> 
+          <div class="col-sm-2">
+            От кого
+          </div>
+          <div class="col-sm-10">
             <input type="text" class="form-control" name="from" value="<?=$this->admin['email'];?>" />
           </div>
-        </td>
-      </tr>
-      <tr>
-        <th>Кому</th>
-        <td>
-          <div class="">
+        </div>
+        <div class="form-group"> 
+          <div class="col-sm-2">
+            Кому
+          </div>
+          <div class="col-sm-10">
             <input type="text" class="form-control" name="to" value="<?=(isset($item['email']) ? $item['email'] : '');?>" />
-          </div>          
-        </td>
-      </tr>
-      <tr>
-        <td colspan="2">
-          <?=$html;?>
-        </td>
-      </tr>
-      <tr>
-        <td colspan="2">
-          <a href="#" class="btn btn-primary btn-xs pull-right" onclick="return submit_form(this, 'reload', null);">
-            <span class="glyphicon glyphicon-save"></span>  Отправить
-          </a>
-        </td>
-      </tr>
-    </table>
+          </div>
+        </div>
+        <?=$html;?>
+        <a href="#" class="btn btn-primary btn-xs pull-right" onclick="return submit_form(this, 'reload', null);">
+          <span class="glyphicon glyphicon-save"></span>  Отправить
+        </a>
+      </div>
+    </div>
   </form>
   <a class="btn btn-default btn-xs" href="/admin<?=$_component['path'];?>acceptances/"><span class="glyphicon glyphicon-backward"></span> Назад</a>
 </div>
