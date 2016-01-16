@@ -2252,7 +2252,7 @@ class Clients_admin extends CI_Component {
           'value' => 'Акт приемки. '.rus_date($item['date'],'d m Y г.'),
         ),
         array(
-          'view'    => 'fields/editor',
+          'view'    => 'fields/readonly',
           'title'   => 'Текст письма:',
           'name'    => 'text',
           'value'   => $this->load->view('../../application/components/clients/templates/admin_client_acceptance_tbl',array('item'  => $item),TRUE),
@@ -2275,23 +2275,29 @@ class Clients_admin extends CI_Component {
       send_answer(array('errors' => array('Объект не найден')));
     }
     $from = $this->input->post('from');
-    $to = $this->input->post('to');
     if (!preg_match('/^[-0-9a-z_\.]+@[-0-9a-z^\.]+\.[a-z]{2,4}$/i', $from)) { 
       send_answer(array('errors' => array('Некорректный еmail отправителя')));
     }
-    if (!preg_match('/^[-0-9a-z_\.]+@[-0-9a-z^\.]+\.[a-z]{2,4}$/i', $to)) { 
-      send_answer(array('errors' => array('Некорректный еmail получателя')));
+    $to = explode(',', $this->input->post('to'));
+    foreach ($to as $key => $email) {
+      $email = trim($email);
+      if (!preg_match('/^[-0-9a-z_\.]+@[-0-9a-z^\.]+\.[a-z]{2,4}$/i', $email)) { 
+        send_answer(array('errors' => array('Некорректный еmail получателя - "'.$email.'"')));
+      }
     }
     $subject = htmlspecialchars(trim($this->input->post('subject')));
-    $message = htmlspecialchars(trim($this->input->post('text')));
-    if(!send_mail($from, $to, $subject, $message)){
-      send_answer(array('errors' => array('Не удалось отправить сообщение')));
+    $message = htmlspecialchars($this->load->view('../../application/components/clients/templates/admin_client_acceptance_tbl',array('item'  => $item),TRUE));
+    foreach ($to as $key => $email) {
+      $email = trim($email);
+      if(!send_mail($from, $email, $subject, $message)){
+        send_answer(array('errors' => array('Не удалось отправить сообщение на email - "'.$email.'"')));
+      }
     }
     $params = array(
       'admin_id'     => $this->admin_id,
       'acceptance_id'=> $item['id'],
       'from'         => $from,
-      'to'           => $to,
+      'to'           => implode(',', $to),
       'subject'      => $subject,
       'message'      => $message 
     );
