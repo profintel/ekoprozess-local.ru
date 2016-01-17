@@ -9,6 +9,7 @@ class Clients_admin extends CI_Component {
     $this->load->model('cities/models/cities_model');
     $this->load->model('administrators/models/administrators_model');
     $this->load->model('calendar/models/calendar_model');
+    $this->load->model('products/models/products_model');
   }
   
   /**
@@ -1482,7 +1483,7 @@ class Clients_admin extends CI_Component {
                 'name'     => 'product_id',
                 'empty'    => true,
                 'optgroup' => true,
-                'options'  => $this->clients_model->get_products(array('parent_id' => null)),
+                'options'  => $this->products_model->get_products(array('parent_id' => null)),
                 'value'    => $get_params['product_id'],
                 'onchange' => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
               ),
@@ -1602,7 +1603,7 @@ class Clients_admin extends CI_Component {
           'name'    => 'product_id[]',
           'empty'   => true,
           'optgroup'=> true,
-          'options' => $this->clients_model->get_products(array('parent_id' => null)),
+          'options' => $this->products_model->get_products(array('parent_id' => null)),
           'value'   => ($item ? $item['product_id'] : ''),
           'form_group_class' => 'form_group_product_field form_group_w20',
         ),

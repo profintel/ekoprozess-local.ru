@@ -5,6 +5,7 @@ class Clients_model extends CI_Model {
   function __construct() {
     parent::__construct();
       
+    $this->load->model('products/models/products_model');
   }
 
   /***Клиенты***/
@@ -213,7 +214,7 @@ class Clients_model extends CI_Model {
         $item['childs'] = $this->get_acceptances(0,0,$where);
         $item['gross'] = $item['net'] = $item['price'] = $item['sum'] = 0;
         foreach ($item['childs'] as $key => &$child) {
-          $child['product'] = $this->get_product(array('id' => $child['product_id']));
+          $child['product'] = $this->products_model->get_product(array('id' => $child['product_id']));
           $child['sum'] = $child['price']*$child['net'];
           $item['gross'] += $child['gross'];
           $item['net'] += $child['net'];
@@ -255,7 +256,7 @@ class Clients_model extends CI_Model {
       }
       $item['childs'] = $this->get_acceptances(0,0,array('parent_id'=>$item['id']),array('id'=>'asc'));
       foreach ($item['childs'] as $key => &$child) {
-        $child['product'] = $this->get_product(array('id' => $child['product_id']));
+        $child['product'] = $this->products_model->get_product(array('id' => $child['product_id']));
       }
       unset($child);
     }
