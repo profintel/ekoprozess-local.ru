@@ -362,7 +362,10 @@ class Administrators_admin extends CI_Component {
       }
     }
    
-    if ($params['email']) {
+    if ($params['email'] !== $item['email']) {
+      if ($params['email'] && !preg_match('/^[-0-9a-z_\.]+@[-0-9a-z^\.]+\.[a-z]{2,4}$/i', $params['email'])) {
+        send_answer(array('errors' => array('Некорректный Email')));
+      }
       if (!$this->administrators_model->edit_admin($id, array('email'=>$params['email']))) {
         send_answer(array('errors' => array('Не удалось отредактировать учетную запись')));
       }
