@@ -2286,7 +2286,7 @@ class Clients_admin extends CI_Component {
       }
     }
     $subject = htmlspecialchars(trim($this->input->post('subject')));
-    $message = htmlspecialchars($this->load->view('../../application/components/clients/templates/admin_client_acceptance_tbl',array('item'  => $item),TRUE));
+    $message = $this->load->view('../../application/components/clients/templates/admin_client_acceptance_tbl',array('item'  => $item),TRUE);
     foreach ($to as $key => $email) {
       $email = trim($email);
       if(!send_mail($from, $email, $subject, $message)){
