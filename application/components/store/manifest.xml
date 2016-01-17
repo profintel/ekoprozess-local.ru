@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component>
+
+  <information>
+    <title>Склад</title>
+    <description>Управление складом</description>
+  </information>
+  
+  <install>
+    <menu>secondary</menu>
+    <icon>glyphicon-list-alt</icon>
+    <requirement>clients</requirement>
+  </install>
+  
+</component>
