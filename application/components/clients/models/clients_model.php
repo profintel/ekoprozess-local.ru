@@ -254,6 +254,7 @@ class Clients_model extends CI_Model {
   }
   
   function get_acceptances_cnt($where = '', $product_id = array()) {
+    $this->db->select('COUNT(DISTINCT(pr_client_acceptances.id)) as cnt');
     if ($where) {
       $this->db->where($where);
     }
@@ -262,9 +263,22 @@ class Clients_model extends CI_Model {
         $product_id = array($product_id);
       }
       $this->db->join('client_acceptances t2','t2.parent_id = client_acceptances.id');
-      $this->db->where('t2.product_id IN ('.implode(',', $product_id).')');
+      $product_where = '';
+      if ($where) {
+        $product_where .= '(';
+      }
+      foreach ($product_id as $key => $value) {
+        if($key != 0){
+          $product_where .= ' OR ';
+        }
+        $product_where .= 't2.product_id = '.$value;
+      }
+      if ($where) {
+        $product_where .= ')';
+      }
+      $this->db->where($product_where);
     }
-    return $this->db->count_all_results('client_acceptances');
+    return $this->db->get('client_acceptances')->row()->cnt;
   }
 
   function get_acceptance($where = array()) {
