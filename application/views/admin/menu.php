@@ -12,3 +12,10 @@
     </div>
   <? } ?>
 </div>
+<? if(isset($back) && $back) {?>
+  <div class="container-fluid">
+    <div class="col-xs-12">
+      <a class="btn btn-default btn-xs" href="<?=$back;?>"><span class="glyphicon glyphicon-backward"></span> Назад</a>
+    </div>
+  </div>
+<? } ?>

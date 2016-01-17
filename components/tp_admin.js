@@ -1,4 +1,4 @@
-/*** Generated 07.10.2015 23:39:10 ***/
+/*** Generated 17.01.2016 18:27:19 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -4492,3 +4492,9 @@ function updateAcceptanceSumProduct(){
 
   containerAllSum.text($.number(allSum,2,'.'));
 }
+
+/*** store ***/
+
+$(document).ready(function(){
+ 
+})

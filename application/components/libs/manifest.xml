@@ -2,12 +2,13 @@
 <component>
   
   <information>
-    <title>Регионы / Города</title>
-    <description>Управление базой регионов и городов России</description>
+    <title>Справочники</title>
+    <description>Просмотр справочников</description>
   </information>
   
   <install>
+    <menu>secondary</menu>
     <icon>glyphicon-book</icon>
   </install>
-
+  
 </component>

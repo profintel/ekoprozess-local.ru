@@ -103,6 +103,10 @@
     <? } ?>
   </ul>
   <?=(isset($pagination) && $pagination ? $pagination : '');?>
-  <a class="btn btn-default btn-xs" href="/admin<?=$_component['path'];?>"><span class="glyphicon glyphicon-backward"></span> Назад</a>
+  <? if(isset($back)) {?>
+    <a class="btn btn-default btn-xs" href="<?=$back;?>"><span class="glyphicon glyphicon-backward"></span> Назад</a>
+  <? } else {?>
+    <a class="btn btn-default btn-xs" href="/admin<?=$_component['path'];?>"><span class="glyphicon glyphicon-backward"></span> Назад</a>
+  <? } ?>
 </div>
 <br/>

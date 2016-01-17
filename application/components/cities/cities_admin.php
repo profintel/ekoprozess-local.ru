@@ -30,7 +30,8 @@ class Cities_admin extends CI_Component {
           'link'  => $this->lang_prefix .'/admin'. $this->params['path'] .'cities/',
           'class' => ''
         )
-      )
+      ),
+      'back' => $this->lang_prefix .'/admin/libs/'
     ));
   }
 
