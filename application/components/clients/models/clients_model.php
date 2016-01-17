@@ -176,11 +176,30 @@ class Clients_model extends CI_Model {
   }
 
   /***Акты приемки***/
-  function get_acceptances($limit = 0, $offset = 0, $where = array(), $order_by = array(), $product_id = 0) {
+  function get_acceptances($limit = 0, $offset = 0, $where = array(), $order_by = array(), $product_id = array()) {
     $this->db->select('client_acceptances.*');
+    if ($where) {
+      $this->db->where($where);
+    }
     if ($product_id) {
+      if(!is_array($product_id)){
+        $product_id = array($product_id);
+      }
       $this->db->join('client_acceptances t2','t2.parent_id = client_acceptances.id');
-      $this->db->where(array('t2.product_id'=>$product_id));
+      $product_where = '';
+      if ($where) {
+        $product_where .= '(';
+      }
+      foreach ($product_id as $key => $value) {
+        if($key != 0){
+          $product_where .= ' OR ';
+        }
+        $product_where .= 't2.product_id = '.$value;
+      }
+      if ($where) {
+        $product_where .= ')';
+      }
+      $this->db->where($product_where);
     }
     if ($limit) {
       $this->db->limit($limit, $offset);
@@ -193,9 +212,7 @@ class Clients_model extends CI_Model {
       $this->db->order_by('date','asc');
       $this->db->order_by('tm','asc');
     }
-    if ($where) {
-      $this->db->where($where);
-    }
+    $this->db->group_by('client_acceptances.id');
     $items = $this->db->get('client_acceptances')->result_array();
     foreach ($items as $key => &$item) {
       $item['client_title'] = $item['company'];
@@ -207,9 +224,16 @@ class Clients_model extends CI_Model {
       }
       //считаем общие параметры
       if(is_null($item['parent_id'])){
-        $where = array('parent_id'=>$item['id']);
+        $where = 'parent_id = '.$item['id'];
         if ($product_id) {
-          $where['client_acceptances.product_id'] = $product_id;
+          $where .= ' AND (';
+          foreach ($product_id as $key => $value) {
+            if($key != 0){
+              $where .= ' OR ';
+            }
+            $where .= 'pr_client_acceptances.product_id = '.$value;
+          }
+          $where .= ')';
         }
         $item['childs'] = $this->get_acceptances(0,0,$where);
         $item['gross'] = $item['net'] = $item['price'] = $item['sum'] = 0;
@@ -229,13 +253,16 @@ class Clients_model extends CI_Model {
     return $items;
   }
   
-  function get_acceptances_cnt($where = '', $product_id = 0) {
+  function get_acceptances_cnt($where = '', $product_id = array()) {
     if ($where) {
       $this->db->where($where);
     }
     if ($product_id) {
+      if(!is_array($product_id)){
+        $product_id = array($product_id);
+      }
       $this->db->join('client_acceptances t2','t2.parent_id = client_acceptances.id');
-      $this->db->where(array('t2.product_id'=>$product_id));
+      $this->db->where('t2.product_id IN ('.implode(',', $product_id).')');
     }
     return $this->db->count_all_results('client_acceptances');
   }

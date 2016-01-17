@@ -1394,7 +1394,7 @@ class Clients_admin extends CI_Component {
       'date_end'    => ($this->uri->getParam('date_end') ? date('Y-m-d',strtotime($this->uri->getParam('date_end'))) : ''),
       'client_id'   => ($this->uri->getParam('client_id') ? mysql_prepare($this->uri->getParam('client_id')) : ''),
       'type_report' => ($this->uri->getParam('type_report') == 'short' ? 'short' : 'long'),
-      'product_id'  => ($this->uri->getParam('product_id') ? (int)$this->uri->getParam('product_id') : ''),
+      'product_id'  => ($this->uri->getParam('product_id') ? $this->uri->getParam('product_id') : array()),
     );
     if($get_params['date_start']){
       $where['client_acceptances.date >='] = $get_params['date_start'];
@@ -1480,7 +1480,8 @@ class Clients_admin extends CI_Component {
               array(
                 'view'     => 'fields/select',
                 'title'    => 'Вид вторсырья:',
-                'name'     => 'product_id',
+                'name'     => 'product_id[]',
+                'multiple' => true,
                 'empty'    => true,
                 'optgroup' => true,
                 'options'  => $this->products_model->get_products(array('parent_id' => null)),
