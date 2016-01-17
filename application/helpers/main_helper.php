@@ -280,7 +280,6 @@ function send_mail($from, $email, $subject, $message) {
   $body = $CI->load->view('templates/email_template', $data, true);
 
   $headers  = 'MIME-Version: 1.0' . "\r\n";
-  $headers .= 'Content-type: text/plain; charset=UTF-8' . "\r\n";
   $headers .= 'Content-type: text/html; charset=UTF-8' . "\r\n";
   $headers .= 'From: '. $from . "\r\n";
   $headers .= 'Reply-To: info@ekoprozess.isnet.ru' . "\r\n";
