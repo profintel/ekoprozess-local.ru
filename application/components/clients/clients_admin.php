@@ -136,7 +136,7 @@ class Clients_admin extends CI_Component {
                 'name'      => 'title',
                 'value'     => $get_params['title'],
                 'component' => $this->params['name'],
-                'method'    => '_client_search',
+                'method'    => 'client_search',
                 'maxlength' => 256
               ),
               array(
@@ -347,7 +347,7 @@ class Clients_admin extends CI_Component {
   /**
   *  Поиск клиентов
   */
-  function _client_search() {
+  function client_search() {
     $where = array();
     $title = $this->input->post('search_string');
     if($title){
@@ -408,7 +408,7 @@ class Clients_admin extends CI_Component {
                 'title'       => 'Название:',
                 'name'        => 'title',
                 'component'   => $this->params['name'],
-                'method'      => '_client_search',
+                'method'      => 'client_search',
                 'placeholder' => ' ',
                 'maxlength'   => 256
               ),
