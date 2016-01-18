@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component>
+  
+  <information>
+    <title>Акты приемки</title>
+    <description>Создание, редактирование, удаление актов приемки</description>
+  </information>
+  
+  <install>
+    <menu>secondary</menu>
+    <icon>glyphicon glyphicon-th-list</icon>
+  </install>
+  
+</component>

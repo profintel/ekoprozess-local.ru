@@ -17,17 +17,17 @@
         </a>
         <ul class="dropdown-menu">
           <li>
-            <a href="/admin/clients/acceptance/<?=$item['id'];?>/" title="Просмотреть">
+            <a href="/admin/acceptances/acceptance/<?=$item['id'];?>/" title="Просмотреть">
               <span class="glyphicon glyphicon-share"></span> Просмотреть
             </a>
             </li>
           <li>
-            <a href="/admin/clients/edit_acceptance/<?=$item['id'];?>/" title="Редактировать">
+            <a href="/admin/acceptances/edit_acceptance/<?=$item['id'];?>/" title="Редактировать">
               <span class="glyphicon glyphicon-edit"></span> Редактировать
             </a>
           </li>
           <li>
-            <a href="/admin/clients/client_acceptance_email/<?=$item['id'];?>/" target="_client_acceptance_email_<?=$item['id'];?>">
+            <a href="/admin/acceptances/client_acceptance_email/<?=$item['id'];?>/" target="_client_acceptance_email_<?=$item['id'];?>">
               <span class="glyphicon glyphicon-envelope"></span> Отправить по email
             </a>
           </li>
@@ -36,7 +36,7 @@
             <a href="#"
               onClick="return send_confirm(
                 'Вы уверены, что хотите удалить акт - <?=date('d.m.Y',strtotime($item['date']));?>&emsp;<?=$item['client_title'];?>?',
-                '/admin/clients/delete_acceptance/<?=$item['id'];?>/',
+                '/admin/acceptances/delete_acceptance/<?=$item['id'];?>/',
                 {},
                 'reload'
               );"                    
@@ -49,6 +49,6 @@
   </ul>
 <? } ?>
 <? if(isset($client_id)&&$client_id) {?>
-  <a class="btn btn-xs btn-primary pull-right" href="/admin/clients/acceptances/?client_id=<?=$client_id;?>">Перейти к актам клиента</a>
+  <a class="btn btn-xs btn-primary pull-right" href="/admin/acceptances/?client_id=<?=$client_id;?>">Перейти к актам клиента</a>
 <? } ?>
 </div>

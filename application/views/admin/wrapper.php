@@ -74,7 +74,7 @@
           <? foreach ($_menu_secondary as $item) { ?>
             <li class="visible-lg-block <?=($item['name'] == $_component['name'] ? 'active' : '');?>">
               <a href="<?=$_lang_prefix;?>/admin<?=$item['path'];?>">
-                <span class="glyphicon <?=($item['icon']?$item['icon']:'glyphicon-ok');?>"></span><?=$item['title'];?>
+                <span class="glyphicon <?=($item['icon']?$item['icon']:'glyphicon-ok');?>"></span><span><?=$item['title'];?></span>
                 <? if ($item['name']=='calendar') {?>
                   <div class="text-right">
                     <? if ($_admin['red_events']) {?>

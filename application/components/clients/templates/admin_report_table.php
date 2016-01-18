@@ -31,7 +31,7 @@
               <td>
                 <?=$item['title'];?>
                 <div class="well-sm text-center">
-                  <a href="/admin/clients/create_acceptance/?client_id=<?=$item['id'];?>" class="label label-primary">
+                  <a href="/admin/acceptances/create_acceptance/?client_id=<?=$item['id'];?>" class="label label-primary">
                     <span class="glyphicon glyphicon-plus"></span> Акт приемки
                   </a>
                 </div>

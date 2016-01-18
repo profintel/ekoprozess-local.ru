@@ -125,6 +125,10 @@ a.glyphicon:focus{
   padding: 14px 20px 14px 25px;
   white-space: nowrap;
 }
+#side-menu > li > a > span{
+  display: inline-block;
+  vertical-align: middle;
+}
 #side-menu > li > a:hover,
 #side-menu > li.active > a,
 #side-menu > li > a:focus {
@@ -135,8 +139,10 @@ a.glyphicon:focus{
   border-left: 4px solid #0079a1;
   padding-left: 21px;
 }
-#side-menu .glyphicon{
+#side-menu > li > a > .glyphicon{
   padding-right:5px;
+  font-size: 18px;
+  top:-1px;
 }
 #side-menu .nav-header .dropdown .glyphicon{
   font-size: inherit;

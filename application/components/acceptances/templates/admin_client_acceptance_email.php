@@ -6,7 +6,7 @@
   </div>
 </div>
 <div class="container-fluid">
-  <a class="btn btn-default btn-xs" href="/admin<?=$_component['path'];?>acceptances/"><span class="glyphicon glyphicon-backward"></span> Назад</a><br/><br/>
+  <a class="btn btn-default btn-xs" href="/admin<?=$_component['path'];?>"><span class="glyphicon glyphicon-backward"></span> Назад</a><br/><br/>
   <? if ($emails) {?>
     <table class="table table-hover panel table-sm">
       <thead>
@@ -65,5 +65,5 @@
       </div>
     </div>
   </form>
-  <a class="btn btn-default btn-xs" href="/admin<?=$_component['path'];?>acceptances/"><span class="glyphicon glyphicon-backward"></span> Назад</a>
+  <a class="btn btn-default btn-xs" href="/admin<?=$_component['path'];?>"><span class="glyphicon glyphicon-backward"></span> Назад</a>
 </div>
