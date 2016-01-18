@@ -243,10 +243,10 @@ class Clients_admin extends CI_Component {
   }
 
   /**
-  * Формирует html select-ов для отчета
-  * return json
+  * Поиск клиентов по регионам/городам
   */
-  function _renderSelectsReport() {
+  function renderSelectsReport() {
+    //Формирует html select-ов для отчета
     $result = array();
     $type = $this->input->post('type');
     $id = ((int)$this->input->post('id') ? (int)$this->input->post('id') : 0);
