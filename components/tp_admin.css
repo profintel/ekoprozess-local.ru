@@ -1,4 +1,4 @@
-/* Generated 18.01.2016 22:39:18 */
+/* Generated 21.01.2016 18:14:12 */
 
 /* components */
 
@@ -457,7 +457,7 @@ a.glyphicon:focus{
 #side-menu > li > a > .glyphicon{
   padding-right:5px;
   font-size: 18px;
-  top:-2px;
+  top:-1px;
 }
 #side-menu .nav-header .dropdown .glyphicon{
   font-size: inherit;

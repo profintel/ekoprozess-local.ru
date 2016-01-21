@@ -1,4 +1,4 @@
-/*** Generated 18.01.2016 22:39:18 ***/
+/*** Generated 21.01.2016 18:14:12 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -4430,7 +4430,7 @@ function changeRegion(el,type){
 * добавляет в форму блок с вторсырьем
 */
 function renderFieldsProducts(obj){
-  $.post('/admin/clients/_renderProductsFields/html/', {}, function(result) {
+  $.post('/admin/acceptances/renderProductsFields/html/', {}, function(result) {
     //отображаем результат
     result = $.parseHTML(result);
     result = $(result).find('.form_block');
@@ -4492,9 +4492,3 @@ function updateAcceptanceSumProduct(){
 
   containerAllSum.text($.number(allSum,2,'.'));
 }
-
-/*** store ***/
-
-$(document).ready(function(){
- 
-})

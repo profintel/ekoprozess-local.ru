@@ -168,11 +168,10 @@ class Acceptances_admin extends CI_Component {
   }
    
   /**
-  * Формирует блок с вторсырьем
-  * для формы акта приемки
+  * Добавление нескольких видов вторсырья
   * $return_type - тип данных в результате
   */ 
-  function _renderProductsFields($return_type = 'array',$items = array()) {
+  function renderProductsFields($return_type = 'array',$items = array()) {
     $result = array();
     if ($items) {
       foreach ($items as $key => $item) {
@@ -323,7 +322,7 @@ class Acceptances_admin extends CI_Component {
   **/  
   function create_acceptance(){
     $client_id = ($this->uri->getParam('client_id') ? mysql_prepare($this->uri->getParam('client_id')) : 0);
-    $productsFields = $this->_renderProductsFields();
+    $productsFields = $this->renderProductsFields();
     $blocks = array(array(
       'title'   => 'Основные параметры',
       'fields'   => array(
@@ -479,7 +478,7 @@ class Acceptances_admin extends CI_Component {
     if(!$item){
       show_error('Объект не найден');
     }
-    $productsFields = $this->_renderProductsFields('array',$item['childs']);
+    $productsFields = $this->renderProductsFields('array',$item['childs']);
     $blocks = array(array(
       'title'   => 'Основные параметры',
       'fields'   => array(
