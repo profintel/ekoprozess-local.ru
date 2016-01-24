@@ -121,7 +121,6 @@ function removeFormBlock(obj,path){
       }
       updateAcceptanceSumProduct();
       sheet('hide');
-      alert_msg('success','Изменения успешно сохранены');
     }
   );
 }

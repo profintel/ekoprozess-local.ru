@@ -1,4 +1,4 @@
-/*** Generated 24.01.2016 20:29:49 ***/
+/*** Generated 24.01.2016 20:59:39 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -4465,7 +4465,6 @@ function removeFormBlock(obj,path){
       }
       updateAcceptanceSumProduct();
       sheet('hide');
-      alert_msg('success','Изменения успешно сохранены');
     }
   );
 }
