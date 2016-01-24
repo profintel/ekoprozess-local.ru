@@ -46,7 +46,7 @@ class Administrators_model extends CI_Model {
   function create_admin($params) {    
     if ($this->db->insert('pr_admins', $params)) {
       $id = $this->db->query("SELECT LAST_INSERT_ID() as id")->row()->id;
-      $this->db->insert('pr_permits', array('component' => 'projects', 'method' => 'index', 'admin_id' => $id));
+      $this->db->insert('pr_permits', array('component' => 'clients', 'method' => 'index', 'admin_id' => $id));
       return $id;
     }
     return false;
