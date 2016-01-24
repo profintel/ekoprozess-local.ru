@@ -12,6 +12,10 @@ class Acceptances_model extends CI_Model {
 
   function get_acceptances($limit = 0, $offset = 0, $where = array(), $order_by = array(), $product_id = array()) {
     $this->db->select('client_acceptances.*');
+    //для проверки прав на работу по всем клиентам
+    if(is_array($where) && @$where['clients.admin_id']){
+      $this->db->join('clients','clients.id = client_acceptances.client_id');      
+    }
     if ($where) {
       $this->db->where($where);
     }
@@ -48,6 +52,7 @@ class Acceptances_model extends CI_Model {
     }
     $this->db->group_by('client_acceptances.id');
     $items = $this->db->get('client_acceptances')->result_array();
+    unset($where);
     foreach ($items as $key => &$item) {
       $item['client_title'] = $item['company'];
       if($item['client_id']){
@@ -89,6 +94,10 @@ class Acceptances_model extends CI_Model {
   
   function get_acceptances_cnt($where = '', $product_id = array()) {
     $this->db->select('COUNT(DISTINCT(pr_client_acceptances.id)) as cnt');
+    //для проверки прав на работу по всем клиентам
+    if(is_array($where) && @$where['clients.admin_id']){
+      $this->db->join('clients','clients.id = client_acceptances.client_id');      
+    }
     if ($where) {
       $this->db->where($where);
     }

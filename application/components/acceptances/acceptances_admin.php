@@ -10,7 +10,7 @@ class Acceptances_admin extends CI_Component {
   }
   
   /**
-  *  Просмотр списка актов приемки
+  *  Просмотр списка актов приемки по своим клиентам
   *
   */
   function index() {
@@ -20,7 +20,7 @@ class Acceptances_admin extends CI_Component {
     $get_params = array(
       'date_start'  => ($this->uri->getParam('date_start') ? date('Y-m-d',strtotime($this->uri->getParam('date_start'))) : date('Y-m-1')),
       'date_end'    => ($this->uri->getParam('date_end') ? date('Y-m-d',strtotime($this->uri->getParam('date_end'))) : ''),
-      'client_id'   => ($this->uri->getParam('client_id') ? mysql_prepare($this->uri->getParam('client_id')) : ''),
+      'client_id'   => ((int)$this->uri->getParam('client_id') ? (int)$this->uri->getParam('client_id') : ''),
       'type_report' => ($this->uri->getParam('type_report') == 'short' ? 'short' : 'long'),
       'product_id'  => ($product_id && @$product_id[0] ? $product_id : array()),
     );
@@ -33,6 +33,22 @@ class Acceptances_admin extends CI_Component {
     if($get_params['client_id']){
       $where['client_acceptances.client_id'] = $get_params['client_id'];
     }
+
+    //если нет доступа к работе по всем клиентам добавляем условие
+    if(!$this->permits_model->check_access($this->admin_id, $this->component['name'], $method = 'permit_acceptance_allClients')){
+      $where['clients.admin_id'] = $this->admin_id;
+      // проверка свой ли клиент указан
+      if($get_params['client_id']){
+        $client = $this->clients_model->get_client(array('id'=>$get_params['client_id']));
+        if(!$client){
+          $error = 'Клиент не найден';
+        }
+        if($client['admin_id'] != $this->admin_id){
+          $error = 'У вас нет прав на просмотр актов приемки для клиентов других менеджеров';
+        }
+      }
+    }
+
     $page = ($this->uri->getParam('page') ? $this->uri->getParam('page') : 1);
     $limit = 100;
     $offset = $limit * ($page - 1);
@@ -59,6 +75,7 @@ class Acceptances_admin extends CI_Component {
       'component_item'  => array('name' => 'acceptance', 'title' => 'акт приемки'),
       'items'           => $items,
       'get_params'      => $get_params,
+      'error'           => $error,
       'pagination'      => $this->load->view('templates/pagination', $pagination_data, true),
       'form' => $this->view->render_form(array(
         'method' => 'GET',
@@ -142,6 +159,11 @@ class Acceptances_admin extends CI_Component {
     }
   }
 
+  /**
+  * Доступ к работе с актами приемки по всем клиентам (просмотр, радактирование, удаление)
+  */
+  function permit_acceptance_allClients(){}
+
   function _render_client_acceptances_table($data){
     $data = unserialize(base64_decode($data));
     $type_report = ($data['get_params']['type_report'] == 'short' ? 'short' : 'long');
@@ -154,11 +176,19 @@ class Acceptances_admin extends CI_Component {
   }
 
   /**
-  *  Просмотр акта приемки
-  *
+  *  Просмотр акта приемки по своим клиентам
   */
   function acceptance($id) {
-    $item = $this->acceptances_model->get_acceptance(array('client_acceptances.id'=>$id));
+    $item = $this->acceptances_model->get_acceptance(array('client_acceptances.id'=>(int)$id));
+    if(!$item){
+      show_error('Объект не найден');
+    }
+
+    //если клиент не текущего менеджера и нет доступа к работе по всем клиентам
+    if($item['client_id'] && $item['client']['admin_id'] != $this->admin_id && !$this->permits_model->check_access($this->admin_id, $this->component['name'], $method = 'permit_acceptance_allClients')){
+      show_error('У вас нет прав на просмотр актов приемки для клиентов других менеджеров');
+    }
+
     $data = array(
       'title' => 'Акт приемки',
       'html'  => $this->load->view('../../application/components/acceptances/templates/admin_client_acceptance',array('item' => $item),TRUE),
@@ -168,8 +198,7 @@ class Acceptances_admin extends CI_Component {
   }
    
   /**
-  * Добавление нескольких видов вторсырья
-  * $return_type - тип данных в результате
+  * Добавление нескольких видов вторсырья в акт приемки
   */ 
   function renderProductsFields($return_type = 'array',$items = array()) {
     $result = array();
@@ -195,6 +224,8 @@ class Acceptances_admin extends CI_Component {
         )
       )
     );
+    // var_dump($result);
+    //$return_type - тип данных в результате
     if($return_type == 'html' && !$items){
       $html = '<div class="form_block">
         <div class="panel-heading clearfix">
@@ -302,7 +333,7 @@ class Acceptances_admin extends CI_Component {
           'title'   => '',
           'class'   => 'btn-default '.($label ? 'form_group_product_field_btn' : 'form_group_product_field_btn_m5'),
           'icon'    => 'glyphicon-remove',
-          'onclick' =>  'removeFormBlock(this,"'.($item ? '/admin/clients/delete_acceptance/'.$item['id'] : '').'");',
+          'onclick' =>  'removeFormBlock(this,"'.($item ? '/admin/acceptances/delete_acceptance/'.$item['id'] : '').'");',
         ),
         array(
           'view'     => 'fields/submit',
@@ -318,7 +349,7 @@ class Acceptances_admin extends CI_Component {
   }
 
   /**
-   *  Создание акта приемки
+   *  Создание акта приемки по своим клиентам
   **/  
   function create_acceptance(){
     $client_id = ($this->uri->getParam('client_id') ? mysql_prepare($this->uri->getParam('client_id')) : 0);
@@ -445,24 +476,26 @@ class Acceptances_admin extends CI_Component {
       'net'           => $this->input->post('net'),
       'price'         => $this->input->post('price'),
     );
-    if(is_array($params_products['product_id'])){
-      foreach ($params_products['product_id'] as $key => $product_id) {
-        if($product_id){
-          //по ключу собираем все параметры вторсырья
-          $params = array(
-            'parent_id'     => $id,
-            'product_id'    => (float)str_replace(' ', '', $params_products['product_id'][$key]),
-            'weight_ttn'    => (float)str_replace(' ', '', $params_products['weight_ttn'][$key]),
-            'gross'         => (float)str_replace(' ', '', $params_products['gross'][$key]),
-            'weight_pack'   => (float)str_replace(' ', '', $params_products['weight_pack'][$key]),
-            'weight_defect' => (float)str_replace(' ', '', $params_products['weight_defect'][$key]),
-            'net'           => (float)str_replace(' ', '', $params_products['net'][$key]),
-            'price'         => (float)str_replace(' ', '', $params_products['price'][$key]),
-          );
-          if (!$this->acceptances_model->create_acceptance($params)) {
-            $this->delete_acceptance($id);
-            send_answer(array('errors' => array('Ошибка при добавлении вторсырья в акт')));
-          }
+    if(!is_array($params_products['product_id']) || !@$params_products['product_id'][0]){
+      send_answer(array('errors' => array('Не указаны параметры вторсырья')));
+    }
+    foreach ($params_products['product_id'] as $key => $product_id) {
+      if($product_id){
+        //по ключу собираем все параметры вторсырья
+        $params = array(
+          'parent_id'     => $id,
+          'client_id'     => $params['client_id'],
+          'product_id'    => (float)str_replace(' ', '', $params_products['product_id'][$key]),
+          'weight_ttn'    => (float)str_replace(' ', '', $params_products['weight_ttn'][$key]),
+          'gross'         => (float)str_replace(' ', '', $params_products['gross'][$key]),
+          'weight_pack'   => (float)str_replace(' ', '', $params_products['weight_pack'][$key]),
+          'weight_defect' => (float)str_replace(' ', '', $params_products['weight_defect'][$key]),
+          'net'           => (float)str_replace(' ', '', $params_products['net'][$key]),
+          'price'         => (float)str_replace(' ', '', $params_products['price'][$key]),
+        );
+        if (!$this->acceptances_model->create_acceptance($params)) {
+          $this->delete_acceptance($id);
+          send_answer(array('errors' => array('Ошибка при добавлении вторсырья в акт')));
         }
       }
     }
@@ -471,14 +504,13 @@ class Acceptances_admin extends CI_Component {
   }
   
   /**
-  *  Редактирование акта приемки
+  *  Редактирование акта приемки по своим клиентам
   */  
   function edit_acceptance($id) {
     $item = $this->acceptances_model->get_acceptance(array('client_acceptances.id'=>$id));
     if(!$item){
       show_error('Объект не найден');
     }
-    $productsFields = $this->renderProductsFields('array',$item['childs']);
     $blocks = array(array(
       'title'   => 'Основные параметры',
       'fields'   => array(
@@ -532,6 +564,7 @@ class Acceptances_admin extends CI_Component {
       )
     ));
     $all_sum = 0;
+    $productsFields = $this->renderProductsFields('array',$item['childs']);
     foreach ($productsFields as $key => $productField) {
       $blocks[] = $productField;
       foreach($productField['fields'] as $product_field){        
@@ -574,7 +607,7 @@ class Acceptances_admin extends CI_Component {
           'view'     => 'fields/submit',
           'title'    => 'Сохранить',
           'type'     => 'ajax',
-          'reaction' => 'reload'
+          'reaction' => ''
         ),
         array(
           'view'     => 'fields/submit',
@@ -615,7 +648,6 @@ class Acceptances_admin extends CI_Component {
       send_answer(array('errors' => array('Ошибка при сохранении изменений')));
     }
 
-
     //редактируем/добавляем к акту вторсырье
     $params_products = array(
       'item_id'       => $this->input->post('item_id'),
@@ -627,27 +659,29 @@ class Acceptances_admin extends CI_Component {
       'net'           => $this->input->post('net'),
       'price'         => $this->input->post('price'),
     );
-    if(is_array($params_products['product_id'])){
-      foreach ($params_products['product_id'] as $key => $product_id) {
-        if($product_id){
-          //по ключу собираем все параметры вторсырья
-          $params = array(
-            'parent_id'     => $id,
-            'product_id'    => (float)str_replace(' ', '', $params_products['product_id'][$key]),
-            'weight_ttn'    => (float)str_replace(' ', '', $params_products['weight_ttn'][$key]),
-            'gross'         => (float)str_replace(' ', '', $params_products['gross'][$key]),
-            'weight_pack'   => (float)str_replace(' ', '', $params_products['weight_pack'][$key]),
-            'weight_defect' => (float)str_replace(' ', '', $params_products['weight_defect'][$key]),
-            'net'           => (float)str_replace(' ', '', $params_products['net'][$key]),
-            'price'         => (float)str_replace(' ', '', $params_products['price'][$key]),
-          );
-          if ($params_products['item_id'][$key] && 
-            !$this->acceptances_model->update_acceptance($params_products['item_id'][$key], $params)) {
-            send_answer(array('errors' => array('Ошибка при сохранении вторсырья в акте')));
-          }
-          if (!$params_products['item_id'][$key] && !$this->acceptances_model->create_acceptance($params)) {
-            send_answer(array('errors' => array('Ошибка при добавлении вторсырья в акт')));
-          }
+    if(!is_array($params_products['product_id']) || !@$params_products['product_id'][0]){
+      send_answer(array('errors' => array('Не указаны параметры вторсырья')));
+    }
+    foreach ($params_products['product_id'] as $key => $product_id) {
+      if($product_id){
+        //по ключу собираем все параметры вторсырья
+        $params = array(
+          'parent_id'     => $id,
+          'client_id'     => $params['client_id'],
+          'product_id'    => (float)str_replace(' ', '', $params_products['product_id'][$key]),
+          'weight_ttn'    => (float)str_replace(' ', '', $params_products['weight_ttn'][$key]),
+          'gross'         => (float)str_replace(' ', '', $params_products['gross'][$key]),
+          'weight_pack'   => (float)str_replace(' ', '', $params_products['weight_pack'][$key]),
+          'weight_defect' => (float)str_replace(' ', '', $params_products['weight_defect'][$key]),
+          'net'           => (float)str_replace(' ', '', $params_products['net'][$key]),
+          'price'         => (float)str_replace(' ', '', $params_products['price'][$key]),
+        );
+        if ($params_products['item_id'][$key] && 
+          !$this->acceptances_model->update_acceptance($params_products['item_id'][$key], $params)) {
+          send_answer(array('errors' => array('Ошибка при сохранении вторсырья в акте')));
+        }
+        if (!$params_products['item_id'][$key] && !$this->acceptances_model->create_acceptance($params)) {
+          send_answer(array('errors' => array('Ошибка при добавлении вторсырья в акт')));
         }
       }
     }
@@ -661,20 +695,38 @@ class Acceptances_admin extends CI_Component {
       $errors['client_id'] = 'Не указан поставщик';
       $errors['company'] = 'Не указана поставщик'; 
     }
+
+    $client = $this->clients_model->get_client(array('id' => (int)$params['client_id']));
+    if($params['client_id'] && !$client){
+      $errors['client_id'] = 'Клиент не найден';
+    }
+    //если клиент не текущего менеджера и нет доступа к работе по всем клиентам
+    if(!$params['client_id'] && $params['company'] && !$this->permits_model->check_access($this->admin_id, $this->component['name'], $method = 'permit_acceptance_allClients')){
+      $errors['company'] = 'У вас нет прав на добавление/редактирование актов приемки для клиентов других менеджеров';
+    }
+    if($client && $client['admin_id'] != $this->admin_id && !$this->permits_model->check_access($this->admin_id, $this->component['name'], $method = 'permit_acceptance_allClients')){
+      $errors['client_id'] = 'У вас нет прав на добавление/редактирование актов приемки для клиентов других менеджеров';
+    }
+
     return $errors;
   }
 
   /**
-  *  Отправление email с актом приемки
-  *  @params $id - id акта приемки
+  *  Отправление email с актом приемки по своим клиентам
   */
   function client_acceptance_email($id) {
     $item = $this->acceptances_model->get_acceptance(array('client_acceptances.id'=>$id));
-    if($item['client_id']){
-      $item['email'] = $item['client']['email'];
-    }
     if(!$item){
       show_error('Объект не найден');
+    }
+
+    //если клиент не текущего менеджера и нет доступа к работе по всем клиентам
+    if($item['client_id'] && $item['client']['admin_id'] != $this->admin_id && !$this->permits_model->check_access($this->admin_id, $this->component['name'], $method = 'permit_acceptance_allClients')){
+      show_error('У вас нет прав на работу с актами приемки для клиентов других менеджеров');
+    }
+
+    if($item['client_id']){
+      $item['email'] = $item['client']['email'];
     }
 
     return $this->render_template('templates/admin_client_acceptance_email', array(
@@ -709,6 +761,12 @@ class Acceptances_admin extends CI_Component {
     if(!$item){
       send_answer(array('errors' => array('Объект не найден')));
     }
+
+    //если клиент не текущего менеджера и нет доступа к работе по всем клиентам
+    if($item['client_id'] && $item['client']['admin_id'] != $this->admin_id && !$this->permits_model->check_access($this->admin_id, $this->component['name'], $method = 'permit_acceptance_allClients')){
+      send_answer(array('errors' => array('У вас нет прав на работу с актами приемки для клиентов других менеджеров')));
+    }
+
     $from = $this->input->post('from');
     if (!preg_match('/^[-0-9a-z_\.]+@[-0-9a-z^\.]+\.[a-z]{2,4}$/i', $from)) { 
       send_answer(array('errors' => array('Некорректный еmail отправителя')));
@@ -744,9 +802,19 @@ class Acceptances_admin extends CI_Component {
   }
 
   /**
-   * Удаление акта приемки
+   * Удаление акта приемки по своим клиентам
   **/
   function delete_acceptance($id) {
+    $item = $this->acceptances_model->get_acceptance(array('client_acceptances.id'=>(int)$id));
+    if(!$item){
+      send_answer(array('errors' => array('Объект не найден')));
+    }
+
+    //если клиент не текущего менеджера и нет доступа к работе по всем клиентам
+    if($item['client_id'] && $item['client']['admin_id'] != $this->admin_id && !$this->permits_model->check_access($this->admin_id, $this->component['name'], $method = 'permit_acceptance_allClients')){
+      send_answer(array('errors' => array('У вас нет прав на работу с актами приемки для клиентов других менеджеров')));
+    }
+
     if (!$this->acceptances_model->delete_acceptance((int)$id)){
       send_answer(array('errors' => array('Не удалось удалить объект')));
     }

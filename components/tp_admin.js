@@ -1,4 +1,4 @@
-/*** Generated 21.01.2016 18:14:12 ***/
+/*** Generated 24.01.2016 20:29:49 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -3776,6 +3776,7 @@ function handle_answer(answer, reaction, context, data_type) {
       if (input.length){
         input.parents('.form-group').addClass('has-error');
         input.before('<small class="error text-danger">'+item+'</small>');
+        $(document).scrollTop(input.scrollTop());
       } else {
         error = form.children('.form-error');
         if(error.length){
@@ -4464,6 +4465,7 @@ function removeFormBlock(obj,path){
       }
       updateAcceptanceSumProduct();
       sheet('hide');
+      alert_msg('success','Изменения успешно сохранены');
     }
   );
 }
@@ -4492,3 +4494,9 @@ function updateAcceptanceSumProduct(){
 
   containerAllSum.text($.number(allSum,2,'.'));
 }
+
+/*** store ***/
+
+$(document).ready(function(){
+ 
+})

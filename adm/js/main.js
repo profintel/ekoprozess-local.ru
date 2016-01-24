@@ -270,6 +270,7 @@ function handle_answer(answer, reaction, context, data_type) {
       if (input.length){
         input.parents('.form-group').addClass('has-error');
         input.before('<small class="error text-danger">'+item+'</small>');
+        $(document).scrollTop(input.scrollTop());
       } else {
         error = form.children('.form-error');
         if(error.length){
