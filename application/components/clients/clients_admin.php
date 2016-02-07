@@ -657,7 +657,7 @@ class Clients_admin extends CI_Component {
       );
       //1 параметр - описание с телефонами, добавляем в событие по умолчанию
       if($key == 0){
-        $event_desc = $item['params']['param_'.$param['id'].'_'.$this->language];
+        $event_desc = (isset($item['params']['param_'.$param['id'].'_'.$this->language]) ? $item['params']['param_'.$param['id'].'_'.$this->language] : '');
       }
     }
     $fields_params[] = array(

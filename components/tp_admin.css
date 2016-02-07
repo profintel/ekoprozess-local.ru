@@ -1,4 +1,4 @@
-/* Generated 24.01.2016 20:59:39 */
+/* Generated 07.02.2016 23:18:20 */
 
 /* components */
 
@@ -404,6 +404,7 @@ a.glyphicon:focus{
 }
 #page-wrapper {
   margin: 0 0 0 220px;
+  padding-bottom: 100px;
   position: inherit;
 }
 
@@ -656,6 +657,21 @@ input[type="file"]{
 }
 .form_group_product_field.form_group_w20{
   width: 20%;
+}
+.form_group_product_field.form_group_w30{
+  width: 30%;
+}
+.form_group_product_field.form_group_w40{
+  width: 40%;
+}
+.form_group_product_field.form_group_w50{
+  width: 50%;
+}
+.form_group_product_field.form_group_w60{
+  width: 60%;
+}
+.form_group_product_field.form_group_w70{
+  width: 70%;
 }
 .form_group_product_field label{
   display: block;

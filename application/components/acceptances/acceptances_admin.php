@@ -219,7 +219,7 @@ class Acceptances_admin extends CI_Component {
           'type'     => 'ajax',
           'class'    => 'btn-default',
           'icon'     => 'glyphicon-plus',
-          'onclick'  => 'renderFieldsProducts(this);',
+          'onclick'  => 'renderFieldsProducts("/admin/acceptances/renderProductsFields/html/", this);',
           'reaction' => ''
         )
       )
@@ -341,7 +341,7 @@ class Acceptances_admin extends CI_Component {
           'type'     => 'ajax',
           'class'    => 'btn-primary '.($label ? 'form_group_product_field_btn' : 'form_group_product_field_btn_m5'),
           'icon'     => 'glyphicon-plus',
-          'onclick'  => 'renderFieldsProducts(this);',
+          'onclick'  => 'renderFieldsProducts("/admin/acceptances/renderProductsFields/html/", this);',
           'reaction' => ''
         )
       )

@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS `pr_clients` (
   `title_full` varchar(1000) NOT NULL DEFAULT '',
   `order` int(10) unsigned NOT NULL DEFAULT '0',
   `active` boolean NOT NULL DEFAULT 1,
+  `one_time` boolean NOT NULL DEFAULT false,
   PRIMARY KEY (`id`),
   KEY `city_id` (`city_id`),
   KEY `admin_id` (`admin_id`)
@@ -68,6 +69,7 @@ ALTER TABLE `pr_products`
 
 DROP TABLE IF EXISTS `pr_client_acceptances`;
 
+-- Акты приемки
 CREATE TABLE IF NOT EXISTS `pr_client_acceptances` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `date` date NOT NULL,

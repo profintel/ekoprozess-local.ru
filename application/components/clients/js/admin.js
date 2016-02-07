@@ -83,11 +83,11 @@ function changeRegion(el,type){
 }
 
 /**
-* Форма акта приемки
+* Форма прихода / акта приемки
 * добавляет в форму блок с вторсырьем
 */
-function renderFieldsProducts(obj){
-  $.post('/admin/acceptances/renderProductsFields/html/', {}, function(result) {
+function renderFieldsProducts(path, obj){
+  $.post(path, {}, function(result) {
     //отображаем результат
     result = $.parseHTML(result);
     result = $(result).find('.form_block');

@@ -1,4 +1,4 @@
-/*** Generated 24.01.2016 20:59:39 ***/
+/*** Generated 07.02.2016 23:18:20 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -4427,11 +4427,11 @@ function changeRegion(el,type){
 }
 
 /**
-* Форма акта приемки
+* Форма прихода / акта приемки
 * добавляет в форму блок с вторсырьем
 */
-function renderFieldsProducts(obj){
-  $.post('/admin/acceptances/renderProductsFields/html/', {}, function(result) {
+function renderFieldsProducts(path, obj){
+  $.post(path, {}, function(result) {
     //отображаем результат
     result = $.parseHTML(result);
     result = $(result).find('.form_block');
