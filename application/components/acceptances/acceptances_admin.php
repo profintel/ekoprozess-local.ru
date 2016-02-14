@@ -477,6 +477,7 @@ class Acceptances_admin extends CI_Component {
       'price'         => $this->input->post('price'),
     );
     if(!is_array($params_products['product_id']) || !@$params_products['product_id'][0]){
+      $this->acceptances_model->delete_acceptance($id);
       send_answer(array('errors' => array('Не указаны параметры вторсырья')));
     }
     foreach ($params_products['product_id'] as $key => $product_id) {
@@ -494,7 +495,7 @@ class Acceptances_admin extends CI_Component {
           'price'         => (float)str_replace(' ', '', $params_products['price'][$key]),
         );
         if (!$this->acceptances_model->create_acceptance($params)) {
-          $this->delete_acceptance($id);
+          $this->acceptances_model->delete_acceptance($id);
           send_answer(array('errors' => array('Ошибка при добавлении вторсырья в акт')));
         }
       }
@@ -600,8 +601,8 @@ class Acceptances_admin extends CI_Component {
       )
     );
     $blocks[] = array(
-      'title'   => '&nbsp;',
-      'collapse'=> false,
+      'title'    => '&nbsp;',
+      'collapse' => false,
       'fields'   => array(
         array(
           'view'     => 'fields/submit',

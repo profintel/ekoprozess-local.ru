@@ -29,6 +29,12 @@ class Libs_admin extends CI_Component {
         'link'  => $this->lang_prefix .'/admin/cities/'
       );
     }
+    if(exists_component('workshops')) {
+      $items[] = array(
+        'title' => 'Цеха',
+        'link'  => $this->lang_prefix .'/admin/workshops/'
+      );
+    }
     return $this->render_template('admin/menu', array(
       'title' => 'Справочники',
       'items' => $items

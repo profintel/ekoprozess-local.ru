@@ -1,4 +1,4 @@
-/*** Generated 07.02.2016 23:18:20 ***/
+/*** Generated 14.02.2016 23:19:54 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -4499,3 +4499,16 @@ function updateAcceptanceSumProduct(){
 $(document).ready(function(){
  
 })
+
+/**
+* Отправление прихода в учет остатков
+*/
+function sendComingMovement(path){
+  return send_confirm('Вы уверены, что хотите провести приход? После выполнения приход будет учтен в остатках, его нельзя будет отредактировать и удалить.',
+    (typeof(path) != 'undefined' ? path : ''),{},
+    function(){
+      document.location.reload();
+      sheet('hide');
+    }
+  );
+}

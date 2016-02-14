@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component>
+
+  <information>
+    <title>Цеха</title>
+    <description>Справочник. Управление цехами (добавление, редактирование, удаление)</description>
+  </information>
+  
+  <install>
+    <icon>glyphicon-book</icon>
+  </install>
+  
+</component>

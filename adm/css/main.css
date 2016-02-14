@@ -207,6 +207,7 @@ a.glyphicon:focus{
 
 .block-title{
   margin-bottom: 20px;
+  margin-right: 0;
   padding: 24px;
   border-bottom: 1px solid #e7eaec !important;
   background-color: #ffffff;
@@ -609,5 +610,8 @@ div.quick_form_input+div{
 @media print {
   #page-wrapper {
     margin: 0;
+  }
+  .btn{
+    display: none;
   }
 }

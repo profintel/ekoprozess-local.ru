@@ -10,6 +10,7 @@
     <menu>secondary</menu>
     <icon>glyphicon-list-alt</icon>
     <requirement>clients</requirement>
+    <requirement>workshops</requirement>
   </install>
   
 </component>

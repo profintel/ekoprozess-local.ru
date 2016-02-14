@@ -1,4 +1,4 @@
-/* Generated 07.02.2016 23:18:20 */
+/* Generated 14.02.2016 23:19:54 */
 
 /* components */
 
@@ -522,6 +522,7 @@ a.glyphicon:focus{
 
 .block-title{
   margin-bottom: 20px;
+  margin-right: 0;
   padding: 24px;
   border-bottom: 1px solid #e7eaec !important;
   background-color: #ffffff;
@@ -924,5 +925,8 @@ div.quick_form_input+div{
 @media print {
   #page-wrapper {
     margin: 0;
+  }
+  .btn{
+    display: none;
   }
 }
