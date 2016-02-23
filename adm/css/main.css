@@ -341,6 +341,9 @@ input[type="file"]{
   padding: 5px 0;
   background: none !important;
 }
+.form_group_product_field.form_group_w15{
+  width: 15%;
+}
 .form_group_product_field.form_group_w20{
   width: 20%;
 }
@@ -379,6 +382,10 @@ input[type="file"]{
 .form_group_product_field_btn_m5{
   margin-top: 5px;
   margin-left: 5px;
+}
+.form_group_product_field .rest,
+.form_group_product_field .rest_all{
+  line-height: 30px;
 }
 
 

@@ -213,15 +213,16 @@ class Store_admin extends CI_Component {
           'optgroup'=> true,
           'options' => $this->products_model->get_products(array('parent_id' => null)),
           'value'   => ($item ? $item['product_id'] : ''),
-          'form_group_class' => 'form_group_product_field form_group_w50',
+          'onchange'=> 'updateRestProduct(this)',
+          'form_group_class' => 'form_group_product_field form_group_w30',
         ),
         array(
-          'view'  => 'fields/text',
-          'title' => ($label ? 'Брутто, (кг)' : ''),
-          'name'  => 'gross[]',
-          'value' => ($item ? $item['gross'] : ''),
-          'class' => 'number',
-          'form_group_class' => 'form_group_product_field form_group_w20',
+          'view'    => 'fields/text',
+          'title'   => ($label ? 'Брутто, (кг)' : ''),
+          'name'    => 'gross[]',
+          'value'   => ($item ? $item['gross'] : ''),
+          'class'   => 'number',
+          'form_group_class' => 'form_group_product_field form_group_w15',
         ),
         array(
           'view'  => 'fields/text',
@@ -229,7 +230,19 @@ class Store_admin extends CI_Component {
           'name'  => 'cnt_places[]',
           'value' => ($item ? $item['cnt_places'] : ''),
           'class' => 'number',
-          'form_group_class' => 'form_group_product_field form_group_w20',
+          'form_group_class' => 'form_group_product_field form_group_w15',
+        ),
+        array(
+          'view'  => 'fields/readonly',
+          'title' => ($label ? 'Остаток по клиенту' : ''),
+          'value' => '<span class="rest h4">'.($item ? $item['rest'] : '0.00').'</span>',
+          'form_group_class' => 'form_group_product_field form_group_w15',
+        ),
+        array(
+          'view'  => 'fields/readonly',
+          'title' => ($label ? 'Остаток всего' : ''),
+          'value' => '<span class="rest_all h4">'.($item ? $item['rest_all'] : '0.00').'</span>',
+          'form_group_class' => 'form_group_product_field form_group_w15',
         ),
         array(
           'view'    => 'fields/submit',
@@ -273,12 +286,14 @@ class Store_admin extends CI_Component {
             'options'   => $this->clients_model->get_clients(),
             'value'     => $client_id,
             'empty'     => true,
+            'onchange'  => 'updateRestProduct(this)',
           ),
           array(
             'view'        => 'fields/text',
             'title'       => 'Поставщик:',
             'description' => 'Укажите в случае, если поставщика нет в базе клиентов',
             'name'        => 'company',
+            'onkeyup'     => 'updateRestProduct(this)',
           ),
           array(
             'view'  => 'fields/datetime',
@@ -289,10 +304,28 @@ class Store_admin extends CI_Component {
             'view'  => 'fields/datetime',
             'title' => 'Дата прихода на склад:',
             'name'  => 'date_second'
+          ),
+          array(
+            'view'  => 'fields/hidden',
+            'title' => 'Тип склада:',
+            'name'  => 'store_type_id',
+            'value' => $type_id
+          ),
+          array(
+            'view'  => 'fields/hidden',
+            'title' => 'Тип формы (приход или расход):',
+            'name'  => 'section',
+            'value' => 'coming'
+          ),
+          array(
+            'view'  => 'fields/hidden',
+            'title' => 'Наличие объекта в остатках:',
+            'name'  => 'active',
+            'value' => false
           )
         )
       ));
-      $productsFields = $this->renderProductFields();
+      $productsFields = $this->renderProductFields('array', array(), 'coming');
       foreach ($productsFields as $key => $productField) {
         $blocks[] = $productField;
       }     
@@ -396,7 +429,7 @@ class Store_admin extends CI_Component {
   }
 
   /**
-   *  Создание прихода.
+   *  Редактирование прихода.
   **/
   function edit_coming($id){
     $item = $this->store_model->get_coming(array('store_comings.id'=>$id));
@@ -420,6 +453,7 @@ class Store_admin extends CI_Component {
             'options'   => $this->clients_model->get_clients(),
             'value'     => $item['client_id'],
             'empty'     => true,
+            'onchange'  => 'updateRestProduct(this)',
           ),
           array(
             'view'  => 'fields/datetime',
@@ -432,6 +466,24 @@ class Store_admin extends CI_Component {
             'title' => 'Дата прихода на склад:',
             'name'  => 'date_second',
             'value' => ($item['date_second'] ? date('d.m.Y H:i:s', strtotime($item['date_second'])) : '')
+          ),
+          array(
+            'view'  => 'fields/hidden',
+            'title' => 'Тип склада:',
+            'name'  => 'store_type_id',
+            'value' => $item['store_type_id']
+          ),
+          array(
+            'view'  => 'fields/hidden',
+            'title' => 'Тип формы (приход или расход):',
+            'name'  => 'section',
+            'value' => 'coming'
+          ),
+          array(
+            'view'  => 'fields/hidden',
+            'title' => 'Наличие объекта в остатках:',
+            'name'  => 'active',
+            'value' => $item['active']
           )
         )
       ));
@@ -561,20 +613,77 @@ class Store_admin extends CI_Component {
       send_answer(array('errors' => array('Объект не найден')));
     }
 
-    // Отправляем приход в таблицу движения продукции
-    $params = array(
+    // Отправляем приход по каждому вторсырью
+    // в таблицу движения продукции
+    foreach ($item['childs'] as $key => $child) {
+      $params = array(
+        'store_type_id' => $item['store_type_id'],
+        'coming_id'     => $item['id'],
+        'client_id'     => $item['client_id'],
+        'product_id'    => $child['product_id'],
+        'date'          => $item['date_second'],
+        // если первичая продукция берем брутто, иначе нетто
+        'coming'        => ($item['store_type_id'] == 1 ? $child['gross'] : $child['net'])
       );
+      // записываем приход
+      $id = $this->store_model->create_movement_products($params);
+      if(!$id){
+        $this->store_model->delete_movement_products(array('coming_id' => $item['id']));
+        send_answer(array('errors' => array('Ошибка добавления вторсырья в учет остатков')));
+      }
+      // считаем остатки с учетом добавленной строки
+      // остатки по клиенту и вторсырью
+      $rest = $this->store_model->calculate_rest(array('store_type_id'=>$item['store_type_id'],'client_id'=>$item['client_id'],'product_id'=>$child['product_id']));
+      // общие остатки по сырью
+      $rest_all = $this->store_model->calculate_rest(array('store_type_id'=>$item['store_type_id'],'product_id'=>$child['product_id']));
+      
+      // записываем остаток в текущую строку движения
+      if(!$this->store_model->update_movement_products($id, array('rest' => $rest, 'rest_all' => $rest_all))){
+        $this->store_model->delete_movement_products(array('coming_id' => $item['id']));
+        send_answer(array('errors' => array('Ошибка подсчета остатков по вторсырью')));
+      }
+    }
 
-    // приходу ставим статус "Учтено в остатках"
-    if (!$this->store_model->update_coming($id, array('active' => 1))) {
+    // приходу и всем товарам прихода ставим статус "Учтено в остатках"
+    if (!$this->store_model->update_coming($item['id'], array('active' => 1))) {
+      $this->store_model->delete_movement_products(array('coming_id' => $item['id']));
       send_answer(array('errors' => array('Ошибка при сохранении изменений')));
     }
     foreach ($item['childs'] as $key => $child) {
       if (!$this->store_model->update_coming($child['id'], array('active' => 1))) {
+        $this->store_model->delete_movement_products(array('coming_id' => $item['id']));
         send_answer(array('errors' => array('Ошибка при сохранении изменений')));
       }
     }
-    send_answer();
+    send_answer(array('success' => array('Изменения успешно сохранены')));
+  }
+
+  /**
+  * Просмотр остатков на складе в карточке прихода / расхода
+  */
+  function get_rest_product(){
+    $rest = array('rest'=>0.00,'rest_all'=>0.00);
+    $params = array(
+      'store_type_id' => (int)$this->input->post('store_type_id'),
+      'client_id'     => (int)$this->input->post('client_id'),
+      'product_id'    => (int)$this->input->post('product_id'),
+    );
+    if($params['store_type_id'] && $params['client_id'] && $params['product_id']){
+      $result = $this->store_model->get_rest($params);
+      if($result){
+        $rest['rest'] = $result['rest'];
+      }
+    }
+    if($params['store_type_id'] && $params['product_id']){
+      $result = $this->store_model->get_rest(array(
+        'store_type_id' => $params['store_type_id'],
+        'product_id'    => $params['product_id'],
+      ));
+      if($result){
+        $rest['rest_all'] = $result['rest_all'];
+      }
+    }
+    echo json_encode($rest);
   }
 
   /**
@@ -673,7 +782,26 @@ class Store_admin extends CI_Component {
               'options'   => $this->clients_model->get_clients(),
               'value'     => $client_id,
               'empty'     => true,
+              'onchange'  => 'updateRestProduct(this)',
             ),
+            array(
+              'view'  => 'fields/hidden',
+              'title' => 'Тип склада:',
+              'name'  => 'store_type_id',
+              'value' => $type_id
+            ),
+            array(
+              'view'  => 'fields/hidden',
+              'title' => 'Тип формы (приход или расход):',
+              'name'  => 'section',
+              'value' => 'expenditure'
+            ),
+            array(
+              'view'  => 'fields/hidden',
+              'title' => 'Наличие объекта в остатках:',
+              'name'  => 'active',
+              'value' => false
+            )
           )
         )
       );    
@@ -695,7 +823,7 @@ class Store_admin extends CI_Component {
     );
 
     // Блоки с вторсырьем
-    $productsFields = $this->renderProductFields();
+    $productsFields = $this->renderProductFields('array', array(), 'expenditure');
     foreach ($productsFields as $key => $productField) {
       $blocks[] = $productField;
     } 
@@ -791,7 +919,7 @@ class Store_admin extends CI_Component {
   }
 
   /**
-   *  Создание расхода.
+   *  Редактирование расхода.
   **/
   function edit_expenditure($id){
     $item = $this->store_model->get_expenditure(array('store_expenditures.id'=>$id));
@@ -816,6 +944,25 @@ class Store_admin extends CI_Component {
               'options'   => $this->clients_model->get_clients(),
               'value'     => $item['client_id'],
               'empty'     => true,
+              'onchange'  => 'updateRestProduct(this)',
+            ),
+            array(
+              'view'  => 'fields/hidden',
+              'title' => 'Тип склада:',
+              'name'  => 'store_type_id',
+              'value' => $item['store_type_id']
+            ),
+            array(
+              'view'  => 'fields/hidden',
+              'title' => 'Тип формы (приход или расход):',
+              'name'  => 'section',
+              'value' => 'coming'
+            ),
+            array(
+              'view'  => 'fields/hidden',
+              'title' => 'Наличие объекта в остатках:',
+              'name'  => 'active',
+              'value' => $item['active']
             )
           )
         )

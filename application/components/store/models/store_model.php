@@ -181,6 +181,11 @@ class Store_model extends CI_Model {
       $item['childs'] = $this->get_comings(0,0,array('parent_id'=>$item['id']),array('id'=>'asc'));
       foreach ($item['childs'] as $key => &$child) {
         $child['product'] = $this->products_model->get_product(array('id' => $child['product_id']));
+        // остаток сырья на складе по клиенту
+        $rest = $this->get_rest(array('store_type_id' => $child['store_type_id'],'client_id' => $child['client_id'],'product_id' => $child['product_id']));
+        $child['rest'] = ($rest ? $rest['rest'] : 0.00);
+        $rest = $this->get_rest(array('store_type_id' => $child['store_type_id'],'product_id' => $child['product_id']));
+        $child['rest_all'] = ($rest ? $rest['rest_all'] : 0.00);
       }
       unset($child);
     }
@@ -204,6 +209,51 @@ class Store_model extends CI_Model {
   
   function delete_coming($id) {
     if ($this->db->delete('store_comings', array('id' => $id))) {
+      return true;
+    }
+    return false;
+  }
+  
+  /*
+  * Подсчитывает остаток сырья на складе
+  * @param params - тип склада, вид вторсырья, ...
+  */
+  function calculate_rest($params) {
+    $this->db->select('(SUM(coming)-SUM(expenditure)) as sum');
+    $this->db->where($params);
+    return $this->db->get('store_movement_products')->row()->sum;
+  }
+  
+  /*
+  * Выводит последний подсчитанный остаток сырья на складе
+  * @param params - тип склада, вид вторсырья, ...
+  */
+  function get_rest($params) {
+    $this->db->select('rest, rest_all');
+    $this->db->where($params);
+    $this->db->order_by('id','DESC');
+    return $this->db->get('store_movement_products')->row_array();
+  }
+
+  /*
+  * Добавление строки по движению сырья на складе
+  */
+  function create_movement_products($params) {
+    if ($this->db->insert('store_movement_products', $params)) {
+      return $this->db->query("SELECT LAST_INSERT_ID() as id")->row()->id;
+    }
+    return false;
+  }
+
+  function update_movement_products($id, $params) {
+    if ($this->db->update('store_movement_products', $params, array('id' => $id))) {
+      return true;
+    }
+    return false;
+  }
+  
+  function delete_movement_products($params) {
+    if ($this->db->delete('store_movement_products', $params)) {
       return true;
     }
     return false;
