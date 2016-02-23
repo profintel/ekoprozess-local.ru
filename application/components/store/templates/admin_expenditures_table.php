@@ -9,9 +9,10 @@
       <table class="table panel table-hover table-bordered table-store">
         <thead>
           <tr>
+            <th class="text-center hidden-print">Статус</th>
             <th>Дата</th>
             <th>Цех</th>
-            <th width="40%">Поставщик</th>
+            <th width="30%">Поставщик</th>
             <? if ($type_id == 1) {?>
               <th>Брутто, кг</th>
             <? } else {?>
@@ -25,6 +26,17 @@
         <? foreach ($items as $item) { ?>
           <tbody>
             <tr>
+              <?//если active==1 значит приход отправлен в учет движения товара на складе?>
+              <td class="text-center hidden-print" rowspan="<?=count($item['childs']);?>">
+                <? if ($item['active']) { ?>
+                  <span class="glyphicon glyphicon-ok text-success el-tooltip" data-toggle="tooltip" data-placement="right" title="Учтено в остатках"></span>
+                <? } else { ?>
+                  <span class="glyphicon glyphicon-pencil el-tooltip" data-toggle="tooltip" data-placement="right" title="Черновик. Не учитывается в остатках."></span><br>
+                  <a href="javascript:void(0)" class="btn btn-primary btn-xs el-tooltip" data-toggle="tooltip" data-placement="right" title="Отправить на склад" onclick='sendMovement("/admin/store/send_expenditure_movement/<?=$item['id'];?>/");'>
+                    <span class="glyphicon glyphicon-save"></span>
+                  </a>
+                <? } ?>
+              </td>
               <td rowspan="<?=count($item['childs']);?>">
                 <div class="dropdown">
                   <a class="dropdown-toggle" aria-haspopup="true" aria-expanded="false" data-toggle="dropdown"><?=date('d.m.Y',strtotime($item['date']));?></a>
@@ -131,21 +143,6 @@
             ?>
           </tbody>
         <? } ?>
-        <tfoot>
-          <tr>
-            <th></th>
-            <th></th>
-            <th>
-              <? if ($type_id == 1) {?>
-                <span class="text-nowrap"><?=number_format($all_gross,2,'.',' ');?></span>
-              <? } else {?>
-                <span class="text-nowrap"><?=number_format($all_net,2,'.',' ');?></span>
-              <? } ?>
-            </th>
-            <th></th>
-            <th></th>
-          </tr>
-        </tfoot>
       </table>
       <?=(isset($pagination) && $pagination ? $pagination : '');?>
     <? } ?>

@@ -417,7 +417,7 @@ class Store_admin extends CI_Component {
       }
     }
 
-    send_answer();
+    send_answer(array('redirect' => '/admin'.$this->params['path'].'edit_coming/'.$id.'/'));
   }
   
   function _validate_coming_params($type_id, $params) {
@@ -509,7 +509,7 @@ class Store_admin extends CI_Component {
             'view'     => 'fields/submit',
             'title'    => 'Отправить на склад',
             'type'     => 'ajax',
-            'onclick'  => 'sendComingMovement("/admin/store/send_coming_movement/'.$item['id'].'/");'
+            'onclick'  => 'sendMovement("/admin/store/send_coming_movement/'.$item['id'].'/",this);'
           ),
         )
       );      
@@ -603,9 +603,8 @@ class Store_admin extends CI_Component {
     send_answer();
   }
 
-
   /**
-   * Отправление прихода в учет остатков
+   * Отправление прихода на склад
   **/
   function send_coming_movement($id) {
     $item = $this->store_model->get_coming(array('store_comings.id'=>$id));
@@ -629,7 +628,7 @@ class Store_admin extends CI_Component {
       $id = $this->store_model->create_movement_products($params);
       if(!$id){
         $this->store_model->delete_movement_products(array('coming_id' => $item['id']));
-        send_answer(array('errors' => array('Ошибка добавления вторсырья в учет остатков')));
+        send_answer(array('errors' => array('Ошибка добавления вторсырья на склад')));
       }
       // считаем остатки с учетом добавленной строки
       // остатки по клиенту и вторсырью
@@ -644,7 +643,7 @@ class Store_admin extends CI_Component {
       }
     }
 
-    // приходу и всем товарам прихода ставим статус "Учтено в остатках"
+    // приходу и всем товарам прихода ставим статус "Отправлено на склад"
     if (!$this->store_model->update_coming($item['id'], array('active' => 1))) {
       $this->store_model->delete_movement_products(array('coming_id' => $item['id']));
       send_answer(array('errors' => array('Ошибка при сохранении изменений')));
@@ -906,7 +905,7 @@ class Store_admin extends CI_Component {
       }
     }
 
-    send_answer();
+    send_answer(array('redirect' => '/admin'.$this->params['path'].'edit_expenditure/'.$id.'/'));
   }
   
   function _validate_expenditure_params($type_id, $params) {
@@ -992,18 +991,27 @@ class Store_admin extends CI_Component {
       $blocks[] = $productField;
     }   
 
-    $blocks[] = array(
-      'title'   => '&nbsp;',
-      'collapse'=> false,
-      'fields'   => array(
-        array(
-          'view'     => 'fields/submit',
-          'title'    => 'Сохранить',
-          'type'     => 'ajax',
-          'reaction' => ''
-        ),
-      )
-    );
+    // Если active==1 редактирование невозможно, т.к. оно отправлено в движение товара, для учета остатка
+    if (!$item['active']){
+      $blocks[] = array(
+        'title'   => '&nbsp;',
+        'collapse'=> false,
+        'fields'   => array(
+          array(
+            'view'     => 'fields/submit',
+            'title'    => 'Сохранить',
+            'type'     => 'ajax',
+            'reaction' => ''
+          ),
+          array(
+            'view'     => 'fields/submit',
+            'title'    => 'Отправить на склад',
+            'type'     => 'ajax',
+            'onclick'  => 'sendMovement("/admin/store/send_expenditure_movement/'.$item['id'].'/",this);'
+          ),
+        )
+      );      
+    }
 
     return $this->render_template('admin/inner', array(
       'title' => 'Склад: '.$type['title'].'. Добавление расхода',
@@ -1075,6 +1083,67 @@ class Store_admin extends CI_Component {
   }
 
   /**
+   * Отправление расхода на склад
+  **/
+  function send_expenditure_movement($id) {
+    $item = $this->store_model->get_expenditure(array('store_expenditures.id'=>$id));
+    if(!$item){
+      send_answer(array('errors' => array('Объект не найден')));
+    }
+
+    // Отправляем расход по каждому вторсырью
+    // в таблицу движения продукции
+    foreach ($item['childs'] as $key => $child) {
+      $params = array(
+        'store_type_id' => $item['store_type_id'],
+        'expenditure_id'=> $item['id'],
+        'client_id'     => $item['client_id'],
+        'product_id'    => $child['product_id'],
+        'date'          => $item['date'],
+        // если первичая продукция берем брутто, иначе нетто
+        'expenditure'   => ($item['store_type_id'] == 1 ? $child['gross'] : $child['net'])
+      );
+      // проверяем чтобы остаток не был < 0
+      // текущий остаток
+      $rest = $this->store_model->get_rest(array('store_type_id'=>$item['store_type_id'],'client_id'=>$item['client_id'],'product_id'=>$child['product_id']));
+      if(!$rest || ($rest['rest'] - $params['expenditure']) < 0){
+        $this->store_model->delete_movement_products(array('expenditure_id' => $item['id']));
+        send_answer(array('errors' => array('Остаток на складе не может быть меньше 0. Проверьте расход вторсырья "'.$child['product']['title'].'"')));        
+      }
+      // записываем расход
+      $id = $this->store_model->create_movement_products($params);
+      if(!$id){
+        $this->store_model->delete_movement_products(array('expenditure_id' => $item['id']));
+        send_answer(array('errors' => array('Ошибка добавления вторсырья на склад')));
+      }
+      // считаем остатки с учетом добавленной строки
+      // остатки по клиенту и вторсырью
+      $rest = $this->store_model->calculate_rest(array('store_type_id'=>$item['store_type_id'],'client_id'=>$item['client_id'],'product_id'=>$child['product_id']));
+      // общие остатки по сырью
+      $rest_all = $this->store_model->calculate_rest(array('store_type_id'=>$item['store_type_id'],'product_id'=>$child['product_id']));
+      
+      // записываем остаток в текущую строку движения
+      if(!$this->store_model->update_movement_products($id, array('rest' => $rest, 'rest_all' => $rest_all))){
+        $this->store_model->delete_movement_products(array('expenditure_id' => $item['id']));
+        send_answer(array('errors' => array('Ошибка подсчета остатков по вторсырью')));
+      }
+    }
+
+    // расходу и всем товарам расхода ставим статус "Отправлено на склад"
+    if (!$this->store_model->update_expenditure($item['id'], array('active' => 1))) {
+      $this->store_model->delete_movement_products(array('expenditure_id' => $item['id']));
+      send_answer(array('errors' => array('Ошибка при сохранении изменений')));
+    }
+    foreach ($item['childs'] as $key => $child) {
+      if (!$this->store_model->update_expenditure($child['id'], array('active' => 1))) {
+        $this->store_model->delete_movement_products(array('expenditure_id' => $item['id']));
+        send_answer(array('errors' => array('Ошибка при сохранении изменений')));
+      }
+    }
+    send_answer(array('success' => array('Изменения успешно сохранены')));
+  }
+
+  /**
    * Удаление расхода
   **/
   function delete_expenditure($id) {
@@ -1083,6 +1152,6 @@ class Store_admin extends CI_Component {
     }
     
     send_answer();
-  }
+  }  
 
 }

@@ -1,4 +1,4 @@
-/*** Generated 23.02.2016 23:12:12 ***/
+/*** Generated 24.02.2016 00:20:33 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -3770,23 +3770,30 @@ function handle_answer(answer, reaction, context, data_type) {
   }
 
   if(typeof(answer.errors) == 'object' && !$.isEmptyObject(answer.errors)) {
-    var form = $(context).parents('form'), input, error;
-    $.each(answer.errors, function(key,item){
-      input = form.find('[name="'+key+'"]');
-      if (input.length){
-        input.parents('.form-group').addClass('has-error');
-        input.before('<small class="error text-danger">'+item+'</small>');
-        $(document).scrollTop(input.scrollTop());
-      } else {
-        error = form.children('.form-error');
-        if(error.length){
-          error.text(item).addClass('alert alert-danger');
-          $(document).scrollTop(error.scrollTop());
+    if(typeof(context) == "undefined"){
+      setTimeout(function(){
+        my_modal('error', 'Возникли следующие ошибки:', answer.errors, 'OK');
+      },400)
+    } else {
+      var form = $(context).parents('form'), input, error;
+      $.each(answer.errors, function(key,item){
+        input = form.find('[name="'+key+'"]');
+        if (input.length){
+          input.parents('.form-group').addClass('has-error');
+          input.before('<small class="error text-danger">'+item+'</small>');
+          $(document).scrollTop(input.scrollTop());
         } else {
-          my_modal('error', 'Возникли следующие ошибки:', answer.errors, 'OK');
+          error = form.children('.form-error');
+
+          if(error.length){
+            error.text(item).addClass('alert alert-danger');
+            $(document).scrollTop(error.scrollTop());
+          } else {
+            my_modal('error', 'Возникли следующие ошибки:', answer.errors, 'OK');
+          }
         }
-      }
-    })
+      })
+    }
     sheet('hide');
   } else if(typeof(answer.redirect) != 'undefined') {
     document.location = answer.redirect;
@@ -4503,13 +4510,14 @@ $(document).ready(function(){
 /**
 * Отправление прихода в учет остатков
 */
-function sendComingMovement(path){
-  return send_confirm('Вы уверены, что хотите провести приход? После выполнения приход будет учтен в остатках, его нельзя будет отредактировать и удалить.',
+function sendMovement(path,obj){
+  return send_confirm('Вы уверены, что хотите отправить на склад? После выполнения объект будет учтен в остатках, его нельзя будет отредактировать и удалить.',
     (typeof(path) != 'undefined' ? path : ''),{},
     function(){
       document.location.reload();
       sheet('hide');
-    }
+    },
+    obj
   );
 }
 

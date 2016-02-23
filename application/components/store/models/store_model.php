@@ -397,6 +397,11 @@ class Store_model extends CI_Model {
       $item['childs'] = $this->get_expenditures(0,0,array('parent_id'=>$item['id']),array('id'=>'asc'));
       foreach ($item['childs'] as $key => &$child) {
         $child['product'] = $this->products_model->get_product(array('id' => $child['product_id']));
+        // остаток сырья на складе по клиенту
+        $rest = $this->get_rest(array('store_type_id' => $child['store_type_id'],'client_id' => $child['client_id'],'product_id' => $child['product_id']));
+        $child['rest'] = ($rest ? $rest['rest'] : 0.00);
+        $rest = $this->get_rest(array('store_type_id' => $child['store_type_id'],'product_id' => $child['product_id']));
+        $child['rest_all'] = ($rest ? $rest['rest_all'] : 0.00);
       }
       unset($child);
     }

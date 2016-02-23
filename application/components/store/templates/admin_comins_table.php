@@ -32,7 +32,7 @@
                   <span class="glyphicon glyphicon-ok text-success el-tooltip" data-toggle="tooltip" data-placement="right" title="Учтено в остатках"></span>
                 <? } else { ?>
                   <span class="glyphicon glyphicon-pencil el-tooltip" data-toggle="tooltip" data-placement="right" title="Черновик. Не учитывается в остатках."></span><br>
-                  <a href="javascript:void(0)" class="btn btn-primary btn-xs el-tooltip" data-toggle="tooltip" data-placement="right" title="Отправить на склад" onclick='sendComingMovement("/admin/store/send_coming_movement/<?=$item['id'];?>/");'>
+                  <a href="javascript:void(0)" class="btn btn-primary btn-xs el-tooltip" data-toggle="tooltip" data-placement="right" title="Отправить на склад" onclick='sendMovement("/admin/store/send_coming_movement/<?=$item['id'];?>/");'>
                     <span class="glyphicon glyphicon-save"></span>
                   </a>
                 <? } ?>
@@ -103,23 +103,6 @@
             ?>
           </tbody>
         <? } ?>
-        <tfoot>
-          <tr>
-            <th class="text-center hidden-print"></th>
-            <th></th>
-            <th></th>
-            <th></th>
-            <th>
-              <? if ($type_id == 1) {?>
-                <span class="text-nowrap"><?=number_format($all_gross,2,'.',' ');?></span>
-              <? } else {?>
-                <span class="text-nowrap"><?=number_format($all_net,2,'.',' ');?></span>
-              <? } ?>
-            </th>
-            <th></th>
-            <th></th>
-          </tr>
-        </tfoot>
       </table>
       <?=(isset($pagination) && $pagination ? $pagination : '');?>
     <? } ?>
