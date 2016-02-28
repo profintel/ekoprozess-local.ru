@@ -265,6 +265,7 @@ class Store_model extends CI_Model {
       $this->db->where($where);
     }
     $items = $this->db->get('store_movement_products')->result_array();
+    // echo $this->db->last_query();
     foreach ($items as $key => &$item) {
       $item['client'] = $this->clients_model->get_client(array('id'=>$item['client_id']));
       $item['product'] = $this->products_model->get_product(array('id' => $item['product_id']));

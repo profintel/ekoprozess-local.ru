@@ -1314,7 +1314,7 @@ class Store_admin extends CI_Component {
     if(!$type){
       show_error('Не найден тип склада');
     }
-    $where = array('store_movement_products.store_type_id' => $type_id);
+    $where = 'pr_store_movement_products.store_type_id = '. $type_id;
     $error = '';
     $product_id = $this->uri->getParam('product_id');
     $get_params = array(
@@ -1324,13 +1324,16 @@ class Store_admin extends CI_Component {
       'product_id'  => ($product_id && @$product_id[0] ? $product_id : array()),
     );
     if($get_params['date_start']){
-      $where['store_movement_products.date >='] = $get_params['date_start'];
+      $where .= ($where ? ' AND ' : '').'pr_store_movement_products.date >= "'. $get_params['date_start'].'"';
     }
     if($get_params['date_end']){
-      $where['store_movement_products.date <='] = $get_params['date_end'];
+      $where .= ($where ? ' AND ' : '').'pr_store_movement_products.date <= "'. $get_params['date_end'].'"';
     }
     if($get_params['client_id']){
-      $where['store_movement_products.client_id'] = $get_params['client_id'];
+      $where .= ($where ? ' AND ' : '').'pr_store_movement_products.client_id = '. $get_params['client_id'];
+    }
+    if($get_params['product_id']){
+      $where .= ($where ? ' AND ' : '').'pr_store_movement_products.product_id IN ('.implode(',', $get_params['product_id']).')';
     }
 
     $page = ($this->uri->getParam('page') ? $this->uri->getParam('page') : 1);
@@ -1346,7 +1349,7 @@ class Store_admin extends CI_Component {
       'ajax'    => true,
       'pages'   => $pages,
       'page'    => $page,
-      'prefix'  => '/admin'.$this->params['path'].'rests/',
+      'prefix'  => '/admin'.$this->params['path'].'rests/'.$type_id.'/',
       'postfix' => $postfix
     );
     $items = $this->store_model->get_rests($limit, $offset, $where);
@@ -1359,7 +1362,7 @@ class Store_admin extends CI_Component {
       'pagination'      => $this->load->view('templates/pagination', $pagination_data, true),
       'form' => $this->view->render_form(array(
         'method' => 'GET',
-        'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'rests/',        
+        'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'rests/'.$type_id.'/',        
         'enctype' => '',
         'blocks' => array(
           array(
@@ -1416,7 +1419,7 @@ class Store_admin extends CI_Component {
     );
     
     if($this->uri->getParam('ajax') == 1){
-      echo $this->load->view('../../application/components/clients/templates/admin_rests_table',$data,true);
+      echo $this->load->view('../../application/components/store/templates/admin_rests_table',$data,true);
     } else {
       return $this->render_template('templates/admin_items', array('data'=>$data));
     }
