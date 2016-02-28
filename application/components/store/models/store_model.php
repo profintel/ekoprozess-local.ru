@@ -207,8 +207,16 @@ class Store_model extends CI_Model {
     return false;
   }
   
-  function delete_coming($id) {
-    if ($this->db->delete('store_comings', array('id' => $id))) {
+  function delete_coming($cond) {
+    if(!$cond || (!is_int($cond) && !is_array($cond))){
+      return false;
+    }
+    if(is_int($cond)){
+      $this->db->where(array('id' => $cond));
+    } else {
+      $this->db->where($cond);
+    }
+    if ($this->db->delete('store_comings')) {
       return true;
     }
     return false;

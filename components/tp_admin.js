@@ -1,4 +1,4 @@
-/*** Generated 24.02.2016 00:20:33 ***/
+/*** Generated 27.02.2016 13:51:40 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -4510,12 +4510,11 @@ $(document).ready(function(){
 /**
 * Отправление прихода в учет остатков
 */
-function sendMovement(path,obj){
+function sendMovement(obj){
   return send_confirm('Вы уверены, что хотите отправить на склад? После выполнения объект будет учтен в остатках, его нельзя будет отредактировать и удалить.',
-    (typeof(path) != 'undefined' ? path : ''),{},
+    '',{},
     function(){
-      document.location.reload();
-      sheet('hide');
+      submit_form(obj,'reload','sendMovement/');
     },
     obj
   );

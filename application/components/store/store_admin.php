@@ -364,7 +364,7 @@ class Store_admin extends CI_Component {
     // Если поставщик не указан, создаем нового поставщика в базе с отметкой "Разовый поставщик"
     $client_id = ((int)$this->input->post('client_id') ? (int)$this->input->post('client_id') : NULL);
     if(!$client_id && !$this->input->post('company')){
-      send_answer(array('errors' => array('Не указан поставщик')));
+      send_answer(array('errors' => array('client_id'=>'Не указан поставщик')));
     }
     if(!$client_id){
       $client_id = $this->clients_model->create_client(array(
@@ -410,8 +410,12 @@ class Store_admin extends CI_Component {
           'net'           => (float)str_replace(' ', '', $params_products['net'][$key]),
           'cnt_places'    => (float)str_replace(' ', '', $params_products['cnt_places'][$key])
         );
+        if ($params['gross'] <= 0) {
+          $this->delete_coming($id, true);
+          send_answer(array('errors' => array('Укажите брутто для вторсырья')));
+        }
         if (!$this->store_model->create_coming($params)) {
-          $this->delete_coming($id);
+          $this->delete_coming($id, true);
           send_answer(array('errors' => array('Ошибка при добавлении вторсырья')));
         }
       }
@@ -509,14 +513,14 @@ class Store_admin extends CI_Component {
             'view'     => 'fields/submit',
             'title'    => 'Отправить на склад',
             'type'     => 'ajax',
-            'onclick'  => 'sendMovement("/admin/store/send_coming_movement/'.$item['id'].'/",this);'
+            'onclick'  => 'sendMovement(this);'
           ),
         )
       );      
     }
 
     return $this->render_template('admin/inner', array(
-      'title' => 'Склад: '.$type['title'].'. Добавление прихода',
+      'title' => 'Склад: '.$type['title'].'. Редактирование прихода',
       'html' => $this->view->render_form(array(
         'view'   => 'forms/default',
         'action' => $this->lang_prefix.'/admin'. $this->params['path'] .'_edit_coming_process/'.$id.'/',
@@ -526,16 +530,16 @@ class Store_admin extends CI_Component {
     ), TRUE);
   }
   
-  function _edit_coming_process($id) {
+  function _edit_coming_process($id,$sendMovement = false) {
     $item = $this->store_model->get_coming(array('store_comings.id'=>$id));
     if(!$item){
       send_answer(array('errors' => array('Объект не найден')));
     }
 
     // Если поставщик не указан, создаем нового поставщика в базе с отметкой "Разовый поставщик"
-    $client_id = ((int)$this->input->post('client_id') ? (int)$this->input->post('client_id') : NULL);
+    $client_id = ((int)$this->input->post('client_id') ? (int)$this->input->post('client_id') : false);
     if(!$client_id && !$this->input->post('company')){
-      send_answer(array('errors' => array('Не указан поставщик')));
+      send_answer(array('errors' => array('client_id'=>'Не указан поставщик')));
     }
     if(!$client_id){
       $client_id = $this->clients_model->create_client(array(
@@ -568,25 +572,41 @@ class Store_admin extends CI_Component {
       'net'           => $this->input->post('net'),
       'cnt_places'    => $this->input->post('cnt_places'),
     );
+    // перед удалением проверяем указан ли параметр брутто у вторсырья
+    foreach ($params_products['product_id'] as $key => $product_id) {
+      if($product_id && (float)str_replace(' ', '', $params_products['gross'][$key]) <= 0){
+        send_answer(array('errors' => array('Укажите брутто для вторсырья')));
+      }
+    }
+    //удаляем все параметры вторсырья по приходу и добавляем заново указанные
+    if (!$this->store_model->delete_coming(array('parent_id'=>$item['id']))) {
+      send_answer(array('errors' => array('Ошибка при удалении вторсырья')));
+    }
     foreach ($params_products['product_id'] as $key => $product_id) {
       if($product_id){
         //по ключу собираем все параметры вторсырья
         $params = array(
           'parent_id'     => $id,
           'client_id'     => $params['client_id'],
+          'store_type_id' => $item['store_type_id'],
           'product_id'    => (float)str_replace(' ', '', $params_products['product_id'][$key]),
           'gross'         => (float)str_replace(' ', '', $params_products['gross'][$key]),
           'net'           => (float)str_replace(' ', '', $params_products['net'][$key]),
           'cnt_places'    => (float)str_replace(' ', '', $params_products['cnt_places'][$key])
         );
-        if ($params_products['item_id'][$key] && 
-          !$this->store_model->update_coming($params_products['item_id'][$key], $params)) {
-          send_answer(array('errors' => array('Ошибка при сохранении вторсырьяе')));
-        }
-        if (!$params_products['item_id'][$key] && !$this->store_model->create_coming($params)) {
+        if (!$this->store_model->create_coming($params)) {
           send_answer(array('errors' => array('Ошибка при добавлении вторсырья')));
         }
       }
+    }
+
+    // Отравляем сырье на склад
+    if($sendMovement){
+      //проверяем на доступ к методу
+      if(!$this->permits_model->check_access($this->admin_id, $this->component['name'], $method = 'send_coming_movement')){
+        send_answer(array('errors' => array('У вас нет прав на отправление прихода на склад')));
+      }
+      $this->send_coming_movement($id);
     }
 
     send_answer(array('success' => array('Изменения успешно сохранены')));
@@ -595,9 +615,12 @@ class Store_admin extends CI_Component {
   /**
    * Удаление прихода
   **/
-  function delete_coming($id) {
+  function delete_coming($id, $return = false) {
     if (!$this->store_model->delete_coming((int)$id)){
       send_answer(array('errors' => array('Не удалось удалить объект')));
+    }
+    if($return){
+      return true;
     }
 
     send_answer();
@@ -610,6 +633,12 @@ class Store_admin extends CI_Component {
     $item = $this->store_model->get_coming(array('store_comings.id'=>$id));
     if(!$item){
       send_answer(array('errors' => array('Объект не найден')));
+    }
+    if(!$item['date_second']){
+      send_answer(array('errors' => array('date_second'=>'Не указана дата прихода')));
+    }
+    if(!$item['childs']){
+      send_answer(array('errors' => array('Приход должен содержать вторсырье')));
     }
 
     // Отправляем приход по каждому вторсырью
@@ -654,7 +683,7 @@ class Store_admin extends CI_Component {
         send_answer(array('errors' => array('Ошибка при сохранении изменений')));
       }
     }
-    send_answer(array('success' => array('Изменения успешно сохранены')));
+    send_answer();
   }
 
   /**
@@ -1014,7 +1043,7 @@ class Store_admin extends CI_Component {
     }
 
     return $this->render_template('admin/inner', array(
-      'title' => 'Склад: '.$type['title'].'. Добавление расхода',
+      'title' => 'Склад: '.$type['title'].'. Редактирование расхода',
       'html' => $this->view->render_form(array(
         'view'   => 'forms/default',
         'action' => $this->lang_prefix.'/admin'. $this->params['path'] .'_edit_expenditure_process/'.$id.'/',
@@ -1071,7 +1100,7 @@ class Store_admin extends CI_Component {
         );
         if ($params_products['item_id'][$key] && 
           !$this->store_model->update_expenditure($params_products['item_id'][$key], $params)) {
-          send_answer(array('errors' => array('Ошибка при сохранении вторсырьяе')));
+          send_answer(array('errors' => array('Ошибка при сохранении вторсырья')));
         }
         if (!$params_products['item_id'][$key] && !$this->store_model->create_expenditure($params)) {
           send_answer(array('errors' => array('Ошибка при добавлении вторсырья')));
@@ -1146,9 +1175,12 @@ class Store_admin extends CI_Component {
   /**
    * Удаление расхода
   **/
-  function delete_expenditure($id) {
+  function delete_expenditure($id, $return = false) {
     if (!$this->store_model->delete_expenditure((int)$id)){
       send_answer(array('errors' => array('Не удалось удалить объект')));
+    }
+    if($return){
+      return true;
     }
     
     send_answer();
