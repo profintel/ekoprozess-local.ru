@@ -53,7 +53,7 @@ class Store_admin extends CI_Component {
         ),
         array(
           'title' => 'Остаток',
-          'link'  => $this->lang_prefix.'/admin'. $this->params['path'] .'remains/'.$type_id.'/'
+          'link'  => $this->lang_prefix.'/admin'. $this->params['path'] .'rests/'.$type_id.'/'
         ),
       ),
       'back' => $this->lang_prefix.'/admin'. $this->params['path']
@@ -113,9 +113,10 @@ class Store_admin extends CI_Component {
     $items = $this->store_model->get_comings($limit, $offset, $where, false, $get_params['product_id']);
 
     $data = array(
-      'title'   => 'Склад: '.$type['title'].'. Приход',
-      'section' => 'coming',
-      'type_id'=> $type_id,
+      'title'       => 'Склад: '.$type['title'].'. Приход',
+      'section'     => 'coming',
+      'type_id'     => $type_id,
+      'pagination'  => $this->load->view('templates/pagination', $pagination_data, true),
       //формируем ссылку на создание объекта
       'link_create' => array(
           'title' => 'Создать приход',
@@ -139,6 +140,9 @@ class Store_admin extends CI_Component {
     }
     if($data['section'] == 'expenditure'){
       $template = '../../application/components/store/templates/admin_expenditures_table';
+    }
+    if($data['section'] == 'rest'){
+      $template = '../../application/components/store/templates/admin_rests_table';
     }
     return $this->load->view($template,$data,true);
   }
@@ -241,7 +245,7 @@ class Store_admin extends CI_Component {
         array(
           'view'  => 'fields/readonly',
           'title' => ($label ? 'Остаток всего' : ''),
-          'value' => '<span class="rest_all h4">'.($item ? $item['rest_all'] : '0.00').'</span>',
+          'value' => '<span class="rest_product h4">'.($item ? $item['rest_product'] : '0.00').'</span>',
           'form_group_class' => 'form_group_product_field form_group_w15',
         ),
         array(
@@ -398,6 +402,20 @@ class Store_admin extends CI_Component {
       'net'           => $this->input->post('net'),
       'cnt_places'    => $this->input->post('cnt_places'),
     );
+    // перед добавлением проверяем указан ли вес вторсырья
+    foreach ($params_products['product_id'] as $key => $product_id) {
+      if($product_id){
+        if($params['store_type_id'] == 1){
+          $coming = (float)str_replace(' ', '', $params_products['gross'][$key]);
+        } else {
+          $coming = (float)str_replace(' ', '', $params_products['net'][$key]);
+        }
+        if($coming <= 0){
+          $this->delete_coming($id, true);
+          send_answer(array('errors' => array('Укажите вес для вторсырья')));
+        }
+      }
+    }
     foreach ($params_products['product_id'] as $key => $product_id) {
       if($product_id){
         //по ключу собираем все параметры вторсырья
@@ -410,10 +428,6 @@ class Store_admin extends CI_Component {
           'net'           => (float)str_replace(' ', '', $params_products['net'][$key]),
           'cnt_places'    => (float)str_replace(' ', '', $params_products['cnt_places'][$key])
         );
-        if ($params['gross'] <= 0) {
-          $this->delete_coming($id, true);
-          send_answer(array('errors' => array('Укажите брутто для вторсырья')));
-        }
         if (!$this->store_model->create_coming($params)) {
           $this->delete_coming($id, true);
           send_answer(array('errors' => array('Ошибка при добавлении вторсырья')));
@@ -428,6 +442,9 @@ class Store_admin extends CI_Component {
     $errors = array();
     if (!$params['date_primary']) { $errors['date_primary'] = 'Не указана дата прибытия машины'; }
     if (!$params['client_id']) { $errors['client_id'] = 'Не указан поставщик'; }
+    if($params['date_second'] && $params['date_second'] < $params['date_primary']){
+      $errors['date_second'] = 'Дата прихода не может быть меньше даты прибытия машины';
+    }
 
     return $errors;
   }
@@ -513,7 +530,7 @@ class Store_admin extends CI_Component {
             'view'     => 'fields/submit',
             'title'    => 'Отправить на склад',
             'type'     => 'ajax',
-            'onclick'  => 'sendMovement(this);'
+            'onclick'  => 'sendMovement("",this);'
           ),
         )
       );      
@@ -566,16 +583,22 @@ class Store_admin extends CI_Component {
 
     //редактируем/добавляем вторсырье
     $params_products = array(
-      'item_id'       => $this->input->post('item_id'),
       'product_id'    => $this->input->post('product_id'),
       'gross'         => $this->input->post('gross'),
       'net'           => $this->input->post('net'),
       'cnt_places'    => $this->input->post('cnt_places'),
     );
-    // перед удалением проверяем указан ли параметр брутто у вторсырья
+    // перед удалением проверяем указан ли вес вторсырья
     foreach ($params_products['product_id'] as $key => $product_id) {
-      if($product_id && (float)str_replace(' ', '', $params_products['gross'][$key]) <= 0){
-        send_answer(array('errors' => array('Укажите брутто для вторсырья')));
+      if($product_id){
+        if($item['store_type_id'] == 1){
+          $coming = (float)str_replace(' ', '', $params_products['gross'][$key]);
+        } else {
+          $coming = (float)str_replace(' ', '', $params_products['net'][$key]);
+        }
+        if($coming <= 0){
+          send_answer(array('errors' => array('Укажите вес для вторсырья')));
+        }
       }
     }
     //удаляем все параметры вторсырья по приходу и добавляем заново указанные
@@ -616,6 +639,13 @@ class Store_admin extends CI_Component {
    * Удаление прихода
   **/
   function delete_coming($id, $return = false) {
+    $item = $this->store_model->get_coming(array('store_comings.id'=>$id));
+    if(!$item){
+      send_answer(array('errors' => array('Объект не найден')));
+    }
+    if($item['active']){
+      send_answer(array('errors' => array('Невозможно удалить приход, т.к. он отправлен на склад')));
+    }
     if (!$this->store_model->delete_coming((int)$id)){
       send_answer(array('errors' => array('Не удалось удалить объект')));
     }
@@ -641,6 +671,16 @@ class Store_admin extends CI_Component {
       send_answer(array('errors' => array('Приход должен содержать вторсырье')));
     }
 
+    // ошибка, если есть приход не отправленный на склад с более ранней датой
+    if($this->store_model->get_comings_cnt(array('store_comings.id !='=>$id,'store_comings.active'=>0,'store_comings.date_second <' => $item['date_second']))){
+      send_answer(array('errors' => array('Существует более ранний приход не отправленный на склад, для корректного подсчета остатков необходимо отправлять на склад приходы по дате прихода на склад')));
+    }
+
+    // ошибка, если есть расход не отправленный на склад с более ранней датой
+    if($this->store_model->get_expenditures_cnt(array('store_expenditures.active'=>0,'store_expenditures.date <=' => $item['date_second']))){
+      send_answer(array('errors' => array('Существует более ранний расход не отправленный на склад, для корректного подсчета остатков отправьте все расходы на склад')));
+    }
+
     // Отправляем приход по каждому вторсырью
     // в таблицу движения продукции
     foreach ($item['childs'] as $key => $child) {
@@ -663,10 +703,12 @@ class Store_admin extends CI_Component {
       // остатки по клиенту и вторсырью
       $rest = $this->store_model->calculate_rest(array('store_type_id'=>$item['store_type_id'],'client_id'=>$item['client_id'],'product_id'=>$child['product_id']));
       // общие остатки по сырью
-      $rest_all = $this->store_model->calculate_rest(array('store_type_id'=>$item['store_type_id'],'product_id'=>$child['product_id']));
+      $rest_product = $this->store_model->calculate_rest(array('store_type_id'=>$item['store_type_id'],'product_id'=>$child['product_id']));
+      // общие остатки всего сырья
+      $rest_all = $this->store_model->calculate_rest(array('store_type_id'=>$item['store_type_id']));
       
       // записываем остаток в текущую строку движения
-      if(!$this->store_model->update_movement_products($id, array('rest' => $rest, 'rest_all' => $rest_all))){
+      if(!$this->store_model->update_movement_products($id, array('rest' => $rest, 'rest_product' => $rest_product, 'rest_all' => $rest_all))){
         $this->store_model->delete_movement_products(array('coming_id' => $item['id']));
         send_answer(array('errors' => array('Ошибка подсчета остатков по вторсырью')));
       }
@@ -690,12 +732,15 @@ class Store_admin extends CI_Component {
   * Просмотр остатков на складе в карточке прихода / расхода
   */
   function get_rest_product(){
-    $rest = array('rest'=>0.00,'rest_all'=>0.00);
+    $rest = array('rest'=>0.00,'rest_product'=>0.00);
     $params = array(
       'store_type_id' => (int)$this->input->post('store_type_id'),
       'client_id'     => (int)$this->input->post('client_id'),
-      'product_id'    => (int)$this->input->post('product_id'),
+      'product_id'    => (int)$this->input->post('product_id')
     );
+    if($this->input->post('date')){
+      $params['date <='] = date('Y-m-d H:i:s',strtotime($this->input->post('date')));
+    }
     if($params['store_type_id'] && $params['client_id'] && $params['product_id']){
       $result = $this->store_model->get_rest($params);
       if($result){
@@ -703,12 +748,16 @@ class Store_admin extends CI_Component {
       }
     }
     if($params['store_type_id'] && $params['product_id']){
-      $result = $this->store_model->get_rest(array(
-        'store_type_id' => $params['store_type_id'],
-        'product_id'    => $params['product_id'],
-      ));
+      $params = array(
+        'store_type_id' => (int)$this->input->post('store_type_id'),
+        'product_id'    => (int)$this->input->post('product_id')
+      );
+      if($this->input->post('date')){
+        $params['date <='] = date('Y-m-d H:i:s',strtotime($this->input->post('date')));
+      }
+      $result = $this->store_model->get_rest($params);
       if($result){
-        $rest['rest_all'] = $result['rest_all'];
+        $rest['rest_product'] = $result['rest_product'];
       }
     }
     echo json_encode($rest);
@@ -767,9 +816,10 @@ class Store_admin extends CI_Component {
     $items = $this->store_model->get_expenditures($limit, $offset, $where, false, $get_params['product_id']);
 
     $data = array(
-      'title'   => 'Склад: '.$type['title'].'. Расход',
-      'section' => 'expenditure',
-      'type_id' => $type_id,
+      'title'      => 'Склад: '.$type['title'].'. Расход',
+      'section'    => 'expenditure',
+      'type_id'    => $type_id,
+      'pagination' => $this->load->view('templates/pagination', $pagination_data, true),
       //формируем ссылку на создание объекта
       'link_create' => array(
           'title' => 'Создать расход',
@@ -837,9 +887,10 @@ class Store_admin extends CI_Component {
 
     array_push($blocks['main_params']['fields'], 
       array(
-        'view'  => 'fields/datetime',
-        'title' => 'Дата расхода:',
-        'name'  => 'date'
+        'view'      => 'fields/datetime',
+        'title'     => 'Дата расхода:',
+        'name'      => 'date',
+        'onchange'  => 'updateRestProduct(this)',
       ),
       array(
         'view'    => 'fields/select',
@@ -911,8 +962,29 @@ class Store_admin extends CI_Component {
       'cnt_places'    => $this->input->post('cnt_places'),
     );
     if(!is_array($params_products['product_id']) || !@$params_products['product_id'][0]){
-      $this->store_model->delete_expenditure((int)$id);
+      $this->delete_expenditure($id, true);
       send_answer(array('errors' => array('Не указаны параметры вторсырья')));
+    }
+    // перед добавлением проверяем указаны ли все необходимые параметры
+    foreach ($params_products['product_id'] as $key => $product_id) {
+      if($product_id){
+        if($params['store_type_id'] == 1){
+          $expenditure = (float)str_replace(' ', '', $params_products['gross'][$key]);
+        } else {
+          $expenditure = (float)str_replace(' ', '', $params_products['net'][$key]);
+        }
+        if($expenditure <= 0){
+          $this->delete_expenditure($id, true);
+          send_answer(array('errors' => array('Укажите вес для вторсырья')));
+        }
+
+        // проверяем чтобы остаток не был < 0
+        $rest = $this->store_model->get_rest(array('store_type_id'=>$params['store_type_id'],'client_id'=>$params['client_id'],'product_id'=>$product_id,'date <='=>$params['date']));
+        if(!$rest || ($rest['rest'] - $expenditure) < 0){
+          $this->delete_expenditure($id, true);
+          send_answer(array('errors' => array('Остаток на складе не может быть меньше 0. Проверьте расход вторсырья')));
+        }
+      }
     }
     foreach ($params_products['product_id'] as $key => $product_id) {
       if($product_id){
@@ -928,7 +1000,7 @@ class Store_admin extends CI_Component {
           'cnt_places'    => (float)str_replace(' ', '', $params_products['cnt_places'][$key])
         );
         if (!$this->store_model->create_expenditure($params)) {
-          $this->store_model->delete_expenditure((int)$id);
+          $this->delete_expenditure($id, true);
           send_answer(array('errors' => array('Ошибка при добавлении вторсырья')));
         }
       }
@@ -999,10 +1071,11 @@ class Store_admin extends CI_Component {
 
     array_push($blocks['main_params']['fields'], 
       array(
-        'view'  => 'fields/datetime',
-        'title' => 'Дата расхода:',
-        'name'  => 'date',
-        'value' => ($item['date'] ? date('d.m.Y H:i:s', strtotime($item['date'])) : '')
+        'view'      => 'fields/datetime',
+        'title'     => 'Дата расхода:',
+        'name'      => 'date',
+        'onchange'  => 'updateRestProduct(this)',
+        'value'     => ($item['date'] ? date('d.m.Y H:i:s', strtotime($item['date'])) : '')
       ),
       array(
         'view'    => 'fields/select',
@@ -1036,7 +1109,7 @@ class Store_admin extends CI_Component {
             'view'     => 'fields/submit',
             'title'    => 'Отправить на склад',
             'type'     => 'ajax',
-            'onclick'  => 'sendMovement("/admin/store/send_expenditure_movement/'.$item['id'].'/",this);'
+            'onclick'  => 'sendMovement("",this);'
           ),
         )
       );      
@@ -1053,7 +1126,7 @@ class Store_admin extends CI_Component {
     ), TRUE);
   }
   
-  function _edit_expenditure_process($id) {
+  function _edit_expenditure_process($id,$sendMovement = false) {
     $item = $this->store_model->get_expenditure(array('store_expenditures.id'=>$id));
     if(!$item){
       send_answer(array('errors' => array('Объект не найден')));
@@ -1070,14 +1143,9 @@ class Store_admin extends CI_Component {
     if ($errors) {
       send_answer(array('errors' => $errors));
     }
-    
-    if (!$this->store_model->update_expenditure($id, $params)) {
-      send_answer(array('errors' => array('Ошибка при сохранении изменений')));
-    }
 
     //редактируем/добавляем вторсырье
     $params_products = array(
-      'item_id'       => $this->input->post('item_id'),
       'product_id'    => $this->input->post('product_id'),
       'gross'         => $this->input->post('gross'),
       'net'           => $this->input->post('net'),
@@ -1086,26 +1154,61 @@ class Store_admin extends CI_Component {
     if(!is_array($params_products['product_id']) || !@$params_products['product_id'][0]){
       send_answer(array('errors' => array('Не указаны параметры вторсырья')));
     }
+    // перед удалением проверяем указан ли все необходимые параметры
+    foreach ($params_products['product_id'] as $key => $product_id) {
+      if($product_id){
+        if($item['store_type_id'] == 1){
+          $expenditure = (float)str_replace(' ', '', $params_products['gross'][$key]);
+        } else {
+          $expenditure = (float)str_replace(' ', '', $params_products['net'][$key]);
+        }
+        if($expenditure <= 0){
+          send_answer(array('errors' => array('Укажите вес для вторсырья')));
+        }
+
+        // проверяем чтобы остаток не был < 0
+        $rest = $this->store_model->get_rest(array('store_type_id'=>$item['store_type_id'],'client_id'=>$params['client_id'],'product_id'=>$product_id,'date <='=>$params['date']));
+        if(!$rest || ($rest['rest'] - $expenditure) < 0){
+          send_answer(array('errors' => array('Остаток на складе не может быть меньше 0. Проверьте расход вторсырья')));
+        }
+      }
+    }
+    
+    if (!$this->store_model->update_expenditure($id, $params)) {
+      send_answer(array('errors' => array('Ошибка при сохранении изменений')));
+    }
+
+    //удаляем все параметры вторсырья по приходу и добавляем заново указанные
+    if (!$this->store_model->delete_expenditure(array('parent_id'=>$item['id']))) {
+      send_answer(array('errors' => array('Ошибка при удалении вторсырья')));
+    }
     foreach ($params_products['product_id'] as $key => $product_id) {
       if($product_id){
         //по ключу собираем все параметры вторсырья
         $params = array(
           'parent_id'         => $id,
           'client_id'         => $params['client_id'],
+          'store_type_id'     => $item['store_type_id'],
           'store_workshop_id' => $params['store_workshop_id'],
           'product_id'        => (float)str_replace(' ', '', $params_products['product_id'][$key]),
           'gross'             => (float)str_replace(' ', '', $params_products['gross'][$key]),
           'net'               => (float)str_replace(' ', '', $params_products['net'][$key]),
           'cnt_places'        => (float)str_replace(' ', '', $params_products['cnt_places'][$key])
         );
-        if ($params_products['item_id'][$key] && 
-          !$this->store_model->update_expenditure($params_products['item_id'][$key], $params)) {
-          send_answer(array('errors' => array('Ошибка при сохранении вторсырья')));
-        }
-        if (!$params_products['item_id'][$key] && !$this->store_model->create_expenditure($params)) {
+
+        if (!$this->store_model->create_expenditure($params)) {
           send_answer(array('errors' => array('Ошибка при добавлении вторсырья')));
         }
       }
+    }
+
+    // Отравляем сырье на склад
+    if($sendMovement){
+      //проверяем на доступ к методу
+      if(!$this->permits_model->check_access($this->admin_id, $this->component['name'], $method = 'send_expenditure_movement')){
+        send_answer(array('errors' => array('У вас нет прав на отправление расхода на склад')));
+      }
+      $this->send_expenditure_movement($id);
     }
 
     send_answer(array('success' => array('Изменения успешно сохранены')));
@@ -1118,6 +1221,14 @@ class Store_admin extends CI_Component {
     $item = $this->store_model->get_expenditure(array('store_expenditures.id'=>$id));
     if(!$item){
       send_answer(array('errors' => array('Объект не найден')));
+    }
+    if(!$item['childs']){
+      send_answer(array('errors' => array('Расход должен содержать вторсырье')));
+    }
+
+    // ошибка, если есть расход не отправленный на склад с более ранней датой
+    if($this->store_model->get_expenditures_cnt(array('store_expenditures.id !='=>$id,'store_expenditures.active'=>0,'store_expenditures.date <' => $item['date']))){
+      send_answer(array('errors' => array('Существует более ранний расход не отправленный на склад, для корректного подсчета остатков необходимо отправлять на склад расходы по возрастанию даты')));
     }
 
     // Отправляем расход по каждому вторсырью
@@ -1137,7 +1248,7 @@ class Store_admin extends CI_Component {
       $rest = $this->store_model->get_rest(array('store_type_id'=>$item['store_type_id'],'client_id'=>$item['client_id'],'product_id'=>$child['product_id']));
       if(!$rest || ($rest['rest'] - $params['expenditure']) < 0){
         $this->store_model->delete_movement_products(array('expenditure_id' => $item['id']));
-        send_answer(array('errors' => array('Остаток на складе не может быть меньше 0. Проверьте расход вторсырья "'.$child['product']['title'].'"')));        
+        send_answer(array('errors' => array('Остаток на складе не может быть меньше 0. Проверьте расход вторсырья "'.$child['product']['title_full'].'"')));        
       }
       // записываем расход
       $id = $this->store_model->create_movement_products($params);
@@ -1149,10 +1260,12 @@ class Store_admin extends CI_Component {
       // остатки по клиенту и вторсырью
       $rest = $this->store_model->calculate_rest(array('store_type_id'=>$item['store_type_id'],'client_id'=>$item['client_id'],'product_id'=>$child['product_id']));
       // общие остатки по сырью
-      $rest_all = $this->store_model->calculate_rest(array('store_type_id'=>$item['store_type_id'],'product_id'=>$child['product_id']));
+      $rest_product = $this->store_model->calculate_rest(array('store_type_id'=>$item['store_type_id'],'product_id'=>$child['product_id']));
+      // общие остатки всего сырья
+      $rest_all = $this->store_model->calculate_rest(array('store_type_id'=>$item['store_type_id']));
       
       // записываем остаток в текущую строку движения
-      if(!$this->store_model->update_movement_products($id, array('rest' => $rest, 'rest_all' => $rest_all))){
+      if(!$this->store_model->update_movement_products($id, array('rest' => $rest, 'rest_product' => $rest_product, 'rest_all' => $rest_all))){
         $this->store_model->delete_movement_products(array('expenditure_id' => $item['id']));
         send_answer(array('errors' => array('Ошибка подсчета остатков по вторсырью')));
       }
@@ -1176,6 +1289,13 @@ class Store_admin extends CI_Component {
    * Удаление расхода
   **/
   function delete_expenditure($id, $return = false) {
+    $item = $this->store_model->get_expenditure(array('store_expenditures.id'=>$id));
+    if(!$item){
+      send_answer(array('errors' => array('Объект не найден')));
+    }
+    if($item['active']){
+      send_answer(array('errors' => array('Невозможно удалить расход, т.к. он отправлен на склад')));
+    }
     if (!$this->store_model->delete_expenditure((int)$id)){
       send_answer(array('errors' => array('Не удалось удалить объект')));
     }
@@ -1186,4 +1306,119 @@ class Store_admin extends CI_Component {
     send_answer();
   }  
 
+  /**
+   * Просмотр отчета остатков на складе
+  **/
+  function rests($type_id){
+    $type = $this->store_model->get_store_type(array('id'=>(int)$type_id));
+    if(!$type){
+      show_error('Не найден тип склада');
+    }
+    $where = array('store_movement_products.store_type_id' => $type_id);
+    $error = '';
+    $product_id = $this->uri->getParam('product_id');
+    $get_params = array(
+      'date_start'  => ($this->uri->getParam('date_start') ? date('Y-m-d',strtotime($this->uri->getParam('date_start'))) : date('Y-m-1')),
+      'date_end'    => ($this->uri->getParam('date_end') ? date('Y-m-d',strtotime($this->uri->getParam('date_end'))) : ''),
+      'client_id'   => ((int)$this->uri->getParam('client_id') ? (int)$this->uri->getParam('client_id') : ''),
+      'product_id'  => ($product_id && @$product_id[0] ? $product_id : array()),
+    );
+    if($get_params['date_start']){
+      $where['store_movement_products.date >='] = $get_params['date_start'];
+    }
+    if($get_params['date_end']){
+      $where['store_movement_products.date <='] = $get_params['date_end'];
+    }
+    if($get_params['client_id']){
+      $where['store_movement_products.client_id'] = $get_params['client_id'];
+    }
+
+    $page = ($this->uri->getParam('page') ? $this->uri->getParam('page') : 1);
+    $limit = 50;
+    $offset = $limit * ($page - 1);
+    $cnt = $this->store_model->get_rests_cnt($where );
+    $pages = get_pages($page, $cnt, $limit);
+    $postfix = '&';
+    foreach ($get_params as $key => $value) {
+      $postfix .= $key.'='.$value.'&';
+    }
+    $pagination_data = array(
+      'ajax'    => true,
+      'pages'   => $pages,
+      'page'    => $page,
+      'prefix'  => '/admin'.$this->params['path'].'rests/',
+      'postfix' => $postfix
+    );
+    $items = $this->store_model->get_rests($limit, $offset, $where);
+    $data = array(
+      'title'           => 'Склад: '.$type['title'].'. Остаток',
+      'section'         => 'rest',
+      'type_id'         => $type_id,
+      'error'           => $error,
+      'items'           => $items,
+      'pagination'      => $this->load->view('templates/pagination', $pagination_data, true),
+      'form' => $this->view->render_form(array(
+        'method' => 'GET',
+        'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'rests/',        
+        'enctype' => '',
+        'blocks' => array(
+          array(
+            'title'         => 'Расширенный поиск',
+            'fields'   => array(
+              array(
+                'view'        => 'fields/datetime',
+                'title'       => 'Дата от:',
+                'name'        => 'date_start',
+                'value'       => ($get_params['date_start']? date('d.m.Y',strtotime($get_params['date_start'])) : ''),
+                'onchange1'    => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+              ),
+              array(
+                'view'        => 'fields/datetime',
+                'title'       => 'Дата до:',
+                'name'        => 'date_end',
+                'value'       => ($get_params['date_end']? date('d.m.Y',strtotime($get_params['date_end'])) : ''),
+                'onchange1'    => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+              ),
+              array(
+                'view'       => 'fields/select',
+                'title'      => 'Поставщик:',
+                'name'       => 'client_id',
+                'text_field' => 'title_full',
+                'value'      => $get_params['client_id'],
+                'options'    => $this->clients_model->get_clients(),
+                'empty'      => true,
+                'onchange'   => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+              ),
+              array(
+                'view'     => 'fields/select',
+                'title'    => 'Вид вторсырья:',
+                'name'     => 'product_id[]',
+                'multiple' => true,
+                'empty'    => true,
+                'optgroup' => true,
+                'options'  => $this->products_model->get_products(array('parent_id' => null)),
+                'value'    => $get_params['product_id'],
+                'onchange' => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+              ),
+              array(
+                'view'          => 'fields/submit',
+                'title'         => 'Сформировать',
+                'type'          => 'ajax',
+                'failure'       => '?ajax=1',
+                'reaction_func' => true,
+                'reaction'      => 'handle_ajaxResultHTML',
+                'data_type'     => 'html'
+              )
+            )
+          )
+        )
+      )),
+    );
+    
+    if($this->uri->getParam('ajax') == 1){
+      echo $this->load->view('../../application/components/clients/templates/admin_rests_table',$data,true);
+    } else {
+      return $this->render_template('templates/admin_items', array('data'=>$data));
+    }
+  }
 }

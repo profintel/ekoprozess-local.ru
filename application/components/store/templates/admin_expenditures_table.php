@@ -26,7 +26,7 @@
         <? foreach ($items as $item) { ?>
           <tbody>
             <tr>
-              <?//если active==1 значит приход отправлен в учет движения товара на складе?>
+              <?//если active==1 значит расход отправлен в учет движения товара на складе?>
               <td class="text-center hidden-print" rowspan="<?=count($item['childs']);?>">
                 <? if ($item['active']) { ?>
                   <span class="glyphicon glyphicon-ok text-success el-tooltip" data-toggle="tooltip" data-placement="right" title="Учтено в остатках"></span>
@@ -43,71 +43,31 @@
                   <ul class="dropdown-menu">
                     <li>
                       <a href="/admin<?=$this->component['path'];?>edit_<?=$section;?>/<?=$item['id'];?>/" title="Редактировать">
-                        <span class="glyphicon glyphicon-edit"></span> Редактировать
+                        <span class="glyphicon glyphicon-edit"></span> <?=($item['active'] ? 'Просмотреть' : 'Редактировать');?>
                       </a>
                     </li>
-                    <li class="divider"></li>
-                    <li>
-                      <a href="#"
-                        onClick="return send_confirm(
-                          'Вы уверены, что хотите удалить объект?',
-                          '/admin<?=$this->component['path'];?>delete_<?=$section;?>/<?=$item['id'];?>/',
-                          {},
-                          'reload'
-                        );"
-                        title="Удалить"
-                      ><span class="glyphicon glyphicon-trash"></span> Удалить</a>
-                    </li>
+                    <? if (!$item['active']) {?>
+                      <li class="divider"></li>
+                      <li>
+                        <a href="#"
+                          onClick="return send_confirm(
+                            'Вы уверены, что хотите удалить объект?',
+                            '/admin<?=$this->component['path'];?>delete_<?=$section;?>/<?=$item['id'];?>/',
+                            {},
+                            'reload'
+                          );"
+                          title="Удалить"
+                        ><span class="glyphicon glyphicon-trash"></span> Удалить</a>
+                      </li>
+                    <? } ?>
                   </ul>
                 </div>
               </td>
               <td rowspan="<?=count($item['childs']);?>">
-                <div class="dropdown">
-                  <a class="dropdown-toggle" aria-haspopup="true" aria-expanded="false" data-toggle="dropdown"><?=$item['workshop']['title'];?></a>
-                  <ul class="dropdown-menu">
-                    <li>
-                      <a href="/admin<?=$this->component['path'];?>edit_<?=$section;?>/<?=$item['id'];?>/" title="Редактировать">
-                        <span class="glyphicon glyphicon-edit"></span> Редактировать
-                      </a>
-                    </li>
-                    <li class="divider"></li>
-                    <li>
-                      <a href="#"
-                        onClick="return send_confirm(
-                          'Вы уверены, что хотите удалить объект?',
-                          '/admin<?=$this->component['path'];?>delete_<?=$section;?>/<?=$item['id'];?>/',
-                          {},
-                          'reload'
-                        );"
-                        title="Удалить"
-                      ><span class="glyphicon glyphicon-trash"></span> Удалить</a>
-                    </li>
-                  </ul>
-                </div>
+                <?=$item['workshop']['title'];?>
               </td>
               <td rowspan="<?=count($item['childs']);?>">
-                <div class="dropdown">
-                  <a class="dropdown-toggle" data-toggle="dropdown"><?=$item['client_title'];?></a>
-                  <ul class="dropdown-menu">
-                    <li>
-                      <a href="/admin<?=$this->component['path'];?>edit_<?=$section;?>/<?=$item['id'];?>/" title="Редактировать">
-                        <span class="glyphicon glyphicon-edit"></span> Редактировать
-                      </a>
-                    </li>
-                    <li class="divider"></li>
-                    <li>
-                      <a href="#"
-                        onClick="return send_confirm(
-                          'Вы уверены, что хотите удалить объект?',
-                          '/admin<?=$this->component['path'];?>delete_<?=$section;?>/<?=$item['id'];?>/',
-                          {},
-                          'reload'
-                        );"
-                        title="Удалить"
-                      ><span class="glyphicon glyphicon-trash"></span> Удалить</a>
-                    </li>
-                  </ul>
-                </div>
+                <?=$item['client_title'];?>
               </td>
               <td>
                 <? if ($type_id == 1) {?>

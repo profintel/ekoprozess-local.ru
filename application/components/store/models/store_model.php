@@ -182,10 +182,18 @@ class Store_model extends CI_Model {
       foreach ($item['childs'] as $key => &$child) {
         $child['product'] = $this->products_model->get_product(array('id' => $child['product_id']));
         // остаток сырья на складе по клиенту
-        $rest = $this->get_rest(array('store_type_id' => $child['store_type_id'],'client_id' => $child['client_id'],'product_id' => $child['product_id']));
-        $child['rest'] = ($rest ? $rest['rest'] : 0.00);
-        $rest = $this->get_rest(array('store_type_id' => $child['store_type_id'],'product_id' => $child['product_id']));
-        $child['rest_all'] = ($rest ? $rest['rest_all'] : 0.00);
+        if($child['active']){
+          // если расход отправлен на склад, выводим остатки на момент добавления расхода на склад
+          $rest = $this->get_rest(array('coming_id' => $child['parent_id'],'client_id' => $child['client_id'],'product_id' => $child['product_id']));
+          $child['rest'] = ($rest ? $rest['rest'] : 0.00);
+          $child['rest_product'] = ($rest ? $rest['rest_product'] : 0.00);
+        } else {
+          // если расход НЕ отправлен на склад, выводим остатки по последней строке из движения по сырью и клиенту
+          $rest = $this->get_rest(array('store_type_id' => $child['store_type_id'],'client_id' => $child['client_id'],'product_id' => $child['product_id']));
+          $child['rest'] = ($rest ? $rest['rest'] : 0.00);
+          $rest = $this->get_rest(array('store_type_id' => $child['store_type_id'],'product_id' => $child['product_id']));
+          $child['rest_product'] = ($rest ? $rest['rest_product'] : 0.00);
+        }
       }
       unset($child);
     }
@@ -237,10 +245,39 @@ class Store_model extends CI_Model {
   * @param params - тип склада, вид вторсырья, ...
   */
   function get_rest($params) {
-    $this->db->select('rest, rest_all');
+    $this->db->select('rest, rest_product');
     $this->db->where($params);
     $this->db->order_by('id','DESC');
     return $this->db->get('store_movement_products')->row_array();
+  } 
+
+  /*
+  * Формирует отсет движения товара на складе
+  * @param params - тип склада, клиент, вид вторсырья, ...
+  */
+  function get_rests($limit = 0, $offset = 0, $where = array(), $order_by = array()) {   
+    if ($limit) {
+      $this->db->limit($limit, $offset);
+    }
+    $this->db->order_by('id','asc');
+    
+    if ($where) {
+      $this->db->where($where);
+    }
+    $items = $this->db->get('store_movement_products')->result_array();
+    foreach ($items as $key => &$item) {
+      $item['client'] = $this->clients_model->get_client(array('id'=>$item['client_id']));
+      $item['product'] = $this->products_model->get_product(array('id' => $item['product_id']));
+    }
+    unset($item);
+    return $items;
+  }
+  
+  function get_rests_cnt($where = '') {
+    if ($where) {
+      $this->db->where($where);
+    }
+    return $this->db->count_all_results('store_movement_products');
   }
 
   /*
@@ -406,10 +443,18 @@ class Store_model extends CI_Model {
       foreach ($item['childs'] as $key => &$child) {
         $child['product'] = $this->products_model->get_product(array('id' => $child['product_id']));
         // остаток сырья на складе по клиенту
-        $rest = $this->get_rest(array('store_type_id' => $child['store_type_id'],'client_id' => $child['client_id'],'product_id' => $child['product_id']));
-        $child['rest'] = ($rest ? $rest['rest'] : 0.00);
-        $rest = $this->get_rest(array('store_type_id' => $child['store_type_id'],'product_id' => $child['product_id']));
-        $child['rest_all'] = ($rest ? $rest['rest_all'] : 0.00);
+        if($child['active']){
+          // если расход отправлен на склад, выводим остатки на момент добавления расхода на склад
+          $rest = $this->get_rest(array('expenditure_id' => $child['parent_id'],'client_id' => $child['client_id'],'product_id' => $child['product_id']));
+          $child['rest'] = ($rest ? $rest['rest'] : 0.00);
+          $child['rest_product'] = ($rest ? $rest['rest_product'] : 0.00);
+        } else {
+          // если расход НЕ отправлен на склад, выводим остатки по последней строке из движения по сырью и клиенту
+          $rest = $this->get_rest(array('store_type_id' => $child['store_type_id'],'client_id' => $child['client_id'],'product_id' => $child['product_id']));
+          $child['rest'] = ($rest ? $rest['rest'] : 0.00);
+          $rest = $this->get_rest(array('store_type_id' => $child['store_type_id'],'product_id' => $child['product_id']));
+          $child['rest_product'] = ($rest ? $rest['rest_product'] : 0.00);
+        }
       }
       unset($child);
     }
@@ -431,8 +476,16 @@ class Store_model extends CI_Model {
     return false;
   }
   
-  function delete_expenditure($id) {
-    if ($this->db->delete('store_expenditures', array('id' => $id))) {
+  function delete_expenditure($cond) {
+    if(!$cond || (!is_int($cond) && !is_array($cond))){
+      return false;
+    }
+    if(is_int($cond)){
+      $this->db->where(array('id' => $cond));
+    } else {
+      $this->db->where($cond);
+    }
+    if ($this->db->delete('store_expenditures')) {
       return true;
     }
     return false;

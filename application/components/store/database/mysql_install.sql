@@ -94,6 +94,7 @@ CREATE TABLE IF NOT EXISTS `pr_store_movement_products` (
   `coming` float NOT NULL,
   `expenditure` float NOT NULL,
   `rest` float NOT NULL,
+  `rest_product` float NOT NULL,
   `rest_all` float NOT NULL,
   `tm` timestamp NOT NULL default CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),

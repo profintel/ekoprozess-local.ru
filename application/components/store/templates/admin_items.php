@@ -7,9 +7,11 @@
       <p class="visible-xs-block">&nbsp;</p>
     </div>
     <div class="col-sm-3 pull-right text-right">
-      <a href="<?=$data['link_create']['path'];?>" class="btn btn-primary btn-xs pull-right">
-        <span class="glyphicon glyphicon-plus"></span> <?=$data['link_create']['title'];?>
-      </a>
+      <? if(isset($data['link_create']) && $data['link_create']) { ?>
+        <a href="<?=$data['link_create']['path'];?>" class="btn btn-primary btn-xs pull-right">
+          <span class="glyphicon glyphicon-plus"></span> <?=$data['link_create']['title'];?>
+        </a>
+      <? } ?>
     </div>
   </div>
 </div>
