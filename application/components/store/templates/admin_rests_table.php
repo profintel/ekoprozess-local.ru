@@ -6,6 +6,14 @@
     </div>
   <? } else { ?>
     <? if ($items) { ?>
+      <table class="table panel table-hover table-bordered table-store">      
+        <tbody>
+          <tr>
+            <th width="50%" class="text-middle">Общий остаток на складе</th>
+            <td><h4><?=number_format(@$rest['rest_all'],2,'.',' ');?></h4></td>
+          </tr>
+        </tbody>
+      </table>
       <table class="table panel table-hover table-bordered table-store">
         <thead>
           <tr>

@@ -244,9 +244,11 @@ class Store_model extends CI_Model {
   * Выводит последний подсчитанный остаток сырья на складе
   * @param params - тип склада, вид вторсырья, ...
   */
-  function get_rest($params) {
-    $this->db->select('rest, rest_product');
-    $this->db->where($params);
+  function get_rest($params = array()) {
+    $this->db->select('rest, rest_product, rest_all');
+    if($params){
+      $this->db->where($params);
+    }
     $this->db->order_by('id','DESC');
     return $this->db->get('store_movement_products')->row_array();
   } 

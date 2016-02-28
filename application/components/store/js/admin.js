@@ -29,7 +29,6 @@ function updateRestProduct(obj){
   store_type_id = form.find('input[name="store_type_id"]').val();
   client_id = form.find('select[name="client_id"]').val();
   date = form.find('input[name="date"]').val();
-  console.log(date);
   if(store_type_id && client_id){
     // находим все select-ы с вторсырьем и запрашиваем остатки
     products = form.find('select[name="product_id[]"]');
