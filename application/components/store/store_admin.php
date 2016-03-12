@@ -120,7 +120,7 @@ class Store_admin extends CI_Component {
       //формируем ссылку на создание объекта
       'link_create' => array(
           'title' => 'Создать приход',
-          'path' => $this->lang_prefix.'/admin'.$this->component['path'].'create_coming/'.$type_id.'/',
+          'path'  => $this->lang_prefix.'/admin'.$this->component['path'].'create_coming/'.$type_id.'/',
         ),
       'error' => $error,
       'items' => $items
@@ -1322,15 +1322,26 @@ class Store_admin extends CI_Component {
     if(!$type){
       show_error('Не найден тип склада');
     }
-    $where = 'pr_store_movement_products.store_type_id = '. $type_id;
     $error = '';
     $product_id = $this->uri->getParam('product_id');
     $get_params = array(
-      'date_start'  => ($this->uri->getParam('date_start') ? date('Y-m-d',strtotime($this->uri->getParam('date_start'))) : ''),
-      'date_end'    => ($this->uri->getParam('date_end') ? date('Y-m-d',strtotime($this->uri->getParam('date_end'))) : ''),
+      'date_start'  => ($this->uri->getParam('date_start') ? date('Y-m-d',strtotime($this->uri->getParam('date_start'))) : date('Y-m-1')),
+      'date_end'    => ($this->uri->getParam('date_end') ? date('Y-m-d',strtotime($this->uri->getParam('date_end'))) : date('Y-m-d')),
       'client_id'   => ((int)$this->uri->getParam('client_id') ? (int)$this->uri->getParam('client_id') : ''),
       'product_id'  => ($product_id && @$product_id[0] ? $product_id : array()),
+      'movement'    => ($this->uri->getParam('movement') ? true : false),
     );
+
+    if(!$get_params['date_start'] && ($get_params['date_end'] || $get_params['client_id'] || $get_params['product_id'])){
+      $error = 'Укажите дату';
+    }
+
+    if($get_params['movement'] && (!$get_params['date_end'] || !$get_params['date_start'])){
+      $error = 'Укажите период для формирования движения вторсырья (дату от и дату до)';
+    }
+
+    // условия для движения товара и подсчета общего прихода расхода
+    $where = 'pr_store_movement_products.store_type_id = '. $type_id;
     if($get_params['date_start']){
       $where .= ($where ? ' AND ' : '').'pr_store_movement_products.date >= "'. $get_params['date_start'].'"';
     }
@@ -1344,43 +1355,75 @@ class Store_admin extends CI_Component {
       $where .= ($where ? ' AND ' : '').'pr_store_movement_products.product_id IN ('.implode(',', $get_params['product_id']).')';
     }
 
-    if(!$get_params['date_start'] && ($get_params['date_end'] || $get_params['client_id'] || $get_params['product_id'])){
-      $error = 'Укажите дату';
-    }
-
-    $page = ($this->uri->getParam('page') ? $this->uri->getParam('page') : 1);
-    $limit = 50;
-    $offset = $limit * ($page - 1);
-
-    // если не указана дата то выводим последние 15 строк движения
-    if(!$get_params['date_start']){
-      $cnt = $this->store_model->get_rests_cnt();
-      $items = $this->store_model->get_rests(15, $cnt-15);
-    } else {
+    // Если нужно отобразить движение товара
+    if($get_params['movement']){
+      $page = ($this->uri->getParam('page') ? $this->uri->getParam('page') : 1);
+      $limit = 200;
+      $offset = $limit * ($page - 1);
       $cnt = $this->store_model->get_rests_cnt($where);
       $items = $this->store_model->get_rests($limit, $offset, $where);
+      $pages = get_pages($page, $cnt, $limit);
+      $postfix = '&';
+      foreach ($get_params as $key => $get_param_value) {
+        if(is_array($get_param_value)){
+          foreach ($get_param_value as $value) {
+            $postfix .= $key.'[]='.$value.'&';
+          }
+        } else {
+          $postfix .= $key.'='.$get_param_value.'&';
+        }
+      }
+      $pagination_data = array(
+        'ajax'    => true,
+        'pages'   => $pages,
+        'page'    => $page,
+        'prefix'  => '/admin'.$this->params['path'].'rests/'.$type_id.'/',
+        'postfix' => $postfix
+      );
     }
-    $pages = get_pages($page, $cnt, $limit);
-    $postfix = '&';
-    foreach ($get_params as $key => $value) {
-      $postfix .= $key.'='.$value.'&';
+
+    // Остатки
+    //условия для расчета входящего остатка и исходящего остатка
+    // если не указаны поставщик и виды вторсырья выводим общий остаток на начальную дату и на конечную дату
+    if(!$get_params['client_id'] && !$get_params['product_id']){
+      $rest_start = $this->store_model->get_rest('pr_store_movement_products.store_type_id = '. $type_id. ' AND pr_store_movement_products.date < "'. $get_params['date_start'].'"');
+      $rest_start = ($rest_start ? $rest_start['rest_all'] : 0);
+      $rest_end = $this->store_model->get_rest('pr_store_movement_products.store_type_id = '. $type_id. ' AND pr_store_movement_products.date <= "'. $get_params['date_end'].'"');
+      $rest_end = ($rest_end ? $rest_end['rest_all'] : 0);
+    } else {
+      $where_start = 'pr_store_movement_products.store_type_id = '. $type_id. ' AND pr_store_movement_products.date < "'. $get_params['date_start'].'"';
+      $where_end = 'pr_store_movement_products.store_type_id = '. $type_id. ' AND pr_store_movement_products.date <= "'. $get_params['date_end'].'"';
+      if($get_params['client_id']){
+        $where_start .= ($where_start ? ' AND ' : '').'pr_store_movement_products.client_id = '. $get_params['client_id'];
+        $where_end .= ($where_end ? ' AND ' : '').'pr_store_movement_products.client_id = '. $get_params['client_id'];
+      }
+      if($get_params['product_id']){
+        $where_start .= ($where_start ? ' AND ' : '').'pr_store_movement_products.product_id IN ('.implode(',', $get_params['product_id']).')';
+        $where_end .= ($where_end ? ' AND ' : '').'pr_store_movement_products.product_id IN ('.implode(',', $get_params['product_id']).')';
+      }
+      $rest_start = $this->store_model->calculate_rest($where_start);
+      $rest_end = $this->store_model->calculate_rest($where_end);
     }
-    $pagination_data = array(
-      'ajax'    => true,
-      'pages'   => $pages,
-      'page'    => $page,
-      'prefix'  => '/admin'.$this->params['path'].'rests/'.$type_id.'/',
-      'postfix' => $postfix
-    );
+
+    $rest = array(
+        'start' => $rest_start,
+        'end'   => $rest_end,
+        'coming' => $this->store_model->calculate_coming($where),
+        'expenditure' => $this->store_model->calculate_expenditure($where),
+      );
     
     $data = array(
       'title'           => 'Склад: '.$type['title'].'. Остаток',
       'section'         => 'rest',
       'type_id'         => $type_id,
+      'type'            => $type,
       'error'           => $error,
-      'rest'            => $this->store_model->get_rest($where),
-      'items'           => $items,
-      'pagination'      => $this->load->view('templates/pagination', $pagination_data, true),
+      'client'          => ($get_params['client_id'] ? $this->clients_model->get_client(array('id'=>$get_params['client_id'])) : false),
+      'products'        => ($get_params['product_id'] ? $this->products_model->get_products('id IN ('.implode(',', $get_params['product_id']).')') : false),
+      'rest'            => $rest,
+      'items'           => (isset($items) ? $items : array()),
+      'get_params'      => $get_params,
+      'pagination'      => (isset($pagination_data) ? $this->load->view('templates/pagination', $pagination_data, true) : ''),
       'form' => $this->view->render_form(array(
         'method' => 'GET',
         'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'rests/'.$type_id.'/',        
@@ -1422,6 +1465,13 @@ class Store_admin extends CI_Component {
                 'optgroup' => true,
                 'options'  => $this->products_model->get_products(array('parent_id' => null)),
                 'value'    => $get_params['product_id'],
+                'onchange' => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+              ),
+              array(
+                'view'     => 'fields/checkbox',
+                'title'    => 'Показать движение вторсырья:',
+                'name'     => 'movement',
+                'checked'  => $get_params['movement'],
                 'onchange' => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
               ),
               array(

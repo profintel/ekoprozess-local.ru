@@ -16,10 +16,10 @@
   </div>
 </div>
 <div class="container-fluid">
-  <div class="clearfix">
+  <div class="clearfix hidden-print">
     <a class="btn btn-default btn-xs pull-left" href="/admin<?=$this->component['path'];?>store_types/<?=$data['type_id'];?>"><span class="glyphicon glyphicon-backward"></span> Назад</a>
     <? if (isset($data['form']) && $data['form']) { ?>
-      <a  class="btn btn-default btn-xs pull-right" href="/admin<?=$this->component['path'];?>clients_report/">Очистить параметры</a>
+      <a  class="btn btn-default btn-xs pull-right" href="/admin<?=$this->component['path'];?>rests/<?=$data['type_id'];?>/">Очистить параметры</a>
       <div class="clearfix"></div><br>
       <?=$data['form'];?>
     <? } ?>

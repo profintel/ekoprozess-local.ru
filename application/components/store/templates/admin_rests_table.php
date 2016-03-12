@@ -5,15 +5,22 @@
       <p><?=$error;?></p>
     </div>
   <? } else { ?>
+  <div class="panel">    
+    <h3 class="text-center">"<?=$type['title'];?>"<br/>Отчет по остаткам вторсырья на складе</h3><br/>
+    <h5>Отчет составлен за период  с <?=rus_date($get_params['date_start'],'j m Yг.');?> по <?=rus_date($get_params['date_end'],'j m Yг.');?></h5>
+    <? if($client) { ?>
+      <h5>Поставщик: "<?=$client['title_full'];?>"</h5>
+    <? } ?>
+    <? if ($products) {?>
+      <h5>Вторсырье: 
+        <? foreach ($products as $key => $product) {?>
+          <? if ($key != 0) echo ", ";?>
+          "<?=$product['title_full'];?>"
+        <? } ?>
+      </h5>
+    <? } ?>
+    <h5>Входящий остаток: <?=number_format(@$rest['start'],2,'.',' ');?> кг. на <?=rus_date($get_params['date_start'],'j m Yг.');?></h5><br/>
     <? if ($items) { ?>
-      <table class="table panel table-hover table-bordered table-store">      
-        <tbody>
-          <tr>
-            <th width="50%" class="text-middle">Общий остаток на складе</th>
-            <td><h4><?=number_format(@$rest['rest_all'],2,'.',' ');?></h4></td>
-          </tr>
-        </tbody>
-      </table>
       <table class="table panel table-hover table-bordered table-store">
         <thead>
           <tr>
@@ -25,30 +32,68 @@
             <th>Остаток</th>
           </tr>
         </thead>
-        <?$all_gross = $all_net = 0; ?>
-        <? foreach ($items as $item) { ?>
-          <tbody>
-            <tr>
-              <td>
-                <?=date('d.m.Y',strtotime($item['date']));?>
-              </td>
-              <td>
-                <?=$item['client']['title_full'];?>
-              </td>
-              <td><?=@$item['product']['title_full'];?></td>
-              <td>
-                <span class="text-nowrap"> + <?=@$item['coming'];?></span>
-              </td>
-              <td>
-                <span class="text-nowrap"><?= - @$item['expenditure'];?></span>
-              </td>
-              <td><?=@$item['rest_all'];?></td>
-            </tr>
-          </tbody>
-        <? } ?>
+        <tbody>
+          <? $rest_item = $rest['start']; ?>
+          <? foreach ($items as $item) { ?>
+              <tr>
+                <td>
+                  <?=date('j.m.Y',strtotime($item['date']));?>
+                </td>
+                <td>
+                  <?=$item['client']['title_full'];?>
+                </td>
+                <td><?=@$item['product']['title_full'];?></td>
+                <td>
+                  <span class="text-nowrap"> + <?=@$item['coming'];?></span>
+                </td>
+                <td>
+                  <span class="text-nowrap"><?= - @$item['expenditure'];?></span>
+                </td>
+                <td><?=$rest_item += ($item['coming']-$item['expenditure']);?></td>
+              </tr>
+          <? } ?>
+          <tr>
+            <td colspan="3"><h5 class="text-right">Итого обороты</h5></td>
+            <td>
+              <h4 class="text-nowrap"><?=number_format(@$rest['coming'],2,'.',' ');?></h4>
+            </td>
+            <td>
+              <h4 class="text-nowrap"><?=number_format(@$rest['expenditure'],2,'.',' ');?></h4>
+            </td>
+            <td></td>
+          </tr>
+          <tr>
+            <td colspan="3"><h5 class="text-right">Исходящий остаток на <?=rus_date($get_params['date_end'],'j m Yг.');?></h5></td>
+            <td>
+              <h4 class="text-nowrap"><?=number_format(@$rest['end'],2,'.',' ');?></h4>
+            </td>
+            <td></td>
+            <td></td>
+          </tr>
+        </tbody>
       </table>
       <?=(isset($pagination) && $pagination ? $pagination : '');?>
-    <? } ?>
+    <? } else { ?>
+      <table class="table panel table-hover table-store">
+        <tbody>
+          <tr class="text-uppercase">
+            <th width="30%"></th>
+            <th>Приход</th>
+            <th>Расход</th>
+          </tr>
+          <tr>
+            <td width="30%" class="text-middle"><h5>Итого обороты:</h5></td>
+            <td><h4><?=number_format(@$rest['coming'],2,'.',' ');?> кг.</h4></td>
+            <td><h4><?=number_format(@$rest['expenditure'],2,'.',' ');?> кг.</h4></td>
+          </tr>
+          <tr>
+            <td width="30%" class="text-middle"><h5>Исходящий остаток на <?=rus_date($get_params['date_end'],'j m Yг.');?></h5></td>
+            <td colspan="2"><h4><?=number_format(@$rest['end'],2,'.',' ');?> кг.</h4></td>
+          </tr>
+        </tbody>
+      </table>   
+    <? } ?> 
+  </div>
   <? } ?>
   </div></div>
 </div>

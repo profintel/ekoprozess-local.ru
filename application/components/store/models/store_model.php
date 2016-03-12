@@ -241,6 +241,26 @@ class Store_model extends CI_Model {
   }
   
   /*
+  * Подсчитывает приход сырья на складе
+  * @param params - тип склада, вид вторсырья, ...
+  */
+  function calculate_coming($params) {
+    $this->db->select('SUM(coming) as sum');
+    $this->db->where($params);
+    return $this->db->get('store_movement_products')->row()->sum;
+  }
+  
+  /*
+  * Подсчитывает расход сырья на складе
+  * @param params - тип склада, вид вторсырья, ...
+  */
+  function calculate_expenditure($params) {
+    $this->db->select('SUM(expenditure) as sum');
+    $this->db->where($params);
+    return $this->db->get('store_movement_products')->row()->sum;
+  }
+  
+  /*
   * Выводит последний подсчитанный остаток сырья на складе
   * @param params - тип склада, вид вторсырья, ...
   */
