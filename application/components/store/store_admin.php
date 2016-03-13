@@ -231,7 +231,7 @@ class Store_admin extends CI_Component {
         array(
           'view'    => 'fields/'.($type_id == 2 ? 'text' : 'hidden'),
           'title'   => ($label ? 'Нетто, (кг)' : ''),
-          'name'    => 'gross[]',
+          'name'    => 'net[]',
           'value'   => ($item ? $item['net'] : ''),
           'class'   => 'number',
           'form_group_class' => 'form_group_product_field form_group_w15',
@@ -419,7 +419,7 @@ class Store_admin extends CI_Component {
         }
         if($coming <= 0){
           $this->delete_coming($id, true);
-          send_answer(array('errors' => array('Укажите вес для вторсырья')));
+          send_answer(array('errors' => array('Укажите вес для вторсырья '.$params_products['product_id'][$key])));
         }
       }
     }
@@ -516,7 +516,7 @@ class Store_admin extends CI_Component {
           )
         )
       ));
-      $productsFields = $this->renderProductFields('array', $item['childs'], 'coming', $type_id);
+      $productsFields = $this->renderProductFields('array', $item['childs'], 'coming', $type['id']);
       foreach ($productsFields as $key => $productField) {
         $blocks[] = $productField;
       }      
@@ -546,6 +546,7 @@ class Store_admin extends CI_Component {
 
     return $this->render_template('admin/inner', array(
       'title' => 'Склад: '.$type['title'].'. Редактирование прихода',
+      'type_id' => $type['id'],
       'html' => $this->view->render_form(array(
         'view'   => 'forms/default',
         'action' => $this->lang_prefix.'/admin'. $this->params['path'] .'_edit_coming_process/'.$id.'/',
@@ -605,7 +606,7 @@ class Store_admin extends CI_Component {
           $coming = (float)str_replace(' ', '', $params_products['net'][$key]);
         }
         if($coming <= 0){
-          send_answer(array('errors' => array('Укажите вес для вторсырья')));
+          send_answer(array('errors' => array('Укажите вес для вторсырья '.$params_products['product_id'][$key])));
         }
       }
     }
@@ -1096,7 +1097,7 @@ class Store_admin extends CI_Component {
     );
 
     // Вторсырье
-    $productsFields = $this->renderProductFields('array', $item['childs'], 'expenditure', $type_id);
+    $productsFields = $this->renderProductFields('array', $item['childs'], 'expenditure', $type['id']);
     foreach ($productsFields as $key => $productField) {
       $blocks[] = $productField;
     }   
@@ -1355,35 +1356,8 @@ class Store_admin extends CI_Component {
       $where .= ($where ? ' AND ' : '').'pr_store_movement_products.product_id IN ('.implode(',', $get_params['product_id']).')';
     }
 
-    // Если нужно отобразить движение товара
-    if($get_params['movement']){
-      $page = ($this->uri->getParam('page') ? $this->uri->getParam('page') : 1);
-      $limit = 200;
-      $offset = $limit * ($page - 1);
-      $cnt = $this->store_model->get_rests_cnt($where);
-      $items = $this->store_model->get_rests($limit, $offset, $where);
-      $pages = get_pages($page, $cnt, $limit);
-      $postfix = '&';
-      foreach ($get_params as $key => $get_param_value) {
-        if(is_array($get_param_value)){
-          foreach ($get_param_value as $value) {
-            $postfix .= $key.'[]='.$value.'&';
-          }
-        } else {
-          $postfix .= $key.'='.$get_param_value.'&';
-        }
-      }
-      $pagination_data = array(
-        'ajax'    => true,
-        'pages'   => $pages,
-        'page'    => $page,
-        'prefix'  => '/admin'.$this->params['path'].'rests/'.$type_id.'/',
-        'postfix' => $postfix
-      );
-    }
-
     // Остатки
-    //условия для расчета входящего остатка и исходящего остатка
+    // условия для расчета входящего остатка и исходящего остатка
     // если не указаны поставщик и виды вторсырья выводим общий остаток на начальную дату и на конечную дату
     if(!$get_params['client_id'] && !$get_params['product_id']){
       $rest_start = $this->store_model->get_rest('pr_store_movement_products.store_type_id = '. $type_id. ' AND pr_store_movement_products.date < "'. $get_params['date_start'].'"');
@@ -1411,6 +1385,54 @@ class Store_admin extends CI_Component {
         'coming' => $this->store_model->calculate_coming($where),
         'expenditure' => $this->store_model->calculate_expenditure($where),
       );
+
+    // Если нужно отобразить движение товара
+    if($get_params['movement']){
+      $page = ($this->uri->getParam('page') ? $this->uri->getParam('page') : 1);
+      $limit = 200;
+      $offset = $limit * ($page - 1);
+      $cnt = $this->store_model->get_rests_cnt($where);
+      $items = $this->store_model->get_rests($limit, $offset, $where);
+      // если не указаны поставщик и виды вторсырья в движении показываем остаток общий из базы
+      // иначе считаем остаток по каждой строке движения
+      if($items && ($get_params['client_id'] || $get_params['product_id'])){
+        // для первой страницы входящий остаток посчитан с учетом даты из формы
+        if($page > 1){
+          //для остальных страниц считаем входящий остаток с учетом id первого элемента items
+          $where_start = 'pr_store_movement_products.store_type_id = '. $type_id. ' AND pr_store_movement_products.id < "'. $items[0]['id'].'"';
+          if($get_params['client_id']){
+            $where_start .= ($where_start ? ' AND ' : '').'pr_store_movement_products.client_id = '. $get_params['client_id'];
+          }
+          if($get_params['product_id']){
+            $where_start .= ($where_start ? ' AND ' : '').'pr_store_movement_products.product_id IN ('.implode(',', $get_params['product_id']).')';
+          }
+          $rest_start = $this->store_model->calculate_rest($where_start);          
+        }
+        // перезаписываем остаток по движению - rest_all
+        foreach ($items as $key => &$item) {
+          $rest_start += $item['coming'] - $item['expenditure'];         
+          $item['rest_all'] = $rest_start;
+        }
+      }
+      $pages = get_pages($page, $cnt, $limit);
+      $postfix = '&';
+      foreach ($get_params as $key => $get_param_value) {
+        if(is_array($get_param_value)){
+          foreach ($get_param_value as $value) {
+            $postfix .= $key.'[]='.$value.'&';
+          }
+        } else {
+          $postfix .= $key.'='.$get_param_value.'&';
+        }
+      }
+      $pagination_data = array(
+        'ajax'    => true,
+        'pages'   => $pages,
+        'page'    => $page,
+        'prefix'  => '/admin'.$this->params['path'].'rests/'.$type_id.'/',
+        'postfix' => $postfix
+      );
+    }
     
     $data = array(
       'title'           => 'Склад: '.$type['title'].'. Остаток',
