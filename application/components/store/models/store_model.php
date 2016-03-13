@@ -99,6 +99,9 @@ class Store_model extends CI_Model {
           $item['client_title'] = $item['client']['title_full'];
         }
       }
+      if($item['store_workshop_id']){
+        $item['workshop'] = $this->workshops_model->get_workshop(array('id'=>$item['store_workshop_id']));
+      }
       //считаем общие параметры
       if(is_null($item['parent_id'])){
         $where = 'parent_id = '.$item['id'];
@@ -189,9 +192,9 @@ class Store_model extends CI_Model {
           $child['rest_product'] = ($rest ? $rest['rest_product'] : 0.00);
         } else {
           // если расход НЕ отправлен на склад, выводим остатки по последней строке из движения по сырью и клиенту
-          $rest = $this->get_rest(array('store_type_id' => $child['store_type_id'],'client_id' => $child['client_id'],'product_id' => $child['product_id']));
+          $rest = $this->get_rest(array('store_type_id' => $child['store_type_id'],'store_workshop_id' => $child['store_workshop_id'],'client_id' => $child['client_id'],'product_id' => $child['product_id']));
           $child['rest'] = ($rest ? $rest['rest'] : 0.00);
-          $rest = $this->get_rest(array('store_type_id' => $child['store_type_id'],'product_id' => $child['product_id']));
+          $rest = $this->get_rest(array('store_type_id' => $child['store_type_id'],'store_workshop_id' => $child['store_workshop_id'],'product_id' => $child['product_id']));
           $child['rest_product'] = ($rest ? $rest['rest_product'] : 0.00);
         }
       }
@@ -269,6 +272,7 @@ class Store_model extends CI_Model {
     if($params){
       $this->db->where($params);
     }
+    $this->db->limit(1, 0);
     $this->db->order_by('id','DESC');
     return $this->db->get('store_movement_products')->row_array();
   } 
@@ -289,8 +293,13 @@ class Store_model extends CI_Model {
     $items = $this->db->get('store_movement_products')->result_array();
     // echo $this->db->last_query();
     foreach ($items as $key => &$item) {
-      $item['client'] = $this->clients_model->get_client(array('id'=>$item['client_id']));
       $item['product'] = $this->products_model->get_product(array('id' => $item['product_id']));
+      if($item['client_id']){
+        $item['client'] = $this->clients_model->get_client(array('id'=>$item['client_id']));
+      }
+      if($item['store_workshop_id']){
+        $item['workshop'] = $this->workshops_model->get_workshop(array('id'=>$item['store_workshop_id']));
+      }
     }
     unset($item);
     return $items;
@@ -473,9 +482,9 @@ class Store_model extends CI_Model {
           $child['rest_product'] = ($rest ? $rest['rest_product'] : 0.00);
         } else {
           // если расход НЕ отправлен на склад, выводим остатки по последней строке из движения по сырью и клиенту
-          $rest = $this->get_rest(array('store_type_id' => $child['store_type_id'],'client_id' => $child['client_id'],'product_id' => $child['product_id']));
+          $rest = $this->get_rest(array('store_type_id' => $child['store_type_id'],'store_workshop_id' => $child['store_workshop_id'],'client_id' => $child['client_id'],'product_id' => $child['product_id']));
           $child['rest'] = ($rest ? $rest['rest'] : 0.00);
-          $rest = $this->get_rest(array('store_type_id' => $child['store_type_id'],'product_id' => $child['product_id']));
+          $rest = $this->get_rest(array('store_type_id' => $child['store_type_id'],'store_workshop_id' => $child['store_workshop_id'],'product_id' => $child['product_id']));
           $child['rest_product'] = ($rest ? $rest['rest_product'] : 0.00);
         }
       }

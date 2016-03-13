@@ -12,12 +12,9 @@
             <th class="text-center hidden-print">Статус</th>
             <th>Дата</th>
             <th>Цех</th>
-            <th width="30%">Поставщик</th>
-            <? if ($type_id == 1) {?>
-              <th>Брутто, кг</th>
-            <? } else {?>
-              <th>Нетто, кг</th>
-            <? } ?>
+            <? if ($type_id == 1) {?><th width="40%">Поставщик</th><? } ?>
+            <? if ($type_id == 1) {?><th>Брутто, кг</th><? } ?>
+            <? if ($type_id == 2) {?><th>Нетто, кг</th><? } ?>
             <th>Кол-во мест</th>
             <th>Вид вторсырья</th>
           </tr>
@@ -66,9 +63,11 @@
               <td rowspan="<?=count($item['childs']);?>">
                 <?=$item['workshop']['title'];?>
               </td>
-              <td rowspan="<?=count($item['childs']);?>">
-                <?=$item['client_title'];?>
-              </td>
+              <? if ($type_id == 1) {?>
+                <td rowspan="<?=count($item['childs']);?>">
+                  <?=$item['client_title'];?>
+                </td>
+              <? } ?>
               <td>
                 <? if ($type_id == 1) {?>
                   <span class="text-nowrap"><?=number_format(@$item['childs'][0]['gross'],2,'.',' ');?></span>

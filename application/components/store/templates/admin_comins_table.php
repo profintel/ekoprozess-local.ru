@@ -10,14 +10,12 @@
         <thead>
           <tr>
             <th class="text-center hidden-print">Статус</th>
-            <th>Дата прибытия машины</th>
+            <? if ($type_id == 1) {?><th>Дата прибытия машины</th><? } ?>            
             <th>Дата прихода на склад</th>
-            <th width="40%">Поставщик</th>
-            <? if ($type_id == 1) {?>
-              <th>Брутто, кг</th>
-            <? } else {?>
-              <th>Нетто, кг</th>
-            <? } ?>
+            <? if ($type_id == 1) {?><th width="40%">Поставщик</th><? } ?>
+            <? if ($type_id == 1) {?><th>Брутто, кг</th><? } ?>
+            <? if ($type_id == 2) {?><th>Цех</th><? } ?>
+            <? if ($type_id == 2) {?><th>Нетто, кг</th><? } ?>
             <th>Кол-во мест</th>
             <th>Вид вторсырья</th>
           </tr>
@@ -36,10 +34,38 @@
                     <span class="glyphicon glyphicon-save"></span>
                   </a>
                 <? } ?>
-              </td>
+              </td>              
+              <? if ($type_id == 1) {?>
+                <td rowspan="<?=count($item['childs']);?>">
+                  <div class="dropdown">
+                    <a class="dropdown-toggle" aria-haspopup="true" aria-expanded="false" data-toggle="dropdown"><?=date('d.m.Y',strtotime($item['date_primary']));?></a>
+                    <ul class="dropdown-menu">
+                      <li>
+                        <a href="/admin<?=$this->component['path'];?>edit_<?=$section;?>/<?=$item['id'];?>/" title="Редактировать">
+                          <span class="glyphicon glyphicon-edit"></span> <?=($item['active'] ? 'Просмотреть' : 'Редактировать');?>
+                        </a>
+                      </li>
+                      <? if (!$item['active']) {?>
+                        <li class="divider"></li>
+                        <li>
+                          <a href="#"
+                            onClick="return send_confirm(
+                              'Вы уверены, что хотите удалить объект?',
+                              '/admin<?=$this->component['path'];?>delete_<?=$section;?>/<?=$item['id'];?>/',
+                              {},
+                              'reload'
+                            );"
+                            title="Удалить"
+                          ><span class="glyphicon glyphicon-trash"></span> Удалить</a>
+                        </li>
+                      <? } ?>
+                    </ul>
+                  </div>
+                </td>
+              <? } ?>
               <td rowspan="<?=count($item['childs']);?>">
                 <div class="dropdown">
-                  <a class="dropdown-toggle" aria-haspopup="true" aria-expanded="false" data-toggle="dropdown"><?=date('d.m.Y',strtotime($item['date_primary']));?></a>
+                  <a class="dropdown-toggle" aria-haspopup="true" aria-expanded="false" data-toggle="dropdown"><?=date('d.m.Y',strtotime($item['date_second']));?></a>
                   <ul class="dropdown-menu">
                     <li>
                       <a href="/admin<?=$this->component['path'];?>edit_<?=$section;?>/<?=$item['id'];?>/" title="Редактировать">
@@ -63,12 +89,16 @@
                   </ul>
                 </div>
               </td>
-              <td rowspan="<?=count($item['childs']);?>">
-                <?=($item['date_second'] ? date('d.m.Y',strtotime($item['date_second'])) : '');?>
-              </td>
-              <td rowspan="<?=count($item['childs']);?>">
-                <?=$item['client_title'];?>
-              </td>
+              <? if ($type_id == 1) {?>
+                <td rowspan="<?=count($item['childs']);?>">
+                  <?=$item['client_title'];?>
+                </td>
+              <? } ?>
+              <? if ($type_id == 2) {?>
+                <td rowspan="<?=count($item['childs']);?>">
+                  <?=$item['workshop']['title'];?>
+                </td>
+              <? } ?>
               <td>
                 <? if ($type_id == 1) {?>
                   <span class="text-nowrap"><?=number_format(@$item['childs'][0]['gross'],2,'.',' ');?></span>

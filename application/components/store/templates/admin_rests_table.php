@@ -32,7 +32,8 @@
           <? } ?>
           <tr>
             <th>Дата</th>
-            <th width="40%">Поставщик</th>
+            <th>Цех</th>
+            <? if ($type_id == 1) {?><th width="40%">Поставщик</th><? } ?>
             <th>Вид вторсырья</th>
             <th>Приход, кг</th>
             <th>Расход, кг</th>
@@ -46,8 +47,13 @@
                 <?=date('j.m.Y',strtotime($item['date']));?>
               </td>
               <td>
-                <?=$item['client']['title_full'];?>
+                <?=(isset($item['workshop']) ? $item['workshop']['title'] : '');?>
               </td>
+              <? if ($type_id == 1) {?>
+                <td>
+                  <?=$item['client']['title_full'];?>
+                </td>
+              <? } ?>
               <td><?=$item['product']['title_full'];?></td>
               <td>
                 <span class="text-nowrap"> + <?=$item['coming'];?></span>

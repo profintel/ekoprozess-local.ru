@@ -86,6 +86,7 @@ ALTER TABLE `pr_store_expenditures`
 CREATE TABLE IF NOT EXISTS `pr_store_movement_products` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `store_type_id` int(10) unsigned DEFAULT NULL,
+  `store_workshop_id` int(10) unsigned DEFAULT NULL,
   `coming_id` int(10) unsigned DEFAULT NULL,
   `client_id` int(10) unsigned DEFAULT NULL,
   `expenditure_id` int(10) unsigned DEFAULT NULL,
@@ -100,12 +101,14 @@ CREATE TABLE IF NOT EXISTS `pr_store_movement_products` (
   PRIMARY KEY (`id`),
   KEY `client_id` (`client_id`),
   KEY `store_type_id` (`store_type_id`),
+  KEY `store_workshop_id` (`store_workshop_id`),
   KEY `coming_id` (`coming_id`),
   KEY `expenditure_id` (`expenditure_id`),
   KEY `product_id` (`product_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 ALTER TABLE `pr_store_movement_products`
+  ADD CONSTRAINT `pr_store_movement_products_ibfk_6` FOREIGN KEY (`store_workshop_id`) REFERENCES `pr_store_workshops` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `pr_store_movement_products_ibfk_5` FOREIGN KEY (`client_id`) REFERENCES `pr_clients` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `pr_store_movement_products_ibfk_4` FOREIGN KEY (`store_type_id`) REFERENCES `pr_store_types` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `pr_store_movement_products_ibfk_3` FOREIGN KEY (`coming_id`) REFERENCES `pr_store_comings` (`id`) ON DELETE CASCADE,
