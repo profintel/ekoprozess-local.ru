@@ -47,8 +47,8 @@
               <td><?=(isset($item['workshop']) ? $item['workshop']['title'] : '');?></td>
               <? if ($type_id == 1) {?><td><?=$item['client']['title_full'];?></td><? } ?>
               <td><?=$item['product']['title_full'];?></td>
-              <td><span class="text-nowrap"> + <?=$item['coming'];?></span></td>
-              <td><span class="text-nowrap"><?= - $item['expenditure'];?></span></td>
+              <td><span class="text-nowrap"><?=($item['coming'] ? '+ '.$item['coming'] : 0);?></span></td>
+              <td><span class="text-nowrap"><?=($item['expenditure'] ? '- '.$item['expenditure'] : 0);?></span></td>
               <td><?=$item['rest_all'];?></td>
             </tr>
           <? } ?>

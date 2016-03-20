@@ -1296,7 +1296,7 @@ class Store_admin extends CI_Component {
 
     // ошибка, если есть строки в движении с поздней датой
     $rest = $this->store_model->get_rest(array('store_type_id' => $item['store_type_id']));
-    if($rest && date('Y-m-d', strtotime($rest['date'])) > date('Y-m-d', strtotime($item['date_second']))){
+    if($rest && date('Y-m-d', strtotime($rest['date'])) > date('Y-m-d', strtotime($item['date']))){
       send_answer(array('errors' => array('В движении вторсырья на складе существует приход или расход с более поздней датой, для корректного подсчета остатков приходы и расходы должны быть заполненны по мере прибывания на склад')));
     }
 
