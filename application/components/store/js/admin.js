@@ -26,17 +26,23 @@ function updateRestProduct(obj){
   var form, store_type_id, client_id, products, form_block, rest;
   form =  $(obj).parents('form');
   // смотрим client_id и пересчитываем все остатки по указанному вторсырью
-  store_type_id = form.find('input[name="store_type_id"]').val();
-  client_id = form.find('select[name="client_id"]').val();
-  date = form.find('input[name="date"]').val();
-  if(store_type_id && client_id){
+  params = {
+    store_type_id:form.find('input[name="store_type_id"]').val(),
+    client_id:(form.find('select[name="client_id"]').length ? form.find('select[name="client_id"]').val() : null),
+    store_workshop_id:(form.find('select[name="store_workshop_id"]').length ? form.find('select[name="store_workshop_id"]').val() : null),
+    // дата используется для формы расхода
+    date:form.find('input[name="date"]').val(),
+    product_id:0,
+  }
+  if((params.store_type_id == 1 && params.client_id) || params.store_type_id == 2){
     // находим все select-ы с вторсырьем и запрашиваем остатки
     products = form.find('select[name="product_id[]"]');
     products.each(function(key,item){
       // если значение указано, запрашиваем остатки
       if($(item).val()){
+        params.product_id = $(item).val();
         $.post('/admin/store/get_rest_product/',
-          {store_type_id: store_type_id,client_id: client_id,product_id:$(item).val(),date:date},
+          params,
           function(result){
             form_block = $(item).parents('.form_block');
             // Обнуляем остатки

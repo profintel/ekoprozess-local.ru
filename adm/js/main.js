@@ -42,10 +42,21 @@ $(function() {
   };
   $.timepicker.setDefaults($.timepicker.regional['ru']);
 
-  $('.input-datetimepicker').datetimepicker({
-    hourGrid: 4,
-    minuteGrid: 10
-  });
+  if($(document).find('.input-datetimepicker').length){
+    var dateInputs = $(document).find('.input-datetimepicker');
+    dateInputs.datetimepicker({
+      hourGrid: 4,
+      minuteGrid: 10
+    });
+    $.each(dateInputs,function(key,item){
+      if($(item).data('mindate')){
+        $(item).datepicker( "option", "minDate", $(item).data('mindate'));
+      }
+      if($(item).data('maxdate')){
+        $(item).datepicker( "option", "maxDate", $(item).data('maxdate'));
+      }
+    })
+  }
   
   $("a.confirm").on('click', function() {
     if (confirm('Вы уверены?')) {

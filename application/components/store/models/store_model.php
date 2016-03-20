@@ -86,8 +86,8 @@ class Store_model extends CI_Model {
         $this->db->order_by($field,$dest);
       }
     } else {
-      $this->db->order_by('date_second','asc');
-      $this->db->order_by('tm','asc');
+      $this->db->order_by('date_second','desc');
+      $this->db->order_by('id','desc');
     }
     $this->db->group_by('store_comings.id');
     $items = $this->db->get('store_comings')->result_array();
@@ -268,7 +268,7 @@ class Store_model extends CI_Model {
   * @param params - тип склада, вид вторсырья, ...
   */
   function get_rest($params = array()) {
-    $this->db->select('rest, rest_product, rest_all');
+    $this->db->select('date, rest, rest_product, rest_all');
     if($params){
       $this->db->where($params);
     }
@@ -376,8 +376,8 @@ class Store_model extends CI_Model {
         $this->db->order_by($field,$dest);
       }
     } else {
-      $this->db->order_by('date','asc');
-      $this->db->order_by('tm','asc');
+      $this->db->order_by('date','desc');
+      $this->db->order_by('id','desc');
     }
     $this->db->group_by('store_expenditures.id');
     $items = $this->db->get('store_expenditures')->result_array();
@@ -477,14 +477,25 @@ class Store_model extends CI_Model {
         // остаток сырья на складе по клиенту
         if($child['active']){
           // если расход отправлен на склад, выводим остатки на момент добавления расхода на склад
-          $rest = $this->get_rest(array('expenditure_id' => $child['parent_id'],'client_id' => $child['client_id'],'product_id' => $child['product_id']));
+          $rest = $this->get_rest(array(
+            'expenditure_id'  => $child['parent_id'],
+            'client_id'       => $child['client_id'],
+            'product_id'      => $child['product_id']
+          ));
           $child['rest'] = ($rest ? $rest['rest'] : 0.00);
           $child['rest_product'] = ($rest ? $rest['rest_product'] : 0.00);
         } else {
           // если расход НЕ отправлен на склад, выводим остатки по последней строке из движения по сырью и клиенту
-          $rest = $this->get_rest(array('store_type_id' => $child['store_type_id'],'store_workshop_id' => $child['store_workshop_id'],'client_id' => $child['client_id'],'product_id' => $child['product_id']));
+          $rest = $this->get_rest(array(
+            'store_type_id' => $child['store_type_id'],
+            'client_id' => $child['client_id'],
+            'product_id' => $child['product_id']
+          ));
           $child['rest'] = ($rest ? $rest['rest'] : 0.00);
-          $rest = $this->get_rest(array('store_type_id' => $child['store_type_id'],'store_workshop_id' => $child['store_workshop_id'],'product_id' => $child['product_id']));
+          $rest = $this->get_rest(array(
+            'store_type_id' => $child['store_type_id'],
+            'product_id' => $child['product_id']
+          ));
           $child['rest_product'] = ($rest ? $rest['rest_product'] : 0.00);
         }
       }

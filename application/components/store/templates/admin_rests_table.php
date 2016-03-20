@@ -43,24 +43,12 @@
         <tbody>
           <? foreach ($items as $item) { ?>
             <tr>
-              <td>
-                <?=date('j.m.Y',strtotime($item['date']));?>
-              </td>
-              <td>
-                <?=(isset($item['workshop']) ? $item['workshop']['title'] : '');?>
-              </td>
-              <? if ($type_id == 1) {?>
-                <td>
-                  <?=$item['client']['title_full'];?>
-                </td>
-              <? } ?>
+              <td><?=date('j.m.Y',strtotime($item['date']));?></td>
+              <td><?=(isset($item['workshop']) ? $item['workshop']['title'] : '');?></td>
+              <? if ($type_id == 1) {?><td><?=$item['client']['title_full'];?></td><? } ?>
               <td><?=$item['product']['title_full'];?></td>
-              <td>
-                <span class="text-nowrap"> + <?=$item['coming'];?></span>
-              </td>
-              <td>
-                <span class="text-nowrap"><?= - $item['expenditure'];?></span>
-              </td>
+              <td><span class="text-nowrap"> + <?=$item['coming'];?></span></td>
+              <td><span class="text-nowrap"><?= - $item['expenditure'];?></span></td>
               <td><?=$item['rest_all'];?></td>
             </tr>
           <? } ?>
@@ -72,7 +60,7 @@
             </tr>
           <? } ?>
           <tr>
-            <td colspan="3"><h5 class="text-right">Итого обороты</h5></td>
+            <td colspan="<?=($type_id == 1 ? 4 : 3);?>"><h5 class="text-right">Итого обороты</h5></td>
             <td>
               <h4 class="text-nowrap"><?=number_format($rest['coming'],2,'.',' ');?></h4>
             </td>
@@ -82,7 +70,7 @@
             <td></td>
           </tr>
           <tr>
-            <td colspan="3"><h5 class="text-right">Исходящий остаток на <?=rus_date($get_params['date_end'],'j m Yг.');?></h5></td>
+            <td colspan="<?=($type_id == 1 ? 4 : 3);?>"><h5 class="text-right">Исходящий остаток на <?=rus_date($get_params['date_end'],'j m Yг.');?></h5></td>
             <td>
               <h4 class="text-nowrap"><?=number_format($rest['end'],2,'.',' ');?></h4>
             </td>

@@ -1,4 +1,4 @@
-/*** Generated 28.02.2016 23:11:50 ***/
+/*** Generated 20.03.2016 16:01:21 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -3548,10 +3548,21 @@ $(function() {
   };
   $.timepicker.setDefaults($.timepicker.regional['ru']);
 
-  $('.input-datetimepicker').datetimepicker({
-    hourGrid: 4,
-    minuteGrid: 10
-  });
+  if($(document).find('.input-datetimepicker').length){
+    var dateInputs = $(document).find('.input-datetimepicker');
+    dateInputs.datetimepicker({
+      hourGrid: 4,
+      minuteGrid: 10
+    });
+    $.each(dateInputs,function(key,item){
+      if($(item).data('mindate')){
+        $(item).datepicker( "option", "minDate", $(item).data('mindate'));
+      }
+      if($(item).data('maxdate')){
+        $(item).datepicker( "option", "maxDate", $(item).data('maxdate'));
+      }
+    })
+  }
   
   $("a.confirm").on('click', function() {
     if (confirm('Вы уверены?')) {
@@ -4531,17 +4542,23 @@ function updateRestProduct(obj){
   var form, store_type_id, client_id, products, form_block, rest;
   form =  $(obj).parents('form');
   // смотрим client_id и пересчитываем все остатки по указанному вторсырью
-  store_type_id = form.find('input[name="store_type_id"]').val();
-  client_id = form.find('select[name="client_id"]').val();
-  date = form.find('input[name="date"]').val();
-  if(store_type_id && client_id){
+  params = {
+    store_type_id:form.find('input[name="store_type_id"]').val(),
+    client_id:(form.find('select[name="client_id"]').length ? form.find('select[name="client_id"]').val() : null),
+    store_workshop_id:(form.find('select[name="store_workshop_id"]').length ? form.find('select[name="store_workshop_id"]').val() : null),
+    // дата используется для формы расхода
+    date:form.find('input[name="date"]').val(),
+    product_id:0,
+  }
+  if((params.store_type_id == 1 && params.client_id) || params.store_type_id == 2){
     // находим все select-ы с вторсырьем и запрашиваем остатки
     products = form.find('select[name="product_id[]"]');
     products.each(function(key,item){
       // если значение указано, запрашиваем остатки
       if($(item).val()){
+        params.product_id = $(item).val();
         $.post('/admin/store/get_rest_product/',
-          {store_type_id: store_type_id,client_id: client_id,product_id:$(item).val(),date:date},
+          params,
           function(result){
             form_block = $(item).parents('.form_block');
             // Обнуляем остатки

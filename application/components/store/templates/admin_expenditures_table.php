@@ -11,7 +11,7 @@
           <tr>
             <th class="text-center hidden-print">Статус</th>
             <th>Дата</th>
-            <th>Цех</th>
+            <? if ($type_id == 1) {?><th>Цех</th><? } ?>
             <? if ($type_id == 1) {?><th width="40%">Поставщик</th><? } ?>
             <? if ($type_id == 1) {?><th>Брутто, кг</th><? } ?>
             <? if ($type_id == 2) {?><th>Нетто, кг</th><? } ?>
@@ -60,9 +60,11 @@
                   </ul>
                 </div>
               </td>
-              <td rowspan="<?=count($item['childs']);?>">
-                <?=$item['workshop']['title'];?>
-              </td>
+              <? if ($type_id == 1) {?>
+                <td rowspan="<?=count($item['childs']);?>">
+                  <?=$item['workshop']['title'];?>
+                </td>
+              <? } ?>
               <? if ($type_id == 1) {?>
                 <td rowspan="<?=count($item['childs']);?>">
                   <?=$item['client_title'];?>

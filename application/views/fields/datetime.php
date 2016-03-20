@@ -30,6 +30,8 @@
       <?=(isset($vars['disabled']) && $vars['disabled'] ? 'disabled="disabled"' : '');?>
       <?=(isset($vars['onkeyup']) && $vars['onkeyup'] ? 'onkeyup="'.$vars['onkeyup'].'"' : '');?>
       <?=(isset($vars['onchange']) && $vars['onchange'] ? 'onchange="'.$vars['onchange'].'"' : '');?>
+      <?=(isset($vars['minDate']) && $vars['minDate'] ? 'data-mindate="'.$vars['minDate'].'"' : '');?>
+      <?=(isset($vars['maxDate']) && $vars['maxDate'] ? 'data-maxdate="'.$vars['maxDate'].'"' : '');?>
     />
   </div>
 </div>
