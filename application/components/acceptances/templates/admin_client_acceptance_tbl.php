@@ -45,6 +45,7 @@
       <th align="center">Брутто, кг</th>
       <th align="center">Упаковка, кг</th>
       <th align="center">Засор, %</th>
+      <th align="center">Количество мест</th>
       <th align="center">Нетто, кг</th>
       <th align="center">Цена, руб.</th>
       <th align="center">Стоимость, руб.</th>
@@ -56,6 +57,7 @@
         <td align="center"><?=$child['gross'];?></td>
         <td align="center"><?=$child['weight_pack'];?></td>
         <td align="center"><?=$child['weight_defect'];?></td>
+        <td align="center"><?=$child['cnt_places'];?></td>
         <td align="center"><?=$child['net'];?></td>
         <td align="center"><?=$child['price'];?></td>
         <td align="center"><?=($child['net']*$child['price']);?></td>
