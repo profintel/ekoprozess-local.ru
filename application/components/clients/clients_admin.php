@@ -984,7 +984,7 @@ class Clients_admin extends CI_Component {
           ),
         )
       )),
-      'back' => $this->lang_prefix .'/admin'. $this->params['path'].'clients_report/'
+      'back' => $this->lang_prefix .'/admin'. $this->params['path'].(!$item['one_time'] ? 'clients_report/' :'clients_one_time/')
     ), TRUE);
   }
 
