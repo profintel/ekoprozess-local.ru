@@ -103,6 +103,14 @@ ALTER TABLE `pr_client_acceptances`
 -- Добавила при доработке компонента 27.03.2016
 ALTER TABLE  `pr_client_acceptances` ADD  `cnt_places` INT UNSIGNED NOT NULL AFTER  `weight_defect`;
 
+ALTER TABLE  `pr_client_acceptances` ADD  `store_coming_id` INT UNSIGNED DEFAULT NULL AFTER  `parent_id`;
+
+ALTER TABLE  `pr_client_acceptances` ADD INDEX (  `store_coming_id` );
+
+ALTER TABLE `pr_client_acceptances` ADD CONSTRAINT `pr_client_acceptances_ibfk_4` FOREIGN KEY (`store_coming_id`) REFERENCES `pr_store_comings` (`id`) ON DELETE CASCADE;
+
+ALTER TABLE  `pr_client_acceptances` ADD  `auto` BOOLEAN NOT NULL AFTER  `comment`;
+
 DROP TABLE IF EXISTS `pr_client_acceptance_emails`;
 
 CREATE TABLE IF NOT EXISTS `pr_client_acceptance_emails` (

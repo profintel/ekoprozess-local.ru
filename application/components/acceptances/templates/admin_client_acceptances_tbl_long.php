@@ -26,7 +26,7 @@
         </tr>
         <?$all_gross = $all_net = $all_price = $all_add_expenses = $all_sum = 0; ?>
         <? foreach ($items as $item) { ?>
-          <tr>
+          <tr class="<?=($item['auto'] ? 'info' : '');?>">
             <td class="td-dropdown hidden-print" rowspan="<?=count($item['childs']);?>">
               <div class="dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown"></a>
@@ -97,7 +97,7 @@
           </tr>
           <?array_shift($item['childs']);?>
           <?foreach ($item['childs'] as $key => $child) {?>
-            <tr>
+            <tr class="<?=($item['auto'] ? 'info' : '');?>">
               <td>
                 <span class="text-nowrap"><?=number_format($child['gross'],2,'.',' ');?></span>
               </td>

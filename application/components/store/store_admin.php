@@ -234,18 +234,18 @@ class Store_admin extends CI_Component {
           'name'    => 'net[]',
           'value'   => ($item ? $item['net'] : ''),
           'class'   => 'number',
-          'form_group_class' => 'form_group_product_field',
+          'form_group_class' => 'form_group_product_field'.($type_id == 2 ? ' form_group_w20' : ''),
         ),
         array(
-          'view'  => 'fields/text',
+          'view'  => 'fields/'.($type_id == 1 ? 'text' : 'hidden'),
           'title' => ($label ? 'Упаковка, (кг)' : ''),
           'name'  => 'weight_pack[]',
           'value' => ($item ? $item['weight_pack'] : ''),
           'class' => 'number',
-          'form_group_class' => 'form_group_product_field',
+          'form_group_class' => 'form_group_product_field'
         ),
         array(
-          'view'  => 'fields/text',
+          'view'  => 'fields/'.($type_id == 1 ? 'text' : 'hidden'),
           'title' => ($label ? 'Засор, (%)' : ''),
           'name'  => 'weight_defect[]',
           'value' => ($item ? $item['weight_defect'] : ''),
@@ -258,7 +258,7 @@ class Store_admin extends CI_Component {
           'name'  => 'cnt_places[]',
           'value' => ($item ? $item['cnt_places'] : ''),
           'class' => 'number',
-          'form_group_class' => 'form_group_product_field',
+          'form_group_class' => 'form_group_product_field'.($type_id == 2 ? ' form_group_w20' : ''),
         ),
         array(
           'view'  => 'fields/'.($type_id == 1 ? 'readonly' : 'hidden'),
@@ -270,7 +270,7 @@ class Store_admin extends CI_Component {
           'view'  => 'fields/readonly',
           'title' => ($label ? 'Остаток на складе' : ''),
           'value' => '<span class="rest_product h4">'.($item ? $item['rest_product'] : '0.00').'</span>',
-          'form_group_class' => 'form_group_product_field',
+          'form_group_class' => 'form_group_product_field'.($type_id == 2 ? ' form_group_w20' : ''),
         ),
         array(
           'view'    => 'fields/submit',
@@ -523,7 +523,7 @@ class Store_admin extends CI_Component {
           'minDate' => ($rest ? date('d.m.Y',strtotime($rest['date'])) : null),
           'maxDate' => date('d.m.Y'),
           'name'    => 'date_primary',
-          'value'   => ($item['date_primary'] ? date('d.m.Y H:i:s', strtotime($item['date_primary'])) : '')
+          'value'   => ($item['date_primary'] ? date('d.m.Y H:i', strtotime($item['date_primary'])) : '')
         ),
         array(
           'view'    => 'fields/datetime',
@@ -531,7 +531,7 @@ class Store_admin extends CI_Component {
           'minDate' => ($rest ? date('d.m.Y',strtotime($rest['date'])) : null),
           'maxDate' => date('d.m.Y'),
           'name'    => 'date_second',
-          'value'   => ($item['date_second'] ? date('d.m.Y H:i:s', strtotime($item['date_second'])) : '')
+          'value'   => ($item['date_second'] ? date('d.m.Y H:i', strtotime($item['date_second'])) : '')
         ),
         array(
           'view'    => 'fields/'.($type['id'] == 1 ? 'hidden' : 'select'),
@@ -715,6 +715,7 @@ class Store_admin extends CI_Component {
     if(!$item){
       send_answer(array('errors' => array('Объект не найден')));
     }
+    
     if(!$item['date_second']){
       send_answer(array('errors' => array('date_second'=>'Не указана дата прихода')));
     }
@@ -793,10 +794,22 @@ class Store_admin extends CI_Component {
     }
     foreach ($item['childs'] as $key => $child) {
       if (!$this->store_model->update_coming($child['id'], array('active' => 1))) {
+        $this->store_model->update_coming($item['id'], array('active' => 0));
         $this->store_model->delete_movement_products(array('coming_id' => $item['id']));
         send_answer(array('errors' => array('Ошибка при сохранении изменений')));
       }
     }
+
+    // Создаем акт приемки по приходу первичного вторсырья
+    if($item['store_type_id'] == 1){
+      $this->load->component(array('name' => 'acceptances'));
+      if (!$this->acceptances->_create_acceptance_process(TRUE, $item['id'])) {
+        $this->store_model->update_coming($item['id'], array('active' => 0));
+        $this->store_model->delete_movement_products(array('coming_id' => $item['id']));
+        send_answer(array('errors' => array('Не удалось Создать акт приемки')));
+      }
+    }
+
     send_answer();
   }
 
@@ -1150,7 +1163,7 @@ class Store_admin extends CI_Component {
         'maxDate'   => date('d.m.Y'),
         'name'      => 'date',
         'onchange'  => 'updateRestProduct(this)',
-        'value'     => ($item['date'] ? date('d.m.Y H:i:s', strtotime($item['date'])) : '')
+        'value'     => ($item['date'] ? date('d.m.Y H:i', strtotime($item['date'])) : '')
       ),
       array(
         'view'    => 'fields/'.($type['id'] == 1 ? 'select' : 'hidden'),

@@ -447,42 +447,83 @@ class Acceptances_admin extends CI_Component {
     ), TRUE);
   }
   
-  function _create_acceptance_process() {
-    $params = array(
-      'date'          => ($this->input->post('date') ? date('Y-m-d', strtotime($this->input->post('date'))) : NULL),
-      'date_num'      => htmlspecialchars(trim($this->input->post('date_num'))),
-      'transport'     => htmlspecialchars(trim($this->input->post('transport'))),
-      'client_id'     => ((int)$this->input->post('client_id') ? (int)$this->input->post('client_id') : NULL),
-      'company'       => htmlspecialchars(trim($this->input->post('company'))),
-      'date_time'     => ($this->input->post('date_time') ? date('Y-m-d H:i:s', strtotime($this->input->post('date_time'))) : NULL),
-      'add_expenses'  => (float)str_replace(' ', '', $this->input->post('add_expenses')),
-    );
+  /**
+  * $auto - авоматическое создание актов без проверки прав, запускатеся из store_admin
+  * $store_coming_id - id прихода первичной продукции
+  */
+  function _create_acceptance_process($auto = false, $store_coming_id = null) {
+    if($auto){
+      $store_coming = $this->store_model->get_coming(array('store_comings.id'=>$store_coming_id));
+      if(!$store_coming){
+        send_answer(array('errors' => array('Ошибка при создании акта приемки. Приход не найден.')));
+      }
+      // var_dump($store_coming);
+      // return;
+      $params = array(
+        'date'      => date('Y-m-d', strtotime($store_coming['date_second'])),
+        'client_id' => ((int)$this->input->post('client_id') ? (int)$this->input->post('client_id') : NULL),
+        'date_time' => $store_coming['date_primary'],
+        'auto'      => 1,
+      );
+      $params_products = array(
+        'product_id'    => array(),
+        'weight_ttn'    => array(),
+        'gross'         => array(),
+        'weight_pack'   => array(),
+        'weight_defect' => array(),
+        'cnt_places'    => array(),
+        'net'           => array(),
+        'price'         => array(),
+      );
+      foreach ($store_coming['childs'] as $key => $child) {
+        $params_products['product_id'][]     = $child['product_id'];
+        $params_products['weight_ttn'][]     = 0;
+        $params_products['gross'][]          = $child['gross'];
+        $params_products['weight_pack'][]    = $child['weight_pack'];
+        $params_products['weight_defect'][]  = $child['weight_defect'];
+        $params_products['cnt_places'][]     = $child['cnt_places'];
+        $params_products['net'][]            = 0;
+        $params_products['price'][]          = 0;
+      }
+    }
+    if(!$auto){
+      $params = array(
+        'date'            => ($this->input->post('date') ? date('Y-m-d', strtotime($this->input->post('date'))) : NULL),
+        'date_num'        => htmlspecialchars(trim($this->input->post('date_num'))),
+        'transport'       => htmlspecialchars(trim($this->input->post('transport'))),
+        'client_id'       => ((int)$this->input->post('client_id') ? (int)$this->input->post('client_id') : NULL),
+        'company'         => htmlspecialchars(trim($this->input->post('company'))),
+        'date_time'       => ($this->input->post('date_time') ? date('Y-m-d H:i:s', strtotime($this->input->post('date_time'))) : NULL),
+        'add_expenses'    => (float)str_replace(' ', '', $this->input->post('add_expenses')),
+      );
 
-    $errors = $this->_validate_acceptance($params);
-    if ($errors) {
-      send_answer(array('errors' => $errors));
+      $errors = $this->_validate_acceptance($params);
+      if ($errors) {
+        send_answer(array('errors' => $errors));
+      }
+
+      //добавляем к акту вторсырье
+      $params_products = array(
+        'product_id'    => $this->input->post('product_id'),
+        'weight_ttn'    => $this->input->post('weight_ttn'),
+        'gross'         => $this->input->post('gross'),
+        'weight_pack'   => $this->input->post('weight_pack'),
+        'weight_defect' => $this->input->post('weight_defect'),
+        'cnt_places'    => $this->input->post('cnt_places'),
+        'net'           => $this->input->post('net'),
+        'price'         => $this->input->post('price'),
+      );
+      if(!is_array($params_products['product_id']) || !@$params_products['product_id'][0]){
+        $this->acceptances_model->delete_acceptance($id);
+        send_answer(array('errors' => array('Не указаны параметры вторсырья')));
+      }
     }
     
     $id = $this->acceptances_model->create_acceptance($params);
     if (!$id) {
-      send_answer(array('errors' => array('Ошибка при добавлении объекта')));
+      send_answer(array('errors' => array('Ошибка при добавлении акта приемки')));
     }
 
-    //добавляем к акту вторсырье
-    $params_products = array(
-      'product_id'    => $this->input->post('product_id'),
-      'weight_ttn'    => $this->input->post('weight_ttn'),
-      'gross'         => $this->input->post('gross'),
-      'weight_pack'   => $this->input->post('weight_pack'),
-      'weight_defect' => $this->input->post('weight_defect'),
-      'cnt_places'    => $this->input->post('cnt_places'),
-      'net'           => $this->input->post('net'),
-      'price'         => $this->input->post('price'),
-    );
-    if(!is_array($params_products['product_id']) || !@$params_products['product_id'][0]){
-      $this->acceptances_model->delete_acceptance($id);
-      send_answer(array('errors' => array('Не указаны параметры вторсырья')));
-    }
     foreach ($params_products['product_id'] as $key => $product_id) {
       if($product_id){
         //по ключу собираем все параметры вторсырья
@@ -505,6 +546,9 @@ class Acceptances_admin extends CI_Component {
       }
     }
 
+    if($auto){
+      return true;
+    }
     send_answer(array('redirect' => '/admin'.$this->params['path'].'acceptance/'.$id.'/'));
   }
   
@@ -635,6 +679,7 @@ class Acceptances_admin extends CI_Component {
       'company'       => htmlspecialchars(trim($this->input->post('company'))),
       'date_time'     => ($this->input->post('date_time') ? date('Y-m-d H:i:s', strtotime($this->input->post('date_time'))) : NULL),
       'add_expenses'  => (float)str_replace(' ', '', $this->input->post('add_expenses')),
+      'auto'          => 0,
     );
 
     $errors = $this->_validate_acceptance($params);
