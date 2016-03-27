@@ -1,5 +1,12 @@
-$(document).ready(function(){
- 
+$(function() {
+  // при клике на ячейки таблицы .table-dropdown открываем меню dropdown
+  $(document).on('click', '.table-dropdown td', function(e){
+    if(this.cellIndex > 0){
+      e.preventDefault();
+      e.stopPropagation();
+      $(this).parent().find('[data-toggle="dropdown"]').dropdown('toggle');
+    }
+  });
 })
 
 /**

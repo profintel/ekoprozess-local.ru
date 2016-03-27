@@ -64,7 +64,7 @@ $(function() {
     }
     return false;
   });
-  
+
   /*** Поиск ***/
   $('#search_string, input.autocomplete_search_string').focus(function() {
     if ($(this).val() == 'Поиск') {

@@ -12,9 +12,9 @@
           Печать
         </a>
       </div>
-      <table class="table panel table-hover table-bordered table-acceptances">
+      <table class="table panel table-hover table-bordered table-acceptances table-dropdown">
         <tr>
-          <th>Дата приемки</th>
+          <th colspan="2">Дата приемки</th>
           <th width="20%">Поставщик</th>
           <th>Брутто, кг</th>
           <th>Нетто, кг</th>
@@ -27,25 +27,33 @@
         <?$all_gross = $all_net = $all_price = $all_add_expenses = $all_sum = 0; ?>
         <? foreach ($items as $item) { ?>
           <tr>
-            <td rowspan="<?=count($item['childs']);?>">
+            <td class="td-dropdown hidden-print" rowspan="<?=count($item['childs']);?>">
               <div class="dropdown">
-                <a class="dropdown-toggle" data-toggle="dropdown"><?=date('d.m.Y',strtotime($item['date']));?></a>
+                <a class="dropdown-toggle" data-toggle="dropdown"></a>
                 <ul class="dropdown-menu">
                   <li>
                     <a href="/admin/acceptances/acceptance/<?=$item['id'];?>/" title="Просмотреть">
-                      <span class="glyphicon glyphicon-share"></span> Просмотреть
+                      <span class="glyphicon glyphicon-share"></span> Просмотреть акт
                     </a>
                     </li>
                   <li>
                     <a href="/admin/acceptances/edit_acceptance/<?=$item['id'];?>/" title="Редактировать">
-                      <span class="glyphicon glyphicon-edit"></span> Редактировать
+                      <span class="glyphicon glyphicon-edit"></span> Редактировать акт
                     </a>
                   </li>
                   <li>
                     <a href="/admin/acceptances/client_acceptance_email/<?=$item['id'];?>/" target="_client_acceptance_email_<?=$item['id'];?>">
-                      <span class="glyphicon glyphicon-envelope"></span> Отправить по email
+                      <span class="glyphicon glyphicon-envelope"></span> Отправить акт по email
                     </a>
                   </li>
+                  <? if ($item['client_id']) {?>
+                    <li class="divider"></li>
+                    <li>
+                      <a href="/admin/clients/edit_client/<?=$item['client_id'];?>/" target="_edit_client_<?=$item['client_id'];?>" title="Редактировать поставщика">
+                        <span class="glyphicon glyphicon-edit"></span> Редактировать поставщика
+                      </a>
+                    </li>
+                  <? } ?>
                   <li class="divider"></li>
                   <li>
                     <a href="#"
@@ -56,44 +64,16 @@
                         'reload'
                       );"
                       title="Удалить"
-                    ><span class="glyphicon glyphicon-trash"></span> Удалить</a>
+                    ><span class="glyphicon glyphicon-trash"></span> Удалить акт</a>
                   </li>
                 </ul>
               </div>
             </td>
             <td rowspan="<?=count($item['childs']);?>">
-              <div class="dropdown">
-                  <a class="dropdown-toggle" data-toggle="dropdown"><?=$item['client_title'];?></a>
-                  <ul class="dropdown-menu">
-                    <li>
-                      <a href="/admin/acceptances/acceptance/<?=$item['id'];?>/" title="Просмотреть">
-                        <span class="glyphicon glyphicon-share"></span> Просмотреть
-                      </a>
-                      </li>
-                    <li>
-                      <a href="/admin/acceptances/edit_acceptance/<?=$item['id'];?>/" title="Редактировать">
-                        <span class="glyphicon glyphicon-edit"></span> Редактировать
-                      </a>
-                    </li>
-                    <li>
-                      <a href="/admin/acceptances/client_acceptance_email/<?=$item['id'];?>/" target="_client_acceptance_email_<?=$item['id'];?>">
-                        <span class="glyphicon glyphicon-envelope"></span> Отправить по email
-                      </a>
-                    </li>
-                    <li class="divider"></li>
-                    <li>
-                      <a href="#"
-                        onClick="return send_confirm(
-                          'Вы уверены, что хотите удалить акт - <?=date('d.m.Y',strtotime($item['date']));?>&emsp;<?=$item['client_title'];?>?',
-                          '/admin/acceptances/delete_acceptance/<?=$item['id'];?>/',
-                          {},
-                          'reload'
-                        );"                    
-                        title="Удалить"
-                      ><span class="glyphicon glyphicon-trash"></span> Удалить</a>
-                    </li>
-                  </ul>
-                </div>
+              <?=date('d.m.Y',strtotime($item['date']));?>
+            </td>
+            <td rowspan="<?=count($item['childs']);?>">
+              <?=$item['client_title'];?>
             </td>
             <td>
               <span class="text-nowrap"><?=number_format(@$item['childs'][0]['gross'],2,'.',' ');?></span>
@@ -146,8 +126,7 @@
           ?>
         <? } ?>
         <tr>
-          <th>
-          </th>
+          <th colspan="2"></th>
           <th></th>
           <th>
             <span class="text-nowrap"><?=number_format($all_gross,2,'.',' ');?></span>
@@ -166,7 +145,7 @@
           </th>
         </tr>
         <tr>
-          <td colspan="7" class="text-right"><span class="h4">ИТОГО</span></td>
+          <td colspan="8" class="text-right"><span class="h4">ИТОГО</span></td>
           <td colspan="2" class="text-center">
             <span class="h4"><?=number_format($all_sum,2,'.',' ');?></span>
           </td>

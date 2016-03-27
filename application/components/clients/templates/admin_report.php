@@ -17,9 +17,11 @@
 <div class="container-fluid">
   <div class="clearfix">
     <a class="btn btn-default btn-xs pull-left" href="/admin<?=$this->component['path'];?>"><span class="glyphicon glyphicon-backward"></span> Назад</a>
-    <a  class="btn btn-default btn-xs pull-right" href="/admin<?=$this->component['path'];?>clients_report/">Очистить параметры</a>   
+    <? if(isset($data['form'])) {?>
+      <a  class="btn btn-default btn-xs pull-right" href="/admin<?=$this->component['path'];?>clients_report/">Очистить параметры</a>
+    <? } ?>
   </div><br/>
-  <?=$data['form'];?>
+  <?=(isset($data['form']) ? $data['form'] : '');?>
   <div id="ajax_result">
     {{cmp:clients->_render_clients_report_table<-<?=base64_encode(serialize($data));?>}}
   </div>

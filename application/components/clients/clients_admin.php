@@ -25,8 +25,8 @@ class Clients_admin extends CI_Component {
           'link'  => $this->lang_prefix .'/admin'. $this->params['path'] .'clients_report/'
         ),
         array(
-          'title' => 'Импорт списка клиентов',
-          'link'  => $this->lang_prefix .'/admin'. $this->params['path'] .'import/'
+          'title' => 'Разовые клиенты',
+          'link'  => $this->lang_prefix .'/admin'. $this->params['path'] .'clients_one_time/'
         ),
       )
     ));
@@ -41,16 +41,16 @@ class Clients_admin extends CI_Component {
   * Просмотр списка своих клиентов
   */
   function clients_report() {
-    $where = '';
+    $where = 'pr_clients.one_time = 0';
     $error = '';
     $get_params = array(
-      'title'     => ($this->uri->getParam('title') ? mysql_prepare($this->uri->getParam('title')) : ''),
+      'title'      => ($this->uri->getParam('title') ? mysql_prepare($this->uri->getParam('title')) : ''),
       'country_id' => ($this->uri->getParam('country_id') ? mysql_prepare($this->uri->getParam('country_id')) : 3159),
       'region_federal_id' => ($this->uri->getParam('region_federal_id') ? mysql_prepare($this->uri->getParam('region_federal_id')) : ''),
       'region_id' => ($this->uri->getParam('region_id') ? mysql_prepare($this->uri->getParam('region_id')) : ''),
       'city_id'   => ($this->uri->getParam('city_id') ? mysql_prepare($this->uri->getParam('city_id')) : ''),
       'admin_id'  => ($this->uri->getParam('admin_id') ? mysql_prepare($this->uri->getParam('admin_id')) : ''),
-      'client_id'  => ($this->uri->getParam('client_id') ? mysql_prepare($this->uri->getParam('client_id')) : ''),
+      'client_id' => ($this->uri->getParam('client_id') ? mysql_prepare($this->uri->getParam('client_id')) : ''),
     );
     //если указан не текущий менеджер,
     //то проверяем на доступ к просмотру клиентов других менеджеров
@@ -222,6 +222,71 @@ class Clients_admin extends CI_Component {
                 'reaction_func' => true,
                 'reaction'      => 'handle_ajaxResultHTML',
                 'data_type'     => 'html'
+              )
+            )
+          )
+        )
+      )),
+    );
+    
+    if($this->uri->getParam('ajax') == 1){
+      echo $this->load->view('../../application/components/clients/templates/admin_report_table',$data,true);
+    } else {
+      return $this->render_template('templates/admin_report', array('data'=>$data));
+    }
+
+  }
+  /**
+  * Просмотр списка разовых клиентов
+  */
+  function clients_one_time() {
+    $where = 'pr_clients.one_time = 1';
+    $error = '';
+
+    $page = ($this->uri->getParam('page') ? $this->uri->getParam('page') : 1);
+    $limit = 50;
+    $offset = $limit * ($page - 1);
+    $cnt = $this->clients_model->get_clients_cnt($where);
+    $pages = get_pages($page, $cnt, $limit);
+    $pagination_data = array(
+      'ajax'    => true,
+      'pages'   => $pages,
+      'page'    => $page,
+      'prefix'  => '/admin'.$this->params['path'].'clients_one_time/',
+      'postfix' => ''
+    );
+    $items = $this->clients_model->get_clients_report($limit, $offset, $where, array('pr_clients.title_full'=>'asc'));
+    $data = array(
+      'title'           => 'Клиенты',
+      'client_params'   => $this->clients_model->get_client_params(0,0,array('active' => 1)),
+      'error'           => $error,
+      'items'           => $items,
+      'pagination'      => $this->load->view('templates/pagination', $pagination_data, true),
+      'quick_form' => $this->view->render_form(array(
+        'method'  => 'GET',
+        'action'  => $this->lang_prefix .'/admin'. $this->params['path'] .'clients_report/',
+        'view'    => 'forms/form_inline',
+        'blocks' => array(
+          array(
+            'title'    => '',
+            'fields'   => array(
+              array(
+                'view'      => 'fields/autocomplete_input',
+                'class'     => 'col-xs-11 quick_form_input',
+                'title'     => 'Название:',
+                'name'      => 'title',
+                'value'     => ($this->uri->getParam('title') ? mysql_prepare($this->uri->getParam('title')) : ''),
+                'component' => $this->params['name'],
+                'method'    => 'client_search',
+                'maxlength' => 256
+              ),
+              array(
+                'view'     => 'fields/submit',
+                'class'    => 'col-xs-1 quick_form_btn',
+                'icon'     => 'glyphicon-search',
+                'title'    => '',
+                'type'     => '',
+                'reaction' => $this->lang_prefix .'/admin'. $this->params['path']
               )
             )
           )
@@ -435,6 +500,12 @@ class Clients_admin extends CI_Component {
                 'empty'       => true
               ),
               array(
+                'view'    => 'fields/checkbox',
+                'title'   => 'Разовый клиент',
+                'name'    => 'one_time',
+                'checked' => false,
+              ),
+              array(
                 'view'     => 'fields/submit',
                 'title'    => 'Создать',
                 'type'     => 'ajax',
@@ -551,6 +622,7 @@ class Clients_admin extends CI_Component {
       'city_id'     => (int)$this->input->post('city_id'),
       'admin_id'    => ((int)$this->input->post('admin_id') ? (int)$this->input->post('admin_id') : null),
       'active'      => 1,
+      'one_time'    => ($this->input->post('one_time') ? true : false),
       'order'       => $this->clients_model->get_client_order()
     );
     $city = $this->cities_model->get_city(array('id' => $params['city_id']));
@@ -698,7 +770,7 @@ class Clients_admin extends CI_Component {
       'onclick'  => 'window.open("/admin/clients/create_acceptance/?client_id='.$item['id'].'","_client_acceptance_create_'.$item['id'].'")',
     );
     //список актов приемки
-    $acceptances = $this->acceptances_model->get_acceptances(3, 0, array('client_id'=>$id), array('tm'=>'desc'));
+    $acceptances = $this->acceptances_model->get_acceptances(3, 0, array('client_id'=>$id,'parent_id'=>null), array('tm'=>'desc'));
     //поля для формы
     $fields_acceptances = array();
     if($acceptances){
@@ -755,6 +827,12 @@ class Clients_admin extends CI_Component {
                 'text_field'  => 'name_ru',
                 'options'     => $this->administrators_model->get_admins(),
                 'empty'       => true
+              ),
+              array(
+                'view'    => 'fields/checkbox',
+                'title'   => 'Разовый клиент',
+                'name'    => 'one_time',
+                'checked' => $item['one_time'],
               ),
               array(
                 'view'     => 'fields/submit',
@@ -921,7 +999,8 @@ class Clients_admin extends CI_Component {
       'email'     => htmlspecialchars(trim($this->input->post('email'))),
       'city_id'   => (int)$this->input->post('city_id'),
       'admin_id'  => ((int)$this->input->post('admin_id') ? (int)$this->input->post('admin_id') : null),
-      'active'    => 1
+      'active'    => 1,
+      'one_time'  => ($this->input->post('one_time') ? true : false),
     );
     $city = $this->cities_model->get_city(array('id' => $params['city_id']));
     if(!$city){

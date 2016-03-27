@@ -573,6 +573,20 @@ div.quick_form_input+div{
   }
 }
 
+.table-dropdown td{
+  cursor: pointer;
+}
+.table-dropdown td.td-dropdown{
+  width: 0px !important;
+  padding: 0;
+  border-right: 0;
+  vertical-align: middle;
+}
+.table-dropdown td.td-dropdown + td,
+.table-dropdown td.td-dropdown + th{
+  border-left: 0;
+}
+
 .ui-datepicker{
   width: 400px;
 }

@@ -20,7 +20,7 @@
             <a href="/admin/acceptances/acceptance/<?=$item['id'];?>/" title="Просмотреть">
               <span class="glyphicon glyphicon-share"></span> Просмотреть
             </a>
-            </li>
+          </li>
           <li>
             <a href="/admin/acceptances/edit_acceptance/<?=$item['id'];?>/" title="Редактировать">
               <span class="glyphicon glyphicon-edit"></span> Редактировать
@@ -30,18 +30,6 @@
             <a href="/admin/acceptances/client_acceptance_email/<?=$item['id'];?>/" target="_client_acceptance_email_<?=$item['id'];?>">
               <span class="glyphicon glyphicon-envelope"></span> Отправить по email
             </a>
-          </li>
-          <li class="divider"></li>
-          <li>
-            <a href="#"
-              onClick="return send_confirm(
-                'Вы уверены, что хотите удалить акт - <?=date('d.m.Y',strtotime($item['date']));?>&emsp;<?=$item['client_title'];?>?',
-                '/admin/acceptances/delete_acceptance/<?=$item['id'];?>/',
-                {},
-                'reload'
-              );"                    
-              title="Удалить"
-            ><span class="glyphicon glyphicon-trash"></span> Удалить</a>
           </li>
         </ul>
       </li>
