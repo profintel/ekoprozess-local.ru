@@ -226,7 +226,7 @@ class Store_admin extends CI_Component {
           'name'    => 'gross[]',
           'value'   => ($item ? $item['gross'] : ''),
           'class'   => 'number',
-          'form_group_class' => 'form_group_product_field form_group_w15',
+          'form_group_class' => 'form_group_product_field',
         ),
         array(
           'view'    => 'fields/'.($type_id == 2 ? 'text' : 'hidden'),
@@ -234,7 +234,23 @@ class Store_admin extends CI_Component {
           'name'    => 'net[]',
           'value'   => ($item ? $item['net'] : ''),
           'class'   => 'number',
-          'form_group_class' => 'form_group_product_field form_group_w15',
+          'form_group_class' => 'form_group_product_field',
+        ),
+        array(
+          'view'  => 'fields/text',
+          'title' => ($label ? 'Упаковка, (кг)' : ''),
+          'name'  => 'weight_pack[]',
+          'value' => ($item ? $item['weight_pack'] : ''),
+          'class' => 'number',
+          'form_group_class' => 'form_group_product_field',
+        ),
+        array(
+          'view'  => 'fields/text',
+          'title' => ($label ? 'Засор, (%)' : ''),
+          'name'  => 'weight_defect[]',
+          'value' => ($item ? $item['weight_defect'] : ''),
+          'class' => 'number',
+          'form_group_class' => 'form_group_product_field',
         ),
         array(
           'view'  => 'fields/text',
@@ -242,19 +258,19 @@ class Store_admin extends CI_Component {
           'name'  => 'cnt_places[]',
           'value' => ($item ? $item['cnt_places'] : ''),
           'class' => 'number',
-          'form_group_class' => 'form_group_product_field form_group_w15',
+          'form_group_class' => 'form_group_product_field',
         ),
         array(
           'view'  => 'fields/'.($type_id == 1 ? 'readonly' : 'hidden'),
-          'title' => ($label ? 'Остаток на складе от клиента' : ''),
+          'title' => ($label ? 'Остаток от клиента' : ''),
           'value' => '<span class="rest h4">'.($item ? $item['rest'] : '0.00').'</span>',
-          'form_group_class' => 'form_group_product_field form_group_w15',
+          'form_group_class' => 'form_group_product_field',
         ),
         array(
           'view'  => 'fields/readonly',
           'title' => ($label ? 'Остаток на складе' : ''),
           'value' => '<span class="rest_product h4">'.($item ? $item['rest_product'] : '0.00').'</span>',
-          'form_group_class' => 'form_group_product_field form_group_w15',
+          'form_group_class' => 'form_group_product_field',
         ),
         array(
           'view'    => 'fields/submit',
@@ -418,6 +434,8 @@ class Store_admin extends CI_Component {
       'product_id'    => $this->input->post('product_id'),
       'gross'         => $this->input->post('gross'),
       'net'           => $this->input->post('net'),
+      'weight_pack'   => $this->input->post('weight_pack'),
+      'weight_defect' => $this->input->post('weight_defect'),
       'cnt_places'    => $this->input->post('cnt_places'),
     );
     // перед добавлением проверяем указан ли вес вторсырья
@@ -445,6 +463,8 @@ class Store_admin extends CI_Component {
           'product_id'        => (float)str_replace(' ', '', $params_products['product_id'][$key]),
           'gross'             => (float)str_replace(' ', '', $params_products['gross'][$key]),
           'net'               => (float)str_replace(' ', '', $params_products['net'][$key]),
+          'weight_pack'       => (float)str_replace(' ', '', $params_products['weight_pack'][$key]),
+          'weight_defect'     => (float)str_replace(' ', '', $params_products['weight_defect'][$key]),
           'cnt_places'        => (float)str_replace(' ', '', $params_products['cnt_places'][$key])
         );
         if (!$this->store_model->create_coming($params)) {
@@ -606,6 +626,8 @@ class Store_admin extends CI_Component {
       'product_id'    => $this->input->post('product_id'),
       'gross'         => $this->input->post('gross'),
       'net'           => $this->input->post('net'),
+      'weight_pack'   => $this->input->post('weight_pack'),
+      'weight_defect' => $this->input->post('weight_defect'),
       'cnt_places'    => $this->input->post('cnt_places'),
     );
     // для готовой продукции вторсырье обязательно для заполнения всегда
@@ -642,6 +664,8 @@ class Store_admin extends CI_Component {
           'product_id'        => (float)str_replace(' ', '', $params_products['product_id'][$key]),
           'gross'             => (float)str_replace(' ', '', $params_products['gross'][$key]),
           'net'               => (float)str_replace(' ', '', $params_products['net'][$key]),
+          'weight_pack'       => (float)str_replace(' ', '', $params_products['weight_pack'][$key]),
+          'weight_defect'     => (float)str_replace(' ', '', $params_products['weight_defect'][$key]),
           'cnt_places'        => (float)str_replace(' ', '', $params_products['cnt_places'][$key])
         );
         if (!$this->store_model->create_coming($params)) {

@@ -272,7 +272,7 @@ class Acceptances_admin extends CI_Component {
         ),
         array(
           'view'  => 'fields/text',
-          'title' => ($label ? 'Вес в ТТН Поставщика, (кг)' : ''),
+          'title' => ($label ? 'Вес в ТТН Поставщика,&nbsp;(кг)' : ''),
           'name'  => 'weight_ttn[]',
           'value' => ($item ? $item['weight_ttn'] : ''),
           'class' => 'number',
@@ -299,6 +299,14 @@ class Acceptances_admin extends CI_Component {
           'title' => ($label ? 'Засор, (%)' : ''),
           'name'  => 'weight_defect[]',
           'value' => ($item ? $item['weight_defect'] : ''),
+          'class' => 'number',
+          'form_group_class' => 'form_group_product_field',
+        ),
+        array(
+          'view'  => 'fields/text',
+          'title' => ($label ? 'Кол-во мест' : ''),
+          'name'  => 'cnt_places[]',
+          'value' => ($item ? $item['cnt_places'] : ''),
           'class' => 'number',
           'form_group_class' => 'form_group_product_field',
         ),
@@ -365,12 +373,6 @@ class Acceptances_admin extends CI_Component {
           'options'   => $this->clients_model->get_clients(),
           'value'     => $client_id,
           'empty'     => true,
-        ),
-        array(
-          'view'        => 'fields/text',
-          'title'       => 'Поставщик:',
-          'description' => 'Укажите в случае, если поставщика нет в базе клиентов',
-          'name'        => 'company',
         ),
         array(
           'view'  => 'fields/datetime',
@@ -473,6 +475,7 @@ class Acceptances_admin extends CI_Component {
       'gross'         => $this->input->post('gross'),
       'weight_pack'   => $this->input->post('weight_pack'),
       'weight_defect' => $this->input->post('weight_defect'),
+      'cnt_places'    => $this->input->post('cnt_places'),
       'net'           => $this->input->post('net'),
       'price'         => $this->input->post('price'),
     );
@@ -491,6 +494,7 @@ class Acceptances_admin extends CI_Component {
           'gross'         => (float)str_replace(' ', '', $params_products['gross'][$key]),
           'weight_pack'   => (float)str_replace(' ', '', $params_products['weight_pack'][$key]),
           'weight_defect' => (float)str_replace(' ', '', $params_products['weight_defect'][$key]),
+          'cnt_places'    => (float)str_replace(' ', '', $params_products['cnt_places'][$key]),
           'net'           => (float)str_replace(' ', '', $params_products['net'][$key]),
           'price'         => (float)str_replace(' ', '', $params_products['price'][$key]),
         );
@@ -523,13 +527,6 @@ class Acceptances_admin extends CI_Component {
           'options'    => $this->clients_model->get_clients(),
           'value'      => $item['client_id'],
           'empty'      => true,
-        ),
-        array(
-          'view'        => 'fields/text',
-          'title'       => 'Поставщик:',
-          'description' => 'Укажите в случае, если поставщика нет в базе клиентов',
-          'name'        => 'company',
-          'value'       => $item['company'],
         ),
         array(
           'view'  => 'fields/datetime',
@@ -657,6 +654,7 @@ class Acceptances_admin extends CI_Component {
       'gross'         => $this->input->post('gross'),
       'weight_pack'   => $this->input->post('weight_pack'),
       'weight_defect' => $this->input->post('weight_defect'),
+      'cnt_places'    => $this->input->post('cnt_places'),
       'net'           => $this->input->post('net'),
       'price'         => $this->input->post('price'),
     );
@@ -674,6 +672,7 @@ class Acceptances_admin extends CI_Component {
           'gross'         => (float)str_replace(' ', '', $params_products['gross'][$key]),
           'weight_pack'   => (float)str_replace(' ', '', $params_products['weight_pack'][$key]),
           'weight_defect' => (float)str_replace(' ', '', $params_products['weight_defect'][$key]),
+          'cnt_places'    => (float)str_replace(' ', '', $params_products['cnt_places'][$key]),
           'net'           => (float)str_replace(' ', '', $params_products['net'][$key]),
           'price'         => (float)str_replace(' ', '', $params_products['price'][$key]),
         );

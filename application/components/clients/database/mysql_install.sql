@@ -100,6 +100,9 @@ ALTER TABLE `pr_client_acceptances`
   ADD CONSTRAINT `pr_client_acceptances_ibfk_2` FOREIGN KEY (`client_id`) REFERENCES `pr_clients` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `pr_client_acceptances_ibfk_1` FOREIGN KEY (`parent_id`) REFERENCES `pr_client_acceptances` (`id`) ON DELETE CASCADE;
 
+-- Добавила при доработке компонента 27.03.2016
+ALTER TABLE  `pr_client_acceptances` ADD  `cnt_places` INT UNSIGNED NOT NULL AFTER  `weight_defect`;
+
 DROP TABLE IF EXISTS `pr_client_acceptance_emails`;
 
 CREATE TABLE IF NOT EXISTS `pr_client_acceptance_emails` (

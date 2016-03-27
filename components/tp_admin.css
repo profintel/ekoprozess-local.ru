@@ -1,4 +1,4 @@
-/* Generated 27.03.2016 14:42:18 */
+/* Generated 27.03.2016 15:51:47 */
 
 /* components */
 
@@ -853,7 +853,7 @@ input[type="file"]{
 /*Форма товаров в акте приемки*/
 .form_group_product_field{
   margin: 0 !important;
-  width: 10%;
+  width: 9%;
   float: left;
   padding: 5px 0;
   background: none !important;

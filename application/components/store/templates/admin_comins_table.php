@@ -38,6 +38,13 @@
                         <span class="glyphicon glyphicon-edit"></span> <?=($item['active'] ? 'Просмотреть' : 'Редактировать');?> приход
                       </a>
                     </li>
+                    <? if (!$item['active']) { ?>
+                      <li>
+                        <a href="javascript:void(0)" data-toggle="tooltip" data-placement="right" title="Отправить на склад" onclick='sendMovement("/admin/store/send_coming_movement/<?=$item['id'];?>/");'>
+                          <span class="glyphicon glyphicon-save"></span> Отправить на склад
+                        </a>
+                      </li>
+                    <? } ?>
                     <li class="divider"></li>
                     <li>
                       <a href="/admin/clients/edit_client/<?=$item['client_id'];?>/" target="_edit_client_<?=$item['client_id'];?>" title="Редактировать поставщика">
@@ -66,10 +73,7 @@
                 <? if ($item['active']) { ?>
                   <span class="glyphicon glyphicon-ok text-success el-tooltip" data-toggle="tooltip" data-placement="right" title="Учтено в остатках"></span>
                 <? } else { ?>
-                  <span class="glyphicon glyphicon-pencil el-tooltip" data-toggle="tooltip" data-placement="right" title="Черновик. Не учитывается в остатках."></span><br>
-                  <a href="javascript:void(0)" class="btn btn-primary btn-xs el-tooltip" data-toggle="tooltip" data-placement="right" title="Отправить на склад" onclick='sendMovement("/admin/store/send_coming_movement/<?=$item['id'];?>/");'>
-                    <span class="glyphicon glyphicon-save"></span>
-                  </a>
+                  <span class="glyphicon glyphicon-pencil el-tooltip" data-toggle="tooltip" data-placement="right" title="Черновик. Не учитывается в остатках."></span>
                 <? } ?>
               </td>
               <? if ($type_id == 1) {?>

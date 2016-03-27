@@ -51,6 +51,11 @@ ALTER TABLE `pr_store_comings`
   ADD CONSTRAINT `pr_store_comings_ibfk_2` FOREIGN KEY (`store_type_id`) REFERENCES `pr_store_types` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `pr_store_comings_ibfk_1` FOREIGN KEY (`client_id`) REFERENCES `pr_clients` (`id`) ON DELETE CASCADE;
 
+-- Добавила при доработке компонента 27.03.2016
+ALTER TABLE  `pr_store_comings` 
+ADD  `weight_pack` FLOAT NOT NULL AFTER  `net`,
+ADD  `weight_defect` FLOAT NOT NULL AFTER  `weight_pack`;
+
 -- Расход продукции со склада
 CREATE TABLE IF NOT EXISTS `pr_store_expenditures` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
