@@ -65,12 +65,12 @@
     <?}?>
     <? if ($item['add_expenses']) {?>
     <tr>
-      <td align="left" colspan="7">Дополнительные расходы</td>
+      <td align="left" colspan="8">Дополнительные расходы</td>
       <td colspan="" align="center"><?=$item['add_expenses'];?></td>
     </tr>
     <?}?>
     <tr>
-      <th align="left" colspan="7">Итого к оплате</th>
+      <th align="left" colspan="8">Итого к оплате</th>
       <td colspan="" align="center"><?=$allSum;?></td>
     </tr>
   </table>
