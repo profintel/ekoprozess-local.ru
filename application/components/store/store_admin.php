@@ -8,6 +8,7 @@ class Store_admin extends CI_Component {
     $this->load->model('clients/models/clients_model');
     $this->load->model('store/models/store_model');
     $this->load->model('workshops/models/workshops_model');
+    $this->load->model('acceptances/models/acceptances_model');
   }
   
   /**
@@ -207,7 +208,7 @@ class Store_admin extends CI_Component {
           'view'    => 'fields/hidden',
           'title'   => 'item_id:',
           'name'    => 'item_id[]',
-          'value'   => ($item ? $item['id'] : '')
+          'value'   => ($item ? $item['id'] : 0)
         ),
         array(
           'view'    => 'fields/select',
@@ -237,18 +238,18 @@ class Store_admin extends CI_Component {
           'form_group_class' => 'form_group_product_field'.($type_id == 2 ? ' form_group_w20' : ''),
         ),
         array(
-          'view'  => 'fields/'.($type_id == 1 ? 'text' : 'hidden'),
+          'view'  => 'fields/'.($type_id == 1 && $section == 'coming' ? 'text' : 'hidden'),
           'title' => ($label ? 'Упаковка, (кг)' : ''),
           'name'  => 'weight_pack[]',
-          'value' => ($item ? $item['weight_pack'] : ''),
+          'value' => ($item && $section == 'coming' ? $item['weight_pack'] : ''),
           'class' => 'number',
           'form_group_class' => 'form_group_product_field'
         ),
         array(
-          'view'  => 'fields/'.($type_id == 1 ? 'text' : 'hidden'),
+          'view'  => 'fields/'.($type_id == 1 && $section == 'coming' ? 'text' : 'hidden'),
           'title' => ($label ? 'Засор, (%)' : ''),
           'name'  => 'weight_defect[]',
-          'value' => ($item ? $item['weight_defect'] : ''),
+          'value' => ($item && $section == 'coming' ? $item['weight_defect'] : ''),
           'class' => 'number',
           'form_group_class' => 'form_group_product_field',
         ),
@@ -465,12 +466,22 @@ class Store_admin extends CI_Component {
           'net'               => (float)str_replace(' ', '', $params_products['net'][$key]),
           'weight_pack'       => (float)str_replace(' ', '', $params_products['weight_pack'][$key]),
           'weight_defect'     => (float)str_replace(' ', '', $params_products['weight_defect'][$key]),
-          'cnt_places'        => (float)str_replace(' ', '', $params_products['cnt_places'][$key])
+          'cnt_places'        => (float)str_replace(' ', '', $params_products['cnt_places'][$key]),
+          'order'             => $key
         );
         if (!$this->store_model->create_coming($params)) {
           $this->delete_coming($id, true);
           send_answer(array('errors' => array('Ошибка при добавлении вторсырья')));
         }
+      }
+    }
+
+    // Создаем акт приемки по приходу первичного вторсырья
+    if($params['store_type_id'] == 1){
+      $this->load->component(array('name' => 'acceptances'));
+      if (!$this->acceptances->_create_acceptance_process(TRUE, $id)) {
+        $this->delete_coming($id, true);
+        send_answer(array('errors' => array('Не удалось Создать акт приемки')));
       }
     }
 
@@ -565,27 +576,39 @@ class Store_admin extends CI_Component {
     foreach ($productsFields as $key => $productField) {
       $blocks[] = $productField;
     }
-
+    $blocks['submits'] = array(
+      'title'    => '&nbsp;',
+      'collapse' => false,
+      'fields'   => array()
+    );
     // Если active==1 редактирование прихода невозможно, т.к. оно отправлено в движение товара, для учета остатка
     if (!$item['active']){
-      $blocks[] = array(
-        'title'   => '&nbsp;',
-        'collapse'=> false,
-        'fields'   => array(
-          array(
-            'view'     => 'fields/submit',
-            'title'    => 'Сохранить изменения',
-            'type'     => 'ajax',
-            'reaction' => ''
-          ),
-          array(
-            'view'     => 'fields/submit',
-            'title'    => 'Отправить на склад',
-            'type'     => 'ajax',
-            'onclick'  => 'sendMovement("",this);'
-          ),
-        )
-      );      
+      $blocks['submits']['fields'][] = array(
+        array(
+          'view'     => 'fields/submit',
+          'title'    => 'Отправить на склад',
+          'type'     => 'ajax',
+          'class'    => 'btn-default',
+          'onclick'  => 'sendMovement("",this);'
+        ),
+        array(
+          'view'     => 'fields/submit',
+          'title'    => 'Сохранить',
+          'type'     => 'ajax',
+          'reaction' => 'reload'
+        ),
+      );
+    }
+    // акт приемки по приходу
+    $acceptance = $this->acceptances_model->get_acceptance(array('store_coming_id'=>$item['id']));
+    if($acceptance){
+      $blocks['submits']['fields'][] = array(
+        'view'    => 'fields/submit',
+        'title'   => 'Акт приемки',
+        'type'    => '',
+        'class'   => 'btn-default pull-left m-l-0',
+        'onclick' => 'document.location = "/admin/acceptances/edit_acceptance/'.$acceptance['id'].'/"'
+      );
     }
 
     return $this->render_template('admin/inner', array(
@@ -623,6 +646,7 @@ class Store_admin extends CI_Component {
 
     //редактируем/добавляем вторсырье
     $params_products = array(
+      'item_id'       => $this->input->post('item_id'),
       'product_id'    => $this->input->post('product_id'),
       'gross'         => $this->input->post('gross'),
       'net'           => $this->input->post('net'),
@@ -649,10 +673,6 @@ class Store_admin extends CI_Component {
         }
       }
     }
-    //удаляем все параметры вторсырья по приходу и добавляем заново указанные
-    if (!$this->store_model->delete_coming(array('parent_id'=>$item['id']))) {
-      send_answer(array('errors' => array('Ошибка при удалении вторсырья')));
-    }
     foreach ($params_products['product_id'] as $key => $product_id) {
       if($product_id){
         //по ключу собираем все параметры вторсырья
@@ -666,10 +686,34 @@ class Store_admin extends CI_Component {
           'net'               => (float)str_replace(' ', '', $params_products['net'][$key]),
           'weight_pack'       => (float)str_replace(' ', '', $params_products['weight_pack'][$key]),
           'weight_defect'     => (float)str_replace(' ', '', $params_products['weight_defect'][$key]),
-          'cnt_places'        => (float)str_replace(' ', '', $params_products['cnt_places'][$key])
+          'cnt_places'        => (float)str_replace(' ', '', $params_products['cnt_places'][$key]),
+          'order'             => $key
         );
-        if (!$this->store_model->create_coming($params)) {
-          send_answer(array('errors' => array('Ошибка при добавлении вторсырья')));
+        // если id указано, обновляем данные
+        if((int)$params_products['item_id'][$key]){
+          if (!$this->store_model->update_coming((int)$params_products['item_id'][$key],$params)) {
+            send_answer(array('errors' => array('Ошибка при редактировании вторсырья')));
+          }
+        } else {
+          if (!$this->store_model->create_coming($params)) {
+            send_answer(array('errors' => array('Ошибка при добавлении вторсырья')));
+          }
+        }
+      }
+    }
+
+    // Редактируем акт приемки по приходу первичного вторсырья
+    if($item['store_type_id'] == 1){
+      $this->load->component(array('name' => 'acceptances'));
+      $acceptance = $this->acceptances_model->get_acceptance(array('store_coming_id'=>$id));
+      if($acceptance){
+        if (!$this->acceptances->_edit_acceptance_process($acceptance['id'], true)){
+          $this->delete_coming($id, true);
+          send_answer(array('errors' => array('Не удалось Изменить акт приемки')));
+        }
+      } else {
+        if (!$this->acceptances->_create_acceptance_process(TRUE, $id)) {
+          send_answer(array('errors' => array('Не удалось Создать акт приемки')));
         }
       }
     }
@@ -797,16 +841,6 @@ class Store_admin extends CI_Component {
         $this->store_model->update_coming($item['id'], array('active' => 0));
         $this->store_model->delete_movement_products(array('coming_id' => $item['id']));
         send_answer(array('errors' => array('Ошибка при сохранении изменений')));
-      }
-    }
-
-    // Создаем акт приемки по приходу первичного вторсырья
-    if($item['store_type_id'] == 1){
-      $this->load->component(array('name' => 'acceptances'));
-      if (!$this->acceptances->_create_acceptance_process(TRUE, $item['id'])) {
-        $this->store_model->update_coming($item['id'], array('active' => 0));
-        $this->store_model->delete_movement_products(array('coming_id' => $item['id']));
-        send_answer(array('errors' => array('Не удалось Создать акт приемки')));
       }
     }
 
@@ -1500,6 +1534,8 @@ class Store_admin extends CI_Component {
       $offset = $limit * ($page - 1);
       $cnt = $this->store_model->get_rests_cnt($where);
       $items = $this->store_model->get_rests($limit, $offset, $where);
+      
+      /*Подсчет общего остатка на складе: 03.04.2016 сказали его отображать не надо
       // если не указаны поставщик и виды вторсырья в движении показываем остаток общий из базы
       // иначе считаем остаток по каждой строке движения
       if($items && ($get_params['client_id'] || $get_params['store_workshop_id'] || $get_params['product_id'])){
@@ -1525,6 +1561,7 @@ class Store_admin extends CI_Component {
           $item['rest_all'] = $rest_start;
         }
       }
+      */
       $pages = get_pages($page, $cnt, $limit);
       $postfix = '&';
       foreach ($get_params as $key => $get_param_value) {

@@ -6,9 +6,10 @@
     </div>
   <? } else { ?>
     <? if ($items) { ?>
-      <table class="table panel table-hover table-bordered table-store">
+      <table class="table panel table-hover table-bordered table-store table-dropdown">
         <thead>
           <tr>
+            <td class="td-dropdown hidden-print"></td>
             <th class="text-center hidden-print">Статус</th>
             <th>Дата</th>
             <? if ($type_id == 1) {?><th>Цех</th><? } ?>
@@ -23,26 +24,31 @@
         <? foreach ($items as $item) { ?>
           <tbody>
             <tr>
-              <?//если active==1 значит расход отправлен в учет движения товара на складе?>
-              <td class="text-center hidden-print" rowspan="<?=count($item['childs']);?>">
-                <? if ($item['active']) { ?>
-                  <span class="glyphicon glyphicon-ok text-success el-tooltip" data-toggle="tooltip" data-placement="right" title="Учтено в остатках"></span>
-                <? } else { ?>
-                  <span class="glyphicon glyphicon-pencil el-tooltip" data-toggle="tooltip" data-placement="right" title="Черновик. Не учитывается в остатках."></span><br>
-                  <a href="javascript:void(0)" class="btn btn-primary btn-xs el-tooltip" data-toggle="tooltip" data-placement="right" title="Отправить на склад" onclick='sendMovement("/admin/store/send_expenditure_movement/<?=$item['id'];?>/");'>
-                    <span class="glyphicon glyphicon-save"></span>
-                  </a>
-                <? } ?>
-              </td>
-              <td rowspan="<?=count($item['childs']);?>">
+              <td class="td-dropdown hidden-print" rowspan="<?=count($item['childs']);?>">
+                <?//меню общее для всей строки?>
                 <div class="dropdown">
-                  <a class="dropdown-toggle" aria-haspopup="true" aria-expanded="false" data-toggle="dropdown"><?=date('d.m.Y',strtotime($item['date']));?></a>
+                  <a class="dropdown-toggle" aria-haspopup="true" aria-expanded="false" data-toggle="dropdown"></a>
                   <ul class="dropdown-menu">
                     <li>
                       <a href="/admin<?=$this->component['path'];?>edit_<?=$section;?>/<?=$item['id'];?>/" title="Редактировать">
                         <span class="glyphicon glyphicon-edit"></span> <?=($item['active'] ? 'Просмотреть' : 'Редактировать');?>
                       </a>
                     </li>
+                    <? if (!$item['active']) { ?>
+                      <li>
+                        <a href="javascript:void(0)" title="Отправить на склад" onclick='sendMovement("/admin/store/send_expenditure_movement/<?=$item['id'];?>/");'>
+                          <span class="glyphicon glyphicon-save"></span> Отправить на склад
+                        </a>
+                      </li>
+                    <? } ?>
+                    <? if ($item['client_id']) { ?>
+                      <li class="divider"></li>
+                      <li>
+                        <a href="/admin/clients/edit_client/<?=$item['client_id'];?>/" target="_edit_client_<?=$item['client_id'];?>" title="Редактировать поставщика">
+                          <span class="glyphicon glyphicon-edit"></span> Редактировать поставщика
+                        </a>
+                      </li>
+                    <? } ?>
                     <? if (!$item['active']) {?>
                       <li class="divider"></li>
                       <li>
@@ -59,6 +65,16 @@
                     <? } ?>
                   </ul>
                 </div>
+              </td>
+              <?//если active==1 значит расход отправлен в учет движения товара на складе?>
+              <td class="text-center hidden-print" rowspan="<?=count($item['childs']);?>">
+                <? if ($item['active']) { ?>
+                  <span class="glyphicon glyphicon-ok text-success el-tooltip" data-toggle="tooltip" data-placement="right" title="Учтено в остатках"></span>
+                <? } else { ?>
+                  <span class="glyphicon glyphicon-pencil el-tooltip" data-toggle="tooltip" data-placement="right" title="Черновик. Не учитывается в остатках."></span>
+                <? } ?>
+              </td>
+              <td rowspan="<?=count($item['childs']);?>"><?=date('d.m.Y',strtotime($item['date']));?>
               </td>
               <? if ($type_id == 1) {?>
                 <td rowspan="<?=count($item['childs']);?>">

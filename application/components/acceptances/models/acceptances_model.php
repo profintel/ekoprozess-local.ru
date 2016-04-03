@@ -74,7 +74,7 @@ class Acceptances_model extends CI_Model {
           }
           $where .= ')';
         }
-        $item['childs'] = $this->get_acceptances(0,0,$where);
+        $item['childs'] = $this->get_acceptances(0,0,$where,array('order'=>'asc','id'=>'asc'));
         $item['gross'] = $item['net'] = $item['price'] = $item['sum'] = 0;
         foreach ($item['childs'] as $key => &$child) {
           $child['product'] = $this->products_model->get_product(array('id' => $child['product_id']));
@@ -138,7 +138,7 @@ class Acceptances_model extends CI_Model {
           }
         }
       }
-      $item['childs'] = $this->get_acceptances(0,0,array('parent_id'=>$item['id']),array('id'=>'asc'));
+      $item['childs'] = $this->get_acceptances(0,0,array('parent_id'=>$item['id']),array('order'=>'asc','id'=>'asc'));
       foreach ($item['childs'] as $key => &$child) {
         $child['product'] = $this->products_model->get_product(array('id' => $child['product_id']));
       }

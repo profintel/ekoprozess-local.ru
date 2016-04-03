@@ -88,6 +88,7 @@ CREATE TABLE IF NOT EXISTS `pr_client_acceptances` (
   `net` float NOT NULL,
   `add_expenses` float NOT NULL,
   `comment` varchar(1000) NOT NULL DEFAULT '',
+  `order` int(10) unsigned NOT NULL DEFAULT '0',
   `tm` timestamp NOT NULL default CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `client_id` (`client_id`),

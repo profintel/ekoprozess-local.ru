@@ -87,7 +87,7 @@ class Store_model extends CI_Model {
       }
     } else {
       $this->db->order_by('date_second','desc');
-      $this->db->order_by('id','desc');
+      $this->db->order_by('id','asc');
     }
     $this->db->group_by('store_comings.id');
     $items = $this->db->get('store_comings')->result_array();
@@ -115,7 +115,7 @@ class Store_model extends CI_Model {
           }
           $where .= ')';
         }
-        $item['childs'] = $this->get_comings(0,0,$where);
+        $item['childs'] = $this->get_comings(0,0,$where,array('order'=>'asc','id'=>'asc'));
         $item['gross'] = $item['net'] = $item['price'] = $item['sum'] = 0;
         foreach ($item['childs'] as $key => &$child) {
           $child['product'] = $this->products_model->get_product(array('id' => $child['product_id']));
@@ -181,7 +181,7 @@ class Store_model extends CI_Model {
           }
         }
       }
-      $item['childs'] = $this->get_comings(0,0,array('parent_id'=>$item['id']),array('id'=>'asc'));
+      $item['childs'] = $this->get_comings(0,0,array('parent_id'=>$item['id']),array('order'=>'asc','id'=>'asc'));
       foreach ($item['childs'] as $key => &$child) {
         $child['product'] = $this->products_model->get_product(array('id' => $child['product_id']));
         // остаток сырья на складе по клиенту
@@ -219,7 +219,7 @@ class Store_model extends CI_Model {
   }
   
   function delete_coming($cond) {
-    if(!$cond || (!is_int($cond) && !is_array($cond))){
+    if(!$cond){
       return false;
     }
     if(is_int($cond)){

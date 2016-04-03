@@ -49,7 +49,7 @@
               <td><?=$item['product']['title_full'];?></td>
               <td><span class="text-nowrap"><?=($item['coming'] ? '+ '.$item['coming'] : 0);?></span></td>
               <td><span class="text-nowrap"><?=($item['expenditure'] ? '- '.$item['expenditure'] : 0);?></span></td>
-              <td><?=$item['rest_all'];?></td>
+              <td><?=$item['rest_product'];?></td>
             </tr>
           <? } ?>
           <? if(isset($pagination) && $pagination) { ?>
