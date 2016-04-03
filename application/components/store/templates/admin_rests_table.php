@@ -19,7 +19,9 @@
         <? } ?>
       </h5>
     <? } ?>
+    <? if (!$get_params['store_workshop_id']) { ?>
     <h5>Входящий остаток: <?=number_format($rest['start'],2,'.',' ');?> кг. на <?=rus_date($get_params['date_start'],'j m Yг.');?></h5><br/>
+    <? } ?>
     <? if ($items) { ?>
       <table class="table panel table-hover table-bordered table-store">
         <thead>
@@ -69,14 +71,16 @@
             </td>
             <td></td>
           </tr>
-          <tr>
-            <td colspan="<?=($type_id == 1 ? 4 : 3);?>"><h5 class="text-right">Исходящий остаток на <?=rus_date($get_params['date_end'],'j m Yг.');?></h5></td>
-            <td>
-              <h4 class="text-nowrap"><?=number_format($rest['end'],2,'.',' ');?></h4>
-            </td>
-            <td></td>
-            <td></td>
-          </tr>
+          <? if (!$get_params['store_workshop_id']) { ?>
+            <tr>
+              <td colspan="<?=($type_id == 1 ? 4 : 3);?>"><h5 class="text-right">Исходящий остаток на <?=rus_date($get_params['date_end'],'j m Yг.');?></h5></td>
+              <td>
+                <h4 class="text-nowrap"><?=number_format($rest['end'],2,'.',' ');?></h4>
+              </td>
+              <td></td>
+              <td></td>
+            </tr>
+          <? } ?>
         </tbody>
       </table>      
     <? } else { ?>
@@ -92,10 +96,12 @@
             <td><h4><?=number_format($rest['coming'],2,'.',' ');?> кг.</h4></td>
             <td><h4><?=number_format($rest['expenditure'],2,'.',' ');?> кг.</h4></td>
           </tr>
-          <tr>
-            <td width="30%" class="text-middle"><h5>Исходящий остаток на <?=rus_date($get_params['date_end'],'j m Yг.');?></h5></td>
-            <td colspan="2"><h4><?=number_format($rest['end'],2,'.',' ');?> кг.</h4></td>
-          </tr>
+          <? if (!$get_params['store_workshop_id']) { ?>
+            <tr>
+              <td width="30%" class="text-middle"><h5>Исходящий остаток на <?=rus_date($get_params['date_end'],'j m Yг.');?></h5><?=$get_params['store_workshop_id'];?></td>
+              <td colspan="2"><h4><?=number_format($rest['end'],2,'.',' ');?> кг.</h4></td>
+            </tr>
+          <? } ?>
         </tbody>
       </table>   
     <? } ?> 

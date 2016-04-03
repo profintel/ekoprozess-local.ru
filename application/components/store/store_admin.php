@@ -326,7 +326,6 @@ class Store_admin extends CI_Component {
         array(
           'view'    => 'fields/'.($type_id == 1 ? 'datetime' : 'hidden'),
           'title'   => 'Дата прибытия машины:',
-          'minDate' => ($rest ? date('d.m.Y',strtotime($rest['date'])) : null),
           'maxDate' => date('d.m.Y'),
           'name'    => 'date_primary',
         ),
@@ -531,7 +530,6 @@ class Store_admin extends CI_Component {
         array(
           'view'    => 'fields/'.($type['id'] == 1 ? 'datetime' : 'hidden'),
           'title'   => 'Дата прибытия машины:',
-          'minDate' => ($rest ? date('d.m.Y',strtotime($rest['date'])) : null),
           'maxDate' => date('d.m.Y'),
           'name'    => 'date_primary',
           'value'   => ($item['date_primary'] ? date('d.m.Y H:i', strtotime($item['date_primary'])) : '')
@@ -728,6 +726,33 @@ class Store_admin extends CI_Component {
     }
 
     send_answer(array('success' => array('Изменения успешно сохранены')));
+  }
+
+  /**
+   * ПРоверка возможности удаления прихода
+  **/
+  function _check_delete_coming($id) {
+    $item = $this->store_model->get_coming(array('store_comings.id'=>$id));
+    if(!$item){
+      send_answer(array('errors' => array('Объект не найден')));
+    }
+    foreach ($item['childs'] as $key => $child) {
+      // если в движении расход по сырью был, и остаток меньше прихода, то удалить приход нельзя
+      $movement = $this->store_model->get_rest(array(
+        'store_type_id' => $item['store_type_id'],
+        'coming_id'     => null,
+        'date >='       => date('Y-m-d H:i:s',strtotime($item['date_second'])),
+        'product_id'    => $child['product_id']
+      ));
+      if($item['store_type_id'] == 1 && $movement && $movement['rest'] < $child['gross']){
+        return false;
+      }
+      if($item['store_type_id'] == 2 && $movement && $movement['rest'] < $child['net']){
+        return false;
+      }
+    }
+
+    return true;
   }
 
   /**
@@ -1403,7 +1428,7 @@ class Store_admin extends CI_Component {
       // записываем остаток в текущую строку движения
       if(!$this->store_model->update_movement_products($id, array(
           // считаем остатки по клиенту и вторсырью с учетом добавленной строки
-          'rest'          => $this->store_model->calculate_rest(array(
+          'rest'  => $this->store_model->calculate_rest(array(
               'store_type_id' => $item['store_type_id'],
               'client_id'     => $item['client_id'],
               'product_id'    => $child['product_id']
