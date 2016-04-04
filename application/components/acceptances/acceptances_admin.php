@@ -262,13 +262,13 @@ class Acceptances_admin extends CI_Component {
           'value'   => ($item ? $item['id'] : '')
         ),
         array(
-          'view'    => 'fields/select',
-          'title'   => ($label ? 'Вид вторсырья' : ''),
-          'name'    => 'product_id[]',
-          'empty'   => true,
-          'optgroup'=> true,
-          'options' => $this->products_model->get_products(array('parent_id' => null)),
-          'value'   => ($item ? $item['product_id'] : ''),
+          'view'     => 'fields/select',
+          'title'    => ($label ? 'Вид вторсырья' : ''),
+          'name'     => 'product_id[]',
+          'empty'    => true,
+          'optgroup' => true,
+          'options'  => $this->products_model->get_products(array('parent_id' => null)),
+          'value'    => ($item ? $item['product_id'] : ''),
           'form_group_class' => 'form_group_product_field form_group_w20',
         ),
         array(
@@ -462,15 +462,15 @@ class Acceptances_admin extends CI_Component {
       if(!$store_coming){
         send_answer(array('errors' => array('Ошибка при создании акта приемки. Приход не найден.')));
       }
-      // var_dump($store_coming);
-      // return;
       $params = array(
         'store_coming_id' => $store_coming_id,
         'date'            => date('Y-m-d', strtotime($store_coming['date_second'])),
-        'client_id'       => ((int)$this->input->post('client_id') ? (int)$this->input->post('client_id') : NULL),
+        'client_id'       => $store_coming['client_id'],
         'date_time'       => $store_coming['date_primary'],
         'auto'            => 1,
       );
+      // var_dump($params);
+      // return;
       $params_products = array(
         'product_id'    => array(),
         'weight_ttn'    => array(),
@@ -582,11 +582,10 @@ class Acceptances_admin extends CI_Component {
           'empty'      => true,
         ),
         array(
-          'view'  => 'fields/datetime',
-          'title' => 'Дата приемки:',
-          'name'  => 'date',
-          'value' => date('d.m.Y'),
-          'value' => ($item['date'] ? date('d.m.Y', strtotime($item['date'])) : '')
+          'view'     => 'fields/datetime',
+          'title'    => 'Дата приемки:',
+          'name'     => 'date',
+          'value'    => ($item['date'] ? date('d.m.Y', strtotime($item['date'])) : '')
         ),
         array(
           'view'  => 'fields/text',
@@ -601,10 +600,10 @@ class Acceptances_admin extends CI_Component {
           'value' => $item['transport'],
         ),
         array(
-          'view'  => 'fields/datetime',
-          'title' => 'Дата и время прибытия:',
-          'name'  => 'date_time',
-          'value' => ($item['date_time'] ? date('d.m.Y H:i:s', strtotime($item['date_time'])) : '')
+          'view'     => 'fields/datetime',
+          'title'    => 'Дата и время прибытия:',
+          'name'     => 'date_time',
+          'value'    => ($item['date_time'] ? date('d.m.Y H:i:s', strtotime($item['date_time'])) : '')
         )
       )
     ));
@@ -705,9 +704,9 @@ class Acceptances_admin extends CI_Component {
         send_answer(array('errors' => array('Ошибка при создании акта приемки. Приход не найден.')));
       }
       
-      $params = array(
+      $main_params = array(
         'date'            => date('Y-m-d', strtotime($store_coming['date_second'])),
-        'client_id'       => ((int)$this->input->post('client_id') ? (int)$this->input->post('client_id') : NULL),
+        'client_id'       => $store_coming['client_id'],
         'date_time'       => $store_coming['date_primary'],
         'auto'            => 1,
       );
@@ -737,18 +736,25 @@ class Acceptances_admin extends CI_Component {
       }
     }
     if(!$auto){
-      $params = array(
-        'date'          => ($this->input->post('date') ? date('Y-m-d', strtotime($this->input->post('date'))) : NULL),
+      $main_params = array(
         'date_num'      => htmlspecialchars(trim($this->input->post('date_num'))),
         'transport'     => htmlspecialchars(trim($this->input->post('transport'))),
-        'client_id'     => ((int)$this->input->post('client_id') ? (int)$this->input->post('client_id') : NULL),
         'company'       => htmlspecialchars(trim($this->input->post('company'))),
-        'date_time'     => ($this->input->post('date_time') ? date('Y-m-d H:i:s', strtotime($this->input->post('date_time'))) : NULL),
         'add_expenses'  => (float)str_replace(' ', '', $this->input->post('add_expenses')),
         'auto'          => 0,
       );
 
-      $errors = $this->_validate_acceptance($params);
+      if($this->input->post('date')){
+        $main_params['date'] = date('Y-m-d', strtotime($this->input->post('date')));
+      }
+      if($this->input->post('date_time')){
+        $main_params['date_time'] = date('Y-m-d H:i:s', strtotime($this->input->post('date_time')));
+      }
+      if((int)$this->input->post('client_id')){
+        $main_params['client_id'] = ((int)$this->input->post('client_id') ? (int)$this->input->post('client_id') : NULL);
+      }
+
+      $errors = $this->_validate_acceptance($main_params);
       if ($errors) {
         send_answer(array('errors' => $errors));
       } 
@@ -767,7 +773,7 @@ class Acceptances_admin extends CI_Component {
       );
     }
     
-    if (!$this->acceptances_model->update_acceptance($id, $params)) {
+    if (!$this->acceptances_model->update_acceptance($id, $main_params)) {
       send_answer(array('errors' => array('Ошибка при сохранении изменений')));
     }
 
@@ -779,14 +785,28 @@ class Acceptances_admin extends CI_Component {
         //по ключу собираем все параметры вторсырья
         $params = array(
           'parent_id'       => $id,
-          'client_id'       => $params['client_id'],
-          'product_id'      => (float)str_replace(' ', '', $params_products['product_id'][$key]),
-          'gross'           => (float)str_replace(' ', '', $params_products['gross'][$key]),
-          'weight_pack'     => (float)str_replace(' ', '', $params_products['weight_pack'][$key]),
-          'weight_defect'   => (float)str_replace(' ', '', $params_products['weight_defect'][$key]),
-          'cnt_places'      => (float)str_replace(' ', '', $params_products['cnt_places'][$key]),
           'order'           => $key,
         );
+        // если не зависит от прихода, то можно менять вторсырье
+        if($auto || !$item['store_coming_id']){
+          $params['product_id'] = (float)str_replace(' ', '', $params_products['product_id'][$key]);
+        }
+        // если не зависит от прихода, то можно менять клиента
+        if($auto || !$item['store_coming_id']){
+          $params['client_id'] = $main_params['client_id'];
+        }
+        if(isset($params_products['gross'][$key]) && $params_products['gross'][$key]){
+          $params['gross'] = (float)str_replace(' ', '', $params_products['gross'][$key]);
+        }
+        if(isset($params_products['weight_pack'][$key]) && $params_products['weight_pack'][$key]){
+          $params['weight_pack'] = (float)str_replace(' ', '', $params_products['weight_pack'][$key]);
+        }
+        if(isset($params_products['weight_defect'][$key]) && $params_products['weight_defect'][$key]){
+          $params['weight_defect'] = (float)str_replace(' ', '', $params_products['weight_defect'][$key]);
+        }
+        if(isset($params_products['cnt_places'][$key]) && $params_products['cnt_places'][$key]){
+          $params['cnt_places'] = (float)str_replace(' ', '', $params_products['cnt_places'][$key]);
+        }
         if(isset($params_products['weight_ttn'][$key]) && $params_products['weight_ttn'][$key]){
           $params['weight_ttn'] = (float)str_replace(' ', '', $params_products['weight_ttn'][$key]);
         }

@@ -582,20 +582,18 @@ class Store_admin extends CI_Component {
     // Если active==1 редактирование прихода невозможно, т.к. оно отправлено в движение товара, для учета остатка
     if (!$item['active']){
       $blocks['submits']['fields'][] = array(
-        array(
           'view'     => 'fields/submit',
           'title'    => 'Отправить на склад',
           'type'     => 'ajax',
           'class'    => 'btn-default',
           'onclick'  => 'sendMovement("",this);'
-        ),
-        array(
+        );
+      $blocks['submits']['fields'][] =array(
           'view'     => 'fields/submit',
           'title'    => 'Сохранить',
           'type'     => 'ajax',
           'reaction' => 'reload'
-        ),
-      );
+        );
     }
     // акт приемки по приходу
     $acceptance = $this->acceptances_model->get_acceptance(array('store_coming_id'=>$item['id']));
