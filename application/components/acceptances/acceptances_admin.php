@@ -250,114 +250,124 @@ class Acceptances_admin extends CI_Component {
   * $item - массив с данными по вторсырью
   */ 
   function _renderProductsField($label = true, $item = array()) {
+    $fields = array(
+      array(
+        'view'    => 'fields/hidden',
+        'title'   => 'item_id:',
+        'name'    => 'item_id[]',
+        'value'   => ($item ? $item['id'] : '')
+      ),
+      array(
+        'view'     => 'fields/select',
+        'title'    => ($label ? 'Вид вторсырья' : ''),
+        'name'     => 'product_id[]',
+        'empty'    => true,
+        'optgroup' => true,
+        'options'  => $this->products_model->get_products(array('parent_id' => null)),
+        'value'    => ($item ? $item['product_id'] : ''),
+        'disabled' => ($item && $item['store_coming_id'] ? true : false),
+        'form_group_class' => 'form_group_product_field form_group_w20',
+      ),
+      array(
+        'view'  => 'fields/text',
+        'title' => ($label ? 'Вес в ТТН Поставщика,&nbsp;(кг)' : ''),
+        'name'  => 'weight_ttn[]',
+        'value' => ($item ? $item['weight_ttn'] : ''),
+        'class' => 'number',
+        'form_group_class' => 'form_group_product_field',
+      ),
+      array(
+        'view'     => 'fields/text',
+        'title'    => ($label ? 'Брутто, (кг)' : ''),
+        'name'     => 'gross[]',
+        'value'    => ($item ? $item['gross'] : ''),
+        'class'    => 'number',
+        'disabled' => ($item && $item['store_coming_id'] ? true : false),
+        'form_group_class' => 'form_group_product_field',
+      ),
+      array(
+        'view'     => 'fields/text',
+        'title'    => ($label ? 'Упаковка, (кг)' : ''),
+        'name'     => 'weight_pack[]',
+        'value'    => ($item ? $item['weight_pack'] : ''),
+        'class'    => 'number',
+        'disabled' => ($item && $item['store_coming_id'] ? true : false),
+        'form_group_class' => 'form_group_product_field',
+      ),
+      array(
+        'view'     => 'fields/text',
+        'title'    => ($label ? 'Засор, (%)' : ''),
+        'name'     => 'weight_defect[]',
+        'value'    => ($item ? $item['weight_defect'] : ''),
+        'class'    => 'number',
+        'disabled' => ($item && $item['store_coming_id'] ? true : false),
+        'form_group_class' => 'form_group_product_field',
+      ),
+      array(
+        'view'     => 'fields/text',
+        'title'    => ($label ? 'Кол-во мест' : ''),
+        'name'     => 'cnt_places[]',
+        'value'    => ($item ? $item['cnt_places'] : ''),
+        'class'    => 'number',
+        'disabled' => ($item && $item['store_coming_id'] ? true : false),
+        'form_group_class' => 'form_group_product_field',
+      ),
+      array(
+        'view'      => 'fields/text',
+        'title'     => ($label ? 'Нетто, (кг)' : ''),
+        'name'      => 'net[]',
+        'value'     => ($item ? $item['net'] : ''),
+        'onkeyup'   => 'updateAcceptanceSumProduct()',
+        'class'     => 'product_field_count number',
+        'form_group_class' => 'form_group_product_field',
+      ),
+      array(
+        'view'      => 'fields/text',
+        'title'     => ($label ? 'Цена, (руб.)' : ''),
+        'name'      => 'price[]',
+        'value'     => ($item ? $item['price'] : ''),
+        'onkeyup'   => 'updateAcceptanceSumProduct()',
+        'class'     => 'product_field_price number',
+        'form_group_class' => 'form_group_product_field',
+      ),
+      array(
+        'view'  => 'fields/readonly',
+        'title' => ($label ? 'Стоимость, (руб.)' : ''),
+        'value' => '<div class="sum_product">'.($item ? number_format(($item['price']*$item['net']),2,'.',' ') : '0.00').'</div>',
+        'num'   => ($item ? ($item['price']*$item['net']) : ''),
+        'class' => 'sum_product',
+        'form_group_class' => 'form_group_product_field',
+      ),
+      array(
+        'view'    => 'fields/submit',
+        'title'   => '',
+        'class'   => 'btn-default '.($item && $item['store_coming_id'] ? ' disabled ' : '').($label ? 'form_group_product_field_btn' : 'form_group_product_field_btn_m5'),
+        'icon'    => 'glyphicon-remove',
+        'onclick' =>  'removeFormBlock(this,"'.($item ? '/admin/acceptances/delete_acceptance/'.$item['id'] : '').'");',
+      ),
+      array(
+        'view'     => 'fields/submit',
+        'title'    => '',
+        'type'     => 'ajax',
+        'class'    => 'btn-primary '.($item && $item['store_coming_id'] ? ' disabled ' : '').($label ? 'form_group_product_field_btn' : 'form_group_product_field_btn_m5'),
+        'icon'     => 'glyphicon-plus',
+        'onclick'  => 'renderFieldsProducts("/admin/acceptances/renderProductsFields/html/", this);',
+        'reaction' => ''
+      )
+    );
+    if($item && $item['store_coming_id']){
+      $fields[] = array(
+        'view'    => 'fields/hidden',
+        'title'   => 'product_id:',
+        'name'    => 'product_id[]',
+        'value'   => ($item ? $item['product_id'] : ''),
+      );
+    }
     return array(
       'title'    => ($label ? 'Вторсырье' : ''),
       'collapse' => false,
       'class'    => 'clearfix '.($label ? 'form_block_label' : ''),
-      'fields'   => array(
-        array(
-          'view'    => 'fields/hidden',
-          'title'   => 'item_id:',
-          'name'    => 'item_id[]',
-          'value'   => ($item ? $item['id'] : '')
-        ),
-        array(
-          'view'     => 'fields/select',
-          'title'    => ($label ? 'Вид вторсырья' : ''),
-          'name'     => 'product_id[]',
-          'empty'    => true,
-          'optgroup' => true,
-          'options'  => $this->products_model->get_products(array('parent_id' => null)),
-          'value'    => ($item ? $item['product_id'] : ''),
-          'form_group_class' => 'form_group_product_field form_group_w20',
-        ),
-        array(
-          'view'  => 'fields/text',
-          'title' => ($label ? 'Вес в ТТН Поставщика,&nbsp;(кг)' : ''),
-          'name'  => 'weight_ttn[]',
-          'value' => ($item ? $item['weight_ttn'] : ''),
-          'class' => 'number',
-          'form_group_class' => 'form_group_product_field',
-        ),
-        array(
-          'view'     => 'fields/text',
-          'title'    => ($label ? 'Брутто, (кг)' : ''),
-          'name'     => 'gross[]',
-          'value'    => ($item ? $item['gross'] : ''),
-          'class'    => 'number',
-          'disabled' => ($item && $item['store_coming_id'] ? true : false),
-          'form_group_class' => 'form_group_product_field',
-        ),
-        array(
-          'view'     => 'fields/text',
-          'title'    => ($label ? 'Упаковка, (кг)' : ''),
-          'name'     => 'weight_pack[]',
-          'value'    => ($item ? $item['weight_pack'] : ''),
-          'class'    => 'number',
-          'disabled' => ($item && $item['store_coming_id'] ? true : false),
-          'form_group_class' => 'form_group_product_field',
-        ),
-        array(
-          'view'     => 'fields/text',
-          'title'    => ($label ? 'Засор, (%)' : ''),
-          'name'     => 'weight_defect[]',
-          'value'    => ($item ? $item['weight_defect'] : ''),
-          'class'    => 'number',
-          'disabled' => ($item && $item['store_coming_id'] ? true : false),
-          'form_group_class' => 'form_group_product_field',
-        ),
-        array(
-          'view'     => 'fields/text',
-          'title'    => ($label ? 'Кол-во мест' : ''),
-          'name'     => 'cnt_places[]',
-          'value'    => ($item ? $item['cnt_places'] : ''),
-          'class'    => 'number',
-          'disabled' => ($item && $item['store_coming_id'] ? true : false),
-          'form_group_class' => 'form_group_product_field',
-        ),
-        array(
-          'view'      => 'fields/text',
-          'title'     => ($label ? 'Нетто, (кг)' : ''),
-          'name'      => 'net[]',
-          'value'     => ($item ? $item['net'] : ''),
-          'onkeyup'   => 'updateAcceptanceSumProduct()',
-          'class'     => 'product_field_count number',
-          'form_group_class' => 'form_group_product_field',
-        ),
-        array(
-          'view'      => 'fields/text',
-          'title'     => ($label ? 'Цена, (руб.)' : ''),
-          'name'      => 'price[]',
-          'value'     => ($item ? $item['price'] : ''),
-          'onkeyup'   => 'updateAcceptanceSumProduct()',
-          'class'     => 'product_field_price number',
-          'form_group_class' => 'form_group_product_field',
-        ),
-        array(
-          'view'  => 'fields/readonly',
-          'title' => ($label ? 'Стоимость, (руб.)' : ''),
-          'value' => '<div class="sum_product">'.($item ? number_format(($item['price']*$item['net']),2,'.',' ') : '0.00').'</div>',
-          'num'   => ($item ? ($item['price']*$item['net']) : ''),
-          'class' => 'sum_product',
-          'form_group_class' => 'form_group_product_field',
-        ),
-        array(
-          'view'    => 'fields/submit',
-          'title'   => '',
-          'class'   => 'btn-default '.($item && $item['store_coming_id'] ? ' disabled ' : '').($label ? 'form_group_product_field_btn' : 'form_group_product_field_btn_m5'),
-          'icon'    => 'glyphicon-remove',
-          'onclick' =>  'removeFormBlock(this,"'.($item ? '/admin/acceptances/delete_acceptance/'.$item['id'] : '').'");',
-        ),
-        array(
-          'view'     => 'fields/submit',
-          'title'    => '',
-          'type'     => 'ajax',
-          'class'    => 'btn-primary '.($item && $item['store_coming_id'] ? ' disabled ' : '').($label ? 'form_group_product_field_btn' : 'form_group_product_field_btn_m5'),
-          'icon'     => 'glyphicon-plus',
-          'onclick'  => 'renderFieldsProducts("/admin/acceptances/renderProductsFields/html/", this);',
-          'reaction' => ''
-        )
-      )
+      'fields'   => $fields
     );
   }
 
@@ -579,12 +589,14 @@ class Acceptances_admin extends CI_Component {
           'text_field' => 'title_full',
           'options'    => $this->clients_model->get_clients(),
           'value'      => $item['client_id'],
+          'disabled'   => ($item && $item['store_coming_id'] ? true : false),
           'empty'      => true,
         ),
         array(
           'view'     => 'fields/datetime',
           'title'    => 'Дата приемки:',
           'name'     => 'date',
+          'disabled' => ($item && $item['store_coming_id'] ? true : false),
           'value'    => ($item['date'] ? date('d.m.Y', strtotime($item['date'])) : '')
         ),
         array(
@@ -603,6 +615,7 @@ class Acceptances_admin extends CI_Component {
           'view'     => 'fields/datetime',
           'title'    => 'Дата и время прибытия:',
           'name'     => 'date_time',
+          'disabled' => ($item && $item['store_coming_id'] ? true : false),
           'value'    => ($item['date_time'] ? date('d.m.Y H:i:s', strtotime($item['date_time'])) : '')
         )
       )
@@ -668,8 +681,9 @@ class Acceptances_admin extends CI_Component {
           'view'    => 'fields/submit',
           'title'   => ($store_coming['active'] ? 'Просмотреть' : 'Редактировать').' приход',
           'type'    => '',
+          'icon'    => 'glyphicon-new-window',
           'class'   => 'btn-default pull-left m-l-0',
-          'onclick' => 'document.location = "/admin/store/edit_coming/'.$item['store_coming_id'].'/"'
+          'onclick' => 'window.open("/admin/store/edit_coming/'.$item['store_coming_id'].'/","_coming_'.$item['store_coming_id'].'")'
         );
         if(!$store_coming['active']){
           $blocks['submits']['fields'][] = array(
@@ -750,11 +764,11 @@ class Acceptances_admin extends CI_Component {
       if($this->input->post('date_time')){
         $main_params['date_time'] = date('Y-m-d H:i:s', strtotime($this->input->post('date_time')));
       }
-      if((int)$this->input->post('client_id')){
+      if((int)$this->input->post('client_id') && !$item['store_coming_id']){
         $main_params['client_id'] = ((int)$this->input->post('client_id') ? (int)$this->input->post('client_id') : NULL);
       }
 
-      $errors = $this->_validate_acceptance($main_params);
+      $errors = $this->_validate_acceptance($main_params, $item);
       if ($errors) {
         send_answer(array('errors' => $errors));
       } 
@@ -832,23 +846,25 @@ class Acceptances_admin extends CI_Component {
     send_answer(array('success' => array('Изменения успешно сохранены')));
   }
   
-  function _validate_acceptance($params) {
+  function _validate_acceptance($params, $item = array()) {
     $errors = array();
-    if (!$params['client_id'] && !$params['company']) { 
-      $errors['client_id'] = 'Не указан поставщик';
-      $errors['company'] = 'Не указана поставщик'; 
-    }
 
-    $client = $this->clients_model->get_client(array('id' => (int)$params['client_id']));
-    if($params['client_id'] && !$client){
-      $errors['client_id'] = 'Клиент не найден';
-    }
-    //если клиент не текущего менеджера и нет доступа к работе по всем клиентам
-    if(!$params['client_id'] && $params['company'] && !$this->permits_model->check_access($this->admin_id, $this->component['name'], $method = 'permit_acceptance_allClients')){
-      $errors['company'] = 'У вас нет прав на добавление/редактирование актов приемки для клиентов других менеджеров';
-    }
-    if($client && $client['admin_id'] != $this->admin_id && !$this->permits_model->check_access($this->admin_id, $this->component['name'], $method = 'permit_acceptance_allClients')){
-      $errors['client_id'] = 'У вас нет прав на добавление/редактирование актов приемки для клиентов других менеджеров';
+    if(!@$item['store_coming_id']){
+      if (!$params['client_id'] && !$params['company']) { 
+        $errors['client_id'] = 'Не указан поставщик';
+        $errors['company'] = 'Не указана поставщик'; 
+      }
+      $client = $this->clients_model->get_client(array('id' => (int)$params['client_id']));
+      if($params['client_id'] && !$client){
+        $errors['client_id'] = 'Клиент не найден';
+      }
+      //если клиент не текущего менеджера и нет доступа к работе по всем клиентам
+      if(!$params['client_id'] && $params['company'] && !$this->permits_model->check_access($this->admin_id, $this->component['name'], $method = 'permit_acceptance_allClients')){
+        $errors['company'] = 'У вас нет прав на добавление/редактирование актов приемки для клиентов других менеджеров';
+      }
+      if($client && $client['admin_id'] != $this->admin_id && !$this->permits_model->check_access($this->admin_id, $this->component['name'], $method = 'permit_acceptance_allClients')){
+        $errors['client_id'] = 'У вас нет прав на добавление/редактирование актов приемки для клиентов других менеджеров';
+      }
     }
 
     return $errors;

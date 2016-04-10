@@ -53,6 +53,14 @@
                         </a>
                       </li>
                     <? } ?>
+                    <? if ($item['acceptance']) { ?>
+                      <li class="divider"></li>
+                      <li>
+                        <a href="/admin/acceptances/edit_acceptance/<?=$item['acceptance']['id'];?>/" target="_acceptance_<?=$item['acceptance']['id'];?>" title="Акт приемки">
+                          <span class="glyphicon glyphicon-new-window"></span> Акт приемки
+                        </a>
+                      </li>
+                    <? } ?>
                     <? if (!$item['active']) {?>
                       <li class="divider"></li>
                       <li>

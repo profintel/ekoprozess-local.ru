@@ -8,6 +8,7 @@ class Store_model extends CI_Model {
     $this->load->model('cities/models/cities_model');
     $this->load->model('clients/models/clients_model');
     $this->load->model('products/models/products_model');
+    $this->load->model('acceptances/models/acceptances_model');
   }
 
   /**
@@ -102,6 +103,8 @@ class Store_model extends CI_Model {
       if($item['store_workshop_id']){
         $item['workshop'] = $this->workshops_model->get_workshop(array('id'=>$item['store_workshop_id']));
       }
+      // акт приемки
+      $item['acceptance'] = $this->acceptances_model->get_acceptance(array('store_coming_id'=>$item['id']));
       //считаем общие параметры
       if(is_null($item['parent_id'])){
         $where = 'parent_id = '.$item['id'];
@@ -181,6 +184,9 @@ class Store_model extends CI_Model {
           }
         }
       }
+      // акт приемки
+      $item['acceptance'] = $this->acceptances_model->get_acceptance(array('store_coming_id'=>$item['id']));
+      // вторсырье
       $item['childs'] = $this->get_comings(0,0,array('parent_id'=>$item['id']),array('order'=>'asc','id'=>'asc'));
       foreach ($item['childs'] as $key => &$child) {
         $child['product'] = $this->products_model->get_product(array('id' => $child['product_id']));

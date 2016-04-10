@@ -596,14 +596,14 @@ class Store_admin extends CI_Component {
         );
     }
     // акт приемки по приходу
-    $acceptance = $this->acceptances_model->get_acceptance(array('store_coming_id'=>$item['id']));
-    if($acceptance){
+    if($item['acceptance']){
       $blocks['submits']['fields'][] = array(
         'view'    => 'fields/submit',
         'title'   => 'Акт приемки',
         'type'    => '',
+        'icon'    => 'glyphicon-new-window',
         'class'   => 'btn-default pull-left m-l-0',
-        'onclick' => 'document.location = "/admin/acceptances/edit_acceptance/'.$acceptance['id'].'/"'
+        'onclick' => 'window.open("/admin/acceptances/edit_acceptance/'.$item['acceptance']['id'].'/","_acceptance_'.$item['acceptance']['id'].'")'
       );
     }
 
