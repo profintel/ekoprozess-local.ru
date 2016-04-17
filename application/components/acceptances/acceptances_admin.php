@@ -842,7 +842,10 @@ class Acceptances_admin extends CI_Component {
         }
       }
     }
-
+    
+    if($auto){
+      return true;
+    }
     send_answer(array('success' => array('Изменения успешно сохранены')));
   }
   

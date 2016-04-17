@@ -193,14 +193,13 @@ class Store_model extends CI_Model {
         // остаток сырья на складе по клиенту
         if($child['active']){
           // если расход отправлен на склад, выводим остатки на момент добавления расхода на склад
-          $rest = $this->get_rest(array('coming_id' => $child['parent_id'],'client_id' => $child['client_id'],'product_id' => $child['product_id']));
+          $rest = $this->get_rest(array('coming_child_id' => $child['id']));
           $child['rest'] = ($rest ? $rest['rest'] : 0.00);
           $child['rest_product'] = ($rest ? $rest['rest_product'] : 0.00);
         } else {
           // если расход НЕ отправлен на склад, выводим остатки по последней строке из движения по сырью и клиенту
-          $rest = $this->get_rest(array('store_type_id' => $child['store_type_id'],'store_workshop_id' => $child['store_workshop_id'],'client_id' => $child['client_id'],'product_id' => $child['product_id']));
+          $rest = $this->get_rest(array('store_type_id' => $child['store_type_id'],'client_id' => $child['client_id'],'product_id' => $child['product_id']));
           $child['rest'] = ($rest ? $rest['rest'] : 0.00);
-          $rest = $this->get_rest(array('store_type_id' => $child['store_type_id'],'store_workshop_id' => $child['store_workshop_id'],'product_id' => $child['product_id']));
           $child['rest_product'] = ($rest ? $rest['rest_product'] : 0.00);
         }
       }
@@ -246,6 +245,7 @@ class Store_model extends CI_Model {
   function calculate_rest($params) {
     $this->db->select('(SUM(coming)-SUM(expenditure)) as sum');
     $this->db->where($params);
+    $this->db->order_by('date');
     return $this->db->get('store_movement_products')->row()->sum;
   }
   
@@ -284,14 +284,14 @@ class Store_model extends CI_Model {
   } 
 
   /*
-  * Формирует отсет движения товара на складе
+  * Формирует отет движения товара на складе
   * @param params - тип склада, клиент, вид вторсырья, ...
   */
   function get_rests($limit = 0, $offset = 0, $where = array(), $order_by = array()) {   
     if ($limit) {
       $this->db->limit($limit, $offset);
     }
-    $this->db->order_by('id','asc');
+    $this->db->order_by('order','asc');
     
     if ($where) {
       $this->db->where($where);
@@ -316,6 +316,87 @@ class Store_model extends CI_Model {
       $this->db->where($where);
     }
     return $this->db->count_all_results('store_movement_products');
+  }
+
+
+    // метод, который будет пересчитывать остаток на складе
+
+    // запрос с датой или id прихода/расхода от которой пересчет начинаем
+
+    // цикл
+
+    // calculate_rest
+
+    // update movement
+  function set_rests($where = array()){
+    $this->db->order_by('date','asc');
+    
+    if ($where) {
+      $this->db->where($where);
+    }
+
+    $items = $this->db->get('store_movement_products')->result_array();
+    // echo $this->db->last_query();
+    
+    foreach ($items as $key => $item) {
+      if(!$this->update_movement_products($item['id'], array(
+          // считаем остатки по клиенту и вторсырью
+          'rest'  => $this->calculate_rest(array(
+              'store_type_id' => $item['store_type_id'],
+              'client_id'     => $item['client_id'],
+              'product_id'    => $item['product_id'],
+              'order <='      => $item['order']
+            )),
+          // общие остатки по сырью
+          'rest_product'  => $this->calculate_rest(array(
+              'store_type_id' => $item['store_type_id'],
+              'product_id'    => $item['product_id'],
+              'order <='      => $item['order']
+            )), 
+          // общие остатки всего сырья на складе
+          'rest_all' => $this->calculate_rest(array(
+            'store_type_id' => $item['store_type_id'],
+            'order <='      => $item['order']
+          ))
+        ))){
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /*
+  * Перезаписывает order в движении сырья
+  */
+  function set_order_movement(){
+    $this->db->order_by('date','asc');
+    $items = $this->db->get('store_movement_products')->result_array();
+    foreach ($items as $key => $item) {
+      $this->update_movement_products($item['id'],array('order'=>$key+1));
+    }
+  }
+
+  /*
+  * Поиск строки по движению сырья на складе
+  */
+  function get_movement_max_order($where = array()) {
+    $this->db->select('MAX(`order`) as max_order');
+
+    $this->db->order_by('date','asc');
+    
+    if ($where) {
+      $this->db->where($where);
+    }
+
+    return $this->db->get('store_movement_products')->row()->max_order;
+  }
+
+  /*
+  * Поиск строки по движению сырья на складе
+  */
+  function get_movement_products($where = array()) {
+    return $this->db->get_where('store_movement_products', $where)->row_array();
   }
 
   /*
@@ -483,11 +564,7 @@ class Store_model extends CI_Model {
         // остаток сырья на складе по клиенту
         if($child['active']){
           // если расход отправлен на склад, выводим остатки на момент добавления расхода на склад
-          $rest = $this->get_rest(array(
-            'expenditure_id'  => $child['parent_id'],
-            'client_id'       => $child['client_id'],
-            'product_id'      => $child['product_id']
-          ));
+          $rest = $this->get_rest(array('expenditure_child_id'  => $child['id']));
           $child['rest'] = ($rest ? $rest['rest'] : 0.00);
           $child['rest_product'] = ($rest ? $rest['rest_product'] : 0.00);
         } else {
@@ -498,10 +575,6 @@ class Store_model extends CI_Model {
             'product_id' => $child['product_id']
           ));
           $child['rest'] = ($rest ? $rest['rest'] : 0.00);
-          $rest = $this->get_rest(array(
-            'store_type_id' => $child['store_type_id'],
-            'product_id' => $child['product_id']
-          ));
           $child['rest_product'] = ($rest ? $rest['rest_product'] : 0.00);
         }
       }

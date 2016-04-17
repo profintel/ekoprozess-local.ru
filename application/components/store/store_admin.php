@@ -10,7 +10,7 @@ class Store_admin extends CI_Component {
     $this->load->model('workshops/models/workshops_model');
     $this->load->model('acceptances/models/acceptances_model');
   }
-  
+
   /**
   * Просмотр меню компонента
   */
@@ -276,9 +276,10 @@ class Store_admin extends CI_Component {
         array(
           'view'    => 'fields/submit',
           'title'   => '',
-          'class'   => 'btn-default '.($item && $item['active'] ? ' disabled ' : '').($label ? 'form_group_product_field_btn' : 'form_group_product_field_btn_m5'),
+          'class'   => 'btn-default './*($item && $item['active'] ? ' disabled ' : '').*/($label ? 'form_group_product_field_btn' : 'form_group_product_field_btn_m5'),
           'icon'    => 'glyphicon-remove',
-          'onclick' =>  ($item && $item['active'] ? 'return false;' : 'removeFormBlock(this,"'.($item ? '/admin/store/delete_'.$section.'/'.$item['id'] : '').'");'),
+          // 'onclick' =>  ($item && $item['active'] ? 'return false;' : 'removeFormBlock(this,"'.($item ? '/admin/store/delete_'.$section.'/'.$item['id'] : '').'");'),
+          'onclick' =>  'removeFormBlock(this,"'.($item ? '/admin/store/delete_'.$section.'/'.$item['id'] : '').'");',
         ),
         array(
           'view'     => 'fields/submit',
@@ -537,7 +538,7 @@ class Store_admin extends CI_Component {
         array(
           'view'    => 'fields/datetime',
           'title'   => 'Дата прихода на склад:',
-          'minDate' => ($rest ? date('d.m.Y',strtotime($rest['date'])) : null),
+          // 'minDate' => ($rest ? date('d.m.Y',strtotime($rest['date'])) : null),
           'maxDate' => date('d.m.Y'),
           'name'    => 'date_second',
           'value'   => ($item['date_second'] ? date('d.m.Y H:i', strtotime($item['date_second'])) : '')
@@ -762,16 +763,61 @@ class Store_admin extends CI_Component {
       send_answer(array('errors' => array('Объект не найден')));
     }
     if($item['active']){
-      send_answer(array('errors' => array('Невозможно удалить приход, т.к. он отправлен на склад')));
+      // send_answer(array('errors' => array('Невозможно удалить приход, т.к. он отправлен на склад')));
     }
+
+    // перед удалением ищем приход в движении
+    if($item['parent_id']){
+      $movement = $this->store_model->get_movement_products(array('coming_child_id'=>$item['id']));
+      if($movement && !$this->_validate_coming_movement($item)){
+        send_answer(array('errors' => array('Невозможно удалить приход, т.к. существует расход по вторсырью "'.$item['title_full'].'"')));
+      }      
+    } else {
+      $movement = $this->store_model->get_movement_products(array('coming_id'=>$item['id']));
+      // проверяем расход по каждому вторсырью прихода
+      if($movement){
+        foreach ($item['childs'] as $key => $child) {
+          $movement_child = $this->store_model->get_movement_products(array('coming_child_id'=>$child['id']));
+          if($movement_child && !$this->_validate_coming_movement($child)){
+            send_answer(array('errors' => array('Невозможно удалить приход, т.к. существует расход по вторсырью "'.$child['title_full'].'"')));
+          }
+        }
+      }
+    }
+return false;
     if (!$this->store_model->delete_coming((int)$id)){
       send_answer(array('errors' => array('Не удалось удалить объект')));
     }
+
+    // пересчитываем остатки, если в движении была найдена строка
+    if ($movement){
+      if (!$this->store_model->set_rests(array('order >=' => $movement['order']))) {
+        send_answer(array('errors' => array('Не удалось обновить движение товара')));
+      }
+    }
+
     if($return){
       return true;
     }
 
     send_answer();
+  }
+
+  /*
+  * 
+  */
+  function _validate_coming_movement($item){
+    // проверяем был ли расход по данному приходу
+    // вычислить остаток по сырью без этого прихода, если он меньше остатка в movement, значит расход был
+    // если первичная продукция, учитываем клиента
+    $rest = $this->store_model->get_rest(array(
+      'store_type_id' => $item['store_type_id'],
+      'product_id'    => $item['product_id'],
+      'client_id'     => $item['client_id'],
+    ));
+    send_answer(array('errors' => array(var_dump($rest))));
+
+    // return true;
   }
 
   /**
@@ -820,6 +866,7 @@ class Store_admin extends CI_Component {
         'store_type_id'     => $item['store_type_id'],
         'store_workshop_id' => $item['store_workshop_id'],
         'coming_id'         => $item['id'],
+        'coming_child_id'   => $child['id'],
         'client_id'         => $item['client_id'],
         'product_id'        => $child['product_id'],
         'date'              => $item['date_second'],
@@ -839,15 +886,20 @@ class Store_admin extends CI_Component {
           'rest'          => $this->store_model->calculate_rest(array(
               'store_type_id' => $item['store_type_id'],
               'client_id'     => $item['client_id'],
-              'product_id'    => $child['product_id']
+              'product_id'    => $child['product_id'],
+              'date <='       => $item['date_second']
             )),
           // общие остатки по сырью
           'rest_product'  => $this->store_model->calculate_rest(array(
               'store_type_id' => $item['store_type_id'],
-              'product_id'    => $child['product_id']
+              'product_id'    => $child['product_id'],
+              'date <='       => $item['date_second']
             )), 
           // общие остатки всего сырья
-          'rest_all' => $this->store_model->calculate_rest(array('store_type_id'=>$item['store_type_id']))
+          'rest_all' => $this->store_model->calculate_rest(array(
+            'store_type_id' => $item['store_type_id'],
+            'date <='       => $item['date_second']
+          ))
         ))){
         $this->store_model->delete_movement_products(array('coming_id' => $item['id']));
         send_answer(array('errors' => array('Ошибка подсчета остатков по вторсырью')));
@@ -868,6 +920,36 @@ class Store_admin extends CI_Component {
     }
 
     send_answer();
+  }
+
+  function test(){
+    // перезаписывает все order
+    $this->store_model->set_order_movement();
+
+    // пересчитывает все остатки в движении сырья
+    $this->store_model->set_rests();
+
+/* Заполняет coming_child_id и expenditure_child_id
+
+    UPDATE `pr_store_movement_products` t1 SET 
+    coming_child_id = (SELECT id FROM `pr_store_comings` t2 WHERE t2.store_type_id = 1 AND t2.parent_id = t1.coming_id AND t2.product_id = t1.product_id AND t2.gross = t1.coming)
+    WHERE t1.store_type_id = 1;
+
+    UPDATE `pr_store_movement_products` t1 SET 
+    coming_child_id = (SELECT id FROM `pr_store_comings` t2 WHERE t2.store_type_id = 2 AND t2.parent_id = t1.coming_id AND t2.product_id = t1.product_id AND t2.net = t1.coming)
+    WHERE t1.store_type_id = 2;
+
+    UPDATE `pr_store_movement_products` t1 SET 
+    expenditure_child_id = (SELECT id FROM `pr_store_expenditures` t2 WHERE t2.store_type_id = 1 AND t2.parent_id = t1.expenditure_id AND t2.product_id = t1.product_id AND t2.gross = t1.expenditure)
+    WHERE t1.store_type_id = 1;
+
+
+    UPDATE `pr_store_movement_products` t1 SET 
+    expenditure_child_id = (SELECT id FROM `pr_store_expenditures` t2 WHERE t2.store_type_id = 2 AND t2.parent_id = t1.expenditure_id AND t2.product_id = t1.product_id AND t2.net = t1.expenditure)
+    WHERE t1.store_type_id = 2;
+    
+    */
+
   }
 
   /**
@@ -1397,14 +1479,15 @@ class Store_admin extends CI_Component {
     // Отправляем расход по каждому вторсырью в таблицу движения продукции
     foreach ($item['childs'] as $key => $child) {
       $params = array(
-        'store_type_id'     => $item['store_type_id'],
-        'store_workshop_id' => $item['store_workshop_id'],
-        'expenditure_id'    => $item['id'],
-        'client_id'         => $item['client_id'],
-        'product_id'        => $child['product_id'],
-        'date'              => $item['date'],
+        'store_type_id'         => $item['store_type_id'],
+        'store_workshop_id'     => $item['store_workshop_id'],
+        'expenditure_id'        => $item['id'],
+        'expenditure_child_id'  => $child['id'],
+        'client_id'             => $item['client_id'],
+        'product_id'            => $child['product_id'],
+        'date'                  => $item['date'],
         // если первичая продукция берем брутто, иначе нетто
-        'expenditure'   => ($item['store_type_id'] == 1 ? $child['gross'] : $child['net'])
+        'expenditure'           => ($item['store_type_id'] == 1 ? $child['gross'] : $child['net'])
       );
       // ошибка, если текущий остаток < 0
       $rest = $this->store_model->get_rest(array(
@@ -1544,9 +1627,9 @@ class Store_admin extends CI_Component {
     }
 
     $rest = array(
-        'start' => $rest_start,
-        'end'   => $rest_end,
-        'coming' => $this->store_model->calculate_coming($where),
+        'start'       => $rest_start,
+        'end'         => $rest_end,
+        'coming'      => $this->store_model->calculate_coming($where),
         'expenditure' => $this->store_model->calculate_expenditure($where),
       );
 
