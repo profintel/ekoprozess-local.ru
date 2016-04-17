@@ -279,7 +279,8 @@ class Store_model extends CI_Model {
       $this->db->where($params);
     }
     $this->db->limit(1, 0);
-    $this->db->order_by('id','DESC');
+    $this->db->order_by('date','DESC');
+    $this->db->order_by('order','DESC');
     return $this->db->get('store_movement_products')->row_array();
   } 
 
@@ -291,6 +292,7 @@ class Store_model extends CI_Model {
     if ($limit) {
       $this->db->limit($limit, $offset);
     }
+    $this->db->order_by('date','asc');
     $this->db->order_by('order','asc');
     
     if ($where) {
@@ -330,6 +332,7 @@ class Store_model extends CI_Model {
     // update movement
   function set_rests($where = array()){
     $this->db->order_by('date','asc');
+    $this->db->order_by('order','asc');
     
     if ($where) {
       $this->db->where($where);
@@ -371,6 +374,7 @@ class Store_model extends CI_Model {
   */
   function set_order_movement(){
     $this->db->order_by('date','asc');
+    $this->db->order_by('id','asc');
     $items = $this->db->get('store_movement_products')->result_array();
     foreach ($items as $key => $item) {
       $this->update_movement_products($item['id'],array('order'=>$key+1));
