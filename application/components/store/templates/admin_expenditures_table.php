@@ -49,20 +49,18 @@
                         </a>
                       </li>
                     <? } ?>
-                    <? if (!$item['active']) {?>
-                      <li class="divider"></li>
-                      <li>
-                        <a href="#"
-                          onClick="return send_confirm(
-                            'Вы уверены, что хотите удалить объект?',
-                            '/admin<?=$this->component['path'];?>delete_<?=$section;?>/<?=$item['id'];?>/',
-                            {},
-                            'reload'
-                          );"
-                          title="Удалить"
-                        ><span class="glyphicon glyphicon-trash"></span> Удалить</a>
-                      </li>
-                    <? } ?>
+                    <li class="divider"></li>
+                    <li>
+                      <a href="#"
+                        onClick="return send_confirm(
+                          'Вы уверены, что хотите удалить объект?',
+                          '/admin<?=$this->component['path'];?>delete_<?=$section;?>/<?=$item['id'];?>/',
+                          {},
+                          'reload'
+                        );"
+                        title="Удалить"
+                      ><span class="glyphicon glyphicon-trash"></span> Удалить</a>
+                    </li>
                   </ul>
                 </div>
               </td>

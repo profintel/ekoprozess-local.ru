@@ -39,7 +39,10 @@
             <th>Вид вторсырья</th>
             <th>Приход, кг</th>
             <th>Расход, кг</th>
-            <th>Остаток</th>
+            <th>Остаток rest</th>
+            <th>Остаток rest_product</th>
+            <th>Остаток rest_all</th>
+            <th>order</th>
           </tr>
         </thead>
         <tbody>
@@ -51,7 +54,10 @@
               <td><?=$item['product']['title_full'];?></td>
               <td><span class="text-nowrap"><?=($item['coming'] ? '+ '.$item['coming'] : 0);?></span></td>
               <td><span class="text-nowrap"><?=($item['expenditure'] ? '- '.$item['expenditure'] : 0);?></span></td>
+              <td><?=$item['rest'];?></td>
               <td><?=$item['rest_product'];?></td>
+              <td><?=$item['rest_all'];?></td>
+              <td><?=$item['order'];?></td>
             </tr>
           <? } ?>
           <? if(isset($pagination) && $pagination) { ?>

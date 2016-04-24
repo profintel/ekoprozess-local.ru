@@ -35,7 +35,7 @@
                   <ul class="dropdown-menu">
                     <li>
                       <a href="/admin<?=$this->component['path'];?>edit_<?=$section;?>/<?=$item['id'];?>/" title="Редактировать">
-                        <span class="glyphicon glyphicon-edit"></span> <?=($item['active'] ? 'Просмотреть' : 'Редактировать');?> приход
+                        <span class="glyphicon glyphicon-edit"></span> Редактировать приход
                       </a>
                     </li>
                     <? if (!$item['active']) { ?>
@@ -61,20 +61,18 @@
                         </a>
                       </li>
                     <? } ?>
-                    <? if (!$item['active']) {?>
-                      <li class="divider"></li>
-                      <li>
-                        <a href="#"
-                          onClick="return send_confirm(
-                            'Вы уверены, что хотите удалить объект?',
-                            '/admin<?=$this->component['path'];?>delete_<?=$section;?>/<?=$item['id'];?>/',
-                            {},
-                            'reload'
-                          );"
-                          title="Удалить"
-                        ><span class="glyphicon glyphicon-trash"></span> Удалить</a>
-                      </li>
-                    <? } ?>
+                    <li class="divider"></li>
+                    <li>
+                      <a href="#"
+                        onClick="return send_confirm(
+                          'Вы уверены, что хотите удалить объект?',
+                          '/admin<?=$this->component['path'];?>delete_<?=$section;?>/<?=$item['id'];?>/',
+                          {},
+                          'reload'
+                        );"
+                        title="Удалить"
+                      ><span class="glyphicon glyphicon-trash"></span> Удалить</a>
+                    </li>
                   </ul>
                 </div>
               </td>

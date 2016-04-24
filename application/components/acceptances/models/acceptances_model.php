@@ -124,10 +124,10 @@ class Acceptances_model extends CI_Model {
     return $this->db->get('client_acceptances')->row()->cnt;
   }
 
-  function get_acceptance($where = array()) {
+  function get_acceptance($where = array(), $full = true) {
     $this->db->select('client_acceptances.*');
     $item = $this->db->get_where('client_acceptances', $where)->row_array();
-    if($item){
+    if($item && $full){
       $item['client_title'] = $item['company'];
       if($item['client_id']){
         $item['client'] = $this->clients_model->get_client(array('id'=>$item['client_id']));
