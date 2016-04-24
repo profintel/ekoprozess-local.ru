@@ -228,11 +228,12 @@ class Store_admin extends CI_Component {
         'form_group_class' => 'form_group_product_field',
       ),
       array(
-        'view'    => 'fields/'.($type_id == 2 ? 'text' : 'hidden'),
-        'title'   => ($label ? 'Нетто, (кг)' : ''),
-        'name'    => 'net[]',
-        'value'   => ($item ? $item['net'] : ''),
-        'class'   => 'number',
+        'view'     => 'fields/'.($type_id == 2 ? 'text' : 'hidden'),
+        'title'    => ($label ? 'Нетто, (кг)' : ''),
+        'name'     => 'net[]',
+        'value'    => ($item ? $item['net'] : ''),
+        'disabled' => ($item && $item['active'] ? true : false),
+        'class'    => 'number',
         'form_group_class' => 'form_group_product_field'.($type_id == 2 ? ' form_group_w20' : ''),
       ),
       array(
@@ -559,6 +560,7 @@ class Store_admin extends CI_Component {
           'title'   => 'Цех:',
           'name'    => 'store_workshop_id',
           'options' => $this->workshops_model->get_workshops(),
+          'disabled'=> ($item && $item['active'] ? true : false),
           'value'   => $item['store_workshop_id']
         ),
         array(
@@ -1198,10 +1200,10 @@ class Store_admin extends CI_Component {
         }
 
         // проверяем чтобы остаток не был < 0
-        $rest = $this->store_model->get_rest(array('store_type_id'=>$params['store_type_id'],'client_id'=>$params['client_id'],'product_id'=>$product_id,'date <='=>$params['date']));
+        $rest = $this->store_model->get_rest(array('store_type_id'=>$params['store_type_id'],'client_id'=>$params['client_id'],'product_id'=>$product_id));
         if(!$rest || ($rest['rest'] - $expenditure) < 0){
           $this->delete_expenditure($id, true);
-          send_answer(array('errors' => array('Остаток на складе не может быть меньше 0. Проверьте расход вторсырья')));
+          send_answer(array('errors' => array('Остаток на складе не может быть меньше 0. Возможно расход по данному вторсырью уже заведен в базу более поздней датой. Проверьте остатки в движении вторсырья.')));
         }
       }
     }
@@ -1294,15 +1296,17 @@ class Store_admin extends CI_Component {
         'title'     => 'Дата расхода:',
         'name'      => 'date',
         'onchange'  => 'updateRestProduct(this)',
+        'disabled'  => ($item && $item['active'] ? true : false),
         'value'     => ($item['date'] ? date('d.m.Y H:i', strtotime($item['date'])) : '')
       ),
       array(
-        'view'    => 'fields/'.($type['id'] == 1 ? 'select' : 'hidden'),
-        'title'   => 'Цех:',
-        'name'    => 'store_workshop_id',
-        'value'   => $item['store_workshop_id'],
-        'options' => $this->workshops_model->get_workshops(),
-        'empty'   => true,
+        'view'     => 'fields/'.($type['id'] == 1 ? 'select' : 'hidden'),
+        'title'    => 'Цех:',
+        'name'     => 'store_workshop_id',
+        'value'    => $item['store_workshop_id'],
+        'options'  => $this->workshops_model->get_workshops(),
+        'disabled' => ($item && $item['active'] ? true : false),
+        'empty'    => true,
       )
     );
 
@@ -1386,9 +1390,9 @@ class Store_admin extends CI_Component {
         }
 
         // проверяем чтобы остаток не был < 0
-        $rest = $this->store_model->get_rest(array('store_type_id'=>$item['store_type_id'],'client_id'=>$params['client_id'],'product_id'=>$product_id,'date <='=>$params['date']));
+        $rest = $this->store_model->get_rest(array('store_type_id'=>$item['store_type_id'],'client_id'=>$params['client_id'],'product_id'=>$product_id));
         if(!$rest || ($rest['rest'] - $expenditure) < 0){
-          send_answer(array('errors' => array('Остаток на складе не может быть меньше 0. Проверьте расход вторсырья')));
+          send_answer(array('errors' => array('Остаток на складе не может быть меньше 0. Возможно расход по данному вторсырью уже заведен в базу более поздней датой. Проверьте остатки в движении вторсырья.')));
         }
       }
     }

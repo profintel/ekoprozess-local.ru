@@ -588,8 +588,9 @@ class Store_model extends CI_Model {
           // если расход НЕ отправлен на склад, выводим остатки по последней строке из движения по сырью и клиенту
           $rest = $this->get_rest(array(
             'store_type_id' => $child['store_type_id'],
-            'client_id' => $child['client_id'],
-            'product_id' => $child['product_id']
+            'client_id'     => $child['client_id'],
+            'product_id'    => $child['product_id'],
+            'date <='       => $item['date']
           ));
           $child['rest'] = ($rest ? $rest['rest'] : 0.00);
           $child['rest_product'] = ($rest ? $rest['rest_product'] : 0.00);
