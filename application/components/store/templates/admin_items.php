@@ -30,7 +30,7 @@
   </div>
   <br/>
   <div id="ajax_result">
-    {{cmp:store->_render_items_report_table<-<?=base64_encode(serialize($data));?>}}
+    {{cmp:store-><?=$data['section'];?>s<-<?=$data['type_id'];?><-1}}
   </div>
   <a class="btn btn-default btn-xs" href="/admin<?=$this->component['path'];?>store_types/<?=$data['type_id'];?>"><span class="glyphicon glyphicon-backward"></span> Назад</a>
 </div>

@@ -64,7 +64,7 @@ class Store_admin extends CI_Component {
   /**
   * Просмотр таблицы приходов продукции
   */
-  function comings($type_id) {
+  function comings($type_id, $render_table = false) {
     $type = $this->store_model->get_store_type(array('id'=>(int)$type_id));
     if(!$type){
       show_error('Не найден тип склада');
@@ -111,7 +111,9 @@ class Store_admin extends CI_Component {
       'prefix' => '/admin'. $this->params['path'].'comings/'.$type_id.'/',
       'postfix' => $postfix
     );
-    $items = $this->store_model->get_comings($limit, $offset, $where, false, $get_params['product_id']);
+    if($render_table || $this->uri->getParam('ajax')){
+      $items = $this->store_model->get_comings($limit, $offset, $where, false, $get_params['product_id']);
+    }
 
     $data = array(
       'title'       => 'Склад: '.$type['title'].'. Приход',
@@ -124,28 +126,16 @@ class Store_admin extends CI_Component {
           'path'  => $this->lang_prefix.'/admin'.$this->component['path'].'create_coming/'.$type_id.'/',
         ),
       'error' => $error,
-      'items' => $items
+      'items' => (isset($items) ? $items : array())
     );
 
-    if($this->uri->getParam('ajax') == 1){
+    if($render_table){
+      return $this->load->view('../../application/components/store/templates/admin_comins_table',$data,true);
+    } else if($this->uri->getParam('ajax') == 1){
       echo $this->load->view('../../application/components/store/templates/admin_comins_table',$data,true);
     } else {
       return $this->render_template('templates/admin_items', array('data'=>$data));
     }
-  }
-
-  function _render_items_report_table($data){
-    $data = unserialize(base64_decode($data));
-    if($data['section'] == 'coming'){
-      $template = '../../application/components/store/templates/admin_comins_table';
-    }
-    if($data['section'] == 'expenditure'){
-      $template = '../../application/components/store/templates/admin_expenditures_table';
-    }
-    if($data['section'] == 'rest'){
-      $template = '../../application/components/store/templates/admin_rests_table';
-    }
-    return $this->load->view($template,$data,true);
   }
    
   /**
@@ -990,7 +980,7 @@ class Store_admin extends CI_Component {
   /**
   * Просмотр таблицы расходов продукции
   */
-  function expenditures($type_id) {
+  function expenditures($type_id, $render_table = false) {
     $type = $this->store_model->get_store_type(array('id'=>(int)$type_id));
     if(!$type){
       show_error('Не найден тип склада');
@@ -1037,7 +1027,9 @@ class Store_admin extends CI_Component {
       'prefix'  => '/admin'. $this->params['path'].'expenditures/'.$type_id.'/',
       'postfix' => $postfix
     );
-    $items = $this->store_model->get_expenditures($limit, $offset, $where, false, $get_params['product_id']);
+    if($render_table || $this->uri->getParam('ajax')){
+      $items = $this->store_model->get_expenditures($limit, $offset, $where, false, $get_params['product_id']);
+    }
 
     $data = array(
       'title'      => 'Склад: '.$type['title'].'. Расход',
@@ -1050,10 +1042,12 @@ class Store_admin extends CI_Component {
           'path' => $this->lang_prefix.'/admin'.$this->component['path'].'create_expenditure/'.$type_id.'/',
         ),
       'error' => $error,
-      'items' => $items
+      'items' => (isset($items) ? $items : array())
     );
 
-    if($this->uri->getParam('ajax') == 1){
+    if($render_table){
+      return $this->load->view('../../application/components/store/templates/admin_expenditures_table',$data,true);
+    } elseif($this->uri->getParam('ajax') == 1){
       echo $this->load->view('../../application/components/store/templates/admin_expenditures_table',$data,true);
     } else {
       return $this->render_template('templates/admin_items', array('data'=>$data));
@@ -1542,7 +1536,7 @@ class Store_admin extends CI_Component {
   /**
    * Просмотр отчета остатков на складе
   **/
-  function rests($type_id){
+  function rests($type_id, $render_table = false){
     $type = $this->store_model->get_store_type(array('id'=>(int)$type_id));
     if(!$type){
       show_error('Не найден тип склада');
@@ -1751,7 +1745,9 @@ class Store_admin extends CI_Component {
       )),
     );
     
-    if($this->uri->getParam('ajax') == 1){
+    if($render_table){
+      return $this->load->view('../../application/components/store/templates/admin_rests_table',$data,true);
+    } else if($this->uri->getParam('ajax') == 1){
       echo $this->load->view('../../application/components/store/templates/admin_rests_table',$data,true);
     } else {
       return $this->render_template('templates/admin_items', array('data'=>$data));
