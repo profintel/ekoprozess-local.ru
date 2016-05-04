@@ -1250,7 +1250,7 @@ class Store_admin extends CI_Component {
     if(!$type){
       show_error('Не найден тип склада');
     }
-
+    
     $blocks = array(
       'main_params' => array(
         'title'   => 'Основные параметры',
@@ -1260,7 +1260,8 @@ class Store_admin extends CI_Component {
             'title'     => 'Клиент:',
             'name'      => 'client_id',
             'text_field'=> 'title_full',
-            'options'   => $this->clients_model->get_clients(),
+            // список клиентов с остатками
+            'options'   => $this->store_model->get_clients_movements(array('store_movement_products.store_type_id' => $type_id)),
             'value'     => ($this->uri->getParam('client_id') ? mysql_prepare($this->uri->getParam('client_id')) : 0),
             'empty'     => true,
             'onchange'  => 'updateRestProduct(this)',
@@ -1294,7 +1295,7 @@ class Store_admin extends CI_Component {
         'view'      => 'fields/datetime',
         'title'     => 'Дата расхода:',
         'name'      => 'date',
-        'onchange'  => 'updateRestProduct(this)',
+        'onchange'  => 'updateClientsRests(this);updateRestProduct(this);',
       ),
       array(
         'view'    => 'fields/'.($type_id == 1 ? 'select' : 'hidden'),
@@ -1477,7 +1478,7 @@ class Store_admin extends CI_Component {
         'view'      => 'fields/datetime',
         'title'     => 'Дата расхода:',
         'name'      => 'date',
-        'onchange'  => 'updateRestProduct(this)',
+        'onchange'  => 'updateClientsRests(this);updateRestProduct(this);',
         'disabled'  => ($item && $item['active'] ? true : false),
         'value'     => ($item['date'] ? date('d.m.Y H:i', strtotime($item['date'])) : '')
       ),

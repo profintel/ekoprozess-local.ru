@@ -435,7 +435,7 @@ class Store_model extends CI_Model {
   }
   
   // Список клиентов с остатками на складе, с учетом указанного сырья
-  function get_clients_movements($where = array(),$products) {
+  function get_clients_movements($where = array(),$products = array()) {
     $this->db->select('pr_clients.id, pr_clients.title_full, SUM(pr_store_movement_products.coming-pr_store_movement_products.expenditure) AS `sum`');
     if($where){
       $this->db->where($where);
@@ -448,9 +448,44 @@ class Store_model extends CI_Model {
     $this->db->having('sum > 0');
     $this->db->order_by('pr_clients.title_full');
     $items = $this->db->get('pr_clients')->result_array();
+    foreach ($items as $key => &$item) {
+      $item['title_full'] = $item['title_full'].' ('.$item['sum'].')';
+    }
     // echo $this->db->last_query();
     return $items;
   }
+
+
+  /*пыталась разные суммы посчитать
+  function get_clients_movements($store_type_id, $date, $products = array()) {
+    $this->db->select('pr_clients.id, pr_clients.title_full');
+    if($products){
+      $having = '';
+      foreach ($products as $product_id) {
+        $this->db->select('SUM(t'.$product_id.'.coming-t'.$product_id.'.expenditure) AS sum'.$product_id);
+        $cond = 't'.$product_id.'.client_id = pr_clients.id AND '.
+          't'.$product_id.'.product_id = '.$product_id.' AND '.
+          't'.$product_id.'.store_type_id = '.$store_type_id;
+        if($date){
+          $cond .= ' AND t'.$product_id.'.date <= "'.$date.'"';
+        }
+        $this->db->join('pr_store_movement_products t'.$product_id, $cond);
+        $having .= ($having ? ' AND sum'.$product_id.' > 0' : 'sum'.$product_id.' > 0');
+        $this->db->group_by('t'.$product_id.'.client_id');
+      }      
+      $this->db->having('('.$having.')');
+      // $this->db->where_in('pr_store_movement_products.product_id',$products);
+    }
+    $this->db->order_by('pr_clients.title_full');
+    $items = $this->db->get('pr_clients')->result_array();
+    foreach ($items as &$item) {
+      foreach ($products as $product_id) {
+        $item['title_full'] .= ' ('.$item['sum'.$product_id].')';
+      }
+    }
+    echo $this->db->last_query();
+    return $items;
+  }*/
 
   /**
   * Список расходов
