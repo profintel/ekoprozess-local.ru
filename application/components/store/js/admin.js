@@ -77,6 +77,10 @@ function updateClientsRests(obj){
     date:form.find('input[name="date"]').val(),
     product_id:[],
   }
+  
+  // считаем только для первичного склада
+  if(params.store_type_id != 1) return false;
+
   // находим все select-ы с вторсырьем
   products = form.find('select[name="product_id[]"]');
   products.each(function(key,item){

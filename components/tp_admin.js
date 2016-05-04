@@ -1,4 +1,4 @@
-/*** Generated 04.05.2016 18:24:03 ***/
+/*** Generated 05.05.2016 01:07:27 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -4593,6 +4593,10 @@ function updateClientsRests(obj){
     date:form.find('input[name="date"]').val(),
     product_id:[],
   }
+  
+  // считаем только для первичного склада
+  if(params.store_type_id != 1) return false;
+
   // находим все select-ы с вторсырьем
   products = form.find('select[name="product_id[]"]');
   products.each(function(key,item){
