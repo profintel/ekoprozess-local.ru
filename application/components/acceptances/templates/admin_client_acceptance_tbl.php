@@ -21,7 +21,7 @@
       </tr>
     <? } ?>
     <tr>
-      <th align="left" width="20%">Дата и номер ТН</th>
+      <th align="left" width="20%">ТТН и пункт загрузки</th>
       <td><?=$item['date_num'];?></td>
     </tr>
     <tr>
