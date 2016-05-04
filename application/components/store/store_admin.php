@@ -1250,7 +1250,7 @@ class Store_admin extends CI_Component {
     if(!$type){
       show_error('Не найден тип склада');
     }
-    
+
     $blocks = array(
       'main_params' => array(
         'title'   => 'Основные параметры',
@@ -1435,6 +1435,13 @@ class Store_admin extends CI_Component {
       show_error('Не найден тип склада');
     }
 
+    // список клиентов с остатками
+    $where = array(
+      'store_movement_products.store_type_id' => $item['store_type_id'],
+      'store_movement_products.date <=' => $item['date']
+    );
+    $clients = $this->store_model->get_clients_movements($where,array_simple($item['childs'],'product_id'));
+    
     $blocks = array(
       'main_params' => array(
         'title'   => 'Основные параметры',
@@ -1444,7 +1451,7 @@ class Store_admin extends CI_Component {
             'title'     => 'Клиент:',
             'name'      => 'client_id',
             'text_field'=> 'title_full',
-            'options'   => $this->clients_model->get_clients(),
+            'options'   => $clients,
             'value'     => $item['client_id'],
             'empty'     => true,
             'onchange'  => 'updateRestProduct(this)',
