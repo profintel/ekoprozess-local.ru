@@ -688,7 +688,7 @@ class Acceptances_admin extends CI_Component {
           'type'    => '',
           'icon'    => 'glyphicon-new-window',
           'class'   => 'btn-default pull-left m-l-0',
-          'onclick' => 'window.open("/admin/store/edit_coming/'.$item['store_coming_id'].'/","_coming_'.$item['store_coming_id'].'")'
+          'onclick' => 'window.open("/admin/store/edit_coming/'.$store_coming['store_type_id'].'/'.$item['store_coming_id'].'/","_coming_'.$item['store_coming_id'].'")'
         );
         if(!$store_coming['active']){
           $blocks['submits']['fields'][] = array(
