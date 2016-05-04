@@ -453,8 +453,8 @@ class Store_model extends CI_Model {
       $this->db->where_in('pr_store_movement_products.product_id',$products);
     }
     $this->db->group_by('pr_store_movement_products.client_id');
-    $this->db->having('sum > 0');
-    $this->db->order_by('pr_clients.title_full');
+    // $this->db->having('sum > 0');
+    $this->db->order_by('sum','desc');
     $items = $this->db->get('pr_clients')->result_array();
     foreach ($items as $key => &$item) {
       $item['title_full'] = $item['title_full'].' ('.$item['sum'].')';
