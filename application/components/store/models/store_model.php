@@ -384,8 +384,8 @@ class Store_model extends CI_Model {
     $this->db->select("store_movement_products.*");
     $this->db->select("DATE_FORMAT(date,'%Y-%m-%d') as date_new", false);
     $this->db->order_by("date_new",'asc');
-    // id для того, чтобы сначала приход встал в движении, потом расход
-    $this->db->order_by('id','asc');
+    // coming_child_id для того, чтобы сначала приход встал в движении, потом расход
+    $this->db->order_by("coming_child_id",'desc');
     if ($where) {
       $this->db->where($where);
     }
