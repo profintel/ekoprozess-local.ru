@@ -34,7 +34,7 @@
                   <a data-toggle="dropdown"></a>
                   <ul class="dropdown-menu">
                     <li>
-                      <a href="/admin<?=$this->component['path'];?>edit_<?=$section;?>/<?=$item['id'];?>/" title="Редактировать">
+                      <a href="/admin<?=$this->component['path'];?>edit_<?=$section;?>/<?=$type_id;?>/<?=$item['id'];?>/" title="Редактировать">
                         <span class="glyphicon glyphicon-edit"></span> Редактировать приход
                       </a>
                     </li>

@@ -113,6 +113,13 @@ class Admin extends PR_Controller {
       show_404();
     }
 
+    //если найден метод формирующий подменю компонента
+    if (method_exists($this->$name, 'render_menu')) {
+      // подменю для левого блока меню
+      $component = $this->component;
+      $component['submenu'] = call_user_func_array(array($this->$name, 'render_menu'), array($method,$this->arguments));
+      $this->component = $component;
+    }
     //если установлен компонент Права доступа проверям права на метод компонента
     if (exists_component('permits')) {
       $permits = $this->components_model->get_component('permits');

@@ -397,7 +397,7 @@ class Acceptances_admin extends CI_Component {
         ),
         array(
           'view'  => 'fields/text',
-          'title' => 'Дата и номер ТН:',
+          'title' => 'ТТН и пункт загрузки:',
           'name'  => 'date_num',
         ),
         array(
@@ -477,6 +477,8 @@ class Acceptances_admin extends CI_Component {
         'date'            => date('Y-m-d', strtotime($store_coming['date_second'])),
         'client_id'       => $store_coming['client_id'],
         'date_time'       => $store_coming['date_primary'],
+        'date_num'        => $store_coming['date_num'],
+        'transport'       => $store_coming['transport'],
         'auto'            => 1,
       );
       // var_dump($params);
@@ -499,8 +501,9 @@ class Acceptances_admin extends CI_Component {
         $params_products['weight_pack'][]    = $child['weight_pack'];
         $params_products['weight_defect'][]  = $child['weight_defect'];
         $params_products['cnt_places'][]     = $child['cnt_places'];
-        $params_products['net'][]            = 0;
+        $params_products['net'][]            = $child['gross'] - $child['weight_pack'] - $child['gross']*$child['weight_defect']/100;
         $params_products['price'][]          = 0;
+        $params_products['order'][]          = $child['order'];
       }
     }
     if(!$auto){
@@ -600,16 +603,18 @@ class Acceptances_admin extends CI_Component {
           'value'    => ($item['date'] ? date('d.m.Y', strtotime($item['date'])) : '')
         ),
         array(
-          'view'  => 'fields/text',
-          'title' => 'Дата и номер ТН:',
-          'name'  => 'date_num',
-          'value' => $item['date_num'],
+          'view'     => 'fields/text',
+          'title'    => 'ТТН и пункт загрузки:',
+          'name'     => 'date_num',
+          'disabled' => ($item && $item['store_coming_id'] ? true : false),
+          'value'    => $item['date_num'],
         ),
         array(
-          'view'  => 'fields/text',
-          'title' => 'Транспорт:',
-          'name'  => 'transport',
-          'value' => $item['transport'],
+          'view'     => 'fields/text',
+          'title'    => 'Транспорт:',
+          'name'     => 'transport',
+          'disabled' => ($item && $item['store_coming_id'] ? true : false),
+          'value'    => $item['transport'],
         ),
         array(
           'view'     => 'fields/datetime',
@@ -722,6 +727,8 @@ class Acceptances_admin extends CI_Component {
         'date'            => date('Y-m-d', strtotime($store_coming['date_second'])),
         'client_id'       => $store_coming['client_id'],
         'date_time'       => $store_coming['date_primary'],
+        'date_num'        => $store_coming['date_num'],
+        'transport'       => $store_coming['transport'],
         'auto'            => 1,
       );
 
@@ -747,25 +754,31 @@ class Acceptances_admin extends CI_Component {
         $params_products['weight_pack'][]    = $child['weight_pack'];
         $params_products['weight_defect'][]  = $child['weight_defect'];
         $params_products['cnt_places'][]     = $child['cnt_places'];
+        $params_products['net'][]            = $child['gross'] - $child['weight_pack'] - $child['gross']*$child['weight_defect']/100;
+        $params_products['order'][]          = $child['order'];
       }
     }
     if(!$auto){
       $main_params = array(
-        'date_num'      => htmlspecialchars(trim($this->input->post('date_num'))),
-        'transport'     => htmlspecialchars(trim($this->input->post('transport'))),
         'company'       => htmlspecialchars(trim($this->input->post('company'))),
         'add_expenses'  => (float)str_replace(' ', '', $this->input->post('add_expenses')),
         'auto'          => 0,
       );
 
-      if($this->input->post('date')){
+      if($this->input->post('date') && !$item['store_coming_id']){
         $main_params['date'] = date('Y-m-d', strtotime($this->input->post('date')));
       }
-      if($this->input->post('date_time')){
+      if($this->input->post('date_time') && !$item['store_coming_id']){
         $main_params['date_time'] = date('Y-m-d H:i:s', strtotime($this->input->post('date_time')));
       }
       if((int)$this->input->post('client_id') && !$item['store_coming_id']){
-        $main_params['client_id'] = ((int)$this->input->post('client_id') ? (int)$this->input->post('client_id') : NULL);
+        $main_params['client_id'] = (int)$this->input->post('client_id');
+      }
+      if($this->input->post('date_num') && !$item['store_coming_id']){
+        $main_params['date_num'] = htmlspecialchars(trim($this->input->post('date_num')));
+      }
+      if($this->input->post('transport') && !$item['store_coming_id']){
+        $main_params['transport'] = htmlspecialchars(trim($this->input->post('transport')));
       }
 
       $errors = $this->_validate_acceptance($main_params, $item);

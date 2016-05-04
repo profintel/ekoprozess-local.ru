@@ -1,4 +1,4 @@
-/*** Generated 27.03.2016 15:51:47 ***/
+/*** Generated 04.05.2016 18:24:03 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -4579,4 +4579,40 @@ function updateRestProduct(obj){
       }
     })
   }
+}
+
+/**
+* Обновление списка клиентов по выбранным параметрам вторсырья
+*/
+function updateClientsRests(obj){
+  var form, store_type_id, client_id, products, form_block, rest;
+  form =  $(obj).parents('form');
+  // смотрим все указанныые параметры вторсырья и ищем клиентов, по которым числятся такие остатки
+  params = {
+    store_type_id:form.find('input[name="store_type_id"]').val(),
+    date:form.find('input[name="date"]').val(),
+    product_id:[],
+  }
+  // находим все select-ы с вторсырьем
+  products = form.find('select[name="product_id[]"]');
+  products.each(function(key,item){
+    if($(item).val() > 0){
+      params.product_id.push($(item).val());
+    }
+  })
+  $('[name="client_id"]').parents('.form-group').addClass('loading');
+  $.post('/admin/store/renderSelectClientsRests/',
+    params,
+    function(result){
+      if(result.clients){
+        html = $(result.clients).find('.col-sm-10').html();
+        $('[name="client_id"]').parents('.form-group').find('.col-sm-10').html("").append(html);
+        $('[name="client_id"]').chosen({
+          width: "100%",
+          allow_single_deselect: true
+        });
+        $('[name="client_id"]').parents('.form-group').removeClass('loading');
+      }
+    },
+  'json')
 }

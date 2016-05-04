@@ -91,7 +91,7 @@ a.glyphicon:focus{
   color: #676a6c;
 }
 .navbar-static-side {
-  position: absolute;
+  position: fixed;
   width: 220px;
   height: 100%;
   z-index: 101;
@@ -132,6 +132,9 @@ a.glyphicon:focus{
   text-decoration: none;
   outline: none;
 }
+#side-menu > li {
+  border-left: 4px solid transparent;
+}
 #side-menu > li > a {
   color: #a7b1c2;
   padding: 14px 20px 14px 25px;
@@ -141,14 +144,22 @@ a.glyphicon:focus{
   display: inline-block;
   vertical-align: middle;
 }
+#side-menu > li:hover,
+#side-menu > li.active,
+#side-menu > li:focus {
+  color: #ffffff;
+  background-color: #293846;
+}
 #side-menu > li > a:hover,
 #side-menu > li.active > a,
 #side-menu > li > a:focus {
   color: #ffffff;
-  background-color: #293846;
+  background-color: transparent;
+}
+#side-menu > li.active {
+  border-left: 4px solid #0079a1;
 }
 #side-menu > li.active > a {
-  border-left: 4px solid #0079a1;
   padding-left: 21px;
 }
 #side-menu > li > a > .glyphicon{
@@ -162,6 +173,39 @@ a.glyphicon:focus{
 #side-menu .nav-header .dropdown .glyphicon-align-justify{
   font-size: 12px;
   padding-right:0px; 
+}
+#side-menu > li > .submenu{
+  margin-left: 20px;
+}
+#side-menu .submenu{
+  list-style: disc;
+  padding: 0px 0 0 25px;
+}
+#side-menu .submenu > li > a{
+  color: #ffffff;
+  display: block;
+  padding: 0px 0 10px 0;
+  text-decoration: none;
+}
+#side-menu .submenu > li > a:hover:before,
+#side-menu .submenu > li.active > a:before,
+#side-menu .submenu > li > a:focus:before {
+  position:relative;
+  top:0px;
+  display:inline-block;
+  font-family:'Glyphicons Halflings';
+  font-style:normal;
+  font-weight:normal;
+  line-height:1;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+
+  content: "\e013";
+  margin-left: -19px;
+  padding-right: 5px;
+}
+#side-menu .submenu > li.active > a:before{
+  padding-right: 1px;
 }
 [data-toggle="dropdown"]{
   cursor: pointer;
@@ -230,6 +274,9 @@ a.glyphicon:focus{
 
 .container-menu .btn{
   margin-bottom: 20px;
+}
+.container-menu .btn a{
+  color: #ffffff;
 }
 .container-menu .btn .glyphicon{
   font-size: 24px;

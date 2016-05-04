@@ -328,15 +328,9 @@ class Store_model extends CI_Model {
   }
 
 
-    // метод, который будет пересчитывать остаток на складе
-
-    // запрос с датой или id прихода/расхода от которой пересчет начинаем
-
-    // цикл
-
-    // calculate_rest
-
-    // update movement
+  /** 
+  * Перезаписывает остатки на складе
+  */
   function set_rests($where = array()){
     $this->db->order_by('date','asc');
     $this->db->order_by('order','asc');
@@ -438,6 +432,24 @@ class Store_model extends CI_Model {
       return true;
     }
     return false;
+  }
+  
+  // Список клиентов с остатками на складе, с учетом указанного сырья
+  function get_clients_movements($where = array(),$products) {
+    $this->db->select('pr_clients.id, pr_clients.title_full, SUM(pr_store_movement_products.coming-pr_store_movement_products.expenditure) AS `sum`');
+    if($where){
+      $this->db->where($where);
+    }
+    $this->db->join('pr_store_movement_products','pr_store_movement_products.client_id = pr_clients.id');
+    if($products){
+      $this->db->where_in('pr_store_movement_products.product_id',$products);
+    }
+    $this->db->group_by('pr_store_movement_products.client_id');
+    $this->db->having('sum > 0');
+    $this->db->order_by('pr_clients.title_full');
+    $items = $this->db->get('pr_clients')->result_array();
+    // echo $this->db->last_query();
+    return $items;
   }
 
   /**

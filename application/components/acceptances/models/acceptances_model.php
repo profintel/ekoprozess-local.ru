@@ -47,8 +47,8 @@ class Acceptances_model extends CI_Model {
         $this->db->order_by($field,$dest);
       }
     } else {
-      $this->db->order_by('date','asc');
-      $this->db->order_by('tm','asc');
+      $this->db->order_by('date','desc');
+      $this->db->order_by('id','asc');
     }
     $this->db->group_by('client_acceptances.id');
     $items = $this->db->get('client_acceptances')->result_array();

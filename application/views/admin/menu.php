@@ -9,6 +9,18 @@
       <a href="<?=$item['link'];?>" class="btn btn-primary btn-block <?=(isset($item['class']) ? ' '. $item['class'] : '');?>">
         <span class="glyphicon glyphicon-ok"></span> <span class="btn-title"><?=$item['title'];?></span>
       </a>
+
+      <? if (isset($item['submenu'])) {?>
+        <? foreach ($item['submenu'] as $child) {?>
+          <ul class="submenu list-unstyled">
+            <li class="<?=(isset($child['active']) && $child['active'] ? 'active' : '');?>">
+              <a href="<?=$child['link'];?>" class="btn btn-info btn-block">
+                <span><?=$child['title'];?></span>
+              </a>
+            </li>
+          </ul>
+        <? } ?>
+      <? } ?>
     </div>
   <? } ?>
 </div>

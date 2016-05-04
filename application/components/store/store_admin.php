@@ -15,21 +15,9 @@ class Store_admin extends CI_Component {
   * Просмотр меню компонента
   */
   function index() {
-    // определяем типы склада
-    $types = $this->store_model->get_store_types(array('active'=>1));
-    if(!$types){
-      show_error('Не найдены типы склада');
-    }
-    $items = array();
-    foreach ($types as $key => $type) {
-      $items[] = array(
-        'title' => $type['title'],
-        'link'  => $this->lang_prefix.'/admin'. $this->params['path'] .'store_types/'.$type['id'] . '/'
-      );
-    }
     return $this->render_template('admin/menu', array(
       'title' => 'Склад',
-      'items' => $items
+      'items' => $this->render_menu()
     ));
   }
   
@@ -43,24 +31,86 @@ class Store_admin extends CI_Component {
     }
     return $this->render_template('admin/menu', array(
       'title' => 'Склад: '.$type['title'],
-      'items' => array(
-        array(
-          'title' => 'Приход',
-          'link'  => $this->lang_prefix.'/admin'. $this->params['path'] .'comings/'.$type_id.'/'
-        ),
-        array(
-          'title' => 'Расход',
-          'link'  => $this->lang_prefix.'/admin'. $this->params['path'] .'expenditures/'.$type_id.'/'
-        ),
-        array(
-          'title' => 'Остаток',
-          'link'  => $this->lang_prefix.'/admin'. $this->params['path'] .'rests/'.$type_id.'/'
-        ),
-      ),
+      'items' => $this->render_menu(false, array($type_id)),
       'back' => $this->lang_prefix.'/admin'. $this->params['path']
     ));
   }
   
+  /**
+  * Просмотр подменю разделов склада
+  */
+  function render_menu($method = false, $arguments = false) {
+    if(!$method && $arguments[0]){
+      $items = array(
+        array(
+          'title'   => 'Приход',
+          'methods' => array('comings','create_coming','edit_coming'),
+          'link'    => $this->lang_prefix.'/admin'. $this->params['path'] .'comings/'.$arguments[0].'/'
+        ),
+        array(
+          'title'   => 'Расход',
+          'methods' => array('expenditures','create_expenditure','edit_expenditure'),
+          'link'    => $this->lang_prefix.'/admin'. $this->params['path'] .'expenditures/'.$arguments[0].'/'
+        ),
+        array(
+          'title'   => 'Остаток',
+          'methods' => array('rests'),
+          'link'    => $this->lang_prefix.'/admin'. $this->params['path'] .'rests/'.$arguments[0].'/'
+        ),
+      );
+    } else {
+      // определяем типы склада
+      $types = $this->store_model->get_store_types(array('active'=>1));
+      if(!$types){
+        show_error('Не найдены типы склада');
+      }
+      $items = array();
+      foreach ($types as $key => $type) {
+        $submenu = $this->render_menu(false, array($type['id']));
+        foreach ($submenu as $key => &$value) {
+          if(in_array($method, $value['methods']) && $type['id'] == $arguments[0]){
+            $value['active'] = true;
+          }
+        }
+        unset($value);
+        $items[] = array(
+          'title'    => $type['title'],
+          'link'     => $this->lang_prefix.'/admin'. $this->params['path'] .'store_types/'.$type['id'] . '/',
+          'active'   => ($method == 'store_types' && $type['id'] == $arguments[0]),
+          'submenu'  => $submenu
+        );
+      }
+    }
+    return $items;
+  }
+
+  /**
+  * Поиск клиентов с остатками по указанным параметрам вторсырья
+  */
+  function renderSelectClientsRests() {
+    $where=array(
+      'store_movement_products.store_type_id' => $this->input->post('store_type_id'),
+    );
+    if($this->input->post('date')){
+      $where['store_movement_products.date <='] = date('Y-m-d H:i:s',strtotime($this->input->post('date')));
+    }
+    $products = $this->input->post('product_id');
+    $clients = $this->store_model->get_clients_movements($where,$products);
+    //Формирует html select
+    $result = array();
+    $vars = array(
+      'view'      => 'fields/select',
+      'title'     => 'Клиент:',
+      'name'      => 'client_id',
+      'text_field'=> 'title_full',
+      'options'   => $clients,
+      'onchange'  => 'updateRestProduct(this)',
+      'empty'     => true
+    );
+    $result['clients'] = $this->load->view('fields/select', array('vars' => $vars), true);
+    echo json_encode($result);
+  }
+
   /**
   * Просмотр таблицы приходов продукции
   */
@@ -76,7 +126,7 @@ class Store_admin extends CI_Component {
     $error = '';
     $product_id = $this->uri->getParam('product_id');
     $get_params = array(
-      'date_start'  => ($this->uri->getParam('date_start') ? date('Y-m-d',strtotime($this->uri->getParam('date_start'))) : ''),
+      'date_start'  => ($this->uri->getParam('date_start') ? date('Y-m-d',strtotime($this->uri->getParam('date_start'))) : date('Y-m-1')),
       'date_end'    => ($this->uri->getParam('date_end') ? date('Y-m-d',strtotime($this->uri->getParam('date_end'))) : ''),
       'client_id'   => ((int)$this->uri->getParam('client_id') ? (int)$this->uri->getParam('client_id') : ''),
       'product_id'  => ($product_id && @$product_id[0] ? $product_id : array()),
@@ -126,7 +176,63 @@ class Store_admin extends CI_Component {
           'path'  => $this->lang_prefix.'/admin'.$this->component['path'].'create_coming/'.$type_id.'/',
         ),
       'error' => $error,
-      'items' => (isset($items) ? $items : array())
+      'items' => (isset($items) ? $items : array()),
+      'form' => $this->view->render_form(array(
+        'method' => 'GET',
+        'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'comings/'.$type_id.'/',
+        'enctype' => '',
+        'blocks' => array(
+          array(
+            'title'         => 'Параметры поиска',
+            'fields'   => array(
+              array(
+                'view'        => 'fields/datetime',
+                'title'       => 'Дата приемки (от):',
+                'name'        => 'date_start',
+                'value'       => ($get_params['date_start']? date('d.m.Y',strtotime($get_params['date_start'])) : ''),
+                'onchange1'    => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+              ),
+              array(
+                'view'        => 'fields/datetime',
+                'title'       => 'Дата приемки (до):',
+                'name'        => 'date_end',
+                'value'       => ($get_params['date_end']? date('d.m.Y',strtotime($get_params['date_end'])) : ''),
+                'onchange1'    => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+              ),
+              array(
+                'view'       => 'fields/select',
+                'title'      => 'Поставщик:',
+                'name'       => 'client_id',
+                'text_field' => 'title_full',
+                'value'      => $get_params['client_id'],
+                'options'    => $this->clients_model->get_clients(),
+                'empty'      => true,
+                'onchange'   => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+              ),
+              array(
+                'view'     => 'fields/select',
+                'title'    => 'Вид вторсырья:',
+                'name'     => 'product_id[]',
+                'multiple' => true,
+                'empty'    => true,
+                'optgroup' => true,
+                'options'  => $this->products_model->get_products(array('parent_id' => null)),
+                'value'    => $get_params['product_id'],
+                'onchange' => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+              ),
+              array(
+                'view'          => 'fields/submit',
+                'title'         => 'Сформировать',
+                'type'          => 'ajax',
+                'failure'       => '?ajax=1',
+                'reaction_func' => true,
+                'reaction'      => 'handle_ajaxResultHTML',
+                'data_type'     => 'html'
+              )
+            )
+          )
+        )
+      )),
     );
 
     if($render_table){
@@ -205,7 +311,7 @@ class Store_admin extends CI_Component {
         'options'  => $this->products_model->get_products(array('parent_id' => null)),
         'value'    => ($item ? $item['product_id'] : ''),
         'disabled' => ($item && $item['active'] ? true : false),
-        'onchange' => 'updateRestProduct(this)',
+        'onchange' => 'updateRestProduct(this);'.($section == 'expenditure' ? 'updateClientsRests(this);' : ''),
         'form_group_class' => 'form_group_product_field form_group_w30',
       ),
       array(
@@ -327,6 +433,16 @@ class Store_admin extends CI_Component {
           'onkeyup'     => 'updateRestProduct(this)',
         ),
         array(
+          'view'  => 'fields/'.($type_id == 1 ? 'text' : 'hidden'),
+          'title' => 'ТТН и пункт загрузки:',
+          'name'  => 'date_num',
+        ),
+        array(
+          'view'  => 'fields/'.($type_id == 1 ? 'text' : 'hidden'),
+          'title' => 'Транспорт:',
+          'name'  => 'transport',
+        ),
+        array(
           'view'    => 'fields/'.($type_id == 1 ? 'datetime' : 'hidden'),
           'title'   => 'Дата прибытия машины:',
           'name'    => 'date_primary',
@@ -417,6 +533,8 @@ class Store_admin extends CI_Component {
       'date_second'       => ($this->input->post('date_second') ? date('Y-m-d H:i:s', strtotime($this->input->post('date_second'))) : NULL),
       'client_id'         => $client_id,
       'store_workshop_id' => ((int)$this->input->post('store_workshop_id') ? (int)$this->input->post('store_workshop_id') : NULL),
+      'date_num'          => htmlspecialchars(trim($this->input->post('date_num'))),
+      'transport'         => htmlspecialchars(trim($this->input->post('transport'))),
       'active'            => false
     );
 
@@ -485,7 +603,7 @@ class Store_admin extends CI_Component {
       }
     }
 
-    send_answer(array('redirect' => '/admin'.$this->params['path'].'edit_coming/'.$id.'/'));
+    send_answer(array('redirect' => '/admin'.$this->params['path'].'edit_coming/'.$type_id.'/'.$id.'/'));
   }
   
   function _validate_coming_params($type_id, $params) {
@@ -505,7 +623,7 @@ class Store_admin extends CI_Component {
   /**
    *  Редактирование прихода.
   **/
-  function edit_coming($id){
+  function edit_coming($type_id, $id){
     $item = $this->store_model->get_coming(array('store_comings.id'=>$id));
     if(!$item){
       show_error('Объект не найден');
@@ -530,6 +648,18 @@ class Store_admin extends CI_Component {
           'disabled'  => ($item && $item['active'] ? true : false),
           'empty'     => true,
           'onchange'  => 'updateRestProduct(this)',
+        ),
+        array(
+          'view'  => 'fields/'.($type['id'] == 1 ? 'text' : 'hidden'),
+          'title' => 'ТТН и пункт загрузки:',
+          'name'  => 'date_num',
+          'value' => $item['date_num'],
+        ),
+        array(
+          'view'  => 'fields/'.($type['id'] == 1 ? 'text' : 'hidden'),
+          'title' => 'Транспорт:',
+          'name'  => 'transport',
+          'value' => $item['transport'],
         ),
         array(
           'view'    => 'fields/'.($type['id'] == 1 ? 'datetime' : 'hidden'),
@@ -629,7 +759,9 @@ class Store_admin extends CI_Component {
     }
 
     $main_params = array(
-      'active' => $item['active'],
+      'active'    => $item['active'],
+      'date_num'  => htmlspecialchars(trim($this->input->post('date_num'))),
+      'transport' => htmlspecialchars(trim($this->input->post('transport'))),
     );
     if($this->input->post('date_primary') && !$item['active']){
       $main_params['date_primary'] = date('Y-m-d H:i:s', strtotime($this->input->post('date_primary')));
@@ -699,10 +831,10 @@ class Store_admin extends CI_Component {
         if(isset($main_params['store_workshop_id'])){
           $params['store_workshop_id'] = $main_params['store_workshop_id'];
         }
-        if(isset($params['gross'][$key]) && $params['gross'][$key]){
+        if(isset($params_products['gross'][$key]) && $params_products['gross'][$key]){
           $params['gross'] = (float)str_replace(' ', '', $params_products['gross'][$key]);
         }
-        if(isset($params['net'][$key]) && $params['net'][$key]){
+        if(isset($params_products['net'][$key]) && $params_products['net'][$key]){
           $params['net'] = (float)str_replace(' ', '', $params_products['net'][$key]);
         }
         // если id указано, обновляем данные
@@ -992,7 +1124,7 @@ class Store_admin extends CI_Component {
     $error = '';
     $product_id = $this->uri->getParam('product_id');
     $get_params = array(
-      'date_start'  => ($this->uri->getParam('date_start') ? date('Y-m-d',strtotime($this->uri->getParam('date_start'))) : ''),
+      'date_start'  => ($this->uri->getParam('date_start') ? date('Y-m-d',strtotime($this->uri->getParam('date_start'))) : date('Y-m-1')),
       'date_end'    => ($this->uri->getParam('date_end') ? date('Y-m-d',strtotime($this->uri->getParam('date_end'))) : ''),
       'client_id'   => ((int)$this->uri->getParam('client_id') ? (int)$this->uri->getParam('client_id') : ''),
       'product_id'  => ($product_id && @$product_id[0] ? $product_id : array()),
@@ -1042,7 +1174,63 @@ class Store_admin extends CI_Component {
           'path' => $this->lang_prefix.'/admin'.$this->component['path'].'create_expenditure/'.$type_id.'/',
         ),
       'error' => $error,
-      'items' => (isset($items) ? $items : array())
+      'items' => (isset($items) ? $items : array()),
+      'form' => $this->view->render_form(array(
+        'method' => 'GET',
+        'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'expenditures/'.$type_id.'/',
+        'enctype' => '',
+        'blocks' => array(
+          array(
+            'title'         => 'Параметры поиска',
+            'fields'   => array(
+              array(
+                'view'        => 'fields/datetime',
+                'title'       => 'Дата приемки (от):',
+                'name'        => 'date_start',
+                'value'       => ($get_params['date_start']? date('d.m.Y',strtotime($get_params['date_start'])) : ''),
+                'onchange1'    => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+              ),
+              array(
+                'view'        => 'fields/datetime',
+                'title'       => 'Дата приемки (до):',
+                'name'        => 'date_end',
+                'value'       => ($get_params['date_end']? date('d.m.Y',strtotime($get_params['date_end'])) : ''),
+                'onchange1'    => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+              ),
+              array(
+                'view'       => 'fields/select',
+                'title'      => 'Поставщик:',
+                'name'       => 'client_id',
+                'text_field' => 'title_full',
+                'value'      => $get_params['client_id'],
+                'options'    => $this->clients_model->get_clients(),
+                'empty'      => true,
+                'onchange'   => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+              ),
+              array(
+                'view'     => 'fields/select',
+                'title'    => 'Вид вторсырья:',
+                'name'     => 'product_id[]',
+                'multiple' => true,
+                'empty'    => true,
+                'optgroup' => true,
+                'options'  => $this->products_model->get_products(array('parent_id' => null)),
+                'value'    => $get_params['product_id'],
+                'onchange' => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+              ),
+              array(
+                'view'          => 'fields/submit',
+                'title'         => 'Сформировать',
+                'type'          => 'ajax',
+                'failure'       => '?ajax=1',
+                'reaction_func' => true,
+                'reaction'      => 'handle_ajaxResultHTML',
+                'data_type'     => 'html'
+              )
+            )
+          )
+        )
+      )),
     );
 
     if($render_table){
@@ -1221,7 +1409,7 @@ class Store_admin extends CI_Component {
       }
     }
 
-    send_answer(array('redirect' => '/admin'.$this->params['path'].'edit_expenditure/'.$id.'/'));
+    send_answer(array('redirect' => '/admin'.$this->params['path'].'edit_expenditure/'.$type_id.'/'.$id.'/'));
   }
   
   function _validate_expenditure_params($type_id, $params) {
@@ -1236,7 +1424,7 @@ class Store_admin extends CI_Component {
   /**
    *  Редактирование расхода.
   **/
-  function edit_expenditure($id){
+  function edit_expenditure($type_id, $id){
     $item = $this->store_model->get_expenditure(array('store_expenditures.id'=>$id));
     if(!$item){
       show_error('Объект не найден');

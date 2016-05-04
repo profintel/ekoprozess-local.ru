@@ -28,6 +28,8 @@ CREATE TABLE IF NOT EXISTS `pr_store_comings` (
   `store_workshop_id` int(10) unsigned DEFAULT NULL,
   `product_id` int(10) unsigned DEFAULT NULL,
   `title` varchar(128) NOT NULL DEFAULT '',
+  `date_num` varchar(100) DEFAULT NULL,
+  `transport` varchar(100) DEFAULT NULL,
   `date_primary` datetime DEFAULT NULL,
   `date_second` datetime DEFAULT NULL,
   `gross` float NOT NULL,

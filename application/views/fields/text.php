@@ -13,10 +13,6 @@
         <? } ?>
       </label>
     <? } ?>
-    
-    <? if (isset($vars['description']) && $vars['description']) { ?>
-      <p class="help-block"><?=$vars['description'];?></p>
-    <? } ?>
   </div>
   <div class="col-sm-10">
     <? if (isset($vars['languages'])) { ?>
@@ -50,6 +46,10 @@
         <?=(isset($vars['disabled']) && $vars['disabled'] ? 'disabled="disabled"' : '');?>
         <?=(isset($vars['onkeyup']) && $vars['onkeyup'] ? 'onkeyup="'.$vars['onkeyup'].'"' : '');?>
       />
+    <? } ?>
+    
+    <? if (isset($vars['description']) && $vars['description']) { ?>
+      <p class="help-block"><?=$vars['description'];?></p>
     <? } ?>
   </div>
 </div>

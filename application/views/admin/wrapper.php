@@ -86,6 +86,28 @@
                   </div>
                 <?}?>
               </a>
+              <? if ($item['name'] == $_component['name'] && isset($_component['submenu'])) {?>
+                <? foreach ($_component['submenu'] as $child) {?>
+                  <ul class="submenu">
+                    <li class="<?=(isset($child['active']) && $child['active'] ? 'active' : '');?>">
+                      <a href="<?=$child['link'];?>">
+                        <span><?=$child['title'];?></span>
+                      </a>
+                      <? if (isset($child['submenu'])) {?>
+                        <? foreach ($child['submenu'] as $child2) {?>
+                          <ul class="submenu">
+                            <li class="<?=(isset($child2['active']) && $child2['active'] ? 'active' : '');?>">
+                              <a href="<?=$child2['link'];?>">
+                                <span><?=$child2['title'];?></span>
+                              </a>
+                            </li>
+                          </ul>
+                        <? } ?>
+                      <? } ?>
+                    </li>
+                  </ul>
+                <? } ?>
+              <? } ?>
             </li>
             <li class="hidden-lg el-tooltip <?=($item['name'] == $_component['name'] ? 'active' : '');?>" data-toggle="tooltip" data-placement="right" title="<?=$item['title'];?>">
               <a href="<?=$_lang_prefix;?>/admin<?=$item['path'];?>">
