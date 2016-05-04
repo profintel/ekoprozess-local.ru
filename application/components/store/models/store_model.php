@@ -332,7 +332,9 @@ class Store_model extends CI_Model {
   * Перезаписывает остатки на складе
   */
   function set_rests($where = array()){
-    $this->db->order_by('date','asc');
+    $this->db->select("store_movement_products.*");
+    $this->db->select("DATE_FORMAT(date,'%Y-%m-%d') as date_new", false);
+    $this->db->order_by("date_new",'asc');
     $this->db->order_by('order','asc');
     
     if ($where) {
@@ -379,7 +381,9 @@ class Store_model extends CI_Model {
       // если пересчитываем не для всей таблицы, учитываем максимальную цифру в order
       $order_max = $this->get_movement_max_order();
     }
-    $this->db->order_by('date','asc');
+    $this->db->select("store_movement_products.*");
+    $this->db->select("DATE_FORMAT(date,'%Y-%m-%d') as date_new", false);
+    $this->db->order_by("date_new",'asc');
     // id для того, чтобы сначала приход встал в движении, потом расход
     $this->db->order_by('id','asc');
     if ($where) {
