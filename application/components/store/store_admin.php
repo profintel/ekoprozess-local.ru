@@ -187,14 +187,14 @@ class Store_admin extends CI_Component {
             'fields'   => array(
               array(
                 'view'        => 'fields/datetime',
-                'title'       => 'Дата приемки (от):',
+                'title'       => 'Дата прихода (от):',
                 'name'        => 'date_start',
                 'value'       => ($get_params['date_start']? date('d.m.Y',strtotime($get_params['date_start'])) : ''),
                 'onchange1'    => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
               ),
               array(
                 'view'        => 'fields/datetime',
-                'title'       => 'Дата приемки (до):',
+                'title'       => 'Дата прихода (до):',
                 'name'        => 'date_end',
                 'value'       => ($get_params['date_end']? date('d.m.Y',strtotime($get_params['date_end'])) : ''),
                 'onchange1'    => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
@@ -1185,14 +1185,14 @@ class Store_admin extends CI_Component {
             'fields'   => array(
               array(
                 'view'        => 'fields/datetime',
-                'title'       => 'Дата приемки (от):',
+                'title'       => 'Дата расхода (от):',
                 'name'        => 'date_start',
                 'value'       => ($get_params['date_start']? date('d.m.Y',strtotime($get_params['date_start'])) : ''),
                 'onchange1'    => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
               ),
               array(
                 'view'        => 'fields/datetime',
-                'title'       => 'Дата приемки (до):',
+                'title'       => 'Дата расхода (до):',
                 'name'        => 'date_end',
                 'value'       => ($get_params['date_end']? date('d.m.Y',strtotime($get_params['date_end'])) : ''),
                 'onchange1'    => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",

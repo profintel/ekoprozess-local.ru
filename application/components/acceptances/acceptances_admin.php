@@ -501,7 +501,7 @@ class Acceptances_admin extends CI_Component {
         $params_products['weight_pack'][]    = $child['weight_pack'];
         $params_products['weight_defect'][]  = $child['weight_defect'];
         $params_products['cnt_places'][]     = $child['cnt_places'];
-        $params_products['net'][]            = $child['gross'] - $child['weight_pack'] - $child['gross']*$child['weight_defect']/100;
+        $params_products['net'][]            = round($child['gross'] - $child['weight_pack'] - $child['gross']*$child['weight_defect']/100);
         $params_products['price'][]          = 0;
         $params_products['order'][]          = $child['order'];
       }
@@ -754,7 +754,7 @@ class Acceptances_admin extends CI_Component {
         $params_products['weight_pack'][]    = $child['weight_pack'];
         $params_products['weight_defect'][]  = $child['weight_defect'];
         $params_products['cnt_places'][]     = $child['cnt_places'];
-        $params_products['net'][]            = $child['gross'] - $child['weight_pack'] - $child['gross']*$child['weight_defect']/100;
+        $params_products['net'][]            = round($child['gross'] - $child['weight_pack'] - $child['gross']*$child['weight_defect']/100);
         $params_products['order'][]          = $child['order'];
       }
     }

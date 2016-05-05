@@ -58,9 +58,9 @@
         <td align="center"><?=$child['weight_pack'];?></td>
         <td align="center"><?=$child['weight_defect'];?></td>
         <td align="center"><?=$child['cnt_places'];?></td>
-        <td align="center"><?=$child['net'];?></td>
-        <td align="center"><?=$child['price'];?></td>
-        <td align="center"><?=($child['net']*$child['price']);?></td>
+        <td align="center"><?=number_format($child['net'],2,'.','');?></td>
+        <td align="center"><?=number_format($child['price'],2,'.','');?></td>
+        <td align="center"><?=number_format(($child['net']*$child['price']),2,'.','');?></td>
       </tr>
     <?}?>
     <? if ($item['add_expenses']) {?>
@@ -71,7 +71,7 @@
     <?}?>
     <tr>
       <th align="left" colspan="8">Итого к оплате</th>
-      <td colspan="" align="center"><?=$allSum;?></td>
+      <td colspan="" align="center"><?=number_format($allSum,2,'.','');?></td>
     </tr>
   </table>
 </div>
