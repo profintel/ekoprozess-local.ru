@@ -14,7 +14,6 @@ class Site extends PR_Controller {
     
     $this->load->model('components/models/components_model');
     $this->load->model('templates/models/templates_model');
-    $this->load->model('accounts/models/accounts_model');
     $this->load->model('gallery/models/gallery_model');
   }
   
@@ -78,6 +77,7 @@ class Site extends PR_Controller {
     
     //Получение данных пользователя
     if ($this->main_model->exists_component('accounts')) {
+      $this->load->model('accounts/models/accounts_model');
       $this->user = $this->accounts_model->get_user(array('users.id' => (int)$this->user_id),true);
       if ($this->user) {
         //Проставляем IP, если отсутствует
