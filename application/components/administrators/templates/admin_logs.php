@@ -30,9 +30,9 @@
             <td><?=$item['title'];?></td>
             <td><?=$item['path'];?></td>
             <td>
-              <? if ($item['post'] != "a:0:{}") {?>
+              <? if ($item['post']) {?>
                 <a href="javascript:void(0)" class="" title="Ссылки"
-                  onClick="return my_modal('information', 'POST данные', '<plaintext><?=htmlspecialchars(str_replace("\n", "", $item['post']));?></plaintext>',[{text: 'OK', handler: function() {my_modal('hide');}, icon: 'accept'}]);">
+                  onClick="return my_modal('information', 'POST данные', '<?=htmlspecialchars(str_replace("\n", "<br/>", $item['post']));?>',[{text: 'OK', handler: function() {my_modal('hide');}, icon: 'accept'}]);">
                   POST
                 </a>
               <? } ?>

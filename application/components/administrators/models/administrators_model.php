@@ -90,6 +90,14 @@ class Administrators_model extends CI_Model {
       $this->db->limit($limit, $offset);
     }    
     $items = $this->db->get('admin_logs')->result_array();
+    foreach ($items as $key => &$item) {
+      if(unserialize($item['post'])){
+        $item['post'] = print_r(unserialize($item['post']), true);
+      } else {
+        $item['post'] = '';
+      }
+    }
+    unset($item);
     // echo $this->db->last_query();
     
     return $items;
