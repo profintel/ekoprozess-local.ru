@@ -9,7 +9,7 @@
 <div style="background-color:#ffffff; padding:20px;">
   <h3 style="text-align:center;">Акт приемки</h3>
   <h4 style="text-align:right;"><?=rus_date($item['date'],'d m Y г.');?></h4>
-  <table border="1" cellpadding="10" width="100%" style="border-collapse: collapse; font-size:14px;" class="table table-bordered">
+  <table border="1" cellpadding="10" width="100%" style="background-color:#ffffff; border-collapse: collapse; font-size:14px;" class="table table-bordered">
     <tr>
       <th align="left">Поставщик</th>
       <td><?=$item['client_title'];?></td>
@@ -38,7 +38,7 @@
     </tr>
   </table>
   <br/>
-  <table cellpadding="10" border="1" width="100%" style="border-collapse: collapse; font-size:14px;" class="table table-bordered">
+  <table cellpadding="10" border="1" width="100%" style="background-color:#ffffff; border-collapse: collapse; font-size:14px;" class="table table-bordered">
     <tr>
       <th align="center">Наименование товара</th>
       <th align="center">Вес в ТТН Поставщика, кг</th>

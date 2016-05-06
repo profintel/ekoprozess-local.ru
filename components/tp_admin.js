@@ -1,4 +1,4 @@
-/*** Generated 05.05.2016 15:22:44 ***/
+/*** Generated 06.05.2016 12:03:32 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -3895,7 +3895,10 @@ function my_modal(type, title, messages, buttons, events) {
   var i = m.find('.modal-body').html('');
   var b = m.find('.modal-footer').html('').hide();
   
-  if (!type) { type = 'information'; }
+  // размер модального окна
+  if (!type) { type = 'modal-md'; }
+  m.find('.modal-dialog').addClass(type);
+
   if (typeof(messages) == 'object') {
     messages = messages.join('<br />');
   }

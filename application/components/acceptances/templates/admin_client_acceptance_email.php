@@ -30,7 +30,7 @@
             <td><?=$value['to'];?></td>
             <td>
               <a href="javascript:void(0)" class="" title="Ссылки"
-                onClick="return my_modal('information', 'Текст письма', '<?=htmlspecialchars(str_replace(array("\r\n", "\r", "\n"), "", $value['message']));?>',[{text: 'OK', handler: function() {my_modal('hide');}, icon: 'accept'}]);">
+                onClick="return my_modal('modal-lg', 'Текст письма', '<?=htmlspecialchars(str_replace(array("\r\n", "\r", "\n"), "", $value['message']));?>',[{text: 'OK', handler: function() {my_modal('hide');}, icon: 'accept'}]);">
                 Текст письма
               </a>
             </td>
