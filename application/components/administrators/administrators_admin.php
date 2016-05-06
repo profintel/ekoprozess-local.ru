@@ -479,6 +479,7 @@ class Administrators_admin extends CI_Component {
       'date_start'  => ($this->uri->getParam('date_start') ? date('Y-m-d 00:00:00',strtotime($this->uri->getParam('date_start'))) : ''),
       'date_end'    => ($this->uri->getParam('date_end') ? date('Y-m-d 00:00:00',strtotime($this->uri->getParam('date_end'))) : ''),
       'component'   => ($this->uri->getParam('component') ? htmlspecialchars($this->uri->getParam('component')) : ''),
+      'admin_id'    => ((int)$this->uri->getParam('admin_id') ? (int)$this->uri->getParam('admin_id') : ''),
       'method'      => ($this->uri->getParam('method') ? htmlspecialchars($this->uri->getParam('method')) : ''),
       'path'        => ($this->uri->getParam('path') ? htmlspecialchars($this->uri->getParam('path')) : ''),
     );
@@ -490,6 +491,9 @@ class Administrators_admin extends CI_Component {
     }
     if($get_params['component']){
       $where['admin_logs.component'] = $get_params['component'];
+    }
+    if($get_params['admin_id']){
+      $where['admin_logs.admin_id'] = $get_params['admin_id'];
     }
     if($get_params['method']){
       $where['admin_logs.method'] = $get_params['method'];
@@ -541,10 +545,23 @@ class Administrators_admin extends CI_Component {
                 'value'       => ($get_params['date_end']? date('d.m.Y',strtotime($get_params['date_end'])) : ''),
               ),
               array(
-                'view'        => 'fields/text',
-                'title'       => 'Компонент:',
-                'name'        => 'component',
-                'value'       => $get_params['component'],
+                'view'       => 'fields/select',
+                'title'      => 'Администратор:',
+                'name'       => 'admin_id',
+                'text_field' => 'username',
+                'value'      => $get_params['admin_id'],
+                'options'    => $this->administrators_model->get_admins(),
+                'empty'      => true,
+              ),
+              array(
+                'view'       => 'fields/select',
+                'title'      => 'Компонент:',
+                'name'       => 'component',
+                'text_field' => 'title',
+                'value_field'=> 'name',
+                'value'      => $get_params['component'],
+                'options'    => $this->components_model->get_components(),
+                'empty'      => true,
               ),
               array(
                 'view'        => 'fields/text',
@@ -554,7 +571,7 @@ class Administrators_admin extends CI_Component {
               ),
               array(
                 'view'        => 'fields/text',
-                'title'       => 'Путь:',
+                'title'       => 'Path:',
                 'name'        => 'path',
                 'value'       => $get_params['path'],
               ),
