@@ -500,11 +500,19 @@ class Administrators_admin extends CI_Component {
 
     $in_page = 50;
     $all_count = $this->administrators_model->get_admin_logs_cnt($where);
-    $pages = get_pages($page, $all_count, $in_page);
+    $pages = get_pages($page, $all_count, $in_page);$postfix = '';
+    foreach ($get_params as $key => $get_param) {
+      if(is_array($get_param)){
+        $postfix .= $key.'[]='.implode('&'.$key.'[]=', $get_param).'&';
+      } else {
+        $postfix .= $key.'='.$get_param.'&';
+      }
+    }
     $pagination_data = array(
       'pages'  => $pages,
       'page'   => $page,
-      'prefix' => '/admin/administrators/logs/'
+      'prefix' => '/admin/administrators/logs/',
+      'postfix' => '/?'.$postfix
     );
     $items = $this->administrators_model->get_admin_logs($where,array(),$in_page, $in_page * ($page - 1));  
 

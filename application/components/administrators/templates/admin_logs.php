@@ -28,7 +28,7 @@
             <td><?=$item['component'];?></td>
             <td><?=$item['method'];?></td>
             <td><?=$item['title'];?></td>
-            <td><?=$item['path'];?></td>
+            <td width="30%" style="word-break: break-all;"><?=$item['path'];?></td>
             <td>
               <? if ($item['post']) {?>
                 <a href="javascript:void(0)" class="" title="Ссылки"
