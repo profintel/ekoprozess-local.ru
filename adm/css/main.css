@@ -590,6 +590,10 @@ div.quick_form_input+div{
 .modal-body .panel{
   box-shadow: none;
 }
+.modal-body plaintext{
+  white-space: normal;
+  word-break: break-all;
+}
 
 #events-danger {
   width: 100%;

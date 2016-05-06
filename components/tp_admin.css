@@ -1,4 +1,4 @@
-/* Generated 06.05.2016 12:03:32 */
+/* Generated 06.05.2016 12:42:24 */
 
 /* components */
 
@@ -1095,6 +1095,10 @@ div.quick_form_input+div{
 
 .modal-body .panel{
   box-shadow: none;
+}
+.modal-body plaintext{
+  white-space: normal;
+  word-break: break-all;
 }
 
 #events-danger {
