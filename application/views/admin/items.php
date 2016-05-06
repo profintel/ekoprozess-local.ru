@@ -1,6 +1,6 @@
 <div class="container-fluid padding_0">
   <div class="block-title row">
-    <div class="<?=(@$search_path ?'col-sm-7':'');?>">
+    <div class="<?=(@$search_path ?'col-sm-7':'col-sm-12');?>">
       <h1><span class="glyphicon <?=($_component['icon']?$_component['icon']:'glyphicon-ok');?>"></span>
         <?=(@$title ? $title : $_component['title']);?>
       </h1>

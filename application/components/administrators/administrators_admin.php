@@ -521,6 +521,7 @@ class Administrators_admin extends CI_Component {
     $items = $this->administrators_model->get_admin_logs($where,array(),$in_page, $in_page * ($page - 1));  
 
     return $this->render_template('templates/admin_logs', array(
+      'title'       => 'Список действий администраторов',
       'items'       => $items,
       'pagination'  => $this->load->view('admin/pagination', $pagination_data, true),
       'get_params'  => $get_params,

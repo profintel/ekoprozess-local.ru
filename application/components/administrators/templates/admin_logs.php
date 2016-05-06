@@ -1,4 +1,10 @@
-<h1 class="icon_big <?=$_component['name'];?>-title"><?=$_component['title'];?></h1>
+<div class="container-fluid padding_0">
+  <div class="block-title hidden-print">
+    <h1><span class="glyphicon <?=($_component['icon']?$_component['icon']:'glyphicon-ok');?>"></span>
+      <?=(@$title ? $title : $_component['title']);?>
+    </h1>
+  </div>
+</div>
 <div class="container-fluid">
   <div class="hidden-print">
     <div class="clearfix">
