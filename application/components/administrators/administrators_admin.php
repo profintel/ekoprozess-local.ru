@@ -473,19 +473,93 @@ class Administrators_admin extends CI_Component {
   * Просмотр действий администраторов
   */
   function logs($page = 1) {
+    $where = array();
+    $error = '';
+    $get_params = array(
+      'date_start'  => ($this->uri->getParam('date_start') ? date('Y-m-d 00:00:00',strtotime($this->uri->getParam('date_start'))) : ''),
+      'date_end'    => ($this->uri->getParam('date_end') ? date('Y-m-d 00:00:00',strtotime($this->uri->getParam('date_end'))) : ''),
+      'component'   => ($this->uri->getParam('component') ? htmlspecialchars($this->uri->getParam('component')) : ''),
+      'method'      => ($this->uri->getParam('method') ? htmlspecialchars($this->uri->getParam('method')) : ''),
+      'path'        => ($this->uri->getParam('path') ? htmlspecialchars($this->uri->getParam('path')) : ''),
+    );
+    if($get_params['date_start']){
+      $where['admin_logs.tm >='] = $get_params['date_start'];
+    }
+    if($get_params['date_end']){
+      $where['admin_logs.tm <='] = $get_params['date_end'];
+    }
+    if($get_params['component']){
+      $where['admin_logs.component'] = $get_params['component'];
+    }
+    if($get_params['method']){
+      $where['admin_logs.method'] = $get_params['method'];
+    }
+    if($get_params['path']){
+      $where['admin_logs.path LIKE '] = '%'.$get_params['path'].'%';
+    }
+
     $in_page = 50;
-    $all_count = $this->administrators_model->get_admin_logs_cnt();
+    $all_count = $this->administrators_model->get_admin_logs_cnt($where);
     $pages = get_pages($page, $all_count, $in_page);
     $pagination_data = array(
       'pages'  => $pages,
       'page'   => $page,
       'prefix' => '/admin/administrators/logs/'
     );
-    $items = $this->administrators_model->get_admin_logs(array(),array(),$in_page, $in_page * ($page - 1));  
+    $items = $this->administrators_model->get_admin_logs($where,array(),$in_page, $in_page * ($page - 1));  
 
     return $this->render_template('templates/admin_logs', array(
-      'items'      => $items,
-      'pagination' => $this->load->view('admin/pagination', $pagination_data, true),
+      'items'       => $items,
+      'pagination'  => $this->load->view('admin/pagination', $pagination_data, true),
+      'get_params'  => $get_params,
+      'form'        => $this->view->render_form(array(
+        'method' => 'GET',
+        'action' => $this->lang_prefix .'/admin'. $this->params['path'].'logs/' ,        
+        'enctype' => '',
+        'blocks' => array(
+          array(
+            'title'         => 'Параметры поиска',
+            'fields'   => array(
+              array(
+                'view'        => 'fields/datetime',
+                'title'       => 'Дата (от):',
+                'name'        => 'date_start',
+                'value'       => ($get_params['date_start']? date('d.m.Y',strtotime($get_params['date_start'])) : ''),
+              ),
+              array(
+                'view'        => 'fields/datetime',
+                'title'       => 'Дата (до):',
+                'name'        => 'date_end',
+                'value'       => ($get_params['date_end']? date('d.m.Y',strtotime($get_params['date_end'])) : ''),
+              ),
+              array(
+                'view'        => 'fields/text',
+                'title'       => 'Компонент:',
+                'name'        => 'component',
+                'value'       => $get_params['component'],
+              ),
+              array(
+                'view'        => 'fields/text',
+                'title'       => 'Метод:',
+                'name'        => 'method',
+                'value'       => $get_params['method'],
+              ),
+              array(
+                'view'        => 'fields/text',
+                'title'       => 'Путь:',
+                'name'        => 'path',
+                'value'       => $get_params['path'],
+              ),
+              array(
+                'view'          => 'fields/submit',
+                'title'         => 'Сформировать',
+                'type'          => '',
+                'reaction'      => '',
+              )
+            )
+          )
+        )
+      )),
     ));
   } 
 }

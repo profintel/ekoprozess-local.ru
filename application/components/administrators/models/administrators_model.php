@@ -77,7 +77,7 @@ class Administrators_model extends CI_Model {
     $this->db->select('admin_logs.*, admins.username as username');
     $this->db->join('admins','admins.id=admin_logs.admin_id');
     if ($where) {
-      $this->db->where($params);
+      $this->db->where($where);
     }
     if ($order_by) {
       foreach ($order_by as $field => $dest) {
@@ -90,6 +90,7 @@ class Administrators_model extends CI_Model {
       $this->db->limit($limit, $offset);
     }    
     $items = $this->db->get('admin_logs')->result_array();
+    // echo $this->db->last_query();
     
     return $items;
   }
