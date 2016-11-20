@@ -23,5 +23,6 @@
   <body>
     <?=$_content;?>   
   </body>
+  
   <script type="text/javascript" src="/components/tp_site.js"></script>
 </html>
