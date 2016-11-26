@@ -611,14 +611,14 @@ class Acceptances_admin extends CI_Component {
           'view'     => 'fields/text',
           'title'    => 'ТТН и пункт загрузки:',
           'name'     => 'date_num',
-          'disabled' => ($item && $item['store_coming_id'] ? true : false),
+          'disabled' => false,
           'value'    => $item['date_num'],
         ),
         array(
           'view'     => 'fields/text',
           'title'    => 'Транспорт:',
           'name'     => 'transport',
-          'disabled' => ($item && $item['store_coming_id'] ? true : false),
+          'disabled' => false,
           'value'    => $item['transport'],
         ),
         array(
@@ -786,10 +786,11 @@ class Acceptances_admin extends CI_Component {
       if((int)$this->input->post('client_id') && !$item['store_coming_id']){
         $main_params['client_id'] = (int)$this->input->post('client_id');
       }
-      if($this->input->post('date_num') && !$item['store_coming_id']){
+      //26.11.2016 параметры ТТН и пункт загрузки и Транспорт редактируем в акте и обновляем в приходе
+      if($this->input->post('date_num')){
         $main_params['date_num'] = htmlspecialchars(trim($this->input->post('date_num')));
       }
-      if($this->input->post('transport') && !$item['store_coming_id']){
+      if($this->input->post('transport')){
         $main_params['transport'] = htmlspecialchars(trim($this->input->post('transport')));
       }
 
@@ -814,6 +815,20 @@ class Acceptances_admin extends CI_Component {
     
     if (!$this->acceptances_model->update_acceptance($id, $main_params)) {
       send_answer(array('errors' => array('Ошибка при сохранении изменений')));
+    }
+    
+    //26.11.2016 параметры ТТН и пункт загрузки и Транспорт редактируем в акте и обновляем в приходе
+    if($this->input->post('date_num') || $this->input->post('transport')){
+      $params_coming = array(
+        'date_num'  => $main_params['date_num'],
+        'transport' => $main_params['transport'],
+      );
+      // обновляем данные в приходе
+      if($item['store_coming_id']){
+        if (!$this->store_model->update_coming($item['store_coming_id'], $params_coming)) {
+          send_answer(array('errors' => array('Ошибка при сохранении изменений в приходе')));
+        }
+      }
     }
 
     if(!is_array($params_products['product_id']) || !@$params_products['product_id'][0]){

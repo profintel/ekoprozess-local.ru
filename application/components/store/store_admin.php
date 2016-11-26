@@ -800,7 +800,7 @@ class Store_admin extends CI_Component {
       send_answer(array('errors' => array('Не указаны параметры вторсырья')));
     }
     if(is_array($params_products['product_id']) && !$item['active']){
-      // перед удалением проверяем указан ли вес вторсырья
+      // перед добавлением проверяем указан ли вес вторсырья
       foreach ($params_products['product_id'] as $key => $product_id) {
         if($product_id){
           if($item['store_type_id'] == 1){
@@ -850,7 +850,7 @@ class Store_admin extends CI_Component {
       }
     }
 
-    // Редактируем акт приемки по приходу первичного вторсырья
+    // Редактируем акт приемки по приходу, если первичная продукция
     if($item['store_type_id'] == 1){
       $this->load->component(array('name' => 'acceptances'));
       $acceptance = $this->acceptances_model->get_acceptance(array('store_coming_id'=>$id));
