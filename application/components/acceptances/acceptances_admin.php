@@ -421,7 +421,7 @@ class Acceptances_admin extends CI_Component {
       'fields'   => array(
         array(
           'view'     => 'fields/text',
-          'title'    => 'Дополнительные расходы:',
+          'title'    => 'Стоимость поставки:',
           'name'     => 'add_expenses',
           'class'    => 'add_expenses number',
           'onkeyup'  => 'updateAcceptanceSumProduct()',
@@ -436,6 +436,11 @@ class Acceptances_admin extends CI_Component {
           'view'  => 'fields/readonly',
           'title' => 'ИТОГО:',
           'value' => '<div class="all_sum">0.00</div>',
+        ),
+        array(
+          'view'     => 'fields/textarea',
+          'title'    => 'Комментарии',
+          'name'     => 'comment',
         )
       )
     );
@@ -515,6 +520,7 @@ class Acceptances_admin extends CI_Component {
         'company'         => htmlspecialchars(trim($this->input->post('company'))),
         'date_time'       => ($this->input->post('date_time') ? date('Y-m-d H:i:s', strtotime($this->input->post('date_time'))) : NULL),
         'add_expenses'    => (float)str_replace(' ', '', $this->input->post('add_expenses')),
+        'comment'         => htmlspecialchars(trim($this->input->post('comment'))),
       );
 
       $errors = $this->_validate_acceptance($params);
@@ -534,7 +540,6 @@ class Acceptances_admin extends CI_Component {
         'price'         => $this->input->post('price'),
       );
       if(!is_array($params_products['product_id']) || !@$params_products['product_id'][0]){
-        $this->acceptances_model->delete_acceptance($id);
         send_answer(array('errors' => array('Не указаны параметры вторсырья')));
       }
     }
@@ -642,7 +647,7 @@ class Acceptances_admin extends CI_Component {
       'fields'   => array(
         array(
           'view'     => 'fields/text',
-          'title'    => 'Дополнительные расходы:',
+          'title'    => 'Стоимость поставки:',
           'name'     => 'add_expenses',
           'value'    => $item['add_expenses'],
           'class'    => 'add_expenses number',
@@ -658,6 +663,12 @@ class Acceptances_admin extends CI_Component {
           'view'  => 'fields/readonly',
           'title' => 'ИТОГО:',
           'value' => '<div class="all_sum">'.number_format($all_sum,2,'.',' ').'</div>',
+        ),
+        array(
+          'view'     => 'fields/textarea',
+          'title'    => 'Комментарии',
+          'name'     => 'comment',
+          'value'    => $item['comment'],
         )
       )
     );
@@ -762,6 +773,7 @@ class Acceptances_admin extends CI_Component {
       $main_params = array(
         'company'       => htmlspecialchars(trim($this->input->post('company'))),
         'add_expenses'  => (float)str_replace(' ', '', $this->input->post('add_expenses')),
+        'comment'       => htmlspecialchars(trim($this->input->post('comment'))),
         'auto'          => 0,
       );
 

@@ -22,12 +22,12 @@
           <th>Вид вторсырья</th>
           <th>Цена, руб.</th>
           <th>Стоимость, руб.</th>
-          <th>Доп. расходы, руб.</th>
+          <th>Стоимость поставки, руб.</th>
         </tr>
         <?$all_gross = $all_net = $all_price = $all_add_expenses = $all_sum = 0; ?>
         <? foreach ($items as $item) { ?>
           <tr class="<?=($item['auto'] ? 'info' : '');?>">
-            <td class="td-dropdown hidden-print" rowspan="<?=count($item['childs']);?>">
+            <td class="td-dropdown" rowspan="<?=count($item['childs']);?>">
               <div class="dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown"></a>
                 <ul class="dropdown-menu">

@@ -1,9 +1,10 @@
 <? 
   $allSum=0-$item['add_expenses'];
-  $gross=0;
+  $gross=$net=0;
   foreach ($item['childs'] as $key => $child) {
     $allSum+=$child['net']*$child['price'];
     $gross+=$child['gross'];
+    $net+=$child['net'];
   }
 ?>
 <div style="background-color:#ffffff; padding:20px;">
@@ -33,22 +34,22 @@
       <td><?=($item['date_time'] ? date('d.m.Y г. H-i ',strtotime($item['date_time'])) : '');?></td>
     </tr>
     <tr>
-      <th align="left">Вес груза брутто, кг</th>
-      <td><?=$gross;?></td>
+      <th align="left">Вес брутто/нетто, кг</th>
+      <td><?=$gross;?> / <?=$net;?></td>
     </tr>
   </table>
   <br/>
   <table cellpadding="10" border="1" width="100%" style="background-color:#ffffff; border-collapse: collapse; font-size:14px;" class="table table-bordered">
     <tr>
-      <th align="center">Наименование товара</th>
-      <th align="center">Вес в ТТН Поставщика, кг</th>
-      <th align="center">Брутто, кг</th>
-      <th align="center">Упаковка, кг</th>
-      <th align="center">Засор, %</th>
-      <th align="center">Количество мест</th>
-      <th align="center">Нетто, кг</th>
-      <th align="center">Цена, руб.</th>
-      <th align="center">Стоимость, руб.</th>
+      <th class="text-center">Наименование товара</th>
+      <th class="text-center">Вес в ТТН Поставщика, кг</th>
+      <th class="text-center">Брутто, кг</th>
+      <th class="text-center">Упаковка, кг</th>
+      <th class="text-center">Засор, %</th>
+      <th class="text-center">Количество мест</th>
+      <th class="text-center">Нетто, кг</th>
+      <th class="text-center">Цена, руб.</th>
+      <th class="text-center">Стоимость вида вторсырья, руб.</th>
     </tr>
     <? foreach ($item['childs'] as $key => $child) {?>
       <tr>
@@ -65,7 +66,7 @@
     <?}?>
     <? if ($item['add_expenses']) {?>
     <tr>
-      <td align="left" colspan="8">Дополнительные расходы</td>
+      <td align="left" colspan="8">Стоимость поставки</td>
       <td colspan="" align="center"><?=$item['add_expenses'];?></td>
     </tr>
     <?}?>
