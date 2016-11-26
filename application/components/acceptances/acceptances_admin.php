@@ -439,7 +439,7 @@ class Acceptances_admin extends CI_Component {
         ),
         array(
           'view'     => 'fields/textarea',
-          'title'    => 'Комментарии',
+          'title'    => 'Примечания',
           'name'     => 'comment',
         )
       )
@@ -666,7 +666,7 @@ class Acceptances_admin extends CI_Component {
         ),
         array(
           'view'     => 'fields/textarea',
-          'title'    => 'Комментарии',
+          'title'    => 'Примечания',
           'name'     => 'comment',
           'value'    => $item['comment'],
         )

@@ -19,6 +19,7 @@
             <? if ($type_id == 2) {?><th>Нетто, кг</th><? } ?>
             <th>Кол-во мест</th>
             <th>Вид вторсырья</th>
+            <? if ($type_id == 2) {?><th>Примечания</th><? } ?>
           </tr>
         </thead>
         <? foreach ($items as $item) { ?>
@@ -105,6 +106,10 @@
                 <span class="text-nowrap"><?=number_format(@$item['childs'][0]['cnt_places'],2,'.',' ');?></span>
               </td>
               <td><?=@$item['childs'][0]['product']['title_full'];?></td>
+              <? //примечания ?>
+              <? if ($type_id == 2) {?>
+                <td rowspan="<?=count($item['childs']);?>"><?=$item['comment'];?></td>
+              <? } ?>
             </tr>
             <?array_shift($item['childs']);?>
             <?foreach ($item['childs'] as $key => $child) {?>
@@ -127,7 +132,7 @@
         <tfoot>
           <tr>
             <td colspan="<?=($type_id == 1 ? 5 : 4);?>" class="text-right"><h4>ИТОГО <?=($type_id == 1 ? 'БРУТТО' : 'НЕТТО');?></h4></td>
-            <td colspan="3"><h4><?=($type_id == 1 ? number_format($all_gross,0,'.',' ') : number_format($all_net,0,'.',' '));?> кг</h4></td>
+            <td colspan="<?=($type_id == 1 ? 3 : 4);?>"><h4><?=($type_id == 1 ? number_format($all_gross,0,'.',' ') : number_format($all_net,0,'.',' '));?> кг</h4></td>
           </tr>
         </tfoot>
       </table>

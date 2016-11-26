@@ -471,6 +471,11 @@ class Store_admin extends CI_Component {
           'options' => $this->workshops_model->get_workshops(),
         ),
         array(
+          'view'    => 'fields/'.($type_id == 1 ? 'hidden' : 'textarea'),
+          'title'   => 'Примечания',
+          'name'    => 'comment',
+        ),
+        array(
           'view'  => 'fields/hidden',
           'title' => 'Тип склада:',
           'name'  => 'store_type_id',
@@ -547,6 +552,7 @@ class Store_admin extends CI_Component {
       'store_workshop_id' => ((int)$this->input->post('store_workshop_id') ? (int)$this->input->post('store_workshop_id') : NULL),
       'date_num'          => htmlspecialchars(trim($this->input->post('date_num'))),
       'transport'         => htmlspecialchars(trim($this->input->post('transport'))),
+      'comment'           => htmlspecialchars(trim($this->input->post('comment'))),
       'active'            => false
     );
 
@@ -696,6 +702,12 @@ class Store_admin extends CI_Component {
           'value'   => $item['store_workshop_id']
         ),
         array(
+          'view'    => 'fields/'.($type_id == 1 ? 'hidden' : 'textarea'),
+          'title'   => 'Примечания',
+          'name'    => 'comment',
+          'value'   => $item['comment']
+        ),
+        array(
           'view'  => 'fields/hidden',
           'title' => 'Тип склада:',
           'name'  => 'store_type_id',
@@ -774,6 +786,7 @@ class Store_admin extends CI_Component {
       'active'    => $item['active'],
       'date_num'  => htmlspecialchars(trim($this->input->post('date_num'))),
       'transport' => htmlspecialchars(trim($this->input->post('transport'))),
+      'comment'           => htmlspecialchars(trim($this->input->post('comment'))),
     );
     if($this->input->post('date_primary') && !$item['active']){
       $main_params['date_primary'] = date('Y-m-d H:i:s', strtotime($this->input->post('date_primary')));

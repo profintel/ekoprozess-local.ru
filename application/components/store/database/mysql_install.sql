@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS `pr_store_comings` (
   `gross` float NOT NULL,
   `net` float NOT NULL,
   `cnt_places` int(10) unsigned NOT NULL DEFAULT '0',
+  `comment` varchar(1000) NOT NULL DEFAULT '',
   `order` int(10) unsigned NOT NULL DEFAULT '0',
   `active` boolean NOT NULL DEFAULT 0,
   `tm` timestamp NOT NULL default CURRENT_TIMESTAMP,
