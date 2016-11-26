@@ -119,11 +119,6 @@ class Store_admin extends CI_Component {
     if(!$type){
       show_error('Не найден тип склада');
     }
-
-    $where = array('store_comings.parent_id'=>null);
-    //условие по типу склада
-    $where['store_comings.store_type_id'] = $type['id'];
-    $error = '';
     $product_id = $this->uri->getParam('product_id');
     $get_params = array(
       'date_start'  => ($this->uri->getParam('date_start') ? date('Y-m-d',strtotime($this->uri->getParam('date_start'))) : date('Y-m-1')),
@@ -131,52 +126,16 @@ class Store_admin extends CI_Component {
       'client_id'   => ((int)$this->uri->getParam('client_id') ? (int)$this->uri->getParam('client_id') : ''),
       'product_id'  => ($product_id && @$product_id[0] ? $product_id : array()),
     );
-    if($get_params['date_start']){
-      $where['store_comings.date_second >='] = $get_params['date_start'];
-    }
-    if($get_params['date_end']){
-      $where['store_comings.date_second <='] = $get_params['date_end'];
-    }
-    if($get_params['client_id']){
-      $where['store_comings.client_id'] = $get_params['client_id'];
-    }
-
-    $page = ($this->uri->getParam('page') ? $this->uri->getParam('page') : 1);
-    $limit = 100;
-    $offset = $limit * ($page - 1);
-    $cnt = $this->store_model->get_comings_cnt($where, $get_params['product_id']);
-    $pages = get_pages($page, $cnt, $limit);
-    $postfix = '';
-    foreach ($get_params as $key => $get_param) {
-      if(is_array($get_param)){
-        $postfix .= $key.'[]='.implode('&'.$key.'[]=', $get_param).'&';
-      } else {
-        $postfix .= $key.'='.$get_param.'&';
-      }
-    }
-    $pagination_data = array(
-      'ajax'    => true,
-      'pages' => $pages,
-      'page' => $page,
-      'prefix' => '/admin'. $this->params['path'].'comings/'.$type_id.'/',
-      'postfix' => $postfix
-    );
-    if($render_table || $this->uri->getParam('ajax')){
-      $items = $this->store_model->get_comings($limit, $offset, $where, false, $get_params['product_id']);
-    }
 
     $data = array(
       'title'       => 'Склад: '.$type['title'].'. Приход',
       'section'     => 'coming',
       'type_id'     => $type_id,
-      'pagination'  => $this->load->view('templates/pagination', $pagination_data, true),
       //формируем ссылку на создание объекта
       'link_create' => array(
           'title' => 'Создать приход',
           'path'  => $this->lang_prefix.'/admin'.$this->component['path'].'create_coming/'.$type_id.'/',
         ),
-      'error' => $error,
-      'items' => (isset($items) ? $items : array()),
       'form' => $this->view->render_form(array(
         'method' => 'GET',
         'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'comings/'.$type_id.'/',
@@ -234,19 +193,72 @@ class Store_admin extends CI_Component {
         )
       )),
     );
+    
+    // если запрос на формирование данных, иначе возвращаем шаблон - обертку
+    if($render_table || $this->uri->getParam('ajax') == 1){
+      $where = array('store_comings.parent_id'=>null);
+      //условие по типу склада
+      $where['store_comings.store_type_id'] = $type['id'];
+      $error = '';
+      if($get_params['date_start']){
+        $where['store_comings.date_second >='] = $get_params['date_start'];
+      }
+      if($get_params['date_end']){
+        $where['store_comings.date_second <='] = $get_params['date_end'];
+      }
+      if($get_params['client_id']){
+        $where['store_comings.client_id'] = $get_params['client_id'];
+      }
 
-    if($render_table){
-      return $this->load->view('../../application/components/store/templates/admin_comins_table',$data,true);
-    } else if($this->uri->getParam('ajax') == 1){
-      echo $this->load->view('../../application/components/store/templates/admin_comins_table',$data,true);
-    } else {
-      return $this->render_template('templates/admin_items', array('data'=>$data));
+      $page = ($this->uri->getParam('page') ? $this->uri->getParam('page') : 1);
+      $limit = 100;
+      $offset = $limit * ($page - 1);
+      $cnt = $this->store_model->get_comings_cnt($where, $get_params['product_id']);
+      $pages = get_pages($page, $cnt, $limit);
+      $postfix = '';
+      foreach ($get_params as $key => $get_param) {
+        if(is_array($get_param)){
+          $postfix .= $key.'[]='.implode('&'.$key.'[]=', $get_param).'&';
+        } else {
+          $postfix .= $key.'='.$get_param.'&';
+        }
+      }
+      $pagination_data = array(
+        'ajax'    => true,
+        'pages' => $pages,
+        'page' => $page,
+        'prefix' => '/admin'. $this->params['path'].'comings/'.$type_id.'/',
+        'postfix' => $postfix
+      );
+      if($render_table || $this->uri->getParam('ajax')){
+        $items = $this->store_model->get_comings($limit, $offset, $where, false, $get_params['product_id']);
+      }
+
+      $data = array_merge($data,array(
+        'pagination'  => $this->load->view('templates/pagination', $pagination_data, true),
+        'error'     => $error,
+        'items'     => (isset($items) ? $items : array()),
+         //общая сумма брутто 
+        'all_gross' => ($type['id'] == 1 ? $this->store_model->get_comming_sum_field('gross', $where, $get_params['product_id']) : 0),
+        //общая сумма нетто 
+        'all_net'   => ($type['id'] == 2 ? $this->store_model->get_comming_sum_field('net', $where, $get_params['product_id']) : 0),
+
+      ));
+      
+      if($render_table){
+        return $this->load->view('../../application/components/store/templates/admin_comins_table',$data,true);
+      } else if($this->uri->getParam('ajax') == 1){
+        echo $this->load->view('../../application/components/store/templates/admin_comins_table',$data,true);
+        exit;
+      }
     }
+
+    return $this->render_template('templates/admin_items', array('data'=>$data));
   }
-   
+
   /**
   * Добавление нескольких видов вторсырья
-  */ 
+  */
   function renderProductFields($return_type = 'array', $items = array(), $section = '', $type_id = 1) {
     $result = array();
     if ($items) {
@@ -1117,11 +1129,6 @@ class Store_admin extends CI_Component {
     if(!$type){
       show_error('Не найден тип склада');
     }
-
-    $where = array('store_expenditures.parent_id'=>null);
-    //условие по типу склада
-    $where['store_expenditures.store_type_id'] = $type['id'];
-    $error = '';
     $product_id = $this->uri->getParam('product_id');
     $get_params = array(
       'date_start'  => ($this->uri->getParam('date_start') ? date('Y-m-d',strtotime($this->uri->getParam('date_start'))) : date('Y-m-1')),
@@ -1129,52 +1136,16 @@ class Store_admin extends CI_Component {
       'client_id'   => ((int)$this->uri->getParam('client_id') ? (int)$this->uri->getParam('client_id') : ''),
       'product_id'  => ($product_id && @$product_id[0] ? $product_id : array()),
     );
-    if($get_params['date_start']){
-      $where['store_expenditures.date >='] = $get_params['date_start'];
-    }
-    if($get_params['date_end']){
-      $where['store_expenditures.date <='] = $get_params['date_end'];
-    }
-    if($get_params['client_id']){
-      $where['store_expenditures.client_id'] = $get_params['client_id'];
-    }
-
-    $page = ($this->uri->getParam('page') ? $this->uri->getParam('page') : 1);
-    $limit = 100;
-    $offset = $limit * ($page - 1);
-    $cnt = $this->store_model->get_expenditures_cnt($where, $get_params['product_id']);
-    $pages = get_pages($page, $cnt, $limit);
-    $postfix = '';
-    foreach ($get_params as $key => $get_param) {
-      if(is_array($get_param)){
-        $postfix .= $key.'[]='.implode('&'.$key.'[]=', $get_param).'&';
-      } else {
-        $postfix .= $key.'='.$get_param.'&';
-      }
-    }
-    $pagination_data = array(
-      'ajax'    => true,
-      'pages'   => $pages,
-      'page'    => $page,
-      'prefix'  => '/admin'. $this->params['path'].'expenditures/'.$type_id.'/',
-      'postfix' => $postfix
-    );
-    if($render_table || $this->uri->getParam('ajax')){
-      $items = $this->store_model->get_expenditures($limit, $offset, $where, false, $get_params['product_id']);
-    }
 
     $data = array(
       'title'      => 'Склад: '.$type['title'].'. Расход',
       'section'    => 'expenditure',
       'type_id'    => $type_id,
-      'pagination' => $this->load->view('templates/pagination', $pagination_data, true),
       //формируем ссылку на создание объекта
       'link_create' => array(
           'title' => 'Создать расход',
           'path' => $this->lang_prefix.'/admin'.$this->component['path'].'create_expenditure/'.$type_id.'/',
         ),
-      'error' => $error,
-      'items' => (isset($items) ? $items : array()),
       'form' => $this->view->render_form(array(
         'method' => 'GET',
         'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'expenditures/'.$type_id.'/',
@@ -1233,13 +1204,65 @@ class Store_admin extends CI_Component {
       )),
     );
 
-    if($render_table){
-      return $this->load->view('../../application/components/store/templates/admin_expenditures_table',$data,true);
-    } elseif($this->uri->getParam('ajax') == 1){
-      echo $this->load->view('../../application/components/store/templates/admin_expenditures_table',$data,true);
-    } else {
-      return $this->render_template('templates/admin_items', array('data'=>$data));
+    // если запрос на формирование данных, иначе возвращаем шаблон - обертку
+    if($render_table || $this->uri->getParam('ajax') == 1){
+      $where = array('store_expenditures.parent_id'=>null);
+      //условие по типу склада
+      $where['store_expenditures.store_type_id'] = $type['id'];
+      $error = '';
+      if($get_params['date_start']){
+        $where['store_expenditures.date >='] = $get_params['date_start'];
+      }
+      if($get_params['date_end']){
+        $where['store_expenditures.date <='] = $get_params['date_end'];
+      }
+      if($get_params['client_id']){
+        $where['store_expenditures.client_id'] = $get_params['client_id'];
+      }
+
+      $page = ($this->uri->getParam('page') ? $this->uri->getParam('page') : 1);
+      $limit = 100;
+      $offset = $limit * ($page - 1);
+      $cnt = $this->store_model->get_expenditures_cnt($where, $get_params['product_id']);
+      $pages = get_pages($page, $cnt, $limit);
+      $postfix = '';
+      foreach ($get_params as $key => $get_param) {
+        if(is_array($get_param)){
+          $postfix .= $key.'[]='.implode('&'.$key.'[]=', $get_param).'&';
+        } else {
+          $postfix .= $key.'='.$get_param.'&';
+        }
+      }
+      $pagination_data = array(
+        'ajax'    => true,
+        'pages'   => $pages,
+        'page'    => $page,
+        'prefix'  => '/admin'. $this->params['path'].'expenditures/'.$type_id.'/',
+        'postfix' => $postfix
+      );
+      if($render_table || $this->uri->getParam('ajax')){
+        $items = $this->store_model->get_expenditures($limit, $offset, $where, false, $get_params['product_id']);
+      }
+
+      $data = array_merge($data, array(
+        'pagination' => $this->load->view('templates/pagination', $pagination_data, true),
+        'error' => $error,
+        'items' => (isset($items) ? $items : array()),
+         //общая сумма брутто 
+        'all_gross' => ($type['id'] == 1 ? $this->store_model->get_expenditure_sum_field('gross', $where, $get_params['product_id']) : 0),
+        //общая сумма нетто 
+        'all_net'   => ($type['id'] == 2 ? $this->store_model->get_expenditure_sum_field('net', $where, $get_params['product_id']) : 0),
+      ));
+
+      if($render_table){
+        return $this->load->view('../../application/components/store/templates/admin_expenditures_table',$data,true);
+      } elseif($this->uri->getParam('ajax') == 1){
+        echo $this->load->view('../../application/components/store/templates/admin_expenditures_table',$data,true);
+        exit;
+      }
     }
+
+    return $this->render_template('templates/admin_items', array('data'=>$data));
   }
 
   /**

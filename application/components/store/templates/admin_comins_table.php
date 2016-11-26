@@ -6,9 +6,6 @@
     </div>
   <? } else { ?>
     <? if ($items) { ?>
-    <style type="text/css">
-      
-    </style>
       <table class="table panel table-hover table-bordered table-store table-dropdown">
         <thead>
           <tr>
@@ -24,7 +21,6 @@
             <th>Вид вторсырья</th>
           </tr>
         </thead>
-        <?$all_gross = $all_net = 0; ?>
         <? foreach ($items as $item) { ?>
           <tbody>
             <tr>
@@ -126,12 +122,14 @@
                 <td><?=$child['product']['title_full'];?></td>
               </tr>
             <?}?>
-            <?
-              $all_gross += $item['gross'];
-              $all_net += $item['net'];
-            ?>
           </tbody>
         <? } ?>
+        <tfoot>
+          <tr>
+            <td colspan="<?=($type_id == 1 ? 5 : 4);?>" class="text-right"><h4>ИТОГО <?=($type_id == 1 ? 'БРУТТО' : 'НЕТТО');?></h4></td>
+            <td colspan="3"><h4><?=($type_id == 1 ? number_format($all_gross,0,'.',' ') : number_format($all_net,0,'.',' '));?> кг</h4></td>
+          </tr>
+        </tfoot>
       </table>
       <?=(isset($pagination) && $pagination ? $pagination : '');?>
     <? } ?>

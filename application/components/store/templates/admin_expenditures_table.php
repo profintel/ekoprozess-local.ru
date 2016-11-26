@@ -118,6 +118,12 @@
             ?>
           </tbody>
         <? } ?>
+        <tfoot>
+          <tr>
+            <td colspan="<?=($type_id == 1 ? 5 : 3);?>" class="text-right"><h4>ИТОГО <?=($type_id == 1 ? 'БРУТТО' : 'НЕТТО');?></h4></td>
+            <td colspan="3"><h4><?=($type_id == 1 ? number_format($all_gross,0,'.',' ') : number_format($all_net,0,'.',' '));?> кг</h4></td>
+          </tr>
+        </tfoot>
       </table>
       <?=(isset($pagination) && $pagination ? $pagination : '');?>
     <? } ?>

@@ -168,6 +168,48 @@ class Store_model extends CI_Model {
     return $this->db->get('store_comings')->row()->cnt;
   }
 
+  /*
+  * Возвращает сумму указанного параметра
+  * @params: $field - поле, по которму считаем сумму
+  *          $where - условие запроса
+  *          $product_id - условие с учетом определенных видов вторсырья
+  */
+  function get_comming_sum_field($field = '',$where = array(), $product_id = array()){
+    if(!$field) return false;
+    // берем родительcкие элементы, т.к. дата прихода хранится только в них
+    $this->db->where(array('store_comings.parent_id'=>null));
+    if ($where) {
+      $this->db->where($where);
+    }
+    // включаем в запрос дочерние строки, т.к. цифры по весу хранятся в них
+    $this->db->join('store_comings t2','t2.parent_id = store_comings.id');
+    $this->db->select('SUM(t2.'.$field.') as sum');
+
+    if ($product_id) {
+      if(!is_array($product_id)){
+        $product_id = array($product_id);
+      }
+      $product_where = '';
+      if ($where) {
+        $product_where .= '(';
+      }
+      foreach ($product_id as $key => $value) {
+        if($key != 0){
+          $product_where .= ' OR ';
+        }
+        $product_where .= 't2.product_id = '.$value;
+      }
+      if ($where) {
+        $product_where .= ')';
+      }
+      $this->db->where($product_where);
+    }
+
+    $item = $this->db->get('store_comings')->row()->sum;
+
+    return $item;
+  }
+
   /**
   * Одна единица прихода
   */
@@ -612,6 +654,48 @@ class Store_model extends CI_Model {
       $this->db->where($product_where);
     }
     return $this->db->get('store_expenditures')->row()->cnt;
+  }
+
+  /*
+  * Возвращает сумму указанного параметра
+  * @params: $field - поле, по которму считаем сумму
+  *          $where - условие запроса
+  *          $product_id - условие с учетом определенных видов вторсырья
+  */
+  function get_expenditure_sum_field($field = '',$where = array(), $product_id = array()){
+    if(!$field) return false;
+    // берем родительcкие элементы, т.к. дата прихода хранится только в них
+    $this->db->where(array('store_expenditures.parent_id'=>null));
+    if ($where) {
+      $this->db->where($where);
+    }
+    // включаем в запрос дочерние строки, т.к. цифры по весу хранятся в них
+    $this->db->join('store_expenditures t2','t2.parent_id = store_expenditures.id');
+    $this->db->select('SUM(t2.'.$field.') as sum');
+
+    if ($product_id) {
+      if(!is_array($product_id)){
+        $product_id = array($product_id);
+      }
+      $product_where = '';
+      if ($where) {
+        $product_where .= '(';
+      }
+      foreach ($product_id as $key => $value) {
+        if($key != 0){
+          $product_where .= ' OR ';
+        }
+        $product_where .= 't2.product_id = '.$value;
+      }
+      if ($where) {
+        $product_where .= ')';
+      }
+      $this->db->where($product_where);
+    }
+
+    $item = $this->db->get('store_expenditures')->row()->sum;
+
+    return $item;
   }
 
   /**

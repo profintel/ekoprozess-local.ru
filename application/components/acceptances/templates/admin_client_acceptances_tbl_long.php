@@ -14,7 +14,8 @@
       </div>
       <table class="table panel table-hover table-bordered table-acceptances table-dropdown">
         <tr>
-          <th colspan="2">Дата приемки</th>
+          <td class="td-dropdown hidden-print"></td>
+          <th>Дата приемки</th>
           <th width="20%">Поставщик</th>
           <th>Брутто, кг</th>
           <th>Нетто, кг</th>
@@ -27,7 +28,7 @@
         <?$all_gross = $all_net = $all_price = $all_add_expenses = $all_sum = 0; ?>
         <? foreach ($items as $item) { ?>
           <tr class="<?=($item['auto'] ? 'info' : '');?>">
-            <td class="td-dropdown" rowspan="<?=count($item['childs']);?>">
+            <td class="td-dropdown hidden-print" rowspan="<?=count($item['childs']);?>">
               <div class="dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown"></a>
                 <ul class="dropdown-menu">
