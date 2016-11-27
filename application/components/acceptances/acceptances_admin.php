@@ -919,6 +919,40 @@ class Acceptances_admin extends CI_Component {
   }
 
   /**
+  * Поиск ранее используемых email-ов
+  */
+  function searchEmail(){
+    $search_string = htmlspecialchars(trim($this->input->post('search_string')));
+    if($search_string){
+      $result = $this->acceptances_model->get_acceptance_emails('to LIKE "%'.$search_string.'%"', array('to'=>'asc'),50,0,array('to'));
+      $emails = array();
+      if ($result) {
+        foreach ($result as $key => &$value) {
+          $value['title'] = $value['to'];
+          $value['id'] = $value['to'];
+        }
+        unset($value);
+        // парсим email через запятую и вставляем в массив по 1 email
+        // foreach ($result as $key => $value) {
+        //   // парсим через запятую значения
+        //   $item_emails = explode(',', $value['to']);
+        //   foreach ($item_emails as $key => $email) {
+        //     $emails[] = $email;
+        //   }
+        // }
+        // $emails = array_unique($emails);
+        // foreach ($emails as $key => $value) {
+        //   $emails[$key] = array(
+        //     'title' => $value,
+        //     'id'    => $value
+        //   );
+        // }
+      }
+      send_answer(array('items'=>$result));
+    }
+  }
+
+  /**
   *  Отправление email с актом приемки по своим клиентам
   */
   function client_acceptance_email($id) {
@@ -946,6 +980,7 @@ class Acceptances_admin extends CI_Component {
         ),
         array(
           'view'        => 'fields/hidden',
+          'name'        => 'from',
           'title'       => 'От кого:',
           'value'       => 'info@ekoprozess.isnet.ru',
         ),
@@ -977,40 +1012,6 @@ class Acceptances_admin extends CI_Component {
     ));
   }
 
-
-  /**
-  * Поиск ранее используемых email-ов
-  */
-  function searchEmail(){
-    $search_string = htmlspecialchars(trim($this->input->post('search_string')));
-    if($search_string){
-      $result = $this->acceptances_model->get_acceptance_emails('to LIKE "%'.$search_string.'%"', array('to'=>'asc'),50,0,array('to'));
-      $emails = array();
-      if ($result) {
-        foreach ($result as $key => &$value) {
-          $value['title'] = $value['to'];
-          $value['id'] = $value['to'];
-        }
-        unset($value);
-        // foreach ($result as $key => $value) {
-        //   // парсим через запятую значения
-        //   $item_emails = explode(',', $value['to']);
-        //   foreach ($item_emails as $key => $email) {
-        //     $emails[] = $email;
-        //   }
-        // }
-        // $emails = array_unique($emails);
-        // foreach ($emails as $key => $value) {
-        //   $emails[$key] = array(
-        //     'title' => $value,
-        //     'id'    => $value
-        //   );
-        // }
-      }
-      send_answer(array('items'=>$result));
-    }
-  }
-
   /**
   *  Отправление email с актом приемки
   *  @params $id - id акта приемки
@@ -1028,12 +1029,12 @@ class Acceptances_admin extends CI_Component {
 
     $from = $this->input->post('from');
     if (!preg_match('/^[-0-9a-z_\.]+@[-0-9a-z^\.]+\.[a-z]{2,4}$/i', $from)) { 
-      send_answer(array('errors' => array('Некорректный еmail отправителя')));
+      send_answer(array('errors' => array('Некорректный еmail отправителя '.$from)));
     }
     $to = explode(',', $this->input->post('to'));
     foreach ($to as $key => $email) {
-      $email = trim($email);
-      if (!preg_match('/^[-0-9a-z_\.]+@[-0-9a-z^\.]+\.[a-z]{2,4}$/i', $email)) { 
+      $email = htmlspecialchars(trim($email));
+      if (!preg_match('/@{1}/', $email)) { 
         send_answer(array('errors' => array('Некорректный еmail получателя - "'.$email.'"')));
       }
     }

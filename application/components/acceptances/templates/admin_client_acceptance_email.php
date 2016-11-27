@@ -27,7 +27,7 @@
             <td><?=rus_date($value['tm'],'d m Yг. H:i');?></td>
             <td><?=$value['username'];?></td>
             <td><?=$value['from'];?></td>
-            <td><?=$value['to'];?></td>
+            <td><?=htmlspecialchars($value['to']);?></td>
             <td>
               <a href="javascript:void(0)" class="" title="Ссылки"
                 onClick="return my_modal('modal-lg', 'Текст письма', '<?=htmlspecialchars(str_replace(array("\r\n", "\r", "\n"), "", $value['message']));?>',[{text: 'OK', handler: function() {my_modal('hide');}, icon: 'accept'}]);">
