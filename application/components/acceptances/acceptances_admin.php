@@ -14,9 +14,7 @@ class Acceptances_admin extends CI_Component {
   *  Просмотр списка актов приемки по своим клиентам
   *
   */
-  function index() {
-    $where = array('client_acceptances.parent_id'=>null);
-    $error = '';
+  function index($render_table = false) {
     $product_id = $this->uri->getParam('product_id');
     $get_params = array(
       'date_start'  => ($this->uri->getParam('date_start') ? date('Y-m-d',strtotime($this->uri->getParam('date_start'))) : date('Y-m-1')),
@@ -25,59 +23,10 @@ class Acceptances_admin extends CI_Component {
       'type_report' => ($this->uri->getParam('type_report') == 'short' ? 'short' : 'long'),
       'product_id'  => ($product_id && @$product_id[0] ? $product_id : array()),
     );
-    if($get_params['date_start']){
-      $where['client_acceptances.date >='] = $get_params['date_start'];
-    }
-    if($get_params['date_end']){
-      $where['client_acceptances.date <='] = $get_params['date_end'];
-    }
-    if($get_params['client_id']){
-      $where['client_acceptances.client_id'] = $get_params['client_id'];
-    }
-
-    //если нет доступа к работе по всем клиентам добавляем условие
-    if(!$this->permits_model->check_access($this->admin_id, $this->component['name'], $method = 'permit_acceptance_allClients')){
-      $where['clients.admin_id'] = $this->admin_id;
-      // проверка свой ли клиент указан
-      if($get_params['client_id']){
-        $client = $this->clients_model->get_client(array('id'=>$get_params['client_id']));
-        if(!$client){
-          $error = 'Клиент не найден';
-        }
-        if($client['admin_id'] != $this->admin_id){
-          $error = 'У вас нет прав на просмотр актов приемки для клиентов других менеджеров';
-        }
-      }
-    }
-
-    $page = ($this->uri->getParam('page') ? $this->uri->getParam('page') : 1);
-    $limit = 100;
-    $offset = $limit * ($page - 1);
-    $cnt = $this->acceptances_model->get_acceptances_cnt($where, $get_params['product_id']);
-    $pages = get_pages($page, $cnt, $limit);
-    $postfix = '';
-    foreach ($get_params as $key => $get_param) {
-      if(is_array($get_param)){
-        $postfix .= $key.'[]='.implode('&'.$key.'[]=', $get_param).'&';
-      } else {
-        $postfix .= $key.'='.$get_param.'&';
-      }
-    }
-    $pagination_data = array(
-      'ajax'    => true,
-      'pages' => $pages,
-      'page' => $page,
-      'prefix' => '/admin'.$this->params['path'],
-      'postfix' => $postfix
-    );
-    $items = $this->acceptances_model->get_acceptances($limit, $offset, $where, false, $get_params['product_id']);
     $data = array(
       'title' => 'Акты приемки',
       'component_item'  => array('name' => 'acceptance', 'title' => 'акт приемки'),
-      'items'           => $items,
       'get_params'      => $get_params,
-      'error'           => $error,
-      'pagination'      => $this->load->view('templates/pagination', $pagination_data, true),
       'form' => $this->view->render_form(array(
         'method' => 'GET',
         'action' => $this->lang_prefix .'/admin'. $this->params['path'] ,        
@@ -153,23 +102,79 @@ class Acceptances_admin extends CI_Component {
       )),
     );
 
-    if($this->uri->getParam('ajax') == 1){
-      echo $this->load->view('../../application/components/acceptances/templates/admin_client_acceptances_tbl_'.$get_params['type_report'],$data,true);
-    } else {
-      return $this->render_template('templates/admin_client_acceptances', $data);
+    // если запрос на формирование данных, иначе возвращаем шаблон - обертку
+    if($render_table || $this->uri->getParam('ajax') == 1){
+      $error = '';
+
+      $where = array('client_acceptances.parent_id'=>null);
+      if($get_params['date_start']){
+        $where['client_acceptances.date >='] = $get_params['date_start'];
+      }
+      if($get_params['date_end']){
+        $where['client_acceptances.date <='] = $get_params['date_end'];
+      }
+      if($get_params['client_id']){
+        $where['client_acceptances.client_id'] = $get_params['client_id'];
+      }
+
+      //если нет доступа к работе по всем клиентам добавляем условие
+      if(!$this->permits_model->check_access($this->admin_id, $this->component['name'], $method = 'permit_acceptance_allClients')){
+        $where['clients.admin_id'] = $this->admin_id;
+        // проверка свой ли клиент указан
+        if($get_params['client_id']){
+          $client = $this->clients_model->get_client(array('id'=>$get_params['client_id']));
+          if(!$client){
+            $error = 'Клиент не найден';
+          }
+          if($client['admin_id'] != $this->admin_id){
+            $error = 'У вас нет прав на просмотр актов приемки для клиентов других менеджеров';
+          }
+        }
+      }
+
+      $page = ($this->uri->getParam('page') ? $this->uri->getParam('page') : 1);
+      $limit = 100;
+      $offset = $limit * ($page - 1);
+      $cnt = $this->acceptances_model->get_acceptances_cnt($where, $get_params['product_id']);
+      $pages = get_pages($page, $cnt, $limit);
+      $postfix = '';
+      foreach ($get_params as $key => $get_param) {
+        if(is_array($get_param)){
+          $postfix .= $key.'[]='.implode('&'.$key.'[]=', $get_param).'&';
+        } else {
+          $postfix .= $key.'='.$get_param.'&';
+        }
+      }
+      $pagination_data = array(
+        'ajax'    => true,
+        'pages' => $pages,
+        'page' => $page,
+        'prefix' => '/admin'.$this->params['path'],
+        'postfix' => $postfix
+      );
+      $items = $this->acceptances_model->get_acceptances($limit, $offset, $where, false, $get_params['product_id']);
+      $data = array_merge($data, array(
+        'items'           => $items,
+        'error'           => $error,
+        'pagination'      => $this->load->view('templates/pagination', $pagination_data, true),
+      ));
+
+      $type_report = ($data['get_params']['type_report'] == 'short' ? 'short' : 'long');      
+      if($render_table){
+        return $this->load->view('../../application/components/acceptances/templates/admin_client_acceptances_tbl_'.$type_report,$data,true);
+      } else if($this->uri->getParam('ajax') == 1){
+        echo $this->load->view('../../application/components/acceptances/templates/admin_client_acceptances_tbl_'.$type_report,$data,true);
+      }
+      exit;
     }
+
+    return $this->render_template('templates/admin_client_acceptances', $data);
   }
 
   /**
   * Доступ к работе с актами приемки по всем клиентам (просмотр, радактирование, удаление)
   */
   function permit_acceptance_allClients(){}
-
-  function _render_client_acceptances_table($data){
-    $data = unserialize(base64_decode($data));
-    $type_report = ($data['get_params']['type_report'] == 'short' ? 'short' : 'long');
-    return $this->load->view('../../application/components/acceptances/templates/admin_client_acceptances_tbl_'.$type_report,$data,true);
-  }
 
   function _render_client_acceptance_table($data){
     $data = unserialize(base64_decode($data));
