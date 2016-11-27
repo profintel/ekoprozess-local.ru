@@ -220,6 +220,8 @@ class Store_model extends CI_Model {
       $item['image'] = $this->gallery_model->get_gallery_image(array('path' => '/gallery_system/store/comings/'.$item['id'].'/'));
       if ($item['image']) {
         $item['image'] = $item['image']['image'];
+      } else {
+        $item['image'] = '';
       }
       if($full){
         if($item['client_id']){
