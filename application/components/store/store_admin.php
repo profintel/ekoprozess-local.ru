@@ -146,14 +146,14 @@ class Store_admin extends CI_Component {
             'title'         => 'Параметры поиска',
             'fields'   => array(
               array(
-                'view'        => 'fields/datetime',
+                'view'        => 'fields/date',
                 'title'       => 'Дата прихода (от):',
                 'name'        => 'date_start',
                 'value'       => ($get_params['date_start']? date('d.m.Y',strtotime($get_params['date_start'])) : ''),
                 'onchange1'    => "submit_form(this, handle_ajaxResultAllData);",
               ),
               array(
-                'view'        => 'fields/datetime',
+                'view'        => 'fields/date',
                 'title'       => 'Дата прихода (до):',
                 'name'        => 'date_end',
                 'value'       => ($get_params['date_end']? date('d.m.Y',strtotime($get_params['date_end'])) : ''),
@@ -1172,14 +1172,14 @@ class Store_admin extends CI_Component {
             'title'         => 'Параметры поиска',
             'fields'   => array(
               array(
-                'view'        => 'fields/datetime',
+                'view'        => 'fields/date',
                 'title'       => 'Дата расхода (от):',
                 'name'        => 'date_start',
                 'value'       => ($get_params['date_start']? date('d.m.Y',strtotime($get_params['date_start'])) : ''),
                 'onchange1'    => "submit_form(this, handle_ajaxResultAllData);",
               ),
               array(
-                'view'        => 'fields/datetime',
+                'view'        => 'fields/date',
                 'title'       => 'Дата расхода (до):',
                 'name'        => 'date_end',
                 'value'       => ($get_params['date_end']? date('d.m.Y',strtotime($get_params['date_end'])) : ''),

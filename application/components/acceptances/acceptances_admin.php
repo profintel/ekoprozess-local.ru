@@ -53,14 +53,14 @@ class Acceptances_admin extends CI_Component {
                 'onchange' => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
               ),
               array(
-                'view'        => 'fields/datetime',
+                'view'        => 'fields/date',
                 'title'       => 'Дата приемки (от):',
                 'name'        => 'date_start',
                 'value'       => ($get_params['date_start']? date('d.m.Y',strtotime($get_params['date_start'])) : ''),
                 'onchange1'    => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
               ),
               array(
-                'view'        => 'fields/datetime',
+                'view'        => 'fields/date',
                 'title'       => 'Дата приемки (до):',
                 'name'        => 'date_end',
                 'value'       => ($get_params['date_end']? date('d.m.Y',strtotime($get_params['date_end'])) : ''),
