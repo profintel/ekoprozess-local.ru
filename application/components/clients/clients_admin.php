@@ -743,7 +743,7 @@ class Clients_admin extends CI_Component {
       'start'       => date("Y-m-d H:i:s", mktime(0,0,0,date("m"),date("d")+1,date("Y"))),
       'client_id'   => $item['id'],
       'title'       => $item['title_full'],
-      'description' => @$event_desc,
+      'description' => str_replace('"', '', trim(strip_tags(htmlspecialchars_decode(@$event_desc)))),
       'allDay'      => true,
     ));
     $event_btn = array(

@@ -59,7 +59,7 @@ class Clients_model extends CI_Model {
         'client_id'   => $item['id'],
         'title'       => @$item['city_title'].' '.$item['title'],
         //1 параметр - описание с телефонами, добавляем в событие по умолчанию
-        'description' => @$item['params']['param_'.@$client_param_desc['id'].'_'.$this->language],
+        'description' => str_replace('"', '', trim(strip_tags(htmlspecialchars_decode(@$item['params']['param_'.@$client_param_desc['id'].'_'.$this->language])))),
         'allDay'      => true,
       ));
     }
