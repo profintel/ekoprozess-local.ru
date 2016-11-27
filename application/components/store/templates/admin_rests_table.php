@@ -55,6 +55,13 @@
           <? } ?>
         </tbody>
         <tfoot>
+          <? if(isset($pagination) && $pagination) {?>
+            <tr>
+              <td colspan="7" class="text-right pagination-wrap">
+                <?=$pagination;?>
+              </td>
+            </tr>
+          <? } ?>
           <tr>
             <td colspan="<?=($type_id == 1 ? 4 : 3);?>"><h5 class="text-right">Итого обороты</h5></td>
             <td>

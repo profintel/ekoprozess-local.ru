@@ -1,4 +1,4 @@
-/*** Generated 27.11.2016 18:51:45 ***/
+/*** Generated 27.11.2016 22:44:26 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -3636,6 +3636,12 @@ $(function() {
   /******/
 });
 
+/*
+* ВОзвращает на предыдущую страницу в истории браузера
+*/
+function goBack() {
+  window.history.back();
+}
 
 /*** Поиск ***/
 function search() {
@@ -3763,6 +3769,17 @@ function submit_form(context, reaction, uri_postfix, data_type) {
   
   if (uri_postfix) {
     form.attr('action', path + uri_postfix);
+  } 
+
+  // если метод get меняем путь браузера и сохраняем в историю браузера ссылку
+  if(form.attr('method') == 'GET' && $.isFunction(window.history.pushState) === true){
+    // get параметры из формы
+    var queryString = form.formSerialize();
+    //меняем путь и сохраняем в историю браузера ссылку
+    var pathLocation = 'http://' + window.location.hostname + window.location.pathname+'?'+queryString;
+    window.history.pushState({}, document.title, pathLocation);
+  } else {
+    submit_form_sync(context);
   }
 
   form.ajaxSubmit(function(answer) {
@@ -3871,8 +3888,6 @@ function handle_answer(answer, reaction, context, data_type) {
 */
 function handle_ajaxResultHTML(answer) {
   var element = '#ajax_result';
-  // window.history.pushState(null,document.title,document.location+'?sd=sd');
-  // console.log(window.history.state);
   var container = $(answer).find(element);
   if(container.length){
     $(document).find('#ajax_result').fadeOut(100,function(){
@@ -3893,11 +3908,7 @@ function handle_ajaxResultHTML(answer) {
 function handle_ajaxResultAllData(answer) {
   var element = '#ajax_result';
   var container = $(answer.html).find(element);
-  var form = $('#btn-form').parents('form');
-  // записываем в историю браузера запрос
-  // window.history.pushState(null,document.title,document.location+'?sd=sd');
-  // console.log(window.history.state);  
-    
+  var form = $('#btn-form').parents('form');    
   if(container.length){
     // добавляем в ajax_result данные
     
@@ -3917,15 +3928,15 @@ function handle_ajaxResultAllData(answer) {
   // если страниц несколько в цикле делаем запрос на остальные данные
   if(parseInt(answer.pages) > parseInt(answer.page)){
     // добавляем input hidden с номером страницы в форму
-    if(!$(form).find('input[name=page]').length){
-      $(form).append('<input type="hidden" name="page" value="'+(parseInt(answer.page)+1)+'">');
-    } else {
-      $(form).find('input[name=page]').val((parseInt(answer.page)+1));
-    }
-    submit_form($('#btn-form'), handle_ajaxResultAllData);
+    // if(!$(form).find('input[name=page]').length){
+    //   $(form).append('<input type="hidden" name="page" value="'+(parseInt(answer.page)+1)+'">');
+    // } else {
+    //   $(form).find('input[name=page]').val((parseInt(answer.page)+1));
+    // }
+    submit_form($('#btn-form'), handle_ajaxResultAllData, '&page=' + (parseInt(answer.page)+1));
   } else {
     sheet('hide');
-    $(form).find('input[name=page]').remove();
+    // $(form).find('input[name=page]').remove();
   }
 }
 

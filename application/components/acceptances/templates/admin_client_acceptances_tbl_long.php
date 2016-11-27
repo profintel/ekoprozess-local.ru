@@ -52,7 +52,7 @@
                     <li class="divider"></li>
                     <li>
                       <a href="/admin/clients/edit_client/<?=$item['client_id'];?>/" target="_edit_client_<?=$item['client_id'];?>" title="Редактировать поставщика">
-                        <span class="glyphicon glyphicon-edit"></span> Редактировать поставщика
+                        <span class="glyphicon glyphicon-list-alt"></span> Карточка клиента
                       </a>
                     </li>
                   <? } ?>

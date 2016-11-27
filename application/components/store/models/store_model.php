@@ -217,6 +217,10 @@ class Store_model extends CI_Model {
     $this->db->select('store_comings.*');
     $item = $this->db->get_where('store_comings', $where)->row_array();
     if($item){
+      $item['image'] = $this->gallery_model->get_gallery_image(array('path' => '/gallery_system/store/comings/'.$item['id'].'/'));
+      if ($item['image']) {
+        $item['image'] = $item['image']['image'];
+      }
       if($full){
         if($item['client_id']){
           $item['client'] = $this->clients_model->get_client(array('id'=>$item['client_id']));
