@@ -131,6 +131,7 @@ class Store_admin extends CI_Component {
       'title'       => 'Склад: '.$type['title'].'. Приход',
       'section'     => 'coming',
       'type_id'     => $type_id,
+      'get_params'  => $get_params,
       //формируем ссылку на создание объекта
       'link_create' => array(
           'title' => 'Создать приход',
@@ -138,7 +139,7 @@ class Store_admin extends CI_Component {
         ),
       'form' => $this->view->render_form(array(
         'method' => 'GET',
-        'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'comings/'.$type_id.'/',
+        'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'comings/'.$type_id.'/?ajax=1',
         'enctype' => '',
         'blocks' => array(
           array(
@@ -149,14 +150,14 @@ class Store_admin extends CI_Component {
                 'title'       => 'Дата прихода (от):',
                 'name'        => 'date_start',
                 'value'       => ($get_params['date_start']? date('d.m.Y',strtotime($get_params['date_start'])) : ''),
-                'onchange1'    => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+                'onchange1'    => "submit_form(this, handle_ajaxResultAllData);",
               ),
               array(
                 'view'        => 'fields/datetime',
                 'title'       => 'Дата прихода (до):',
                 'name'        => 'date_end',
                 'value'       => ($get_params['date_end']? date('d.m.Y',strtotime($get_params['date_end'])) : ''),
-                'onchange1'    => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+                'onchange1'    => "submit_form(this, handle_ajaxResultAllData);",
               ),
               array(
                 'view'       => 'fields/select',
@@ -166,7 +167,7 @@ class Store_admin extends CI_Component {
                 'value'      => $get_params['client_id'],
                 'options'    => $this->clients_model->get_clients(),
                 'empty'      => true,
-                'onchange'   => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+                'onchange'   => "submit_form(this, handle_ajaxResultAllData);",
               ),
               array(
                 'view'     => 'fields/select',
@@ -177,16 +178,16 @@ class Store_admin extends CI_Component {
                 'optgroup' => true,
                 'options'  => $this->products_model->get_products(array('parent_id' => null)),
                 'value'    => $get_params['product_id'],
-                'onchange' => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+                'onchange' => "submit_form(this, handle_ajaxResultAllData);",
               ),
               array(
                 'view'          => 'fields/submit',
                 'title'         => 'Сформировать',
                 'type'          => 'ajax',
-                'failure'       => '?ajax=1',
+                'id'            => 'btn-form',
                 'reaction_func' => true,
-                'reaction'      => 'handle_ajaxResultHTML',
-                'data_type'     => 'html'
+                'reaction'      => 'handle_ajaxResultAllData',
+                'data_type'     => 'json'
               )
             )
           )
@@ -204,14 +205,16 @@ class Store_admin extends CI_Component {
         $where['store_comings.date_second >='] = $get_params['date_start'];
       }
       if($get_params['date_end']){
-        $where['store_comings.date_second <='] = $get_params['date_end'];
+        // к дате окончания добавляем 1 день, т.к. показания за этот день должны быть включены в отчет
+        $date_end = date_format(date_modify(date_create($get_params['date_end']), '+1 day'), 'Y-m-d H:i:s');
+        $where['store_comings.date_second <='] = $date_end;
       }
       if($get_params['client_id']){
         $where['store_comings.client_id'] = $get_params['client_id'];
       }
 
       $page = ($this->uri->getParam('page') ? $this->uri->getParam('page') : 1);
-      $limit = 100;
+      $limit = 20;
       $offset = $limit * ($page - 1);
       $cnt = $this->store_model->get_comings_cnt($where, $get_params['product_id']);
       $pages = get_pages($page, $cnt, $limit);
@@ -230,14 +233,11 @@ class Store_admin extends CI_Component {
         'prefix' => '/admin'. $this->params['path'].'comings/'.$type_id.'/',
         'postfix' => $postfix
       );
-      if($render_table || $this->uri->getParam('ajax')){
-        $items = $this->store_model->get_comings($limit, $offset, $where, false, $get_params['product_id']);
-      }
 
-      $data = array_merge($data,array(
+      $data = array_merge($data, array(
         'pagination'  => $this->load->view('templates/pagination', $pagination_data, true),
         'error'     => $error,
-        'items'     => (isset($items) ? $items : array()),
+        'items'     => $this->store_model->get_comings($limit, $offset, $where, false, $get_params['product_id']),
          //общая сумма брутто 
         'all_gross' => ($type['id'] == 1 ? $this->store_model->get_comming_sum_field('gross', $where, $get_params['product_id']) : 0),
         //общая сумма нетто 
@@ -248,8 +248,11 @@ class Store_admin extends CI_Component {
       if($render_table){
         return $this->load->view('../../application/components/store/templates/admin_comins_table',$data,true);
       } else if($this->uri->getParam('ajax') == 1){
-        echo $this->load->view('../../application/components/store/templates/admin_comins_table',$data,true);
-        exit;
+        send_answer(array(
+          'page'  => (isset($page) ? $page : 1),
+          'pages' => (isset($pages) ? count($pages) : 0),
+          'html'  => $this->load->view('../../application/components/store/templates/admin_comins_table',$data,true),
+        ));
       }
     }
 
@@ -1154,6 +1157,7 @@ class Store_admin extends CI_Component {
       'title'      => 'Склад: '.$type['title'].'. Расход',
       'section'    => 'expenditure',
       'type_id'    => $type_id,
+      'get_params' => $get_params,
       //формируем ссылку на создание объекта
       'link_create' => array(
           'title' => 'Создать расход',
@@ -1161,7 +1165,7 @@ class Store_admin extends CI_Component {
         ),
       'form' => $this->view->render_form(array(
         'method' => 'GET',
-        'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'expenditures/'.$type_id.'/',
+        'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'expenditures/'.$type_id.'/?ajax=1',
         'enctype' => '',
         'blocks' => array(
           array(
@@ -1172,14 +1176,14 @@ class Store_admin extends CI_Component {
                 'title'       => 'Дата расхода (от):',
                 'name'        => 'date_start',
                 'value'       => ($get_params['date_start']? date('d.m.Y',strtotime($get_params['date_start'])) : ''),
-                'onchange1'    => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+                'onchange1'    => "submit_form(this, handle_ajaxResultAllData);",
               ),
               array(
                 'view'        => 'fields/datetime',
                 'title'       => 'Дата расхода (до):',
                 'name'        => 'date_end',
                 'value'       => ($get_params['date_end']? date('d.m.Y',strtotime($get_params['date_end'])) : ''),
-                'onchange1'    => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+                'onchange1'    => "submit_form(this, handle_ajaxResultAllData);",
               ),
               array(
                 'view'       => 'fields/select',
@@ -1189,7 +1193,7 @@ class Store_admin extends CI_Component {
                 'value'      => $get_params['client_id'],
                 'options'    => $this->clients_model->get_clients(),
                 'empty'      => true,
-                'onchange'   => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+                'onchange' => "submit_form(this, handle_ajaxResultAllData);",
               ),
               array(
                 'view'     => 'fields/select',
@@ -1200,16 +1204,16 @@ class Store_admin extends CI_Component {
                 'optgroup' => true,
                 'options'  => $this->products_model->get_products(array('parent_id' => null)),
                 'value'    => $get_params['product_id'],
-                'onchange' => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+                'onchange' => "submit_form(this, handle_ajaxResultAllData);",
               ),
               array(
                 'view'          => 'fields/submit',
                 'title'         => 'Сформировать',
                 'type'          => 'ajax',
-                'failure'       => '?ajax=1',
+                'id'            => 'btn-form',
                 'reaction_func' => true,
-                'reaction'      => 'handle_ajaxResultHTML',
-                'data_type'     => 'html'
+                'reaction'      => 'handle_ajaxResultAllData',
+                'data_type'     => 'json'
               )
             )
           )
@@ -1227,14 +1231,16 @@ class Store_admin extends CI_Component {
         $where['store_expenditures.date >='] = $get_params['date_start'];
       }
       if($get_params['date_end']){
-        $where['store_expenditures.date <='] = $get_params['date_end'];
+        // к дате окончания добавляем 1 день, т.к. показания за этот день должны быть включены в отчет
+        $date_end = date_format(date_modify(date_create($get_params['date_end']), '+1 day'), 'Y-m-d H:i:s');
+        $where['store_expenditures.date <='] = $date_end;
       }
       if($get_params['client_id']){
         $where['store_expenditures.client_id'] = $get_params['client_id'];
       }
 
       $page = ($this->uri->getParam('page') ? $this->uri->getParam('page') : 1);
-      $limit = 100;
+      $limit = 20;
       $offset = $limit * ($page - 1);
       $cnt = $this->store_model->get_expenditures_cnt($where, $get_params['product_id']);
       $pages = get_pages($page, $cnt, $limit);
@@ -1253,14 +1259,11 @@ class Store_admin extends CI_Component {
         'prefix'  => '/admin'. $this->params['path'].'expenditures/'.$type_id.'/',
         'postfix' => $postfix
       );
-      if($render_table || $this->uri->getParam('ajax')){
-        $items = $this->store_model->get_expenditures($limit, $offset, $where, false, $get_params['product_id']);
-      }
 
       $data = array_merge($data, array(
         'pagination' => $this->load->view('templates/pagination', $pagination_data, true),
         'error' => $error,
-        'items' => (isset($items) ? $items : array()),
+        'items' => $this->store_model->get_expenditures($limit, $offset, $where, false, $get_params['product_id']),
          //общая сумма брутто 
         'all_gross' => ($type['id'] == 1 ? $this->store_model->get_expenditure_sum_field('gross', $where, $get_params['product_id']) : 0),
         //общая сумма нетто 
@@ -1270,8 +1273,11 @@ class Store_admin extends CI_Component {
       if($render_table){
         return $this->load->view('../../application/components/store/templates/admin_expenditures_table',$data,true);
       } elseif($this->uri->getParam('ajax') == 1){
-        echo $this->load->view('../../application/components/store/templates/admin_expenditures_table',$data,true);
-        exit;
+        send_answer(array(
+          'page'  => (isset($page) ? $page : 1),
+          'pages' => (isset($pages) ? count($pages) : 0),
+          'html'  => $this->load->view('../../application/components/store/templates/admin_expenditures_table',$data,true),
+        ));
       }
     }
 
@@ -1783,8 +1789,6 @@ class Store_admin extends CI_Component {
       'movement'          => ($this->uri->getParam('movement') ? true : false),
       'zero'              => ($this->uri->getParam('zero') ? true : false),
     );
-    // к дате окончания добавляем 1 день, т.к. показания за этот день должны быть включены в отчет
-    $get_params['date_end'] = date_format(date_modify(date_create($get_params['date_end']), '+1 day'), 'Y-m-d H:i:s');
 
     $data = array(
       'title'           => 'Склад: '.$type['title'].'. Остаток',
@@ -1796,7 +1800,7 @@ class Store_admin extends CI_Component {
       'get_params'      => $get_params,
       'form' => $this->view->render_form(array(
         'method' => 'GET',
-        'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'rests/'.$type_id.'/',        
+        'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'rests/'.$type_id.'/?ajax=1',        
         'enctype' => '',
         'blocks' => array(
           array(
@@ -1807,14 +1811,14 @@ class Store_admin extends CI_Component {
                 'title'       => 'Дата от:',
                 'name'        => 'date_start',
                 'value'       => ($get_params['date_start']? date('d.m.Y',strtotime($get_params['date_start'])) : ''),
-                'onchange1'    => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+                'onchange1'    => "submit_form(this, handle_ajaxResultAllData);",
               ),
               array(
                 'view'        => 'fields/date',
                 'title'       => 'Дата по:',
                 'name'        => 'date_end',
                 'value'       => ($get_params['date_end']? date('d.m.Y',strtotime($get_params['date_end'])) : ''),
-                'onchange1'    => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+                'onchange1'    => "submit_form(this, handle_ajaxResultAllData);",
               ),
               array(
                 'view'       => 'fields/'.($type['id'] == 1 ? 'select' : 'hidden'),
@@ -1824,7 +1828,7 @@ class Store_admin extends CI_Component {
                 'value'      => $get_params['client_id'],
                 'options'    => $this->clients_model->get_clients(),
                 'empty'      => true,
-                'onchange'   => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+                'onchange'   => "submit_form(this, handle_ajaxResultAllData);",
               ),
               array(
                 'view'    => 'fields/select',
@@ -1833,7 +1837,7 @@ class Store_admin extends CI_Component {
                 'value'   => $get_params['store_workshop_id'],
                 'options' => $this->workshops_model->get_workshops(),
                 'empty'   => true,
-                'onchange'=> "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+                'onchange'=> "submit_form(this, handle_ajaxResultAllData);",
               ),
               array(
                 'view'     => 'fields/select',
@@ -1844,30 +1848,30 @@ class Store_admin extends CI_Component {
                 'optgroup' => true,
                 'options'  => $this->products_model->get_products(array('parent_id' => null)),
                 'value'    => $get_params['product_id'],
-                'onchange' => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+                'onchange' => "submit_form(this, handle_ajaxResultAllData);",
               ),
               array(
                 'view'     => 'fields/checkbox',
                 'title'    => 'Показать движение вторсырья:',
                 'name'     => 'movement',
                 'checked'  => $get_params['movement'],
-                'onchange' => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+                'onchange' => "submit_form(this, handle_ajaxResultAllData);",
               ),
               array(
                 'view'     => 'fields/checkbox',
                 'title'    => 'Показать в движении остатки = 0',
                 'name'     => 'zero',
                 'checked'  => $get_params['zero'],
-                'onchange' => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+                'onchange' => "submit_form(this, handle_ajaxResultAllData);",
               ),
               array(
                 'view'          => 'fields/submit',
                 'title'         => 'Сформировать',
                 'type'          => 'ajax',
-                'failure'       => '?ajax=1',
                 'reaction_func' => true,
-                'reaction'      => 'handle_ajaxResultHTML',
-                'data_type'     => 'html'
+                'reaction'      => 'handle_ajaxResultAllData',
+                'data_type'     => 'json',
+                'id'            => 'btn-form'
               )
             )
           )
@@ -1885,7 +1889,9 @@ class Store_admin extends CI_Component {
         $where .= ($where ? ' AND ' : '').'pr_store_movement_products.date >= "'. $get_params['date_start'].'"';
       }
       if($get_params['date_end']){
-        $where .= ($where ? ' AND ' : '').'pr_store_movement_products.date <= "'. $get_params['date_end'].'"';
+        // к дате окончания добавляем 1 день, т.к. показания за этот день должны быть включены в отчет
+        $date_end = date_format(date_modify(date_create($get_params['date_end']), '+1 day'), 'Y-m-d H:i:s');
+        $where .= ($where ? ' AND ' : '').'pr_store_movement_products.date <= "'. $date_end.'"';
       }
       if($get_params['client_id']){
         $where .= ($where ? ' AND ' : '').'pr_store_movement_products.client_id = '. $get_params['client_id'];
@@ -1928,16 +1934,16 @@ class Store_admin extends CI_Component {
       }
 
       $rest = array(
-          'start'       => $rest_start,
-          'end'         => $rest_end,
-          'coming'      => $this->store_model->calculate_coming($where),
-          'expenditure' => $this->store_model->calculate_expenditure($where),
-        );
+        'start'       => $rest_start,
+        'end'         => $rest_end,
+        'coming'      => $this->store_model->calculate_coming($where),
+        'expenditure' => $this->store_model->calculate_expenditure($where),
+      );
 
       // Если нужно отобразить движение товара
       if($get_params['movement']){
         $page = ($this->uri->getParam('page') ? $this->uri->getParam('page') : 1);
-        $limit = 200;
+        $limit = 50;
         $offset = $limit * ($page - 1);
         $cnt = $this->store_model->get_rests_cnt($where);
         $items = $this->store_model->get_rests($limit, $offset, $where);
@@ -1972,10 +1978,15 @@ class Store_admin extends CI_Component {
       if($render_table){
         return $this->load->view('../../application/components/store/templates/admin_rests_table',$data,true);
       } else if($this->uri->getParam('ajax') == 1){
-        echo $this->load->view('../../application/components/store/templates/admin_rests_table',$data,true);
+        send_answer(array(
+          'page'  => (isset($page) ? $page : 1),
+          'pages' => (isset($pages) ? count($pages) : 0),
+          'html'  => $this->load->view('../../application/components/store/templates/admin_rests_table',$data,true),
+        ));
       }
     }
     
     return $this->render_template('templates/admin_items', array('data'=>$data));
   }
+
 }

@@ -7,7 +7,13 @@
   <? } else { ?>
   <div class="panel">    
     <h3 class="text-center">"<?=$type['title'];?>"<br/>Отчет по остаткам вторсырья на складе</h3><br/>
-    <h5>Отчет составлен за период  с <?=rus_date($get_params['date_start'],'j m Yг.');?> по <?=rus_date($get_params['date_end'],'j m Yг.');?></h5>
+    <? //если отчет за 1 день ?>
+    <? if($get_params['date_start'] == $get_params['date_end']) { ?>
+      <h5>Отчет составлен за <?=rus_date($get_params['date_start'],'j m Yг.');?></h5>
+    <? } else { ?>
+      <h5>Отчет составлен за период  с <?=rus_date($get_params['date_start'],'j m Yг.');?> по <?=rus_date($get_params['date_end'],'j m Yг.');?></h5>
+    <? } ?>
+
     <? if($client) { ?>
       <h5>Поставщик: "<?=$client['title_full'];?>"</h5>
     <? } ?>
@@ -23,15 +29,8 @@
     <h5>Входящий остаток: <?=number_format($rest['start'],2,'.',' ');?> кг. на <?=rus_date($get_params['date_start'],'j m Yг.');?></h5><br/>
     <? } ?>
     <? if ($items) { ?>
-      <table class="table panel table-hover table-bordered table-store">
+      <table id="table-result" class="table panel table-hover table-bordered table-store">
         <thead>
-          <? if(isset($pagination) && $pagination) { ?>
-            <tr class="">
-              <td colspan="7" class="text-right">
-                <?=$pagination;?>
-              </td>
-            </tr>
-          <? } ?>
           <tr>
             <th>Дата</th>
             <th>Цех</th>
@@ -54,13 +53,8 @@
               <td><?=$item['rest'];?></td>
             </tr>
           <? } ?>
-          <? if(isset($pagination) && $pagination) { ?>
-            <tr>
-              <td colspan="7" class="text-right">
-                <?=$pagination;?>
-              </td>
-            </tr>
-          <? } ?>
+        </tbody>
+        <tfoot>
           <tr>
             <td colspan="<?=($type_id == 1 ? 4 : 3);?>"><h5 class="text-right">Итого обороты</h5></td>
             <td>
@@ -81,7 +75,7 @@
               <td></td>
             </tr>
           <? } ?>
-        </tbody>
+        </tfoot>
       </table>      
     <? } else { ?>
       <table class="table panel table-hover table-store">

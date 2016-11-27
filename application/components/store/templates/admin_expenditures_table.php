@@ -6,7 +6,7 @@
     </div>
   <? } else { ?>
     <? if ($items) { ?>
-      <table class="table panel table-hover table-bordered table-store table-dropdown">
+      <table id="table-result" class="table panel table-hover table-bordered table-store table-dropdown">
         <thead>
           <tr>
             <td class="td-dropdown hidden-print"></td>
@@ -20,112 +20,113 @@
             <th>Вид вторсырья</th>
           </tr>
         </thead>
-        <?$all_gross = $all_net = 0; ?>
-        <? foreach ($items as $item) { ?>
-          <tbody>
-            <tr>
-              <td class="td-dropdown hidden-print" rowspan="<?=count($item['childs']);?>">
-                <?//меню общее для всей строки?>
-                <div class="dropdown">
-                  <a class="dropdown-toggle" aria-haspopup="true" aria-expanded="false" data-toggle="dropdown"></a>
-                  <ul class="dropdown-menu">
-                    <li>
-                      <a href="/admin<?=$this->component['path'];?>edit_<?=$section;?>/<?=$type_id;?>/<?=$item['id'];?>/" title="Редактировать">
-                        <span class="glyphicon glyphicon-edit"></span> <?=($item['active'] ? 'Просмотреть' : 'Редактировать');?>
-                      </a>
-                    </li>
-                    <? if (!$item['active']) { ?>
+        <tbody>
+          <? foreach ($items as $item) { ?>
+              <tr>
+                <td class="td-dropdown hidden-print" rowspan="<?=count($item['childs']);?>">
+                  <?//меню общее для всей строки?>
+                  <div class="dropdown">
+                    <a class="dropdown-toggle" aria-haspopup="true" aria-expanded="false" data-toggle="dropdown"></a>
+                    <ul class="dropdown-menu">
                       <li>
-                        <a href="javascript:void(0)" title="Отправить на склад" onclick='sendMovement("/admin/store/send_expenditure_movement/<?=$item['id'];?>/");'>
-                          <span class="glyphicon glyphicon-save"></span> Отправить на склад
+                        <a href="/admin<?=$this->component['path'];?>edit_<?=$section;?>/<?=$type_id;?>/<?=$item['id'];?>/" title="Редактировать">
+                          <span class="glyphicon glyphicon-edit"></span> <?=($item['active'] ? 'Просмотреть' : 'Редактировать');?>
                         </a>
                       </li>
-                    <? } ?>
-                    <? if ($item['client_id']) { ?>
+                      <? if (!$item['active']) { ?>
+                        <li>
+                          <a href="javascript:void(0)" title="Отправить на склад" onclick='sendMovement("/admin/store/send_expenditure_movement/<?=$item['id'];?>/");'>
+                            <span class="glyphicon glyphicon-save"></span> Отправить на склад
+                          </a>
+                        </li>
+                      <? } ?>
+                      <? if ($item['client_id']) { ?>
+                        <li class="divider"></li>
+                        <li>
+                          <a href="/admin/clients/edit_client/<?=$item['client_id'];?>/" target="_edit_client_<?=$item['client_id'];?>" title="Редактировать поставщика">
+                            <span class="glyphicon glyphicon-edit"></span> Редактировать поставщика
+                          </a>
+                        </li>
+                      <? } ?>
                       <li class="divider"></li>
                       <li>
-                        <a href="/admin/clients/edit_client/<?=$item['client_id'];?>/" target="_edit_client_<?=$item['client_id'];?>" title="Редактировать поставщика">
-                          <span class="glyphicon glyphicon-edit"></span> Редактировать поставщика
-                        </a>
+                        <a href="#"
+                          onClick="return send_confirm(
+                            'Вы уверены, что хотите удалить объект?',
+                            '/admin<?=$this->component['path'];?>delete_<?=$section;?>/<?=$item['id'];?>/',
+                            {},
+                            'reload'
+                          );"
+                          title="Удалить"
+                        ><span class="glyphicon glyphicon-trash"></span> Удалить</a>
                       </li>
-                    <? } ?>
-                    <li class="divider"></li>
-                    <li>
-                      <a href="#"
-                        onClick="return send_confirm(
-                          'Вы уверены, что хотите удалить объект?',
-                          '/admin<?=$this->component['path'];?>delete_<?=$section;?>/<?=$item['id'];?>/',
-                          {},
-                          'reload'
-                        );"
-                        title="Удалить"
-                      ><span class="glyphicon glyphicon-trash"></span> Удалить</a>
-                    </li>
-                  </ul>
-                </div>
-              </td>
-              <?//если active==1 значит расход отправлен в учет движения товара на складе?>
-              <td class="text-center hidden-print" rowspan="<?=count($item['childs']);?>">
-                <? if ($item['active']) { ?>
-                  <span class="glyphicon glyphicon-ok text-success el-tooltip" data-toggle="tooltip" data-placement="right" title="Учтено в остатках"></span>
-                <? } else { ?>
-                  <span class="glyphicon glyphicon-pencil el-tooltip" data-toggle="tooltip" data-placement="right" title="Черновик. Не учитывается в остатках."></span>
-                <? } ?>
-              </td>
-              <td rowspan="<?=count($item['childs']);?>"><?=date('d.m.Y',strtotime($item['date']));?>
-              </td>
-              <? if ($type_id == 1) {?>
-                <td rowspan="<?=count($item['childs']);?>">
-                  <?=$item['workshop']['title'];?>
+                    </ul>
+                  </div>
                 </td>
-              <? } ?>
-              <? if ($type_id == 1) {?>
-                <td rowspan="<?=count($item['childs']);?>">
-                  <?=$item['client_title'];?>
+                <?//если active==1 значит расход отправлен в учет движения товара на складе?>
+                <td class="text-center hidden-print" rowspan="<?=count($item['childs']);?>">
+                  <? if ($item['active']) { ?>
+                    <span class="glyphicon glyphicon-ok text-success el-tooltip" data-toggle="tooltip" data-placement="right" title="Учтено в остатках"></span>
+                  <? } else { ?>
+                    <span class="glyphicon glyphicon-pencil el-tooltip" data-toggle="tooltip" data-placement="right" title="Черновик. Не учитывается в остатках."></span>
+                  <? } ?>
                 </td>
-              <? } ?>
-              <td>
+                <td rowspan="<?=count($item['childs']);?>"><?=date('d.m.Y',strtotime($item['date']));?>
+                </td>
                 <? if ($type_id == 1) {?>
-                  <span class="text-nowrap"><?=number_format(@$item['childs'][0]['gross'],2,'.',' ');?></span>
-                <? } else {?>
-                  <span class="text-nowrap"><?=number_format(@$item['childs'][0]['net'],2,'.',' ');?></span>
+                  <td rowspan="<?=count($item['childs']);?>">
+                    <?=$item['workshop']['title'];?>
+                  </td>
                 <? } ?>
-              </td>
-              <td>
-                <span class="text-nowrap"><?=number_format(@$item['childs'][0]['cnt_places'],2,'.',' ');?></span>
-              </td>
-              <td><?=@$item['childs'][0]['product']['title_full'];?></td>
-            </tr>
-            <?array_shift($item['childs']);?>
-            <?foreach ($item['childs'] as $key => $child) {?>
-              <tr>
+                <? if ($type_id == 1) {?>
+                  <td rowspan="<?=count($item['childs']);?>">
+                    <?=$item['client_title'];?>
+                  </td>
+                <? } ?>
                 <td>
                   <? if ($type_id == 1) {?>
-                    <span class="text-nowrap"><?=number_format($child['gross'],2,'.',' ');?></span>
+                    <span class="text-nowrap"><?=number_format(@$item['childs'][0]['gross'],2,'.',' ');?></span>
                   <? } else {?>
-                    <span class="text-nowrap"><?=number_format($child['net'],2,'.',' ');?></span>
+                    <span class="text-nowrap"><?=number_format(@$item['childs'][0]['net'],2,'.',' ');?></span>
                   <? } ?>
                 </td>
                 <td>
-                  <span class="text-nowrap"><?=number_format($child['cnt_places'],2,'.',' ');?></span>
+                  <span class="text-nowrap"><?=number_format(@$item['childs'][0]['cnt_places'],2,'.',' ');?></span>
                 </td>
-                <td><?=$child['product']['title_full'];?></td>
+                <td><?=@$item['childs'][0]['product']['title_full'];?></td>
               </tr>
-            <?}?>
-            <?
-              $all_gross += $item['gross'];
-              $all_net += $item['net'];
-            ?>
-          </tbody>
-        <? } ?>
+              <?array_shift($item['childs']);?>
+              <?foreach ($item['childs'] as $key => $child) {?>
+                <tr>
+                  <td>
+                    <? if ($type_id == 1) {?>
+                      <span class="text-nowrap"><?=number_format($child['gross'],2,'.',' ');?></span>
+                    <? } else {?>
+                      <span class="text-nowrap"><?=number_format($child['net'],2,'.',' ');?></span>
+                    <? } ?>
+                  </td>
+                  <td>
+                    <span class="text-nowrap"><?=number_format($child['cnt_places'],2,'.',' ');?></span>
+                  </td>
+                  <td><?=$child['product']['title_full'];?></td>
+                </tr>
+              <?}?>
+          <? } ?>
+        </tbody>
         <tfoot>
+          <? if(isset($pagination) && $pagination) {?>
+            <tr>
+              <td colspan="9" class="text-right pagination-wrap">
+                <?=$pagination;?>
+              </td>
+            </tr>
+          <? } ?>
           <tr>
-            <td colspan="<?=($type_id == 1 ? 5 : 3);?>" class="text-right"><h4>ИТОГО <?=($type_id == 1 ? 'БРУТТО' : 'НЕТТО');?></h4></td>
+            <td colspan="<?=($type_id == 1 ? 5 : 3);?>" class="text-right"><h4>ИТОГО <small>за период  с <?=rus_date($get_params['date_start'],'j m Yг.');?> по <?=rus_date($get_params['date_end'],'j m Yг.');?></small></h4></td>
             <td colspan="3"><h4><?=($type_id == 1 ? number_format($all_gross,0,'.',' ') : number_format($all_net,0,'.',' '));?> кг</h4></td>
           </tr>
         </tfoot>
       </table>
-      <?=(isset($pagination) && $pagination ? $pagination : '');?>
     <? } ?>
   <? } ?>
   </div></div>

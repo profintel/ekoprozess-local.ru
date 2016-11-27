@@ -371,10 +371,55 @@ function handle_ajaxResultHTML(answer) {
   if(container.length){
     $(document).find('#ajax_result').fadeOut(100,function(){
       $(this).html($(container).html())
-      $(this).fadeIn(200,function(){      
+      $(this).fadeIn(200,function(){
         sheet('hide');
       });
     })
+  }
+}
+
+/**
+* В цикле выполняет запрос данных из базы, с учетом к-ва страниц
+* Отображает html результат в #ajaxResult
+* @params context - елемент формы
+*         answer - json результат запроса формы
+*/
+function handle_ajaxResultAllData(answer) {
+  var element = '#ajax_result';
+  var container = $(answer.html).find(element);
+  var form = $('#btn-form').parents('form');
+  // записываем в историю браузера запрос
+  // window.history.pushState(null,document.title,document.location+'?sd=sd');
+  // console.log(window.history.state);  
+    
+  if(container.length){
+    // добавляем в ajax_result данные
+    
+    //скрываем пагинацию, если есть 
+    $(document).find('.pagination-wrap').hide();
+    // если страница первая вставляем анимацию смены контента
+    if(parseInt(answer.page) == 1){
+      $(document).find(element).fadeOut(100,function(){
+        $(this).html($(container).html());
+        $(this).fadeIn(200);
+      })
+    } else {
+      $(document).find('#table-result tbody').append($(container).find('#table-result tbody').html());
+    }
+  }
+  
+  // если страниц несколько в цикле делаем запрос на остальные данные
+  if(parseInt(answer.pages) > parseInt(answer.page)){
+    // добавляем input hidden с номером страницы в форму
+    if(!$(form).find('input[name=page]').length){
+      $(form).append('<input type="hidden" name="page" value="'+(parseInt(answer.page)+1)+'">');
+    } else {
+      $(form).find('input[name=page]').val((parseInt(answer.page)+1));
+    }
+    submit_form($('#btn-form'), handle_ajaxResultAllData);
+  } else {
+    sheet('hide');
+    $(form).find('input[name=page]').remove();
   }
 }
 

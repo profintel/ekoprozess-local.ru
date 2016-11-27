@@ -6,7 +6,7 @@
     </div>
   <? } else { ?>
     <? if ($items) { ?>
-      <table class="table panel table-hover table-bordered table-store table-dropdown">
+      <table id="table-result" class="table panel table-hover table-bordered table-store table-dropdown">
         <thead>
           <tr>
             <td class="td-dropdown hidden-print"></td>
@@ -22,8 +22,8 @@
             <? if ($type_id == 2) {?><th>Примечания</th><? } ?>
           </tr>
         </thead>
-        <? foreach ($items as $item) { ?>
-          <tbody>
+        <tbody>
+          <? foreach ($items as $item) { ?>
             <tr>
               <td class="td-dropdown hidden-print" rowspan="<?=count($item['childs']);?>">
                 <?//меню общее для всей строки?>
@@ -127,16 +127,24 @@
                 <td><?=$child['product']['title_full'];?></td>
               </tr>
             <?}?>
-          </tbody>
-        <? } ?>
+          <? } ?>
+        </tbody>
         <tfoot>
+          <? if(isset($pagination) && $pagination) {?>
+            <tr>
+              <td colspan="9" class="text-right pagination-wrap">
+                <?=$pagination;?>
+              </td>
+            </tr>
+          <? } ?>
           <tr>
-            <td colspan="<?=($type_id == 1 ? 5 : 4);?>" class="text-right"><h4>ИТОГО <?=($type_id == 1 ? 'БРУТТО' : 'НЕТТО');?></h4></td>
+            <td colspan="<?=($type_id == 1 ? 5 : 4);?>" class="text-right">
+              <h4>ИТОГО <small>за период  с <?=rus_date($get_params['date_start'],'j m Yг.');?> по <?=rus_date($get_params['date_end'],'j m Yг.');?></small></h4>
+            </td>
             <td colspan="<?=($type_id == 1 ? 3 : 4);?>"><h4><?=($type_id == 1 ? number_format($all_gross,0,'.',' ') : number_format($all_net,0,'.',' '));?> кг</h4></td>
           </tr>
         </tfoot>
       </table>
-      <?=(isset($pagination) && $pagination ? $pagination : '');?>
     <? } ?>
   <? } ?>
   </div></div>

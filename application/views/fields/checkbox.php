@@ -79,6 +79,7 @@ $text_field  = (isset($vars['text_field'])  ? $vars['text_field']  : 'title');
         <?=(isset($vars['readonly']) && $vars['readonly'] ? 'onClick="return false;"' : '');?>
         <?=(isset($vars['autofocus']) && $vars['autofocus'] ? 'autofocus="autofocus"' : '');?>
         <?=(isset($vars['disabled']) && $vars['disabled'] ? 'disabled="disabled"' : '');?>
+        <?=(isset($vars['onchange']) ? 'onChange="'. $vars['onchange'] .'"' : '');?>
       />
     <? } ?>
   </div>
