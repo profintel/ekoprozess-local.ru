@@ -553,7 +553,7 @@ class Store_admin extends CI_Component {
       ));
     }
     
-    if ($_FILES['image']['name']) {
+    if (isset($_FILES['image']['name']) && $_FILES['image']['name']) {
       $image = upload_file($_FILES['image']);      
       if (!$image) {
         send_answer(array('errors' => array('Ошибка при загрузке изображения')));
@@ -874,7 +874,7 @@ class Store_admin extends CI_Component {
       $main_params['store_workshop_id'] = (int)$this->input->post('store_workshop_id');
     }
     
-    if ($_FILES['image']['name']) {
+    if (isset($_FILES['image']['name']) && $_FILES['image']['name']) {
       if ($item['image']) {
         $this->gallery_model->delete_image(array('image' => $item['image']));
       }
