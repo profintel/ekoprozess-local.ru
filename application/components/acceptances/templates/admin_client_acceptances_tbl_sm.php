@@ -37,6 +37,6 @@
   </ul>
 <? } ?>
 <? if(isset($client_id)&&$client_id) {?>
-  <a class="btn btn-xs btn-primary pull-right" href="/admin/acceptances/?client_id=<?=$client_id;?>">Перейти к актам клиента</a>
+  <a class="btn btn-xs btn-primary pull-right" href="/admin/acceptances/?date_start=1970-01-01&client_id=<?=$client_id;?>">Перейти к актам клиента</a>
 <? } ?>
 </div>

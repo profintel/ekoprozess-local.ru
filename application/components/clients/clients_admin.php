@@ -767,7 +767,7 @@ class Clients_admin extends CI_Component {
     $acceptance_btn = array(
       'title'    => 'Добавить акт приемки',
       'icon'     => 'glyphicon-plus',
-      'onclick'  => 'window.open("/admin/clients/create_acceptance/?client_id='.$item['id'].'","_client_acceptance_create_'.$item['id'].'")',
+      'onclick'  => 'window.open("/admin/acceptances/create_acceptance/?client_id='.$item['id'].'","_client_acceptance_create_'.$item['id'].'")',
     );
     //список актов приемки
     $acceptances = $this->acceptances_model->get_acceptances(3, 0, array('client_id'=>$id,'parent_id'=>null), array('tm'=>'desc'));
