@@ -24,6 +24,7 @@
           <th>Цена, руб.</th>
           <th>Стоимость, руб.</th>
           <th>Стоимость поставки, руб.</th>
+          <th>Примечания</th>
         </tr>
         <?$all_gross = $all_net = $all_price = $all_add_expenses = $all_sum = 0; ?>
         <? foreach ($items as $item) { ?>
@@ -92,8 +93,11 @@
             <td>
               <span class="text-nowrap"><?=number_format(@$item['childs'][0]['sum'],2,'.',' ');?></span>
             </td>
-            <td>
+            <td rowspan="<?=count($item['childs']);?>">
               <span class="text-nowrap"><?=number_format($item['add_expenses'],2,'.',' ');?></span>
+            </td>
+            <td rowspan="<?=count($item['childs']);?>">
+              <?=$item['comment'];?>
             </td>
           </tr>
           <?array_shift($item['childs']);?>
@@ -115,7 +119,6 @@
               <td>
                 <span class="text-nowrap"><?=number_format($child['sum'],2,'.',' ');?></span>
               </td>
-              <td></td>
             </tr>
           <?}?>
           <?
@@ -144,12 +147,14 @@
           <th>
             <span class="text-nowrap"><?=number_format($all_add_expenses,2,'.',' ');?></span>
           </th>
+          <th></th>
         </tr>
         <tr>
           <td colspan="8" class="text-right"><span class="h4">ИТОГО</span></td>
           <td colspan="2" class="text-center">
             <span class="h4"><?=number_format($all_sum,2,'.',' ');?></span>
           </td>
+          <td></td>
         </tr>
       </table>
       <?=(isset($pagination) && $pagination ? $pagination : '');?>
