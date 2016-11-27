@@ -42,22 +42,6 @@
   <form action="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>_client_acceptance_email/<?=$item['id'];?>/" method="POST" onsubmit="return false;">
     <div class="form-horizontal panel">
       <div class="form_block panel-body">
-        <div class="form-group"> 
-          <div class="col-sm-2">
-            От кого
-          </div>
-          <div class="col-sm-10">
-            <input type="text" class="form-control" name="from" value="<?=$this->admin['email'];?>" />
-          </div>
-        </div>
-        <div class="form-group"> 
-          <div class="col-sm-2">
-            Кому
-          </div>
-          <div class="col-sm-10">
-            <input type="text" class="form-control" name="to" value="<?=(isset($item['email']) ? $item['email'] : '');?>" />
-          </div>
-        </div>
         <?=$html;?>
         <a href="#" class="btn btn-primary btn-xs pull-right" onclick="return submit_form(this, 'reload', null);">
           <span class="glyphicon glyphicon-save"></span>  Отправить

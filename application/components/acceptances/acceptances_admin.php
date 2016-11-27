@@ -940,6 +940,24 @@ class Acceptances_admin extends CI_Component {
       'title' => 'Акт приемки',
       'html'  => $this->view->render_fields(array(
         array(
+          'view'        => 'fields/readonly',
+          'title'       => 'От кого:',
+          'value'       => '<h6>info@ekoprozess.isnet.ru</h6>',
+        ),
+        array(
+          'view'        => 'fields/hidden',
+          'title'       => 'От кого:',
+          'value'       => 'info@ekoprozess.isnet.ru',
+        ),
+        array(
+          'view'        => 'fields/autocomplete_input',
+          'title'       => 'Кому:',
+          'name'        => 'to',
+          'component'   => 'acceptances',
+          'method'      => 'searchEmail',
+          'value'       => (isset($item['email']) ? $item['email'] : ''),
+        ),
+        array(
           'view'  => 'fields/text',
           'title' => 'Тема письма:',
           'name'  => 'subject',
@@ -957,6 +975,40 @@ class Acceptances_admin extends CI_Component {
       'item'  => $item,
       'emails'=> $this->acceptances_model->get_acceptance_emails(array('acceptance_id'=>$item['id']))
     ));
+  }
+
+
+  /**
+  * Поиск ранее используемых email-ов
+  */
+  function searchEmail(){
+    $search_string = htmlspecialchars(trim($this->input->post('search_string')));
+    if($search_string){
+      $result = $this->acceptances_model->get_acceptance_emails('to LIKE "%'.$search_string.'%"', array('to'=>'asc'),50,0,array('to'));
+      $emails = array();
+      if ($result) {
+        foreach ($result as $key => &$value) {
+          $value['title'] = $value['to'];
+          $value['id'] = $value['to'];
+        }
+        unset($value);
+        // foreach ($result as $key => $value) {
+        //   // парсим через запятую значения
+        //   $item_emails = explode(',', $value['to']);
+        //   foreach ($item_emails as $key => $email) {
+        //     $emails[] = $email;
+        //   }
+        // }
+        // $emails = array_unique($emails);
+        // foreach ($emails as $key => $value) {
+        //   $emails[$key] = array(
+        //     'title' => $value,
+        //     'id'    => $value
+        //   );
+        // }
+      }
+      send_answer(array('items'=>$result));
+    }
   }
 
   /**

@@ -4,13 +4,15 @@
       $('#item_id').val(request.term);
       input_obj.addClass('loading');
       $.post('/admin/'+ input_obj.data('component') +'/'+ input_obj.data('method') +'/', {search_string: request.term}, function(result) {     
-        input_obj.removeClass('loading');
-        if (typeof(result.items) == 'object' && !$.isEmptyObject(result.items)) {
-          response($.map(result.items, function(item) {
-            return {label: item.title, value: item.id, 'location': item.location};
-          }));
-        }
-      }, 'json');
+          input_obj.removeClass('loading');
+          if (typeof(result.items) == 'object' && !$.isEmptyObject(result.items)) {
+            response($.map(result.items, function(item) {
+              return {label: item.title, value: item.id, 'location': item.location};
+            }));
+          } else {
+            response([]);
+          }
+        }, 'json');
     }
   }
 </script>

@@ -169,14 +169,29 @@ class Acceptances_model extends CI_Model {
     return false;
   }
 
-  function get_acceptance_emails($where = array(), $order_by = array()) {
+  function get_acceptance_emails($where = array(), $order_by = array(), $limit = 0, $offset = 0, $group_by = array()) {
     $this->db->select('client_acceptance_emails.*,admins.username as username');
-    $this->db->order_by('tm','desc');
+    if ($order_by) {
+      foreach ($order_by as $field => $dest) {
+        $this->db->order_by($field,$dest);
+      }
+    } else {
+      $this->db->order_by('tm','desc');
+    }
+    if ($group_by) {
+      foreach ($group_by as $key => $field) {
+        $this->db->group_by($field);
+      }
+    }
     if ($where) {
       $this->db->where($where);
     }
     $this->db->join('admins','admins.id=client_acceptance_emails.admin_id');
+    if ($limit) {
+      $this->db->limit($limit, $offset);
+    }
     $items = $this->db->get('client_acceptance_emails')->result_array();
+    // echo $this->db->last_query();
 
     return $items;
   }
