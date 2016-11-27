@@ -1,4 +1,4 @@
-/*** Generated 27.11.2016 22:44:26 ***/
+/*** Generated 27.11.2016 23:17:00 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -3772,14 +3772,17 @@ function submit_form(context, reaction, uri_postfix, data_type) {
   } 
 
   // если метод get меняем путь браузера и сохраняем в историю браузера ссылку
-  if(form.attr('method') == 'GET' && $.isFunction(window.history.pushState) === true){
-    // get параметры из формы
-    var queryString = form.formSerialize();
-    //меняем путь и сохраняем в историю браузера ссылку
-    var pathLocation = 'http://' + window.location.hostname + window.location.pathname+'?'+queryString;
-    window.history.pushState({}, document.title, pathLocation);
-  } else {
-    submit_form_sync(context);
+  if(form.attr('method') == 'GET'){
+    if($.isFunction(window.history.pushState) === true){
+      // get параметры из формы
+      var queryString = form.formSerialize();
+      //меняем путь и сохраняем в историю браузера ссылку
+      var pathLocation = 'http://' + window.location.hostname + window.location.pathname+'?'+queryString;
+      window.history.pushState({}, document.title, pathLocation);
+    } else {
+      submit_form_sync(context);
+      return false;
+    }
   }
 
   form.ajaxSubmit(function(answer) {
