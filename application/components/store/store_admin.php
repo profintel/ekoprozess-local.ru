@@ -1844,33 +1844,6 @@ class Store_admin extends CI_Component {
       $cnt = $this->store_model->get_rests_cnt($where);
       $items = $this->store_model->get_rests($limit, $offset, $where);
       
-      /*Подсчет общего остатка на складе: 03.04.2016 сказали его отображать не надо
-      // если не указаны поставщик и виды вторсырья в движении показываем остаток общий из базы
-      // иначе считаем остаток по каждой строке движения
-      if($items && ($get_params['client_id'] || $get_params['store_workshop_id'] || $get_params['product_id'])){
-        // для первой страницы входящий остаток посчитан с учетом даты из формы
-        if($page > 1){
-          //для остальных страниц считаем входящий остаток с учетом id первого элемента items
-          $where_start = 'pr_store_movement_products.store_type_id = '. $type_id. ' AND pr_store_movement_products.id < "'. $items[0]['id'].'"';
-          if($get_params['client_id']){
-            $where_start .= ($where_start ? ' AND ' : '').'pr_store_movement_products.client_id = '. $get_params['client_id'];
-          }
-          if($get_params['store_workshop_id']){
-            $where_start .= ($where_start ? ' AND ' : '').'pr_store_movement_products.store_workshop_id = '. $get_params['store_workshop_id'];
-          }
-          if($get_params['product_id']){
-            $where_start .= ($where_start ? ' AND ' : '').'pr_store_movement_products.product_id IN ('.implode(',', $get_params['product_id']).')';
-          }
-          // начальный остаток для текущей страницы движения вторсырья
-          $rest_start = $this->store_model->calculate_rest($where_start);          
-        }
-        // перезаписываем остаток по движению - rest_all
-        foreach ($items as $key => &$item) {
-          $rest_start += $item['coming'] - $item['expenditure'];         
-          $item['rest_all'] = $rest_start;
-        }
-      }
-      */
       $pages = get_pages($page, $cnt, $limit);
       $postfix = '&';
       foreach ($get_params as $key => $get_param_value) {
