@@ -1773,127 +1773,45 @@ class Store_admin extends CI_Component {
     if(!$type){
       show_error('Не найден тип склада');
     }
-    $error = '';
     $product_id = $this->uri->getParam('product_id');
     $get_params = array(
-      'date_start'        => ($this->uri->getParam('date_start') ? date('Y-m-d',strtotime($this->uri->getParam('date_start'))) : date('Y-m-1')),
-      'date_end'          => ($this->uri->getParam('date_end') ? date('Y-m-d',strtotime($this->uri->getParam('date_end'))) : date('Y-m-d')),
+      'date_start'        => ($this->uri->getParam('date_start') ? date('Y-m-d 00:00:00',strtotime($this->uri->getParam('date_start'))) : date('Y-m-1 00:00:00')),
+      'date_end'          => ($this->uri->getParam('date_end') ? date('Y-m-d 00:00:00',strtotime($this->uri->getParam('date_end'))) : date('Y-m-d 00:00:00')),
       'client_id'         => ((int)$this->uri->getParam('client_id') ? (int)$this->uri->getParam('client_id') : ''),
       'store_workshop_id' => ((int)$this->uri->getParam('store_workshop_id') ? (int)$this->uri->getParam('store_workshop_id') : ''),
       'product_id'        => ($product_id && @$product_id[0] ? $product_id : array()),
       'movement'          => ($this->uri->getParam('movement') ? true : false),
+      'zero'              => ($this->uri->getParam('zero') ? true : false),
     );
+    // к дате окончания добавляем 1 день, т.к. показания за этот день должны быть включены в отчет
+    $get_params['date_end'] = date_format(date_modify(date_create($get_params['date_end']), '+1 day'), 'Y-m-d H:i:s');
 
-    // условия для движения товара и подсчета общего прихода расхода
-    $where = 'pr_store_movement_products.store_type_id = '. $type_id;
-    if($get_params['date_start']){
-      $where .= ($where ? ' AND ' : '').'pr_store_movement_products.date >= "'. $get_params['date_start'].'"';
-    }
-    if($get_params['date_end']){
-      $where .= ($where ? ' AND ' : '').'pr_store_movement_products.date <= "'. $get_params['date_end'].'"';
-    }
-    if($get_params['client_id']){
-      $where .= ($where ? ' AND ' : '').'pr_store_movement_products.client_id = '. $get_params['client_id'];
-    }
-    if($get_params['store_workshop_id']){
-      $where .= ($where ? ' AND ' : '').'pr_store_movement_products.store_workshop_id = '. $get_params['store_workshop_id'];
-    }
-    if($get_params['product_id']){
-      $where .= ($where ? ' AND ' : '').'pr_store_movement_products.product_id IN ('.implode(',', $get_params['product_id']).')';
-    }
-
-    // Остатки
-    // условия для расчета входящего остатка и исходящего остатка
-    // если не указаны поставщик и виды вторсырья выводим общий остаток на начальную дату и на конечную дату
-    if(!$get_params['client_id'] && !$get_params['store_workshop_id'] && !$get_params['product_id']){
-      $rest_start = $this->store_model->get_rest('pr_store_movement_products.store_type_id = '. $type_id. ' AND pr_store_movement_products.date < "'. $get_params['date_start'].'"');
-      $rest_start = ($rest_start ? $rest_start['rest_all'] : 0);
-      $rest_end = $this->store_model->get_rest('pr_store_movement_products.store_type_id = '. $type_id. ' AND pr_store_movement_products.date <= "'. $get_params['date_end'].'"');
-      $rest_end = ($rest_end ? $rest_end['rest_all'] : 0);
-    } else {
-      $where_start = 'pr_store_movement_products.store_type_id = '. $type_id. ' AND pr_store_movement_products.date < "'. $get_params['date_start'].'"';
-      $where_end = 'pr_store_movement_products.store_type_id = '. $type_id. ' AND pr_store_movement_products.date <= "'. $get_params['date_end'].'"';
-      if($get_params['client_id']){
-        $where_start .= ($where_start ? ' AND ' : '').'pr_store_movement_products.client_id = '. $get_params['client_id'];
-        $where_end .= ($where_end ? ' AND ' : '').'pr_store_movement_products.client_id = '. $get_params['client_id'];
-      }
-      if($get_params['store_workshop_id']){
-        $where_start .= ($where_start ? ' AND ' : '').'pr_store_movement_products.store_workshop_id = '. $get_params['store_workshop_id'];
-        $where_end .= ($where_end ? ' AND ' : '').'pr_store_movement_products.store_workshop_id = '. $get_params['store_workshop_id'];
-      }
-      if($get_params['product_id']){
-        $where_start .= ($where_start ? ' AND ' : '').'pr_store_movement_products.product_id IN ('.implode(',', $get_params['product_id']).')';
-        $where_end .= ($where_end ? ' AND ' : '').'pr_store_movement_products.product_id IN ('.implode(',', $get_params['product_id']).')';
-      }
-      $rest_start = $this->store_model->calculate_rest($where_start);
-      $rest_end = $this->store_model->calculate_rest($where_end);
-    }
-
-    $rest = array(
-        'start'       => $rest_start,
-        'end'         => $rest_end,
-        'coming'      => $this->store_model->calculate_coming($where),
-        'expenditure' => $this->store_model->calculate_expenditure($where),
-      );
-
-    // Если нужно отобразить движение товара
-    if($get_params['movement']){
-      $page = ($this->uri->getParam('page') ? $this->uri->getParam('page') : 1);
-      $limit = 200;
-      $offset = $limit * ($page - 1);
-      $cnt = $this->store_model->get_rests_cnt($where);
-      $items = $this->store_model->get_rests($limit, $offset, $where);
-      
-      $pages = get_pages($page, $cnt, $limit);
-      $postfix = '&';
-      foreach ($get_params as $key => $get_param_value) {
-        if(is_array($get_param_value)){
-          foreach ($get_param_value as $value) {
-            $postfix .= $key.'[]='.$value.'&';
-          }
-        } else {
-          $postfix .= $key.'='.$get_param_value.'&';
-        }
-      }
-      $pagination_data = array(
-        'ajax'    => true,
-        'pages'   => $pages,
-        'page'    => $page,
-        'prefix'  => '/admin'.$this->params['path'].'rests/'.$type_id.'/',
-        'postfix' => $postfix
-      );
-    }
-    
     $data = array(
       'title'           => 'Склад: '.$type['title'].'. Остаток',
       'section'         => 'rest',
       'type_id'         => $type_id,
       'type'            => $type,
-      'error'           => $error,
       'client'          => ($get_params['client_id'] ? $this->clients_model->get_client(array('id'=>$get_params['client_id'])) : false),
       'products'        => ($get_params['product_id'] ? $this->products_model->get_products('id IN ('.implode(',', $get_params['product_id']).')') : false),
-      'rest'            => $rest,
-      'items'           => (isset($items) ? $items : array()),
       'get_params'      => $get_params,
-      'pagination'      => (isset($pagination_data) ? $this->load->view('templates/pagination', $pagination_data, true) : ''),
       'form' => $this->view->render_form(array(
         'method' => 'GET',
         'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'rests/'.$type_id.'/',        
         'enctype' => '',
         'blocks' => array(
           array(
-            'title'         => 'Расширенный поиск',
-            'fields'   => array(
+            'title'  => 'Расширенный поиск',
+            'fields' => array(
               array(
-                'view'        => 'fields/datetime',
+                'view'        => 'fields/date',
                 'title'       => 'Дата от:',
                 'name'        => 'date_start',
                 'value'       => ($get_params['date_start']? date('d.m.Y',strtotime($get_params['date_start'])) : ''),
                 'onchange1'    => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
               ),
               array(
-                'view'        => 'fields/datetime',
-                'title'       => 'Дата до:',
+                'view'        => 'fields/date',
+                'title'       => 'Дата по:',
                 'name'        => 'date_end',
                 'value'       => ($get_params['date_end']? date('d.m.Y',strtotime($get_params['date_end'])) : ''),
                 'onchange1'    => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
@@ -1936,6 +1854,13 @@ class Store_admin extends CI_Component {
                 'onchange' => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
               ),
               array(
+                'view'     => 'fields/checkbox',
+                'title'    => 'Показать в движении остатки = 0',
+                'name'     => 'zero',
+                'checked'  => $get_params['zero'],
+                'onchange' => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+              ),
+              array(
                 'view'          => 'fields/submit',
                 'title'         => 'Сформировать',
                 'type'          => 'ajax',
@@ -1949,13 +1874,108 @@ class Store_admin extends CI_Component {
         )
       )),
     );
-    
-    if($render_table){
-      return $this->load->view('../../application/components/store/templates/admin_rests_table',$data,true);
-    } else if($this->uri->getParam('ajax') == 1){
-      echo $this->load->view('../../application/components/store/templates/admin_rests_table',$data,true);
-    } else {
-      return $this->render_template('templates/admin_items', array('data'=>$data));
+
+    // если запрос на формирование данных, иначе возвращаем шаблон - обертку
+    if($render_table || $this->uri->getParam('ajax') == 1){
+      $error = '';
+
+      // условия для движения товара и подсчета общего прихода расхода
+      $where = 'pr_store_movement_products.store_type_id = '. $type_id;
+      if($get_params['date_start']){
+        $where .= ($where ? ' AND ' : '').'pr_store_movement_products.date >= "'. $get_params['date_start'].'"';
+      }
+      if($get_params['date_end']){
+        $where .= ($where ? ' AND ' : '').'pr_store_movement_products.date <= "'. $get_params['date_end'].'"';
+      }
+      if($get_params['client_id']){
+        $where .= ($where ? ' AND ' : '').'pr_store_movement_products.client_id = '. $get_params['client_id'];
+      }
+      if($get_params['store_workshop_id']){
+        $where .= ($where ? ' AND ' : '').'pr_store_movement_products.store_workshop_id = '. $get_params['store_workshop_id'];
+      }
+      if($get_params['product_id']){
+        $where .= ($where ? ' AND ' : '').'pr_store_movement_products.product_id IN ('.implode(',', $get_params['product_id']).')';
+      }
+      if(!$get_params['zero']){
+        $where .= ($where ? ' AND ' : '').'pr_store_movement_products.rest > 0';
+      }
+
+      // Остатки
+      // условия для расчета входящего остатка и исходящего остатка
+      // если не указаны поставщик и виды вторсырья выводим общий остаток на начальную дату и на конечную дату
+      if(!$get_params['client_id'] && !$get_params['store_workshop_id'] && !$get_params['product_id']){
+        $rest_start = $this->store_model->get_rest('pr_store_movement_products.store_type_id = '. $type_id. ' AND pr_store_movement_products.date < "'. $get_params['date_start'].'"');
+        $rest_start = ($rest_start ? $rest_start['rest_all'] : 0);
+        $rest_end = $this->store_model->get_rest('pr_store_movement_products.store_type_id = '. $type_id. ' AND pr_store_movement_products.date <= "'. $get_params['date_end'].'"');
+        $rest_end = ($rest_end ? $rest_end['rest_all'] : 0);
+      } else {
+        $where_start = 'pr_store_movement_products.store_type_id = '. $type_id. ' AND pr_store_movement_products.date < "'. $get_params['date_start'].'"';
+        $where_end = 'pr_store_movement_products.store_type_id = '. $type_id. ' AND pr_store_movement_products.date <= "'. $get_params['date_end'].'"';
+        if($get_params['client_id']){
+          $where_start .= ($where_start ? ' AND ' : '').'pr_store_movement_products.client_id = '. $get_params['client_id'];
+          $where_end .= ($where_end ? ' AND ' : '').'pr_store_movement_products.client_id = '. $get_params['client_id'];
+        }
+        if($get_params['store_workshop_id']){
+          $where_start .= ($where_start ? ' AND ' : '').'pr_store_movement_products.store_workshop_id = '. $get_params['store_workshop_id'];
+          $where_end .= ($where_end ? ' AND ' : '').'pr_store_movement_products.store_workshop_id = '. $get_params['store_workshop_id'];
+        }
+        if($get_params['product_id']){
+          $where_start .= ($where_start ? ' AND ' : '').'pr_store_movement_products.product_id IN ('.implode(',', $get_params['product_id']).')';
+          $where_end .= ($where_end ? ' AND ' : '').'pr_store_movement_products.product_id IN ('.implode(',', $get_params['product_id']).')';
+        }
+        $rest_start = $this->store_model->calculate_rest($where_start);
+        $rest_end = $this->store_model->calculate_rest($where_end);
+      }
+
+      $rest = array(
+          'start'       => $rest_start,
+          'end'         => $rest_end,
+          'coming'      => $this->store_model->calculate_coming($where),
+          'expenditure' => $this->store_model->calculate_expenditure($where),
+        );
+
+      // Если нужно отобразить движение товара
+      if($get_params['movement']){
+        $page = ($this->uri->getParam('page') ? $this->uri->getParam('page') : 1);
+        $limit = 200;
+        $offset = $limit * ($page - 1);
+        $cnt = $this->store_model->get_rests_cnt($where);
+        $items = $this->store_model->get_rests($limit, $offset, $where);
+        
+        $pages = get_pages($page, $cnt, $limit);
+        $postfix = '&';
+        foreach ($get_params as $key => $get_param_value) {
+          if(is_array($get_param_value)){
+            foreach ($get_param_value as $value) {
+              $postfix .= $key.'[]='.$value.'&';
+            }
+          } else {
+            $postfix .= $key.'='.$get_param_value.'&';
+          }
+        }
+        $pagination_data = array(
+          'ajax'    => true,
+          'pages'   => $pages,
+          'page'    => $page,
+          'prefix'  => '/admin'.$this->params['path'].'rests/'.$type_id.'/',
+          'postfix' => $postfix
+        );
+      }
+      
+      $data = array_merge($data, array(
+        'error'           => $error,
+        'rest'            => $rest,
+        'items'           => (isset($items) ? $items : array()),
+        'pagination'      => (isset($pagination_data) ? $this->load->view('templates/pagination', $pagination_data, true) : '')
+      ));
+
+      if($render_table){
+        return $this->load->view('../../application/components/store/templates/admin_rests_table',$data,true);
+      } else if($this->uri->getParam('ajax') == 1){
+        echo $this->load->view('../../application/components/store/templates/admin_rests_table',$data,true);
+      }
     }
+    
+    return $this->render_template('templates/admin_items', array('data'=>$data));
   }
 }

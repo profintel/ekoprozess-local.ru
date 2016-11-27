@@ -27,7 +27,7 @@
         <thead>
           <? if(isset($pagination) && $pagination) { ?>
             <tr class="">
-              <td colspan="6" class="text-right">
+              <td colspan="7" class="text-right">
                 <?=$pagination;?>
               </td>
             </tr>
@@ -56,7 +56,7 @@
           <? } ?>
           <? if(isset($pagination) && $pagination) { ?>
             <tr>
-              <td colspan="6" class="text-right">
+              <td colspan="7" class="text-right">
                 <?=$pagination;?>
               </td>
             </tr>

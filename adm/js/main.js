@@ -46,7 +46,29 @@ $(function() {
     var dateInputs = $(document).find('.input-datetimepicker');
     dateInputs.datetimepicker({
       hourGrid: 4,
-      minuteGrid: 10
+      minuteGrid: 10,
+      beforeShow: function(input, inst) {
+        $('#ui-datepicker-div').removeClass('custom-datepicker');
+        $('#ui-datepicker-div').addClass('custom-dateTimePicker');
+      }
+    });
+    $.each(dateInputs,function(key,item){
+      if($(item).data('mindate')){
+        $(item).datepicker( "option", "minDate", $(item).data('mindate'));
+      }
+      if($(item).data('maxdate')){
+        $(item).datepicker( "option", "maxDate", $(item).data('maxdate'));
+      }
+    })
+  }
+
+  if($(document).find('.input-datepicker').length){
+    var dateInputs = $(document).find('.input-datepicker');
+    dateInputs.datepicker({
+      beforeShow: function(input, inst) {
+        $('#ui-datepicker-div').removeClass('custom-dateTimePicker');
+        $('#ui-datepicker-div').addClass('custom-datepicker');
+      }
     });
     $.each(dateInputs,function(key,item){
       if($(item).data('mindate')){

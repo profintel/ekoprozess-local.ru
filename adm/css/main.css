@@ -638,19 +638,19 @@ div.quick_form_input+div{
   border-left: 0;
 }
 
-.ui-datepicker{
+.ui-datepicker.custom-dateTimePicker{
   width: 400px;
 }
-.ui-datepicker table{
+.ui-datepicker.custom-dateTimePicker table{
   width: 50%;
   float: left;
 }
-.ui-datepicker .ui-timepicker-div,
-.ui-datepicker .ui-datepicker-buttonpane{
+.ui-datepicker.custom-dateTimePicker .ui-timepicker-div,
+.ui-datepicker.custom-dateTimePicker .ui-datepicker-buttonpane{
   width: 48%;
   float: right;
 }
-.ui-datepicker dd{
+.ui-datepicker.custom-dateTimePicker dd{
   margin-right: 15px;
 }
 
