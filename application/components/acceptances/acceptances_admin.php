@@ -779,6 +779,8 @@ class Acceptances_admin extends CI_Component {
         'company'       => htmlspecialchars(trim($this->input->post('company'))),
         'add_expenses'  => (float)str_replace(' ', '', $this->input->post('add_expenses')),
         'comment'       => htmlspecialchars(trim($this->input->post('comment'))),
+        'date_num'      => htmlspecialchars(trim($this->input->post('date_num'))),
+        'transport'     => htmlspecialchars(trim($this->input->post('transport'))),
         'auto'          => 0,
       );
 
@@ -790,13 +792,6 @@ class Acceptances_admin extends CI_Component {
       }
       if((int)$this->input->post('client_id') && !$item['store_coming_id']){
         $main_params['client_id'] = (int)$this->input->post('client_id');
-      }
-      //26.11.2016 параметры ТТН и пункт загрузки и Транспорт редактируем в акте и обновляем в приходе
-      if($this->input->post('date_num')){
-        $main_params['date_num'] = htmlspecialchars(trim($this->input->post('date_num')));
-      }
-      if($this->input->post('transport')){
-        $main_params['transport'] = htmlspecialchars(trim($this->input->post('transport')));
       }
 
       $errors = $this->_validate_acceptance($main_params, $item);
@@ -823,16 +818,14 @@ class Acceptances_admin extends CI_Component {
     }
     
     //26.11.2016 параметры ТТН и пункт загрузки и Транспорт редактируем в акте и обновляем в приходе
-    if($this->input->post('date_num') || $this->input->post('transport')){
-      $params_coming = array(
-        'date_num'  => $main_params['date_num'],
-        'transport' => $main_params['transport'],
-      );
-      // обновляем данные в приходе
-      if($item['store_coming_id']){
-        if (!$this->store_model->update_coming($item['store_coming_id'], $params_coming)) {
-          send_answer(array('errors' => array('Ошибка при сохранении изменений в приходе')));
-        }
+    $params_coming = array(
+      'date_num'  => $main_params['date_num'],
+      'transport' => $main_params['transport'],
+    );
+    // обновляем данные в приходе
+    if($item['store_coming_id']){
+      if (!$this->store_model->update_coming($item['store_coming_id'], $params_coming)) {
+        send_answer(array('errors' => array('Ошибка при сохранении изменений в приходе')));
       }
     }
 
