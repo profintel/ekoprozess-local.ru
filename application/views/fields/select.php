@@ -13,7 +13,7 @@ $id = (isset($vars['id']) ?
   <script>
   $(document).ready(function() {
     $('#<?=$id;?>').chosen({
-      disable_search: <?=((isset($vars['disable_search']) && $vars['disable_search']) || count($vars['options']) < 9 ? 'true' : 'false');?>,
+      disable_search: <?=((isset($vars['disable_search']) && $vars['disable_search']) || count($vars['options']) < 5 ? 'true' : 'false');?>,
       auto_width: <?=(isset($vars['auto_width']) && $vars['auto_width'] ? 'true' : 'false');?>,
       allow_single_deselect: <?=(isset($vars['empty']) && $vars['empty'] ? 'true' : 'false');?>
     });
@@ -59,26 +59,41 @@ $id = (isset($vars['id']) ?
 
       <? if (isset($vars['optgroup']) && $vars['optgroup']) { ?>
         <? foreach ($vars['options'] as $optgroup) { ?>
-          <optgroup label="<?=$optgroup[(isset($vars['text_field']) ? $vars['text_field'] : 'title')];?>">
-            <? foreach ($optgroup['childs'] as $option) { ?>
-              <option
-                value="<?=$option[(isset($vars['value_field']) ? $vars['value_field'] : 'id')];?>"
-                <?
-                if (isset($vars['value'])) {
-                  if (is_array($vars['value'])) {
-                    if (in_array($option[(isset($vars['value_field']) ? $vars['value_field'] : 'id')], $vars['value'])) {
-                      echo ' selected';
-                    }
-                  } else {
-                    if ($vars['value'] == $option[(isset($vars['value_field']) ? $vars['value_field'] : 'id')]) {
-                      echo ' selected';
-                    }
+          <option value="<?=$optgroup[(isset($vars['value_field']) ? $vars['value_field'] : 'id')];?>"
+              <?
+              if (isset($vars['value'])) {
+                if (is_array($vars['value'])) {
+                  if (in_array($optgroup[(isset($vars['value_field']) ? $vars['value_field'] : 'id')], $vars['value'])) {
+                    echo ' selected';
+                  }
+                } else {
+                  if ($vars['value'] == $optgroup[(isset($vars['value_field']) ? $vars['value_field'] : 'id')]) {
+                    echo ' selected';
                   }
                 }
-                ?>
-              ><?=$optgroup[(isset($vars['text_field']) ? $vars['text_field'] : 'title')];?>, <?=$option[(isset($vars['text_field']) ? $vars['text_field'] : 'title')];?></option>
-            <? } ?>
-          </optgroup>
+              }
+              ?>>
+            <strong><?=$optgroup[(isset($vars['text_field']) ? $vars['text_field'] : 'title')];?></strong>
+          </option>
+            
+          <? foreach ($optgroup['childs'] as $option) { ?>
+            <option class="p-l-lg"
+              value="<?=$option[(isset($vars['value_field']) ? $vars['value_field'] : 'id')];?>"
+              <?
+              if (isset($vars['value'])) {
+                if (is_array($vars['value'])) {
+                  if (in_array($option[(isset($vars['value_field']) ? $vars['value_field'] : 'id')], $vars['value'])) {
+                    echo ' selected';
+                  }
+                } else {
+                  if ($vars['value'] == $option[(isset($vars['value_field']) ? $vars['value_field'] : 'id')]) {
+                    echo ' selected';
+                  }
+                }
+              }
+              ?>
+            ><?=$optgroup[(isset($vars['text_field']) ? $vars['text_field'] : 'title')];?>, <?=$option[(isset($vars['text_field']) ? $vars['text_field'] : 'title')];?></option>
+          <? } ?>
         <? } ?>
       <? } else { ?>
         <? foreach ($vars['options'] as $option) { ?>
