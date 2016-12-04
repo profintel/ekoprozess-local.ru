@@ -663,13 +663,78 @@ class Gallery_admin extends CI_Component {
     
     send_answer();
   }
+
+  /*
+  * Возвращает шаблон Замена файла
+  */
+  function replace_file($image_id){
+    $image = $this->gallery_model->get_gallery_image(array('gallery_images.id' => (int)$image_id));
+    if(!$image){
+      send_answer(array('errors'=>array('Не найден файл')));
+    }
+    
+      // форма для замены файла с помощью модального окна
+    echo $this->view->render_form(array(
+        'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'_replace_file_process/'.$image_id.'/',
+        'blocks' => array(
+          array(
+            'title'  => 'Замена файла',
+            'fields' => array(
+              array(
+                'view'  => 'fields/file',
+                'title' => 'Файл:',
+                'name'  => 'file',
+                'req'   => true
+              ),
+              array(
+                'view'     => 'fields/submit',
+                'title'    => 'Загрузить',
+                'type'     => 'ajax',
+                'reaction' => 'reload'
+              )
+            )
+          )
+        )
+      ));
+  }
+
+  /*
+  * Замена файла
+  */
+  function _replace_file_process($image_id){
+    $image = $this->gallery_model->get_gallery_image(array('gallery_images.id' => (int)$image_id));
+    if(!$image){
+      send_answer(array('errors'=>array('Не найден файл')));
+    }
+    if ($_FILES['file']['name']) {
+      $this->gallery_model->delete_image_files(array('id' => $image_id));
+      
+      $file = upload_file($_FILES['file'],false);
+      if (!$file) {
+        send_answer(array('errors' => array('Ошибка при загрузке файла')));
+      }
+
+      $params = array(
+        'image' => $file
+      );
+
+      if(!$this->gallery_model->edit_gallery_image($image_id,$params)){
+        @unlink($_SERVER['DOCUMENT_ROOT'] . $file);
+        send_answer(array('errors' => array('Ошибка при сохранении в базу')));
+      }
+      
+    } else {
+      send_answer(array('errors'=>array('Загрузите файл')));
+    }
+    send_answer();
+  }
   
   /**
   * Редактирование изображения
   **/
   function edit_image($id) {
     $languages = $this->languages_model->get_languages(1, 0);
-    $item =  $this->gallery_model->get_gallery_image(array('gallery_images.id' => $id));
+    $item =  $this->gallery_model->get_gallery_image(array('gallery_images.id' => (int)$id));
     $pages = $this->db->get('pr_pages')->result_array();
     if ($pages) {
       foreach ($pages as &$page) {

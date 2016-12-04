@@ -4,7 +4,10 @@
   </a>
   <ul class="dropdown-menu">
     <li>
-      <a href="<?=$item['image'];?>" title="Скачать" target="_blance" ><span class="glyphicon glyphicon-download-alt"></span> Скачать</a>
+      <a href="<?=$item['image'];?>" title="Скачать" download target="_blance" ><span class="glyphicon glyphicon-download-alt"></span> Скачать</a>
+    </li>
+    <li>
+      <a href="/admin/gallery/replace_file/<?=$item['id'];?>/" data-toggle="modal" data-target="#modal" title="Заменить" target="_blance" ><span class="glyphicon glyphicon-retweet"></span> Заменить</a>
     </li>
     <li class="divider"></li>
     <li><a href="#"

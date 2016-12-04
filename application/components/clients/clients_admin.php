@@ -962,10 +962,10 @@ class Clients_admin extends CI_Component {
             )
           ),
           array(
-            'title'         => 'Документы',
-            'col'           => 2,
-            'small'         => true,
-            'fields'        => array(
+            'title'   => 'Документы',
+            'col'     => 2,
+            'small'   => true,
+            'fields'  => array(
               array(
                 'view'      => 'fields/file',
                 'title'     => '',
@@ -1010,7 +1010,7 @@ class Clients_admin extends CI_Component {
     //то проверяем на доступ к прикреплению других менеджеров
     if($params['admin_id'] != $this->admin_id && !$this->permits_model->check_access($this->admin_id, $this->component['name'], $method = 'checkCreateCardOtherClients')){
       send_answer(array('errors' => array('У вас нет прав на прикрепление клиентам других менеджеров')));
-    }    
+    }
     $params['title_full'] = $params['title'].', '.$city['title_full'];
 
     $languages = $this->languages_model->get_languages(1, 0);
