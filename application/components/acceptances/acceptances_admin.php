@@ -176,11 +176,6 @@ class Acceptances_admin extends CI_Component {
   */
   function permit_acceptance_allClients(){}
 
-  function _render_client_acceptance_table($data){
-    $data = unserialize(base64_decode($data));
-    return $this->load->view('../../application/components/acceptances/templates/admin_client_acceptance_tbl',$data,true);
-  }
-
   /**
   *  Просмотр акта приемки по своим клиентам
   */
@@ -195,9 +190,40 @@ class Acceptances_admin extends CI_Component {
       show_error('У вас нет прав на просмотр актов приемки для клиентов других менеджеров');
     }
 
+    // доп. кнопки в шапке
+    $block_title_btns = array(
+      $this->load->view('fields/submit', 
+          array('vars' => array(
+            'title'   => 'Редактировать акт',
+            'class'   => 'pull-left btn-primary m-r',
+            'icon'    => 'glyphicon-edit',
+            'href'    =>  '/admin/acceptances/edit_acceptance/'.$item['id'].'/'
+          )), true),
+      $this->load->view('fields/submit', 
+          array('vars' => array(
+            'title'   => 'Отправить акт по email',
+            'class'   => 'pull-left btn-primary m-r',
+            'icon'    => 'glyphicon-envelope',
+            'href'    =>  '/admin/acceptances/client_acceptance_email/'.$item['id'].'/'
+          )), true)
+    );
+
+    if($item['client_id']){
+      $block_title_btns = array_merge($block_title_btns, array(
+        $this->load->view('fields/submit', 
+          array('vars' => array(
+            'title'   => 'Карточка клиента',
+            'class'   => 'pull-left btn-primary m-r',
+            'icon'    => 'glyphicon-list-alt',
+            'href'    =>  '/admin/clients/edit_client/'.$item['client_id'].'/'
+          )), true)
+      ));
+    }
+
     $data = array(
       'title' => 'Акт приемки',
-      'html'  => $this->load->view('../../application/components/acceptances/templates/admin_client_acceptance',array('item' => $item),TRUE),
+      'block_title_btn' => $block_title_btns,
+      'html'  => $this->load->view('../../application/components/acceptances/templates/admin_client_acceptance_tbl',array('item' => $item),TRUE),
       'back'  => $this->lang_prefix .'/admin'. $this->params['path']
     );
     return $this->render_template('admin/inner', $data);
@@ -717,8 +743,33 @@ class Acceptances_admin extends CI_Component {
         }
       }
     }
+
+    // доп. кнопки в шапке
+    $block_title_btns = array(
+      $this->load->view('fields/submit', 
+          array('vars' => array(
+            'title'   => 'Отправить акт по email',
+            'class'   => 'pull-left btn-primary m-r',
+            'icon'    => 'glyphicon-envelope',
+            'href'    =>  '/admin/acceptances/client_acceptance_email/'.$item['id'].'/'
+          )), true)
+    );
+
+    if($item['client_id']){
+      $block_title_btns = array_merge($block_title_btns, array(
+        $this->load->view('fields/submit', 
+          array('vars' => array(
+            'title'   => 'Карточка клиента',
+            'class'   => 'pull-left btn-primary m-r',
+            'icon'    => 'glyphicon-list-alt',
+            'href'    =>  '/admin/clients/edit_client/'.$item['client_id'].'/'
+          )), true)
+      ));
+    }
+
     return $this->render_template('admin/inner', array(
       'title' => 'Карточка акта приемки <small>(ID '.$item['id'].')</small>',
+      'block_title_btn' => $block_title_btns,
       'html' => $this->view->render_form(array(
         'view'   => 'forms/default',
         'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'_edit_acceptance_process/'.$id.'/',
@@ -959,12 +1010,34 @@ class Acceptances_admin extends CI_Component {
       show_error('У вас нет прав на работу с актами приемки для клиентов других менеджеров');
     }
 
+    // доп. кнопки в шапке
+    $block_title_btns = array(
+      $this->load->view('fields/submit', 
+          array('vars' => array(
+            'title'   => 'Редактировать акт',
+            'class'   => 'pull-left btn-primary m-r',
+            'icon'    => 'glyphicon-edit',
+            'href'    =>  '/admin/acceptances/edit_acceptance/'.$item['id'].'/'
+          )), true)
+    );
+
     if($item['client_id']){
       $item['email'] = $item['client']['email'];
+      
+      $block_title_btns = array_merge($block_title_btns, array(
+        $this->load->view('fields/submit', 
+          array('vars' => array(
+            'title'   => 'Карточка клиента',
+            'class'   => 'pull-left btn-primary m-r',
+            'icon'    => 'glyphicon-list-alt',
+            'href'    =>  '/admin/clients/edit_client/'.$item['client_id'].'/'
+          )), true)
+      ));
     }
 
     return $this->render_template('templates/admin_client_acceptance_email', array(
-      'title' => 'Акт приемки',
+      'title'           => 'Акт приемки',
+      'block_title_btn' => $block_title_btns,
       'html'  => $this->view->render_fields(array(
         array(
           'view'        => 'fields/readonly',

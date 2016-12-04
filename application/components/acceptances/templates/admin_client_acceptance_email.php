@@ -1,8 +1,23 @@
 <div class="container-fluid padding_0">
-  <div class="block-title">
-    <h1><span class="glyphicon <?=($_component['icon']?$_component['icon']:'glyphicon-ok');?>"></span>
-      <?=(@$title ? $title : $_component['title']);?>
-    </h1>
+  <div class="block-title row">
+    <div class="<?=(isset($block_title_btn) && $block_title_btn ? 'col-sm-6' : 'col-xs-12');?>">
+      <h1><span class="glyphicon <?=($this->component['icon']?$this->component['icon']:'glyphicon-ok');?>"></span>
+        <?=(@$title ? $title : $this->component['title']);?>
+      </h1>
+      <p class="visible-xs-block">&nbsp;</p>
+    </div>
+    <? if (isset($block_title_btn) && $block_title_btn) { ?>
+      <div class="col-sm-6 text-right">
+          <? if (!is_array($block_title_btn)) { ?>
+            <?$block_title_btn = array($block_title_btn);?>
+          <? } ?>
+          <div class="btn-group">
+            <? foreach ($block_title_btn as $key => $btn) { ?>
+              <?=$btn;?>
+            <? } ?>
+          </div>
+      </div>
+    <? } ?>
   </div>
 </div>
 <div class="container-fluid">

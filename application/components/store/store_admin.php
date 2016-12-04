@@ -837,9 +837,23 @@ class Store_admin extends CI_Component {
         'onclick' => 'window.open("/admin/acceptances/edit_acceptance/'.$item['acceptance']['id'].'/","_acceptance_'.$item['acceptance']['id'].'")'
       );
     }
-
+    
+    // доп. кнопки в шапке
+    $block_title_btns = array();
+    if($item['client_id']){      
+      $block_title_btns = array_merge($block_title_btns, array(
+        $this->load->view('fields/submit', 
+          array('vars' => array(
+            'title'   => 'Карточка клиента',
+            'class'   => 'pull-left btn-primary m-r',
+            'icon'    => 'glyphicon-list-alt',
+            'href'    =>  '/admin/clients/edit_client/'.$item['client_id'].'/'
+          )), true)
+      ));
+    }
     return $this->render_template('admin/inner', array(
-      'title' => 'Склад: '.$type['title'].'. Редактирование прихода',
+      'title'           => 'Склад: '.$type['title'].'. Редактирование прихода',
+      'block_title_btn' => $block_title_btns,
       'html'  => $this->view->render_form(array(
         'view'   => 'forms/default',
         'action' => $this->lang_prefix.'/admin'. $this->params['path'] .'_edit_coming_process/'.$id.'/',
@@ -1702,9 +1716,24 @@ class Store_admin extends CI_Component {
         )
       );      
     }
+    
+    // доп. кнопки в шапке
+    $block_title_btns = array();
+    if($item['client_id']){      
+      $block_title_btns = array_merge($block_title_btns, array(
+        $this->load->view('fields/submit', 
+          array('vars' => array(
+            'title'   => 'Карточка клиента',
+            'class'   => 'pull-left btn-primary m-r',
+            'icon'    => 'glyphicon-list-alt',
+            'href'    =>  '/admin/clients/edit_client/'.$item['client_id'].'/'
+          )), true)
+      ));
+    }
 
     return $this->render_template('admin/inner', array(
-      'title' => 'Склад: '.$type['title'].'. Редактирование расхода',
+      'title'           => 'Склад: '.$type['title'].'. Редактирование расхода',
+      'block_title_btn' => $block_title_btns,
       'html' => $this->view->render_form(array(
         'view'   => 'forms/default',
         'action' => $this->lang_prefix.'/admin'. $this->params['path'] .'_edit_expenditure_process/'.$id.'/',

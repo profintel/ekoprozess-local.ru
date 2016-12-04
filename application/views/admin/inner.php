@@ -1,15 +1,22 @@
 <div class="block-title row hidden-print">
-  <div class="col-sm-9">
+  <div class="<?=(isset($block_title_btn) && $block_title_btn ? 'col-sm-6' : 'col-xs-12');?>">
     <h1><span class="glyphicon <?=($this->component['icon']?$this->component['icon']:'glyphicon-ok');?>"></span>
       <?=(@$data['title'] ? $data['title'] : $this->component['title']);?>
     </h1>
     <p class="visible-xs-block">&nbsp;</p>
   </div>
-  <div class="col-sm-3 text-right">
-    <? if (isset($block_title_btn) && $block_title_btn) { ?>
-      <?=$block_title_btn;?>
-    <? } ?>
-  </div>
+  <? if (isset($block_title_btn) && $block_title_btn) { ?>
+    <div class="col-sm-6 text-right">
+        <? if (!is_array($block_title_btn)) { ?>
+          <?$block_title_btn = array($block_title_btn);?>
+        <? } ?>
+        <div class="btn-group">
+          <? foreach ($block_title_btn as $key => $btn) { ?>
+            <?=$btn;?>
+          <? } ?>
+        </div>
+    </div>
+  <? } ?>
 </div>
 
 <div class="container-fluid">
