@@ -1,6 +1,6 @@
 <div class="clearfix form_cols" id="accordion">
   <form
-    class="form-horizontal "
+    class="form-horizontal <?=(isset($vars['class']) ? $vars['class'] : '');?>"
     action="<?=$vars['action'];?>"
     method="<?=$vars['method'];?>"
     target="<?=$vars['target'];?>"

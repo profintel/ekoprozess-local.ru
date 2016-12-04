@@ -965,6 +965,7 @@ class Clients_admin extends CI_Component {
             'title'   => 'Документы',
             'col'     => 2,
             'small'   => true,
+            'class'   => 'block_docs',
             'fields'  => array(
               array(
                 'view'      => 'fields/file',

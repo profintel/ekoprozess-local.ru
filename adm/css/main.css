@@ -519,6 +519,9 @@ div.quick_form_input+div{
   overflow: hidden;
   max-height: 250px;
 }
+.block_docs .panel-body__fields.panel-body_sm{
+  min-height: 200px;
+}
 .form_cols .panel-body__fields_more{
   padding: 10px 15px 5px 15px;
   height: 40px;
@@ -545,6 +548,9 @@ div.quick_form_input+div{
 .form_cols .panel-heading{
   position: relative;
   padding: 15px;
+}
+.form_cols .panel-heading h4{
+  margin: 0;
 }
 .form_cols .panel-heading .btn{
   margin-top: 7px;
