@@ -426,7 +426,7 @@ class Acceptances_admin extends CI_Component {
       'fields'   => array(
         array(
           'view'     => 'fields/text',
-          'title'    => 'Стоимость поставки:',
+          'title'    => 'Дополнительные расходы:',
           'name'     => 'add_expenses',
           'class'    => 'add_expenses number',
           'onkeyup'  => 'updateAcceptanceSumProduct()',
@@ -652,7 +652,7 @@ class Acceptances_admin extends CI_Component {
       'fields'   => array(
         array(
           'view'     => 'fields/text',
-          'title'    => 'Стоимость поставки:',
+          'title'    => 'Дополнительные расходы:',
           'name'     => 'add_expenses',
           'value'    => $item['add_expenses'],
           'class'    => 'add_expenses number',

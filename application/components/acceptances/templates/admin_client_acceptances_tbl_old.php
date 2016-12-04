@@ -8,7 +8,7 @@
           <div class="col-xs-2">Брутто, кг</div>
           <div class="col-xs-2">Нетто, кг</div>
           <div class="col-xs-2">Стоимость, руб.</div>
-          <div class="col-xs-2">Стоимость поставки, руб.</div>
+          <div class="col-xs-2">Дополнительные расходы, руб.</div>
           <div class="col-xs-1">ИТОГО</div>
         </li>
         <?$all_gross = $all_net = $all_price = $all_add_expenses = $all_sum = 0; ?>

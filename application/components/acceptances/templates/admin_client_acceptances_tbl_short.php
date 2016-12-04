@@ -14,7 +14,7 @@
         <th>Брутто, кг</th>
         <th>Нетто, кг</th>
         <th>Стоимость, руб.</th>
-        <th>Стоимость поставки, руб.</th>
+        <th>Дополнительные расходы, руб.</th>
         <th>ИТОГО</th>
       </tr>
       <?$all_gross = $all_net = $all_price = $all_add_expenses = $all_sum = 0; ?>

@@ -66,7 +66,7 @@
     <?}?>
     <? if ($item['add_expenses']) {?>
     <tr>
-      <td align="left" colspan="8">Стоимость поставки</td>
+      <td align="left" colspan="8">Дополнительные расходы</td>
       <td colspan="" align="center"><?=$item['add_expenses'];?></td>
     </tr>
     <?}?>

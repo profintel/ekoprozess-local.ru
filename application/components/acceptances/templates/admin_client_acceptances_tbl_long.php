@@ -23,7 +23,8 @@
           <th>Вид вторсырья</th>
           <th>Цена, руб.</th>
           <th>Стоимость, руб.</th>
-          <th>Стоимость поставки, руб.</th>
+          <th>Дополнительные расходы, руб.</th>
+          <th>Итого, руб.</th>
           <th>Примечания</th>
         </tr>
         <?$all_gross = $all_net = $all_price = $all_add_expenses = $all_sum = 0; ?>
@@ -97,9 +98,13 @@
               <span class="text-nowrap"><?=number_format($item['add_expenses'],2,'.',' ');?></span>
             </td>
             <td rowspan="<?=count($item['childs']);?>">
+              <span class="text-nowrap"><?=number_format($item['sum'],2,'.',' ');?></span>
+            </td>
+            <td rowspan="<?=count($item['childs']);?>">
               <?=$item['comment'];?>
             </td>
           </tr>
+          <?//убираем 1 элемент, т.к. вставили его уже выше?>
           <?array_shift($item['childs']);?>
           <?foreach ($item['childs'] as $key => $child) {?>
             <tr class="<?=($item['auto'] ? 'info' : '');?>">
@@ -141,16 +146,17 @@
           <th></th>
           <th></th>
           <th></th>
-          <th>
-            <span class="text-nowrap"><?=number_format($all_price,2,'.',' ');?></span>
-          </th>
+          <th></th>
           <th>
             <span class="text-nowrap"><?=number_format($all_add_expenses,2,'.',' ');?></span>
+          </th>
+          <th>
+            <span class="text-nowrap"><?=number_format($all_price,2,'.',' ');?></span>
           </th>
           <th></th>
         </tr>
         <tr>
-          <td colspan="8" class="text-right"><span class="h4">ИТОГО</span></td>
+          <td colspan="9" class="text-right"><span class="h4">ИТОГО</span></td>
           <td colspan="2" class="text-center">
             <span class="h4"><?=number_format($all_sum,2,'.',' ');?></span>
           </td>
