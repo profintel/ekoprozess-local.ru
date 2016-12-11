@@ -64,6 +64,8 @@ class Store_model extends CI_Model {
         $product_id = array($product_id);
       }
       $this->db->join('store_comings t2','t2.parent_id = store_comings.id');
+      // join-им чтобы вывести отчет по группе продукции
+      $this->db->join('products t3','t3.id = t2.product_id');
       $product_where = '';
       if ($where) {
         $product_where .= '(';
@@ -72,7 +74,7 @@ class Store_model extends CI_Model {
         if($key != 0){
           $product_where .= ' OR ';
         }
-        $product_where .= 't2.product_id = '.$value;
+        $product_where .= 't3.id = '.$value.' OR t3.parent_id = '.$value;
       }
       if ($where) {
         $product_where .= ')';
@@ -107,21 +109,29 @@ class Store_model extends CI_Model {
       $item['acceptance'] = $this->acceptances_model->get_acceptance(array('store_coming_id'=>$item['id']));
       //считаем общие параметры
       if(is_null($item['parent_id'])){
-        $where = 'parent_id = '.$item['id'];
-        if ($product_id) {
+        $this->db->select('store_comings.*,t2.title_full as product_title');
+        // join-им чтобы вывести название товара и отчет по группе продукции
+        $this->db->join('products t2','t2.id = store_comings.product_id');
+        // Делаем запрос на дочерние акты, для отображения видов сырья в акте
+        $where = 'store_comings.parent_id = '.$item['id'];
+        if ($product_id) {          
           $where .= ' AND (';
           foreach ($product_id as $key => $value) {
             if($key != 0){
               $where .= ' OR ';
             }
-            $where .= 'pr_store_comings.product_id = '.$value;
+            $where .= 't2.id = '.$value.' OR t2.parent_id = '.$value;
           }
           $where .= ')';
         }
-        $item['childs'] = $this->get_comings(0,0,$where,array('order'=>'asc','id'=>'asc'));
+        $this->db->where($where);
+        $this->db->order_by('store_comings.order','asc');
+        $this->db->order_by('store_comings.id','asc');
+        $item['childs'] = $this->db->get('store_comings')->result_array();
+
+
         $item['gross'] = $item['net'] = $item['price'] = $item['sum'] = 0;
         foreach ($item['childs'] as $key => &$child) {
-          $child['product'] = $this->products_model->get_product(array('id' => $child['product_id']));
           $item['gross'] += $child['gross'];
           $item['net'] += $child['net'];
         }
@@ -150,6 +160,8 @@ class Store_model extends CI_Model {
         $product_id = array($product_id);
       }
       $this->db->join('store_comings t2','t2.parent_id = store_comings.id');
+      // join-им чтобы вывести отчет по группе продукции
+      $this->db->join('products t3','t3.id = t2.product_id');
       $product_where = '';
       if ($where) {
         $product_where .= '(';
@@ -158,7 +170,7 @@ class Store_model extends CI_Model {
         if($key != 0){
           $product_where .= ' OR ';
         }
-        $product_where .= 't2.product_id = '.$value;
+        $product_where .= 't3.id = '.$value.' OR t3.parent_id = '.$value;
       }
       if ($where) {
         $product_where .= ')';
@@ -189,6 +201,8 @@ class Store_model extends CI_Model {
       if(!is_array($product_id)){
         $product_id = array($product_id);
       }
+      // join-им чтобы вывести отчет по группе продукции
+      $this->db->join('products t3','t3.id = t2.product_id');
       $product_where = '';
       if ($where) {
         $product_where .= '(';
@@ -197,7 +211,7 @@ class Store_model extends CI_Model {
         if($key != 0){
           $product_where .= ' OR ';
         }
-        $product_where .= 't2.product_id = '.$value;
+        $product_where .= 't3.id = '.$value.' OR t3.parent_id = '.$value;
       }
       if ($where) {
         $product_where .= ')';
@@ -297,8 +311,16 @@ class Store_model extends CI_Model {
   * Подсчитывает остаток сырья на складе
   * @param params - тип склада, вид вторсырья, ...
   */
-  function calculate_rest($params) {
+  function calculate_rest($params, $product_id = false) {
     $this->db->select('(SUM(coming)-SUM(expenditure)) as sum');
+    if($product_id){
+      if(!is_array($product_id)){
+        $product_id = array($product_id);
+      }
+      // join-им чтобы вывести отчет по группе продукции
+      $this->db->join('products','pr_products.id = store_movement_products.product_id');
+      $this->db->where('(pr_products.id IN ('.implode(',', $product_id).') OR pr_products.parent_id IN ('.implode(',', $product_id).'))');
+    }
     $this->db->where($params);
     $this->db->order_by('date');
     return $this->db->get('store_movement_products')->row()->sum;
@@ -308,8 +330,16 @@ class Store_model extends CI_Model {
   * Подсчитывает приход сырья на складе
   * @param params - тип склада, вид вторсырья, ...
   */
-  function calculate_coming($params) {
+  function calculate_coming($params, $product_id = false) {
     $this->db->select('SUM(coming) as sum');
+    if($product_id){
+      if(!is_array($product_id)){
+        $product_id = array($product_id);
+      }
+      // join-им чтобы вывести отчет по группе продукции
+      $this->db->join('products','pr_products.id = store_movement_products.product_id');
+      $this->db->where('(pr_products.id IN ('.implode(',', $product_id).') OR pr_products.parent_id IN ('.implode(',', $product_id).'))');
+    }
     $this->db->where($params);
     return $this->db->get('store_movement_products')->row()->sum;
   }
@@ -318,8 +348,16 @@ class Store_model extends CI_Model {
   * Подсчитывает расход сырья на складе
   * @param params - тип склада, вид вторсырья, ...
   */
-  function calculate_expenditure($params) {
+  function calculate_expenditure($params, $product_id = false) {
     $this->db->select('SUM(expenditure) as sum');
+    if($product_id){
+      if(!is_array($product_id)){
+        $product_id = array($product_id);
+      }
+      // join-им чтобы вывести отчет по группе продукции
+      $this->db->join('products','pr_products.id = store_movement_products.product_id');
+      $this->db->where('(pr_products.id IN ('.implode(',', $product_id).') OR pr_products.parent_id IN ('.implode(',', $product_id).'))');
+    }
     $this->db->where($params);
     return $this->db->get('store_movement_products')->row()->sum;
   }
@@ -328,9 +366,17 @@ class Store_model extends CI_Model {
   * Выводит последний подсчитанный остаток сырья на складе
   * @param params - тип склада, вид вторсырья, ...
   */
-  function get_rest($params = array()) {
+  function get_rest($params = array(), $product_id = false) {
     $this->db->select('date, rest, rest_product, rest_all');
     $this->db->select("DATE_FORMAT(date,'%Y-%m-%d') as date_new", false);
+    if($product_id){
+      if(!is_array($product_id)){
+        $product_id = array($product_id);
+      }
+      // join-им чтобы вывести отчет по группе продукции
+      $this->db->join('products','pr_products.id = store_movement_products.product_id');
+      $this->db->where('(pr_products.id IN ('.implode(',', $product_id).') OR pr_products.parent_id IN ('.implode(',', $product_id).'))');
+    }
     if($params){
       $this->db->where($params);
     }
@@ -344,7 +390,7 @@ class Store_model extends CI_Model {
   * Формирует отет движения товара на складе
   * @param params - тип склада, клиент, вид вторсырья, ...
   */
-  function get_rests($limit = 0, $offset = 0, $where = array(), $order_by = array()) {   
+  function get_rests($limit = 0, $offset = 0, $where = array(), $order_by = array(), $product_id = false) {   
     if ($limit) {
       $this->db->limit($limit, $offset);
     }
@@ -353,6 +399,14 @@ class Store_model extends CI_Model {
     $this->db->order_by("date_new",'asc');
     $this->db->order_by('order','asc');
     
+    if($product_id){
+      if(!is_array($product_id)){
+        $product_id = array($product_id);
+      }
+      // join-им чтобы вывести отчет по группе продукции
+      $this->db->join('products','pr_products.id = store_movement_products.product_id');
+      $this->db->where('(pr_products.id IN ('.implode(',', $product_id).') OR pr_products.parent_id IN ('.implode(',', $product_id).'))');
+    }
     if ($where) {
       $this->db->where($where);
     }
@@ -371,7 +425,15 @@ class Store_model extends CI_Model {
     return $items;
   }
   
-  function get_rests_cnt($where = '') {
+  function get_rests_cnt($where = '', $product_id = false) {
+    if($product_id){
+      if(!is_array($product_id)){
+        $product_id = array($product_id);
+      }
+      // join-им чтобы вывести отчет по группе продукции
+      $this->db->join('products','pr_products.id = store_movement_products.product_id');
+      $this->db->where('(pr_products.id IN ('.implode(',', $product_id).') OR pr_products.parent_id IN ('.implode(',', $product_id).'))');
+    }
     if ($where) {
       $this->db->where($where);
     }

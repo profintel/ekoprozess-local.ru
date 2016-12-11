@@ -10,9 +10,7 @@ class Acceptances_admin extends CI_Component {
     $this->load->model('store/models/store_model');
   }
   
-  /**
-  *  Просмотр списка актов приемки по своим клиентам
-  *
+  /** Просмотр списка актов приемки по своим клиентам
   */
   function index($render_table = false) {
     $product_id = $this->uri->getParam('product_id');
@@ -82,7 +80,7 @@ class Acceptances_admin extends CI_Component {
                 'name'     => 'product_id[]',
                 'multiple' => true,
                 'empty'    => true,
-                'optgroup' => true,
+                'optgroup' => false,
                 'options'  => $this->products_model->get_products(array('parent_id' => null)),
                 'value'    => $get_params['product_id'],
                 'onchange' => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
@@ -194,15 +192,22 @@ class Acceptances_admin extends CI_Component {
     $block_title_btns = array(
       $this->load->view('fields/submit', 
           array('vars' => array(
+            'title'   => 'Печать',
+            'class'   => 'pull-left btn-primary m-r m-b',
+            'icon'    => 'glyphicon-print',
+            'onclick' =>  'window.print();'
+          )), true),
+      $this->load->view('fields/submit', 
+          array('vars' => array(
             'title'   => 'Редактировать акт',
-            'class'   => 'pull-left btn-primary m-r',
+            'class'   => 'pull-left btn-primary m-r m-b',
             'icon'    => 'glyphicon-edit',
             'href'    =>  '/admin/acceptances/edit_acceptance/'.$item['id'].'/'
           )), true),
       $this->load->view('fields/submit', 
           array('vars' => array(
             'title'   => 'Отправить акт по email',
-            'class'   => 'pull-left btn-primary m-r',
+            'class'   => 'pull-left btn-primary m-r m-b',
             'icon'    => 'glyphicon-envelope',
             'href'    =>  '/admin/acceptances/client_acceptance_email/'.$item['id'].'/'
           )), true)
@@ -748,6 +753,13 @@ class Acceptances_admin extends CI_Component {
     $block_title_btns = array(
       $this->load->view('fields/submit', 
           array('vars' => array(
+            'title'   => 'Просмотреть акт',
+            'class'   => 'pull-left btn-primary m-r',
+            'icon'    => 'glyphicon-share',
+            'href'    =>  '/admin/acceptances/acceptance/'.$item['id'].'/'
+          )), true),
+      $this->load->view('fields/submit', 
+          array('vars' => array(
             'title'   => 'Отправить акт по email',
             'class'   => 'pull-left btn-primary m-r',
             'icon'    => 'glyphicon-envelope',
@@ -1012,6 +1024,13 @@ class Acceptances_admin extends CI_Component {
 
     // доп. кнопки в шапке
     $block_title_btns = array(
+      $this->load->view('fields/submit', 
+          array('vars' => array(
+            'title'   => 'Просмотреть акт',
+            'class'   => 'pull-left btn-primary m-r',
+            'icon'    => 'glyphicon-share',
+            'href'    =>  '/admin/acceptances/acceptance/'.$item['id'].'/'
+          )), true),
       $this->load->view('fields/submit', 
           array('vars' => array(
             'title'   => 'Редактировать акт',

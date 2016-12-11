@@ -23,7 +23,7 @@
           <th>Вид вторсырья</th>
           <th>Цена, руб.</th>
           <th>Стоимость, руб.</th>
-          <th>Дополнительные расходы, руб.</th>
+          <th>Доп. расходы, руб.</th>
           <th>Итого, руб.</th>
           <th>Примечания</th>
         </tr>
@@ -87,7 +87,7 @@
             <td>
               <span class="text-nowrap"><?=number_format(@$item['childs'][0]['weight_defect'],2,'.',' ');?></span>
             </td>
-            <td><?=@$item['childs'][0]['product']['title_full'];?></td>
+            <td><?=@$item['childs'][0]['product_title'];?></td>
             <td>
               <span class="text-nowrap"><?=number_format(@$item['childs'][0]['price'],2,'.',' ');?></span>
             </td>
@@ -117,7 +117,7 @@
               <td>
                 <span class="text-nowrap"><?=number_format($child['weight_defect'],2,'.',' ');?></span>
               </td>
-              <td><?=$child['product']['title_full'];?></td>
+              <td><?=$child['product_title'];?></td>
               <td>
                 <span class="text-nowrap"><?=number_format($child['price'],2,'.',' ');?></span>
               </td>
@@ -148,10 +148,10 @@
           <th></th>
           <th></th>
           <th>
-            <span class="text-nowrap"><?=number_format($all_add_expenses,2,'.',' ');?></span>
+            <span class="text-nowrap h5"><?=number_format($all_add_expenses,2,'.',' ');?></span>
           </th>
           <th>
-            <span class="text-nowrap"><?=number_format($all_price,2,'.',' ');?></span>
+            <span class="text-nowrap h5"><?=number_format($all_price,2,'.',' ');?></span>
           </th>
           <th></th>
         </tr>

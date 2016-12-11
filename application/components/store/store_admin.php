@@ -176,7 +176,7 @@ class Store_admin extends CI_Component {
                 'name'     => 'product_id[]',
                 'multiple' => true,
                 'empty'    => true,
-                'optgroup' => true,
+                'optgroup' => false,
                 'options'  => $this->products_model->get_products(array('parent_id' => null)),
                 'value'    => $get_params['product_id'],
                 'onchange' => "submit_form(this, handle_ajaxResultAllData);",
@@ -2007,7 +2007,7 @@ class Store_admin extends CI_Component {
                 'name'     => 'product_id[]',
                 'multiple' => true,
                 'empty'    => true,
-                'optgroup' => true,
+                'optgroup' => false,
                 'options'  => $this->products_model->get_products(array('parent_id' => null)),
                 'value'    => $get_params['product_id'],
                 'onchange' => "submit_form(this, handle_ajaxResultAllData);",
@@ -2061,9 +2061,6 @@ class Store_admin extends CI_Component {
       if($get_params['store_workshop_id']){
         $where .= ($where ? ' AND ' : '').'pr_store_movement_products.store_workshop_id = '. $get_params['store_workshop_id'];
       }
-      if($get_params['product_id']){
-        $where .= ($where ? ' AND ' : '').'pr_store_movement_products.product_id IN ('.implode(',', $get_params['product_id']).')';
-      }
       if(!$get_params['zero']){
         $where .= ($where ? ' AND ' : '').'pr_store_movement_products.rest > 0';
       }
@@ -2087,19 +2084,15 @@ class Store_admin extends CI_Component {
           $where_start .= ($where_start ? ' AND ' : '').'pr_store_movement_products.store_workshop_id = '. $get_params['store_workshop_id'];
           $where_end .= ($where_end ? ' AND ' : '').'pr_store_movement_products.store_workshop_id = '. $get_params['store_workshop_id'];
         }
-        if($get_params['product_id']){
-          $where_start .= ($where_start ? ' AND ' : '').'pr_store_movement_products.product_id IN ('.implode(',', $get_params['product_id']).')';
-          $where_end .= ($where_end ? ' AND ' : '').'pr_store_movement_products.product_id IN ('.implode(',', $get_params['product_id']).')';
-        }
-        $rest_start = $this->store_model->calculate_rest($where_start);
-        $rest_end = $this->store_model->calculate_rest($where_end);
+        $rest_start = $this->store_model->calculate_rest($where_start, $get_params['product_id']);
+        $rest_end = $this->store_model->calculate_rest($where_end, $get_params['product_id']);
       }
 
       $rest = array(
         'start'       => $rest_start,
         'end'         => $rest_end,
-        'coming'      => $this->store_model->calculate_coming($where),
-        'expenditure' => $this->store_model->calculate_expenditure($where),
+        'coming'      => $this->store_model->calculate_coming($where, $get_params['product_id']),
+        'expenditure' => $this->store_model->calculate_expenditure($where, $get_params['product_id']),
       );
 
       // Если нужно отобразить движение товара
@@ -2107,8 +2100,8 @@ class Store_admin extends CI_Component {
         $page = ($this->uri->getParam('page') ? $this->uri->getParam('page') : 1);
         $limit = 50;
         $offset = $limit * ($page - 1);
-        $cnt = $this->store_model->get_rests_cnt($where);
-        $items = $this->store_model->get_rests($limit, $offset, $where);
+        $cnt = $this->store_model->get_rests_cnt($where, $get_params['product_id']);
+        $items = $this->store_model->get_rests($limit, $offset, $where, false, $get_params['product_id']);
         
         $pages = get_pages($page, $cnt, $limit);
         $postfix = '&';

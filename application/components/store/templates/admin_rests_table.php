@@ -21,7 +21,7 @@
       <h5>Вторсырье: 
         <? foreach ($products as $key => $product) {?>
           <? if ($key != 0) echo ", ";?>
-          "<?=$product['title_full'];?>"
+          "<?=($product['title_full'] ? $product['title_full'] : $product['title']);?>"
         <? } ?>
       </h5>
     <? } ?>

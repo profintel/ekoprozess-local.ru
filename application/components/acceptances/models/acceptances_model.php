@@ -24,6 +24,8 @@ class Acceptances_model extends CI_Model {
         $product_id = array($product_id);
       }
       $this->db->join('client_acceptances t2','t2.parent_id = client_acceptances.id');
+      // join-им чтобы вывести отчет по группе продукции
+      $this->db->join('products t3','t3.id = t2.product_id');
       $product_where = '';
       if ($where) {
         $product_where .= '(';
@@ -32,7 +34,7 @@ class Acceptances_model extends CI_Model {
         if($key != 0){
           $product_where .= ' OR ';
         }
-        $product_where .= 't2.product_id = '.$value;
+        $product_where .= 't3.id = '.$value.' OR t3.parent_id = '.$value;
       }
       if ($where) {
         $product_where .= ')';
@@ -61,23 +63,30 @@ class Acceptances_model extends CI_Model {
           $item['client_title'] = $item['client']['title_full'];
         }
       }
-      //считаем общие параметры
       if(is_null($item['parent_id'])){
-        $where = 'parent_id = '.$item['id'];
-        if ($product_id) {
+        $this->db->select('client_acceptances.*,t2.title_full as product_title');
+        // join-им чтобы вывести название товара и отчет по группе продукции
+        $this->db->join('products t2','t2.id = client_acceptances.product_id');
+        // Делаем запрос на дочерние акты, для отображения видов сырья в акте
+        $where = 'client_acceptances.parent_id = '.$item['id'];
+        if ($product_id) {          
           $where .= ' AND (';
           foreach ($product_id as $key => $value) {
             if($key != 0){
               $where .= ' OR ';
             }
-            $where .= 'pr_client_acceptances.product_id = '.$value;
+            $where .= 't2.id = '.$value.' OR t2.parent_id = '.$value;
           }
           $where .= ')';
         }
-        $item['childs'] = $this->get_acceptances(0,0,$where,array('order'=>'asc','id'=>'asc'));
+        $this->db->where($where);
+        $this->db->order_by('client_acceptances.order','asc');
+        $this->db->order_by('client_acceptances.id','asc');
+        $item['childs'] = $this->db->get('client_acceptances')->result_array();
+
+        //считаем общие параметры
         $item['gross'] = $item['net'] = $item['price'] = $item['sum'] = 0;
         foreach ($item['childs'] as $key => &$child) {
-          $child['product'] = $this->products_model->get_product(array('id' => $child['product_id']));
           $child['sum'] = $child['price']*$child['net'];
           $item['gross'] += $child['gross'];
           $item['net'] += $child['net'];
@@ -106,6 +115,8 @@ class Acceptances_model extends CI_Model {
         $product_id = array($product_id);
       }
       $this->db->join('client_acceptances t2','t2.parent_id = client_acceptances.id');
+      // join-им чтобы вывести отчет по группе продукции
+      $this->db->join('products t3','t3.id = t2.product_id');
       $product_where = '';
       if ($where) {
         $product_where .= '(';
@@ -114,7 +125,7 @@ class Acceptances_model extends CI_Model {
         if($key != 0){
           $product_where .= ' OR ';
         }
-        $product_where .= 't2.product_id = '.$value;
+        $product_where .= 't3.id = '.$value.' OR t3.parent_id = '.$value;
       }
       if ($where) {
         $product_where .= ')';
