@@ -40,7 +40,7 @@ class Clients_admin extends CI_Component {
   /**
   * Просмотр списка своих клиентов
   */
-  function clients_report() {
+  function clients_report($render_table = false) {
     $where = 'pr_clients.one_time = 0';
     $error = '';
     $get_params = array(
@@ -61,66 +61,11 @@ class Clients_admin extends CI_Component {
         $error = 'У вас нет прав на просмотр клиентов других менеджеров';
       }
     }
-    if($get_params['client_id']){
-      $where .= ($where ? ' AND ' : '').'pr_clients.id = '.$get_params['client_id'];
-    } else {
-      if($get_params['title']){
-        $where .= ($where ? ' AND ' : '').'pr_clients.title LIKE "'.$get_params['title'].'%"';
-      }
-      if($get_params['country_id'] && !$get_params['region_federal_id'] && !$get_params['region_id'] && !$get_params['city_id']){
-        //выборка городов по федеральному округу
-        $cities = $this->cities_model->get_cities(0,0,false,false,false,$get_params['country_id']);
-        if($cities){
-          $cities = array_simple($cities,'id');
-        }
-        $where .= ($where ? ' AND ' : '').'pr_clients.city_id IN ('.($cities ? implode(',', $cities) : 0).')';
-      }
-      if($get_params['region_federal_id'] && !$get_params['region_id'] && !$get_params['city_id']){
-        //выборка городов по федеральному округу
-        $cities = $this->cities_model->get_cities(0,0,false,false,$get_params['region_federal_id']);
-        if($cities){
-          $cities = array_simple($cities,'id');
-        }
-        $where .= ($where ? ' AND ' : '').'pr_clients.city_id IN ('.($cities ? implode(',', $cities) : 0).')';
-      }
-      if($get_params['region_id'] && !$get_params['city_id']){
-        //выборка городов по региону
-        $cities = $this->cities_model->get_cities(0,0,array('region_id' => $get_params['region_id']));
-        if($cities){
-          $cities = array_simple($cities,'id');
-        }
-        $where .= ($where ? ' AND ' : '').'pr_clients.city_id IN ('.($cities ? implode(',', $cities) : 0).')';
-      }
-      if($get_params['city_id']){
-        $where .= ($where ? ' AND ' : '').'pr_clients.city_id = '.$get_params['city_id'];
-      }
-      if($get_params['admin_id']){
-        $where .= ($where ? ' AND ' : '').'pr_clients.admin_id = '.$get_params['admin_id'];
-      }
-    }
-    $page = ($this->uri->getParam('page') ? $this->uri->getParam('page') : 1);
-    $limit = 50;
-    $offset = $limit * ($page - 1);
-    $cnt = $this->clients_model->get_clients_cnt($where );
-    $pages = get_pages($page, $cnt, $limit);
-    $postfix = '&';
-    foreach ($get_params as $key => $value) {
-      $postfix .= $key.'='.$value.'&';
-    }
-    $pagination_data = array(
-      'ajax'    => true,
-      'pages'   => $pages,
-      'page'    => $page,
-      'prefix'  => '/admin'.$this->params['path'].'clients_report/',
-      'postfix' => $postfix
-    );
-    $items = $this->clients_model->get_clients_report($limit, $offset, $where, array('city.title_full'=>'asc'));
+    
     $data = array(
       'title'           => 'Клиенты',
       'client_params'   => $this->clients_model->get_client_params(0,0,array('active' => 1)),
       'error'           => $error,
-      'items'           => $items,
-      'pagination'      => $this->load->view('templates/pagination', $pagination_data, true),
       'quick_form' => $this->view->render_form(array(
         'method'  => 'GET',
         'action'  => $this->lang_prefix .'/admin'. $this->params['path'] .'clients_report/',
@@ -228,13 +173,80 @@ class Clients_admin extends CI_Component {
         )
       )),
     );
-    
-    if($this->uri->getParam('ajax') == 1){
-      echo $this->load->view('../../application/components/clients/templates/admin_report_table',$data,true);
-    } else {
-      return $this->render_template('templates/admin_report', array('data'=>$data));
+
+    if($render_table || $this->uri->getParam('ajax') == 1){
+      if($get_params['client_id']){
+        $where .= ($where ? ' AND ' : '').'pr_clients.id = '.$get_params['client_id'];
+      } else {
+        if(!$error){
+          if($get_params['title']){
+            $where .= ($where ? ' AND ' : '').'pr_clients.title LIKE "'.$get_params['title'].'%"';
+          }
+          if($get_params['country_id'] && !$get_params['region_federal_id'] && !$get_params['region_id'] && !$get_params['city_id']){
+            //выборка городов по федеральному округу
+            $cities = $this->cities_model->get_cities(0,0,false,false,false,$get_params['country_id']);
+            if($cities){
+              $cities = array_simple($cities,'id');
+            }
+            $where .= ($where ? ' AND ' : '').'pr_clients.city_id IN ('.($cities ? implode(',', $cities) : 0).')';
+          }
+          if($get_params['region_federal_id'] && !$get_params['region_id'] && !$get_params['city_id']){
+            //выборка городов по федеральному округу
+            $cities = $this->cities_model->get_cities(0,0,false,false,$get_params['region_federal_id']);
+            if($cities){
+              $cities = array_simple($cities,'id');
+            }
+            $where .= ($where ? ' AND ' : '').'pr_clients.city_id IN ('.($cities ? implode(',', $cities) : 0).')';
+          }
+          if($get_params['region_id'] && !$get_params['city_id']){
+            //выборка городов по региону
+            $cities = $this->cities_model->get_cities(0,0,array('region_id' => $get_params['region_id']));
+            if($cities){
+              $cities = array_simple($cities,'id');
+            }
+            $where .= ($where ? ' AND ' : '').'pr_clients.city_id IN ('.($cities ? implode(',', $cities) : 0).')';
+          }
+          if($get_params['city_id']){
+            $where .= ($where ? ' AND ' : '').'pr_clients.city_id = '.$get_params['city_id'];
+          }
+          if($get_params['admin_id']){
+            $where .= ($where ? ' AND ' : '').'pr_clients.admin_id = '.$get_params['admin_id'];
+          }
+        }
+        $page = ($this->uri->getParam('page') ? $this->uri->getParam('page') : 1);
+        $limit = 50;
+        $offset = $limit * ($page - 1);
+        $cnt = $this->clients_model->get_clients_cnt($where );
+        $pages = get_pages($page, $cnt, $limit);
+        $postfix = '&';
+        foreach ($get_params as $key => $value) {
+          $postfix .= $key.'='.$value.'&';
+        }
+        $pagination_data = array(
+          'ajax'    => true,
+          'pages'   => $pages,
+          'page'    => $page,
+          'prefix'  => '/admin'.$this->params['path'].'clients_report/',
+          'postfix' => $postfix
+        );
+        $items = $this->clients_model->get_clients_report($limit, $offset, $where, array('city.title_full'=>'asc'));
+
+        $data = array_merge($data, array(
+          'items'           => $items,
+          'pagination'      => $this->load->view('templates/pagination', $pagination_data, true),
+        ));
+      }
+
+      if($render_table){
+        return $this->load->view('../../application/components/clients/templates/admin_report_table',$data,true);
+        exit;
+      } else if($this->uri->getParam('ajax') == 1){
+        echo $this->load->view('../../application/components/clients/templates/admin_report_table',$data,true);
+        exit;
+      }
     }
 
+    return $this->render_template('templates/admin_report', array('data'=>$data));
   }
   /**
   * Просмотр списка разовых клиентов
@@ -300,11 +312,6 @@ class Clients_admin extends CI_Component {
       return $this->render_template('templates/admin_report', array('data'=>$data));
     }
 
-  }
-
-  function _render_clients_report_table($data){
-    $data = unserialize(base64_decode($data));
-    return $this->load->view('../../application/components/clients/templates/admin_report_table',$data,true);
   }
 
   /**
