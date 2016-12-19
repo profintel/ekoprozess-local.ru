@@ -21,7 +21,6 @@
           </tr>
         </thead>
         <tbody>
-        <?$x=0?>
           <? foreach ($items as $item) { ?>
               <tr>
                 <td class="td-dropdown hidden-print" rowspan="<?=count($item['childs']);?>">
@@ -96,14 +95,12 @@
                 </td>
                 <td><?=@$item['childs'][0]['product']['title_full'];?></td>
               </tr>
-              <?$x+=$item['childs'][0]['gross'];?>
               <?array_shift($item['childs']);?>
               <?foreach ($item['childs'] as $key => $child) {?>
                 <tr>
                   <td>
                     <? if ($type_id == 1) {?>
                       <span class="text-nowrap"><?=number_format($child['gross'],2,'.',' ');?></span>
-                <?$x+=$child['gross'];?>
                     <? } else {?>
                       <span class="text-nowrap"><?=number_format($child['net'],2,'.',' ');?></span>
                     <? } ?>
@@ -126,7 +123,7 @@
           <? } ?>
           <tr>
             <td colspan="<?=($type_id == 1 ? 5 : 3);?>" class="text-right"><h4>ИТОГО <small>за период  с <?=rus_date($get_params['date_start'],'j m Yг.');?> по <?=rus_date($get_params['date_end'],'j m Yг.');?></small></h4></td>
-            <td colspan="3"><h4><?=($type_id == 1 ? number_format($all_gross,0,'.',' ') : number_format($all_net,0,'.',' '));?> кг</h4> x=<?=$x;?></td>
+            <td colspan="3"><h4><?=($type_id == 1 ? number_format($all_gross,0,'.',' ') : number_format($all_net,0,'.',' '));?> кг</h4></td>
           </tr>
         </tfoot>
       </table>

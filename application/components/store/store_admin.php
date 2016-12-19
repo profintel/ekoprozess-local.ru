@@ -2061,9 +2061,6 @@ class Store_admin extends CI_Component {
       if($get_params['store_workshop_id']){
         $where .= ($where ? ' AND ' : '').'pr_store_movement_products.store_workshop_id = '. $get_params['store_workshop_id'];
       }
-      if(!$get_params['zero']){
-        $where .= ($where ? ' AND ' : '').'pr_store_movement_products.rest > 0';
-      }
 
       // Остатки
       // условия для расчета входящего остатка и исходящего остатка
@@ -2071,11 +2068,11 @@ class Store_admin extends CI_Component {
       if(!$get_params['client_id'] && !$get_params['store_workshop_id'] && !$get_params['product_id']){
         $rest_start = $this->store_model->get_rest('pr_store_movement_products.store_type_id = '. $type_id. ' AND pr_store_movement_products.date < "'. $get_params['date_start'].'"');
         $rest_start = ($rest_start ? $rest_start['rest_all'] : 0);
-        $rest_end = $this->store_model->get_rest('pr_store_movement_products.store_type_id = '. $type_id. ' AND pr_store_movement_products.date <= "'. $get_params['date_end'].'"');
+        $rest_end = $this->store_model->get_rest('pr_store_movement_products.store_type_id = '. $type_id. ' AND pr_store_movement_products.date <= "'. $date_end.'"');
         $rest_end = ($rest_end ? $rest_end['rest_all'] : 0);
       } else {
         $where_start = 'pr_store_movement_products.store_type_id = '. $type_id. ' AND pr_store_movement_products.date < "'. $get_params['date_start'].'"';
-        $where_end = 'pr_store_movement_products.store_type_id = '. $type_id. ' AND pr_store_movement_products.date <= "'. $get_params['date_end'].'"';
+        $where_end = 'pr_store_movement_products.store_type_id = '. $type_id. ' AND pr_store_movement_products.date <= "'. $date_end.'"';
         if($get_params['client_id']){
           $where_start .= ($where_start ? ' AND ' : '').'pr_store_movement_products.client_id = '. $get_params['client_id'];
           $where_end .= ($where_end ? ' AND ' : '').'pr_store_movement_products.client_id = '. $get_params['client_id'];
@@ -2101,6 +2098,10 @@ class Store_admin extends CI_Component {
         $limit = 50;
         $offset = $limit * ($page - 1);
         $cnt = $this->store_model->get_rests_cnt($where, $get_params['product_id']);
+        // в движении не отображаем 0-ые остатки по клиенту и продукту
+        if(!$get_params['zero']){
+          $where .= ($where ? ' AND ' : '').'pr_store_movement_products.rest > 0';
+        }
         $items = $this->store_model->get_rests($limit, $offset, $where, false, $get_params['product_id']);
         
         $pages = get_pages($page, $cnt, $limit);

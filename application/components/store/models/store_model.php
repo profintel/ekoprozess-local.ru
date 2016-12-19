@@ -323,7 +323,10 @@ class Store_model extends CI_Model {
     }
     $this->db->where($params);
     $this->db->order_by('date');
-    return $this->db->get('store_movement_products')->row()->sum;
+    $item = $this->db->get('store_movement_products')->row()->sum;
+    // echo "<br>calculate_rest<br>";
+    // echo $this->db->last_query();
+    return $item;
   }
   
   /*
@@ -341,7 +344,10 @@ class Store_model extends CI_Model {
       $this->db->where('(pr_products.id IN ('.implode(',', $product_id).') OR pr_products.parent_id IN ('.implode(',', $product_id).'))');
     }
     $this->db->where($params);
-    return $this->db->get('store_movement_products')->row()->sum;
+    $item = $this->db->get('store_movement_products')->row()->sum;
+    // echo "<br>calculate_coming<br>";
+    // echo $this->db->last_query();
+    return $item;
   }
   
   /*
@@ -359,7 +365,10 @@ class Store_model extends CI_Model {
       $this->db->where('(pr_products.id IN ('.implode(',', $product_id).') OR pr_products.parent_id IN ('.implode(',', $product_id).'))');
     }
     $this->db->where($params);
-    return $this->db->get('store_movement_products')->row()->sum;
+    $item = $this->db->get('store_movement_products')->row()->sum;
+    // echo "<br>calculate_expenditure<br>";
+    // echo $this->db->last_query();
+    return $item;
   }
   
   /*
@@ -368,6 +377,7 @@ class Store_model extends CI_Model {
   */
   function get_rest($params = array(), $product_id = false) {
     $this->db->select('date, rest, rest_product, rest_all');
+    // date_new для того, чтобы учесть полностью весь день, без учета времени
     $this->db->select("DATE_FORMAT(date,'%Y-%m-%d') as date_new", false);
     if($product_id){
       if(!is_array($product_id)){
@@ -383,7 +393,10 @@ class Store_model extends CI_Model {
     $this->db->limit(1, 0);
     $this->db->order_by('date_new','DESC');
     $this->db->order_by('order','DESC');
-    return $this->db->get('store_movement_products')->row_array();
+    $item = $this->db->get('store_movement_products')->row_array();
+    // echo "<br>get_rest<br>";
+    // echo $this->db->last_query();
+    return $item;
   } 
 
   /*
@@ -461,21 +474,21 @@ class Store_model extends CI_Model {
       if(!$this->update_movement_products($item['id'], array(
           // считаем остатки по клиенту и вторсырью
           'rest'  => $this->calculate_rest(array(
-              'store_type_id' => $item['store_type_id'],
-              'client_id'     => $item['client_id'],
-              'product_id'    => $item['product_id'],
-              'order <='      => $item['order']
-            )),
+              'store_movement_products.store_type_id' => $item['store_type_id'],
+              'store_movement_products.client_id'     => $item['client_id'],
+              'store_movement_products.order <='      => $item['order']
+            ),
+            $item['product_id']),
           // общие остатки по сырью
           'rest_product'  => $this->calculate_rest(array(
-              'store_type_id' => $item['store_type_id'],
-              'product_id'    => $item['product_id'],
-              'order <='      => $item['order']
-            )), 
+              'store_movement_products.store_type_id' => $item['store_type_id'],
+              'store_movement_products.order <='      => $item['order']
+            ),
+            $item['product_id']), 
           // общие остатки всего сырья на складе
           'rest_all' => $this->calculate_rest(array(
-            'store_type_id' => $item['store_type_id'],
-            'order <='      => $item['order']
+            'store_movement_products.store_type_id' => $item['store_type_id'],
+            'store_movement_products.order <='      => $item['order']
           ))
         ))){
         return false;
