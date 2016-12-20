@@ -18,7 +18,7 @@
   <div class="hidden-print">
     <div class="clearfix">
       <a class="btn btn-default btn-xs pull-left" href="javascript:void(0);" onclick="goBack()"><span class="glyphicon glyphicon-backward"></span> Назад</a>
-      <a  class="btn btn-default btn-xs pull-right" href="/admin<?=$this->component['path'];?>acceptances/">Очистить параметры</a>   
+      <a  class="btn btn-default btn-xs pull-right" href="/admin<?=$this->component['path'];?>">Очистить параметры</a>   
     </div><br/>
     <?=$data['form'];?>
   </div>

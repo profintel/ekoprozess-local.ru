@@ -93,7 +93,7 @@
                 <td>
                   <span class="text-nowrap"><?=number_format(@$item['childs'][0]['cnt_places'],2,'.',' ');?></span>
                 </td>
-                <td><?=@$item['childs'][0]['product']['title_full'];?></td>
+                <td><?=@$item['childs'][0]['product_title'];?></td>
               </tr>
               <?array_shift($item['childs']);?>
               <?foreach ($item['childs'] as $key => $child) {?>
@@ -108,7 +108,7 @@
                   <td>
                     <span class="text-nowrap"><?=number_format($child['cnt_places'],2,'.',' ');?></span>
                   </td>
-                  <td><?=$child['product']['title_full'];?></td>
+                  <td><?=$child['product_title'];?></td>
                 </tr>
               <?}?>
           <? } ?>

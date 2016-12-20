@@ -1348,7 +1348,7 @@ class Store_admin extends CI_Component {
                 'name'     => 'product_id[]',
                 'multiple' => true,
                 'empty'    => true,
-                'optgroup' => true,
+                'optgroup' => false,
                 'options'  => $this->products_model->get_products(array('parent_id' => null)),
                 'value'    => $get_params['product_id'],
                 'onchange' => "submit_form(this, handle_ajaxResultAllData);",

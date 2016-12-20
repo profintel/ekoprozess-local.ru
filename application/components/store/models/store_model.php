@@ -109,10 +109,10 @@ class Store_model extends CI_Model {
       $item['acceptance'] = $this->acceptances_model->get_acceptance(array('store_coming_id'=>$item['id']));
       //считаем общие параметры
       if(is_null($item['parent_id'])){
+        // Делаем запрос на дочерние, для отображения видов сырья
         $this->db->select('store_comings.*,t2.title_full as product_title');
         // join-им чтобы вывести название товара и отчет по группе продукции
         $this->db->join('products t2','t2.id = store_comings.product_id');
-        // Делаем запрос на дочерние акты, для отображения видов сырья в акте
         $where = 'store_comings.parent_id = '.$item['id'];
         if ($product_id) {          
           $where .= ' AND (';
@@ -635,6 +635,8 @@ class Store_model extends CI_Model {
         $product_id = array($product_id);
       }
       $this->db->join('store_expenditures t2','t2.parent_id = store_expenditures.id');
+      // join-им чтобы вывести отчет по группе продукции
+      $this->db->join('products t3','t3.id = t2.product_id');
       $product_where = '';
       if ($where) {
         $product_where .= '(';
@@ -643,7 +645,7 @@ class Store_model extends CI_Model {
         if($key != 0){
           $product_where .= ' OR ';
         }
-        $product_where .= 't2.product_id = '.$value;
+        $product_where .= 't3.id = '.$value.' OR t3.parent_id = '.$value;
       }
       if ($where) {
         $product_where .= ')';
@@ -676,21 +678,27 @@ class Store_model extends CI_Model {
       }
       //считаем общие параметры
       if(is_null($item['parent_id'])){
-        $where = 'parent_id = '.$item['id'];
-        if ($product_id) {
+        // Делаем запрос на дочерние, для отображения видов сырья
+        $this->db->select('store_expenditures.*,t2.title_full as product_title');
+        // join-им чтобы вывести название товара и отчет по группе продукции
+        $this->db->join('products t2','t2.id = store_expenditures.product_id');
+        $where = 'store_expenditures.parent_id = '.$item['id'];
+        if ($product_id) {          
           $where .= ' AND (';
           foreach ($product_id as $key => $value) {
             if($key != 0){
               $where .= ' OR ';
             }
-            $where .= 'pr_store_expenditures.product_id = '.$value;
+            $where .= 't2.id = '.$value.' OR t2.parent_id = '.$value;
           }
           $where .= ')';
         }
-        $item['childs'] = $this->get_expenditures(0,0,$where);
+        $this->db->where($where);
+        $this->db->order_by('store_expenditures.order','asc');
+        $this->db->order_by('store_expenditures.id','asc');
+        $item['childs'] = $this->db->get('store_expenditures')->result_array();
         $item['gross'] = $item['net'] = $item['price'] = $item['sum'] = 0;
         foreach ($item['childs'] as $key => &$child) {
-          $child['product'] = $this->products_model->get_product(array('id' => $child['product_id']));
           $item['gross'] += $child['gross'];
           $item['net'] += $child['net'];
         }
@@ -719,6 +727,8 @@ class Store_model extends CI_Model {
         $product_id = array($product_id);
       }
       $this->db->join('store_expenditures t2','t2.parent_id = store_expenditures.id');
+      // join-им чтобы вывести отчет по группе продукции
+      $this->db->join('products t3','t3.id = t2.product_id');
       $product_where = '';
       if ($where) {
         $product_where .= '(';
@@ -727,7 +737,7 @@ class Store_model extends CI_Model {
         if($key != 0){
           $product_where .= ' OR ';
         }
-        $product_where .= 't2.product_id = '.$value;
+        $product_where .= 't3.id = '.$value.' OR t3.parent_id = '.$value;
       }
       if ($where) {
         $product_where .= ')';
@@ -758,6 +768,8 @@ class Store_model extends CI_Model {
       if(!is_array($product_id)){
         $product_id = array($product_id);
       }
+      // join-им чтобы вывести отчет по группе продукции
+      $this->db->join('products t3','t3.id = t2.product_id');
       $product_where = '';
       if ($where) {
         $product_where .= '(';
@@ -766,7 +778,7 @@ class Store_model extends CI_Model {
         if($key != 0){
           $product_where .= ' OR ';
         }
-        $product_where .= 't2.product_id = '.$value;
+        $product_where .= 't3.id = '.$value.' OR t3.parent_id = '.$value;
       }
       if ($where) {
         $product_where .= ')';
