@@ -666,6 +666,27 @@ class Acceptances_admin extends CI_Component {
         )
       )
     ));
+
+    if($item['store_coming_id']){
+      $store_coming = $this->store_model->get_coming(array('store_comings.id'=>$item['store_coming_id']));
+      // Блок с фото прихода
+      if($store_coming['images']){
+        $blocks['images'] = array(
+          'title'    => 'Фото прихода',
+          'collapse' => false,
+          'fields'   => array(
+            array(
+              'view'     => 'fields/image',
+              'title'    => '',
+              'readonly' => true,
+              'multiple' => true,
+              'value'    => @$store_coming['images'][0]['gallery_id']
+            ),
+          ),
+        );
+      }
+    }
+
     $all_sum = 0;
     $productsFields = $this->renderProductsFields('array',$item['childs']);
     foreach ($productsFields as $key => $productField) {
@@ -726,8 +747,7 @@ class Acceptances_admin extends CI_Component {
         )
       )
     );
-    if($item['store_coming_id']){
-      $store_coming = $this->store_model->get_coming(array('store_comings.id'=>$item['store_coming_id']));
+    if($item['store_coming_id'] && $store_coming){
       if($store_coming){
         $blocks['submits']['fields'][] = array(
           'view'    => 'fields/submit',

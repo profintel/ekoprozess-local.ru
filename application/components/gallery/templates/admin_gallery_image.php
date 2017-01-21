@@ -8,7 +8,7 @@
         <a href="#" class="move_i_s" onClick="return false;" title="Переместить"></a>  
       <? } ?>
 
-      <?
+      <?/*
         $messages = '<a href='.$item['image'].' target=_blance>Исходное изображение</a><br/>';
         foreach ($item['thumbs'] as $thumb) {
           if (is_array($thumb)) {
@@ -20,7 +20,7 @@
       <a href="#" class="glyphicon glyphicon-option-vertical" title="Ссылки" onClick="return my_modal('information', 'Ссылки на изображение', '<?=$messages;?>',[{text: 'OK', handler: function() {my_modal('hide');}, icon: 'accept'}]);"></a>
       
       <a class="glyphicon glyphicon-edit" title="Редактировать" href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>edit_image/<?=$item['id'];?>/" target="_image_<?=$item['id'];?>"></a>
-      
+      <?*/?>
       <a href="#"
         onClick="return send_confirm(
           'Вы уверены, что хотите удалить изображение?',

@@ -480,9 +480,10 @@ class Store_admin extends CI_Component {
           'name'    => 'comment',
         ),
         array(
-          'view'  => 'fields/'.($type_id == 1 ? 'file' : 'hidden'),
-          'title' => 'Фото (jpg, gif, png):',
-          'name'  => 'image'
+          'view'      => 'fields/'.($type_id == 1 ? 'file' : 'hidden'),
+          'title'     => 'Фото (jpg, gif, png):',
+          'multiple'  => true,
+          'name'      => 'images[]'
         ),
         array(
           'view'  => 'fields/hidden',
@@ -553,18 +554,34 @@ class Store_admin extends CI_Component {
       ));
     }
     
-    if (isset($_FILES['image']['name']) && $_FILES['image']['name']) {
-      $image = upload_file($_FILES['image']);      
-      if (!$image) {
-        send_answer(array('errors' => array('Ошибка при загрузке изображения')));
+    //загружаем файлы
+    if ($_FILES['images']['name'][0]) {
+      $upload = multiple_upload_file($_FILES['images'],false);
+      if (!$upload) {
+        send_answer(array('errors' => array('Ошибка при загрузке изображений')));
       }
-      if (!$this->gallery_model->validate_file($image, array('jpeg', 'jpg', 'gif', 'png'))) {
-        @unlink($_SERVER['DOCUMENT_ROOT'] . $image);
-        send_answer(array('errors' => array('Неподдерживаемый формат изображения')));
+      $images = array();
+      foreach ($upload['files_path'] as $key => $image) {
+        if ($this->gallery_model->validate_file($image, array('jpeg', 'jpg', 'gif', 'png'))) {
+          if (!resize_image($image, 180, 135)) {
+            @unlink($_SERVER['DOCUMENT_ROOT'] . $image);
+          } else {
+            $images_thumbs = array(
+              array(
+                'thumb'   => $this->gallery_model->thumb($image,180,135),
+                'width'   => 180,
+                'height'  => 135
+              )
+            );
+            $images[] = array(
+              'image'         => $image,
+              'images_thumbs' => $images_thumbs
+            );
+          }
+        } else {
+          @unlink($_SERVER['DOCUMENT_ROOT'] . $image);
+        }
       }
-      if (!resize_image($image, 180, 135)) {
-        send_answer(array('errors' => array('Не удалось создать миниатюру')));
-      };
     }
 
     $params = array(
@@ -590,7 +607,7 @@ class Store_admin extends CI_Component {
     }
 
     // добавляем фото
-    if (isset($image) && $image) {
+    if (isset($images) && $images) {
       $gallery_params = array(
         array(
           'system_name' => 'gallery_system',
@@ -607,18 +624,7 @@ class Store_admin extends CI_Component {
                     array(
                       'system_name' => $id,
                       'title'       => $id,
-                      'images'      => array(
-                        array(
-                          'image'         => $image,
-                          'images_thumbs' => array(
-                            array(
-                              'thumb' => $this->gallery_model->thumb($image,180,135),
-                              'width' => 180,
-                              'height' => 135
-                            )
-                          )
-                        )
-                      )
+                      'images'      => $images
                     )
                   )
                 )
@@ -775,10 +781,11 @@ class Store_admin extends CI_Component {
           'value'   => $item['comment']
         ),
         array(
-          'view'  => 'fields/'.($type_id == 1 ? 'file' : 'hidden'),
-          'title' => 'Фото (jpg, gif, png):',
-          'name'  => 'image',
-          'value' => $item['image']
+          'view'      => 'fields/'.($type_id == 1 ? 'image' : 'hidden'),
+          'title'     => 'Фото (jpg, gif, png):',
+          'name'      => 'images[]',
+          'multiple'  => true,
+          'value'     => @$item['images'][0]['gallery_id']
         ),
         array(
           'view'  => 'fields/hidden',
@@ -888,24 +895,34 @@ class Store_admin extends CI_Component {
       $main_params['store_workshop_id'] = (int)$this->input->post('store_workshop_id');
     }
     
-    if (isset($_FILES['image']['name']) && $_FILES['image']['name']) {
-      if ($item['image']) {
-        $this->gallery_model->delete_image(array('image' => $item['image']));
+    //загружаем файлы
+    if ($_FILES['images']['name'][0]) {
+      $upload = multiple_upload_file($_FILES['images'],false);
+      if (!$upload) {
+        send_answer(array('errors' => array('Ошибка при загрузке изображений')));
       }
-      $image = upload_file($_FILES['image']);
-      if (!$image) {
-        send_answer(array('errors' => array('Ошибка при загрузке изображения')));
+      $images = array();
+      foreach ($upload['files_path'] as $key => $image) {
+        if ($this->gallery_model->validate_file($image, array('jpeg', 'jpg', 'gif', 'png'))) {
+          if (!resize_image($image, 180, 135)) {
+            @unlink($_SERVER['DOCUMENT_ROOT'] . $image);
+          } else {
+            $images_thumbs = array(
+              array(
+                'thumb'   => $this->gallery_model->thumb($image,180,135),
+                'width'   => 180,
+                'height'  => 135
+              )
+            );
+            $images[] = array(
+              'image'         => $image,
+              'images_thumbs' => $images_thumbs
+            );
+          }
+        } else {
+          @unlink($_SERVER['DOCUMENT_ROOT'] . $image);
+        }
       }
-      if (!$this->gallery_model->validate_file($image, array('jpeg', 'jpg', 'gif', 'png'))) {
-        @unlink($_SERVER['DOCUMENT_ROOT'] . $image);
-        send_answer(array('errors' => array('Неподдерживаемый формат изображения')));
-      }      
-      if (!resize_image($image, 180, 135)) {
-        @unlink($_SERVER['DOCUMENT_ROOT'] . $image);
-        send_answer(array('errors' => array('Не удалось создать миниатюру')));
-      }
-    } elseif ($this->input->post('image_delete')) {
-      $this->gallery_model->delete_image(array('image' => $item['image']));
     }
 
     $errors = $this->_validate_coming_params($item['store_type_id'], $main_params);
@@ -1008,7 +1025,7 @@ class Store_admin extends CI_Component {
     }
 
     // добавляем фото
-    if (isset($image) && $image) {
+    if (isset($images) && $images) {
       $gallery_params = array(
         array(
           'system_name' => 'gallery_system',
@@ -1025,18 +1042,7 @@ class Store_admin extends CI_Component {
                     array(
                       'system_name' => $id,
                       'title'       => $id,
-                      'images'      => array(
-                        array(
-                          'image'         => $image,
-                          'images_thumbs' => array(
-                            array(
-                              'thumb' => $this->gallery_model->thumb($image,180,135),
-                              'width' => 180,
-                              'height' => 135
-                            )
-                          )
-                        )
-                      )
+                      'images'      => $images
                     )
                   )
                 )
@@ -1046,6 +1052,7 @@ class Store_admin extends CI_Component {
         )
       );
       if (!$this->gallery_model->add_gallery_images($gallery_params)) {
+        $this->delete_coming($id, true);
         send_answer(array('errors' => array('Не удалось сохранить изображения')));
       }
     }
