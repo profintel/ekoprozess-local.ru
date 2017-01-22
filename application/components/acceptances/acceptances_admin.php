@@ -1091,7 +1091,7 @@ class Acceptances_admin extends CI_Component {
           'view'        => 'fields/hidden',
           'name'        => 'from',
           'title'       => 'От кого:',
-          'value'       => 'Ekoprozess <info@ekoprozess.isnet.ru>',
+          'value'       => 'info@ekoprozess.isnet.ru',
         ),
         array(
           'view'        => 'fields/autocomplete_input',
@@ -1149,7 +1149,7 @@ class Acceptances_admin extends CI_Component {
     }
 
     $from = $this->input->post('from');
-    if (!preg_match('/@{1}/', $from)) { 
+    if (!preg_match('/^[-0-9a-z_\.]+@[-0-9a-z^\.]+\.[a-z]{2,4}$/i', $from)) { 
       send_answer(array('errors' => array('Некорректный еmail отправителя '.$from)));
     }
     $to = explode(',', $this->input->post('to'));
