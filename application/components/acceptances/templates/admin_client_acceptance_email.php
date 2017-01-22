@@ -41,7 +41,7 @@
           <tr class="panel selection">
             <td><?=rus_date($value['tm'],'d m Yг. H:i');?></td>
             <td><?=$value['username'];?></td>
-            <td><?=$value['from'];?></td>
+            <td><?=htmlspecialchars($value['from']);?></td>
             <td><?=htmlspecialchars($value['to']);?></td>
             <td>
               <a href="javascript:void(0)" class="" title="Ссылки"
