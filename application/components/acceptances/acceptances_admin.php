@@ -1165,7 +1165,9 @@ class Acceptances_admin extends CI_Component {
     $images = array();
     if($this->input->post('send_images') && $item['store_coming_id']){
       $store_coming = $this->store_model->get_coming(array('store_comings.id'=>$item['store_coming_id']));
-      $images = $store_coming['images'];
+      foreach ($store_coming['images'] as $key => $value) {
+        $images[] = $value['image'];
+      }
     }
     foreach ($to as $key => $email) {
       $email = trim($email);
