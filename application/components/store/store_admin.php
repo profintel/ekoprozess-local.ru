@@ -553,7 +553,7 @@ class Store_admin extends CI_Component {
         'one_time'    => true
       ));
     }
-    
+    // var_dump($_FILES['images']['name'][0]);
     //загружаем файлы
     if ($_FILES['images']['name'][0]) {
       $upload = multiple_upload_file($_FILES['images'],false);

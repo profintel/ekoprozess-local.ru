@@ -34,7 +34,7 @@
 
     <? if (isset($vars['value']) && $vars['value']) { ?>
       <? if ((int)$vars['value']) { ?>
-        {{cmp:gallery->render_gallery_items<-<?=$vars['value'];?>}}
+        {{cmp:gallery->render_gallery_items<-<?=$vars['value'];?><-image<-<?=@$vars['readonly'];?>}}
       <? } else { ?>
         <? if (@$vars['multiple']) { ?>
             <a href="<?=$vars['value'];?>" target="_blank">Перейти в Галерею</a><br>

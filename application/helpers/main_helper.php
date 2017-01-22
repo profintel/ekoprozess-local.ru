@@ -271,7 +271,7 @@ function add_logo_to_image($path_result_img, $path_dest_img,$path_logo,$dst_x = 
   return false;
 }
 
-function send_mail($from, $email, $subject, $message) {
+function send_mail_old($from, $email, $subject, $message) {
   $CI =& get_instance();
   $data = array(
       'title'   => $subject,
@@ -290,19 +290,28 @@ function send_mail($from, $email, $subject, $message) {
   return true;
 }
 
-function send_mail_old($from, $email, $subject, $message, $project) {
+function send_mail($from, $email, $subject, $message, $files) {
   $CI =& get_instance();
   $data = array(
-      'domain'  => $project['domain'],
       'title'   => $subject,
       'content' => $message
     );
-  $message = $CI->load->view('templates/email_template', $data, true);
+  $body = $CI->load->view('templates/email_template', $data, true);
   $CI->load->library('email');
+  $CI->email->clear(TRUE);
+
   $CI->email->from($from);
   $CI->email->to($email);
   $CI->email->subject($subject);
-  $CI->email->message($message);
+  $CI->email->message($body);
+
+  // отправляем файлы
+  if(is_array($files) && $files){
+    foreach ($files as $key => $file) {
+      $CI->email->attach(FCPATH . $file);
+    }
+  }
+
   if ($CI->email->send()) { 
     return true;
   }

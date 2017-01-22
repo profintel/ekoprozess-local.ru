@@ -21,16 +21,18 @@
       
       <a class="glyphicon glyphicon-edit" title="Редактировать" href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>edit_image/<?=$item['id'];?>/" target="_image_<?=$item['id'];?>"></a>
       <?*/?>
-      <a href="#"
-        onClick="return send_confirm(
-          'Вы уверены, что хотите удалить изображение?',
-          '<?=$_lang_prefix;?>/admin<?=$_component['path'];?>delete_image/<?=$item['id'];?>/',
-          {},
-          'reload'
-        );"
-        class="glyphicon glyphicon-trash"
-        title="Удалить"
-      ></a>
+      <? if (!@$readonly) { ?>
+        <a href="#"
+          onClick="return send_confirm(
+            'Вы уверены, что хотите удалить изображение?',
+            '<?=$_lang_prefix;?>/admin<?=$_component['path'];?>delete_image/<?=$item['id'];?>/',
+            {},
+            'reload'
+          );"
+          class="glyphicon glyphicon-trash"
+          title="Удалить"
+        ></a>
+      <?}?>
     </div>
   </div>
 </div>

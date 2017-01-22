@@ -1073,6 +1073,10 @@ class Acceptances_admin extends CI_Component {
           )), true)
       ));
     }
+    
+    if($item['store_coming_id']){
+      $store_coming = $this->store_model->get_coming(array('store_comings.id'=>$item['store_coming_id']));
+    }
 
     return $this->render_template('templates/admin_client_acceptance_email', array(
       'title'           => 'Акт приемки',
@@ -1109,9 +1113,21 @@ class Acceptances_admin extends CI_Component {
           'name'    => 'text',
           'value'   => $this->load->view('../../application/components/acceptances/templates/admin_client_acceptance_tbl',array('item'  => $item),TRUE),
           'toolbar' => ''
-        )
-      )
-      ),
+        ),
+        array(
+          'view'     => 'fields/'.($item['store_coming_id'] && isset($store_coming['images']) && $store_coming['images'] ? 'checkbox' : 'hidden'),
+          'title'    => 'Отправить фото:',
+          'name'     => 'send_images',
+          'checked'  => true
+        ),
+        array(
+          'view'     => 'fields/'.($item['store_coming_id'] && isset($store_coming['images']) && $store_coming['images'] ? 'image' : 'hidden'),
+          'title'    => '',
+          'readonly' => true,
+          'multiple' => true,
+          'value'    => ($item['store_coming_id'] && isset($store_coming['images']) && $store_coming['images'] ? @$store_coming['images'][0]['gallery_id'] : '')
+        ),
+      )),
       'item'  => $item,
       'emails'=> $this->acceptances_model->get_acceptance_emails(array('acceptance_id'=>$item['id']))
     ));
@@ -1145,9 +1161,15 @@ class Acceptances_admin extends CI_Component {
     }
     $subject = htmlspecialchars(trim($this->input->post('subject')));
     $message = $this->load->view('../../application/components/acceptances/templates/admin_client_acceptance_tbl',array('item'  => $item),TRUE);
+    // подгружаем приход, для определения фото
+    $images = array();
+    if($this->input->post('send_images') && $item['store_coming_id']){
+      $store_coming = $this->store_model->get_coming(array('store_comings.id'=>$item['store_coming_id']));
+      $images = $store_coming['images'];
+    }
     foreach ($to as $key => $email) {
       $email = trim($email);
-      if(!send_mail($from, $email, $subject, $message)){
+      if(!send_mail($from, $email, $subject, $message, $images)){
         send_answer(array('errors' => array('Не удалось отправить сообщение на email - "'.$email.'"')));
       }
     }

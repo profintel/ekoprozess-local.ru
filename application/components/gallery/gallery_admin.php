@@ -26,10 +26,11 @@ class Gallery_admin extends CI_Component {
   * Возвращает шаблон с объектами галереи
   * @params: $id - id альбома
   */
-  function render_gallery_items($id, $type = '') {
+  function render_gallery_items($id, $type = '',$readonly = false) {
     $data = array(
       'items'     => $this->gallery_model->get_gallery_images(array('id' => $id)),
       'move_path' => '/admin/gallery/move_gallery_image/',
+      'readonly'  => $readonly,
       'type'      => $type,
     );
 
@@ -40,7 +41,7 @@ class Gallery_admin extends CI_Component {
   * Возвращает шаблон с объектами галереи
   * @params: $id - id альбома
   */
-  function render_gallery_item($id, $type = '') {
+  function render_gallery_item($id, $type = '',$readonly = false) {
     $item = $this->gallery_model->get_gallery_image(array('gallery_images.id' => $id));
     if(!$item){
       return false;
@@ -61,7 +62,10 @@ class Gallery_admin extends CI_Component {
     if($type == 'list'){
       $template = 'templates/admin_gallery_item';
     }
-    return $this->render_template($template, array('item'=>$item));
+    return $this->render_template($template, array(
+      'item'      =>  $item,
+      'readonly'  => $readonly,
+    ));
   }
 
   /**
