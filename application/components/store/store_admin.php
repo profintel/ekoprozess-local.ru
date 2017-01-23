@@ -555,7 +555,7 @@ class Store_admin extends CI_Component {
     }
     // var_dump($_FILES['images']['name'][0]);
     //загружаем файлы
-    if ($_FILES['images']['name'][0]) {
+    if (isset($_FILES['images']['name'][0]) && $_FILES['images']['name'][0]) {
       $upload = multiple_upload_file($_FILES['images'],false);
       if (!$upload) {
         send_answer(array('errors' => array('Ошибка при загрузке изображений')));
@@ -896,7 +896,7 @@ class Store_admin extends CI_Component {
     }
     
     //загружаем файлы
-    if ($_FILES['images']['name'][0]) {
+    if (isset($_FILES['images']['name'][0]) && $_FILES['images']['name'][0]) {
       $upload = multiple_upload_file($_FILES['images'],false);
       if (!$upload) {
         send_answer(array('errors' => array('Ошибка при загрузке изображений')));
