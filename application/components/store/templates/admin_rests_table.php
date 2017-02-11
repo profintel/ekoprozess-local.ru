@@ -120,15 +120,15 @@
             <? } ?>
             <? if (!$get_params['store_workshop_id']) { ?>
               <tr>
-                <td colspan="2"><h5 class="text-right">Исходящий остаток на <?=rus_date($get_params['date_end'],'j m Yг.');?></h5></td>
-                <td><h4><?=number_format($rest['end'],2,'.',' ');?> кг.</h4></td>
+                <td colspan="2" class="text-middle"><h5 class="text-right">Исходящий остаток на <?=rus_date($get_params['date_end'],'j m Yг.');?></h5></td>
+                <td class="text-middle"><h4><?=number_format($rest['end'],2,'.',' ');?> кг.</h4></td>
               </tr>
             <? } ?>
           <? } else { ?>
             <? if (!$get_params['store_workshop_id']) { ?>
               <tr>
                 <td width="30%" class="text-middle"><h5>Исходящий остаток на <?=rus_date($get_params['date_end'],'j m Yг.');?></h5></td>
-                <td colspan="2"><h4><?=number_format($rest['end'],2,'.',' ');?> кг.</h4></td>
+                <td colspan="2" class="text-middle"><h4><?=number_format($rest['end'],2,'.',' ');?> кг.</h4></td>
               </tr>
             <? } ?>
           <?} ?>
