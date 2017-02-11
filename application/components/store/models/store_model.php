@@ -329,7 +329,7 @@ class Store_model extends CI_Model {
       $this->db->group_by('product_id');
       $this->db->group_by('client_id');
       $this->db->having('sum > 0');
-      $this->db->order_by('client_id');
+      $this->db->order_by('clients.title_full');
       $result = $this->db->get('store_movement_products')->result_array();
     } else {
       $this->db->order_by('date');
