@@ -323,15 +323,16 @@ class Store_model extends CI_Model {
       $this->db->where('(pr_products.id IN ('.implode(',', $product_id).') OR pr_products.parent_id IN ('.implode(',', $product_id).'))');
     }
     $this->db->where($params);
-    $this->db->order_by('date');
     if($rest_clients){
       $this->db->select('clients.title_full as client, products.title_full as product');
       $this->db->join('clients','clients.id = store_movement_products.client_id');
       $this->db->group_by('product_id');
       $this->db->group_by('client_id');
       $this->db->having('sum > 0');
+      $this->db->order_by('client_id');
       $result = $this->db->get('store_movement_products')->result_array();
     } else {
+      $this->db->order_by('date');
       $result = $this->db->get('store_movement_products')->row()->sum;
     }
     
