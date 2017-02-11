@@ -423,7 +423,7 @@ class Clients_admin extends CI_Component {
     $where = array();
     $title = $this->input->post('search_string');
     if($title){
-      $where['title LIKE'] = $title.'%';
+      $where['title LIKE'] = '%'.$title.'%';
     }
     $limit = 20;
     $offset = 0;

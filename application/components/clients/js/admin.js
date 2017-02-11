@@ -7,7 +7,7 @@ $(document).ready(function(){
     })  
   }
   //маска для поля с номером
-  $('input.number').number(true, 2, '.', ' ');
+  $('input.number').number(true, 0, '.', ' ');
 })
 
 /**

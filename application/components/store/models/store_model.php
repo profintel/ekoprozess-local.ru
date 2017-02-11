@@ -690,9 +690,12 @@ class Store_model extends CI_Model {
       //считаем общие параметры
       if(is_null($item['parent_id'])){
         // Делаем запрос на дочерние, для отображения видов сырья
-        $this->db->select('store_expenditures.*,t2.title_full as product_title');
+        $this->db->select('store_expenditures.*,t2.title_full as product_title,store_movement_products.rest');
         // join-им чтобы вывести название товара и отчет по группе продукции
         $this->db->join('products t2','t2.id = store_expenditures.product_id');
+        // join-им таблицу с остатками, чтобы показывать остатки в таблице расхода
+        $this->db->join('store_movement_products','store_movement_products.expenditure_child_id = store_expenditures.id','left');
+
         $where = 'store_expenditures.parent_id = '.$item['id'];
         if ($product_id) {          
           $where .= ' AND (';
@@ -708,6 +711,8 @@ class Store_model extends CI_Model {
         $this->db->order_by('store_expenditures.order','asc');
         $this->db->order_by('store_expenditures.id','asc');
         $item['childs'] = $this->db->get('store_expenditures')->result_array();
+        // echo $this->db->last_query();
+        // exit;
         $item['gross'] = $item['net'] = $item['price'] = $item['sum'] = 0;
         foreach ($item['childs'] as $key => &$child) {
           $item['gross'] += $child['gross'];

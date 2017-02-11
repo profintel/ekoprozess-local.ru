@@ -18,6 +18,7 @@
             <? if ($type_id == 2) {?><th>Нетто, кг</th><? } ?>
             <th>Кол-во мест</th>
             <th>Вид вторсырья</th>
+            <th>Остаток</th>
           </tr>
         </thead>
         <tbody>
@@ -94,6 +95,7 @@
                   <span class="text-nowrap"><?=number_format(@$item['childs'][0]['cnt_places'],2,'.',' ');?></span>
                 </td>
                 <td><?=@$item['childs'][0]['product_title'];?></td>
+                <td><?=@$item['childs'][0]['rest'];?></td>
               </tr>
               <?array_shift($item['childs']);?>
               <?foreach ($item['childs'] as $key => $child) {?>
@@ -109,6 +111,7 @@
                     <span class="text-nowrap"><?=number_format($child['cnt_places'],2,'.',' ');?></span>
                   </td>
                   <td><?=$child['product_title'];?></td>
+                  <td><?=$child['rest'];?></td>
                 </tr>
               <?}?>
           <? } ?>
@@ -123,7 +126,7 @@
           <? } ?>
           <tr>
             <td colspan="<?=($type_id == 1 ? 5 : 3);?>" class="text-right"><h4>ИТОГО <small>за период  с <?=rus_date($get_params['date_start'],'j m Yг.');?> по <?=rus_date($get_params['date_end'],'j m Yг.');?></small></h4></td>
-            <td colspan="3"><h4><?=($type_id == 1 ? number_format($all_gross,0,'.',' ') : number_format($all_net,0,'.',' '));?> кг</h4></td>
+            <td colspan="4"><h4><?=($type_id == 1 ? number_format($all_gross,0,'.',' ') : number_format($all_net,0,'.',' '));?> кг</h4></td>
           </tr>
         </tfoot>
       </table>
