@@ -1839,8 +1839,8 @@ class Store_admin extends CI_Component {
   }
 
   /**
-   * Отправление расхода на склад
-  **/
+  * Отправление расхода на склад
+  */
   function send_expenditure_movement($id) {
     $item = $this->store_model->get_expenditure(array('store_expenditures.id'=>$id));
     if(!$item){
@@ -1956,7 +1956,7 @@ class Store_admin extends CI_Component {
       'store_workshop_id' => ((int)$this->uri->getParam('store_workshop_id') ? (int)$this->uri->getParam('store_workshop_id') : ''),
       'product_id'        => ($product_id && @$product_id[0] ? $product_id : array()),
       'movement'          => ($this->uri->getParam('movement') ? true : false),
-      'zero'              => ($this->uri->getParam('zero') ? true : false),
+      'zero'              => ($this->uri->getParam('zero') ? true : false)
     );
 
     $data = array(
@@ -2072,31 +2072,38 @@ class Store_admin extends CI_Component {
       // Остатки
       // условия для расчета входящего остатка и исходящего остатка
       // если не указаны поставщик и виды вторсырья выводим общий остаток на начальную дату и на конечную дату
-      if(!$get_params['client_id'] && !$get_params['store_workshop_id'] && !$get_params['product_id']){
-        $rest_start = $this->store_model->get_rest('pr_store_movement_products.store_type_id = '. $type_id. ' AND pr_store_movement_products.date < "'. $get_params['date_start'].'"');
-        $rest_start = ($rest_start ? $rest_start['rest_all'] : 0);
-        $rest_end = $this->store_model->get_rest('pr_store_movement_products.store_type_id = '. $type_id. ' AND pr_store_movement_products.date <= "'. $date_end.'"');
-        $rest_end = ($rest_end ? $rest_end['rest_all'] : 0);
+      $where_start = 'pr_store_movement_products.store_type_id = '. $type_id. ' AND pr_store_movement_products.date < "'. $get_params['date_start'].'"';
+      $where_end = 'pr_store_movement_products.store_type_id = '. $type_id. ' AND pr_store_movement_products.date <= "'. $date_end.'"';
+      if($get_params['client_id']){
+        $where_start .= ($where_start ? ' AND ' : '').'pr_store_movement_products.client_id = '. $get_params['client_id'];
+        $where_end .= ($where_end ? ' AND ' : '').'pr_store_movement_products.client_id = '. $get_params['client_id'];
+      }
+      if($get_params['store_workshop_id']){
+        $where_start .= ($where_start ? ' AND ' : '').'pr_store_movement_products.store_workshop_id = '. $get_params['store_workshop_id'];
+        $where_end .= ($where_end ? ' AND ' : '').'pr_store_movement_products.store_workshop_id = '. $get_params['store_workshop_id'];
+      }
+      // входящий остаток
+      $rest_start = $this->store_model->calculate_rest($where_start, $get_params['product_id']);
+      
+      // если первичная продукция остатки по клиентам показываем
+      if($type['id'] == 1){
+        // исхдящий остаток по клиентам
+        $rest_end_clients = $this->store_model->calculate_rest($where_end, $get_params['product_id'], true);
+        // считаем общий остаток
+        $rest_end = 0;
+        foreach ($rest_end_clients as $key => $value) {
+          $rest_end += $value['sum'];
+        }
       } else {
-        $where_start = 'pr_store_movement_products.store_type_id = '. $type_id. ' AND pr_store_movement_products.date < "'. $get_params['date_start'].'"';
-        $where_end = 'pr_store_movement_products.store_type_id = '. $type_id. ' AND pr_store_movement_products.date <= "'. $date_end.'"';
-        if($get_params['client_id']){
-          $where_start .= ($where_start ? ' AND ' : '').'pr_store_movement_products.client_id = '. $get_params['client_id'];
-          $where_end .= ($where_end ? ' AND ' : '').'pr_store_movement_products.client_id = '. $get_params['client_id'];
-        }
-        if($get_params['store_workshop_id']){
-          $where_start .= ($where_start ? ' AND ' : '').'pr_store_movement_products.store_workshop_id = '. $get_params['store_workshop_id'];
-          $where_end .= ($where_end ? ' AND ' : '').'pr_store_movement_products.store_workshop_id = '. $get_params['store_workshop_id'];
-        }
-        $rest_start = $this->store_model->calculate_rest($where_start, $get_params['product_id']);
-        $rest_end = $this->store_model->calculate_rest($where_end, $get_params['product_id']);
+        $rest_end = $this->store_model->calculate_rest($where_end, $get_params['product_id'], false);
       }
 
       $rest = array(
-        'start'       => $rest_start,
-        'end'         => $rest_end,
-        'coming'      => $this->store_model->calculate_coming($where, $get_params['product_id']),
-        'expenditure' => $this->store_model->calculate_expenditure($where, $get_params['product_id']),
+        'start'             => $rest_start,
+        'end'               => $rest_end,
+        'end_clients'       => (isset($rest_end_clients) ? $rest_end_clients : array()),
+        'coming'            => $this->store_model->calculate_coming($where, $get_params['product_id']),
+        'expenditure'       => $this->store_model->calculate_expenditure($where, $get_params['product_id']),
       );
 
       // Если нужно отобразить движение товара

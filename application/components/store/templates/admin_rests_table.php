@@ -6,13 +6,16 @@
     </div>
   <? } else { ?>
   <div class="panel">    
-    <h3 class="text-center">"<?=$type['title'];?>"<br/>Отчет по остаткам вторсырья на складе</h3><br/>
+    <h3 class="text-center m-b-0">"<?=$type['title'];?>"</h3>
+    <h3 class="text-center m-t-0">Отчет по остаткам вторсырья на складе</h3>
     <? //если отчет за 1 день ?>
-    <? if($get_params['date_start'] == $get_params['date_end']) { ?>
-      <h5>Отчет составлен за <?=rus_date($get_params['date_start'],'j m Yг.');?></h5>
-    <? } else { ?>
-      <h5>Отчет составлен за период  с <?=rus_date($get_params['date_start'],'j m Yг.');?> по <?=rus_date($get_params['date_end'],'j m Yг.');?></h5>
-    <? } ?>
+    <h5 class="m-t-lg">
+      <? if($get_params['date_start'] == $get_params['date_end']) { ?>
+        Отчет составлен за <?=rus_date($get_params['date_start'],'j m Yг.');?>
+      <? } else { ?>
+        Отчет составлен за период  с <?=rus_date($get_params['date_start'],'j m Yг.');?> по <?=rus_date($get_params['date_end'],'j m Yг.');?>
+      <? } ?>
+    </h5>
 
     <? if($client) { ?>
       <h5>Поставщик: "<?=$client['title_full'];?>"</h5>
@@ -26,8 +29,9 @@
       </h5>
     <? } ?>
     <? if (!$get_params['store_workshop_id']) { ?>
-    <h5>Входящий остаток: <?=number_format($rest['start'],2,'.',' ');?> кг. на <?=rus_date($get_params['date_start'],'j m Yг.');?></h5><br/>
+    <h5 class="m-b-lg">Входящий остаток: <?=number_format($rest['start'],2,'.',' ');?> кг. на <?=rus_date($get_params['date_start'],'j m Yг.');?></h5>
     <? } ?>
+
     <? if ($items) { ?>
       <table id="table-result" class="table panel table-hover table-bordered table-store">
         <thead>
@@ -83,7 +87,7 @@
             </tr>
           <? } ?>
         </tfoot>
-      </table>      
+      </table>
     <? } else { ?>
       <table class="table panel table-hover table-store">
         <tbody>
@@ -94,18 +98,43 @@
           </tr>
           <tr>
             <td width="30%" class="text-middle"><h5>Итого обороты:</h5></td>
-            <td><h4><?=number_format($rest['coming'],2,'.',' ');?> кг.</h4></td>
-            <td><h4><?=number_format($rest['expenditure'],2,'.',' ');?> кг.</h4></td>
+            <td><h4 class="text-nowrap"><?=number_format($rest['coming'],2,'.',' ');?> кг.</h4></td>
+            <td><h4 class="text-nowrap"><?=number_format($rest['expenditure'],2,'.',' ');?> кг.</h4></td>
           </tr>
-          <? if (!$get_params['store_workshop_id']) { ?>
+
+          <? if($type_id == 1 && $rest['end_clients']) { ?>
             <tr>
-              <td width="30%" class="text-middle"><h5>Исходящий остаток на <?=rus_date($get_params['date_end'],'j m Yг.');?></h5><?=$get_params['store_workshop_id'];?></td>
-              <td colspan="2"><h4><?=number_format($rest['end'],2,'.',' ');?> кг.</h4></td>
+              <th class="p-y-lg" colspan="3"><h4>Остатки на <?=rus_date($get_params['date_end'],'j m Yг.');?></h4></th>
             </tr>
-          <? } ?>
+            <tr>
+              <th width="50%">Поставщик</th>
+              <th>Вид вторсырья</th>
+              <th>Остаток</th>
+            </tr>
+            <? foreach ($rest['end_clients'] as $item) { ?>
+              <tr>
+                <td><?=$item['client'];?></td>
+                <td><?=$item['product'];?></td>
+                <td><?=$item['sum'];?></td>
+              </tr>
+            <? } ?>
+            <? if (!$get_params['store_workshop_id']) { ?>
+              <tr>
+                <td colspan="2"><h5 class="text-right">Исходящий остаток на <?=rus_date($get_params['date_end'],'j m Yг.');?></h5></td>
+                <td><h4><?=number_format($rest['end'],2,'.',' ');?> кг.</h4></td>
+              </tr>
+            <? } ?>
+          <? } else { ?>
+            <? if (!$get_params['store_workshop_id']) { ?>
+              <tr>
+                <td width="30%" class="text-middle"><h5>Исходящий остаток на <?=rus_date($get_params['date_end'],'j m Yг.');?></h5></td>
+                <td colspan="2"><h4><?=number_format($rest['end'],2,'.',' ');?> кг.</h4></td>
+              </tr>
+            <? } ?>
+          <?} ?>
         </tbody>
-      </table>   
-    <? } ?> 
+      </table>
+    <? } ?>
   </div>
   <? } ?>
   </div></div>

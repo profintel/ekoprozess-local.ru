@@ -305,23 +305,39 @@ class Store_model extends CI_Model {
   /*
   * Подсчитывает остаток сырья на складе
   * @param params - тип склада, вид вторсырья, ...
+  *        product_id - массив с id видов вторсырья
+  *        rest_clients - отметка, разбивать остатки по клиентам или нет
+  * @return array - если rest_clients=true возвращает массив остатков по клиентам
+  *         integer - если rest_clients=false возвращает общий остаток
   */
-  function calculate_rest($params, $product_id = false) {
+  function calculate_rest($params, $product_id = false, $rest_clients = false) {
     $this->db->select('(SUM(coming)-SUM(expenditure)) as sum');
+    // join-им чтобы вывести отчет по группе продукции или подробные остатки
+    if($product_id || $rest_clients){
+      $this->db->join('products','pr_products.id = store_movement_products.product_id');
+    }
     if($product_id){
       if(!is_array($product_id)){
         $product_id = array($product_id);
       }
-      // join-им чтобы вывести отчет по группе продукции
-      $this->db->join('products','pr_products.id = store_movement_products.product_id');
       $this->db->where('(pr_products.id IN ('.implode(',', $product_id).') OR pr_products.parent_id IN ('.implode(',', $product_id).'))');
     }
     $this->db->where($params);
     $this->db->order_by('date');
-    $item = $this->db->get('store_movement_products')->row()->sum;
+    if($rest_clients){
+      $this->db->select('clients.title_full as client, products.title_full as product');
+      $this->db->join('clients','clients.id = store_movement_products.client_id');
+      $this->db->group_by('product_id');
+      $this->db->group_by('client_id');
+      $this->db->having('sum > 0');
+      $result = $this->db->get('store_movement_products')->result_array();
+    } else {
+      $result = $this->db->get('store_movement_products')->row()->sum;
+    }
+    
     // echo "<br>calculate_rest<br>";
     // echo $this->db->last_query();
-    return $item;
+    return $result;
   }
   
   /*

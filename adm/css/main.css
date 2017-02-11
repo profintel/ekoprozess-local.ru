@@ -703,4 +703,27 @@ div.quick_form_input+div{
   .btn{
     display: none;
   }
+  h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6{
+    margin: 0 !important;
+  }
+  .table-store h3 {
+    font-size: 16px;
+    line-height: 18px;
+  }
+  .table-store h4 {
+    font-size: 14px;
+    line-height: 16px;
+  }
+  .table-store h5 {
+    font-size: 12px;
+    line-height: 14px;
+  }
+  .table>thead>tr>th, 
+  .table>tbody>tr>th, 
+  .table>tfoot>tr>th, 
+  .table>thead>tr>td, 
+  .table>tbody>tr>td, 
+  .table>tfoot>tr>td {
+    padding: 2px;
+  }
 }
