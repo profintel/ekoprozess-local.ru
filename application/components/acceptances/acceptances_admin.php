@@ -309,7 +309,7 @@ class Acceptances_admin extends CI_Component {
         'title' => ($label ? 'Вес в ТТН Поставщика,&nbsp;(кг)' : ''),
         'name'  => 'weight_ttn[]',
         'value' => ($item ? $item['weight_ttn'] : ''),
-        'class' => 'number_float',
+        'class' => 'number',
         'form_group_class' => 'form_group_product_field',
       ),
       array(
@@ -317,7 +317,7 @@ class Acceptances_admin extends CI_Component {
         'title'    => ($label ? 'Брутто, (кг)' : ''),
         'name'     => 'gross[]',
         'value'    => ($item ? $item['gross'] : ''),
-        'class'    => 'number_float',
+        'class'    => 'number',
         'disabled' => ($item && $item['store_coming_id'] ? true : false),
         'form_group_class' => 'form_group_product_field',
       ),
@@ -326,7 +326,7 @@ class Acceptances_admin extends CI_Component {
         'title'    => ($label ? 'Упаковка, (кг)' : ''),
         'name'     => 'weight_pack[]',
         'value'    => ($item ? $item['weight_pack'] : ''),
-        'class'    => 'number_float',
+        'class'    => 'number',
         'disabled' => ($item && $item['store_coming_id'] ? true : false),
         'form_group_class' => 'form_group_product_field',
       ),
@@ -335,7 +335,7 @@ class Acceptances_admin extends CI_Component {
         'title'    => ($label ? 'Засор, (%)' : ''),
         'name'     => 'weight_defect[]',
         'value'    => ($item ? $item['weight_defect'] : ''),
-        'class'    => 'number_float',
+        'class'    => 'number',
         'disabled' => ($item && $item['store_coming_id'] ? true : false),
         'form_group_class' => 'form_group_product_field',
       ),
@@ -344,7 +344,7 @@ class Acceptances_admin extends CI_Component {
         'title'    => ($label ? 'Кол-во мест' : ''),
         'name'     => 'cnt_places[]',
         'value'    => ($item ? $item['cnt_places'] : ''),
-        'class'    => 'number_float',
+        'class'    => 'number',
         'disabled' => ($item && $item['store_coming_id'] ? true : false),
         'form_group_class' => 'form_group_product_field',
       ),
@@ -354,7 +354,7 @@ class Acceptances_admin extends CI_Component {
         'name'      => 'net[]',
         'value'     => ($item ? $item['net'] : ''),
         'onkeyup'   => 'updateAcceptanceSumProduct()',
-        'class'     => 'product_field_count number_float',
+        'class'     => 'product_field_count number',
         'form_group_class' => 'form_group_product_field',
       ),
       array(
@@ -459,7 +459,7 @@ class Acceptances_admin extends CI_Component {
           'view'     => 'fields/text',
           'title'    => 'Дополнительные расходы:',
           'name'     => 'add_expenses',
-          'class'    => 'add_expenses number_float',
+          'class'    => 'add_expenses number',
           'onkeyup'  => 'updateAcceptanceSumProduct()',
         )
       )
@@ -707,7 +707,7 @@ class Acceptances_admin extends CI_Component {
           'title'    => 'Дополнительные расходы:',
           'name'     => 'add_expenses',
           'value'    => $item['add_expenses'],
-          'class'    => 'add_expenses number_float',
+          'class'    => 'add_expenses number',
           'onkeyup'  => 'updateAcceptanceSumProduct()',
         )
       )
