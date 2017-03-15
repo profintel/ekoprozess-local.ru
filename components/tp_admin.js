@@ -1,4 +1,4 @@
-/*** Generated 11.02.2017 19:15:01 ***/
+/*** Generated 15.03.2017 14:37:09 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -4454,6 +4454,7 @@ $(document).ready(function(){
   }
   //маска для поля с номером
   $('input.number').number(true, 0, '.', ' ');
+  $('input.number_float').number(true, 2, '.', ' ');
 })
 
 /**

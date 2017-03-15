@@ -8,6 +8,7 @@ $(document).ready(function(){
   }
   //маска для поля с номером
   $('input.number').number(true, 0, '.', ' ');
+  $('input.number_float').number(true, 2, '.', ' ');
 })
 
 /**
