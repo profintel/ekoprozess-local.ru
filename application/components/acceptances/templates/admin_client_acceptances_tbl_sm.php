@@ -11,8 +11,8 @@
       <li class="clearfix list-group-item">
         <a class="dropdown-toggle" data-toggle="dropdown">
           <div class="col-xs-3"><?=date('d.m.Y',strtotime($item['date']));?></div>
-          <div class="col-xs-3"><?=number_format($item['gross'],2,'.',' ');?></div>
-          <div class="col-xs-3"><?=number_format($item['net'],2,'.',' ');?></div>
+          <div class="col-xs-3"><?=number_format($item['gross'],0,'.',' ');?></div>
+          <div class="col-xs-3"><?=number_format($item['net'],0,'.',' ');?></div>
           <div class="col-xs-3"><?=number_format($item['sum'],2,'.',' ');?></div>
         </a>
         <ul class="dropdown-menu">

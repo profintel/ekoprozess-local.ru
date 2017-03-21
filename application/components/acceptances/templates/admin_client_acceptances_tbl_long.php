@@ -79,13 +79,13 @@
               <?=$item['client_title'];?>
             </td>
             <td>
-              <span class="text-nowrap"><?=number_format(@$item['childs'][0]['gross'],2,'.',' ');?></span>
+              <span class="text-nowrap"><?=number_format(@$item['childs'][0]['gross'],0,'.',' ');?></span>
             </td>
             <td>
-              <span class="text-nowrap"><?=number_format(@$item['childs'][0]['net'],2,'.',' ');?></span>
+              <span class="text-nowrap"><?=number_format(@$item['childs'][0]['net'],0,'.',' ');?></span>
             </td>
             <td>
-              <span class="text-nowrap"><?=number_format(@$item['childs'][0]['weight_defect'],2,'.',' ');?></span>
+              <span class="text-nowrap"><?=number_format(@$item['childs'][0]['weight_defect'],0,'.',' ');?></span>
             </td>
             <td><?=@$item['childs'][0]['product_title'];?></td>
             <td>
@@ -95,7 +95,7 @@
               <span class="text-nowrap"><?=number_format(@$item['childs'][0]['sum'],2,'.',' ');?></span>
             </td>
             <td rowspan="<?=count($item['childs']);?>">
-              <span class="text-nowrap"><?=number_format($item['add_expenses'],2,'.',' ');?></span>
+              <span class="text-nowrap"><?=number_format($item['add_expenses'],0,'.',' ');?></span>
             </td>
             <td rowspan="<?=count($item['childs']);?>">
               <span class="text-nowrap"><?=number_format($item['sum'],2,'.',' ');?></span>
@@ -109,13 +109,13 @@
           <?foreach ($item['childs'] as $key => $child) {?>
             <tr class="<?=($item['auto'] ? 'info' : '');?>">
               <td>
-                <span class="text-nowrap"><?=number_format($child['gross'],2,'.',' ');?></span>
+                <span class="text-nowrap"><?=number_format($child['gross'],0,'.',' ');?></span>
               </td>
               <td>
-                <span class="text-nowrap"><?=number_format($child['net'],2,'.',' ');?></span>
+                <span class="text-nowrap"><?=number_format($child['net'],0,'.',' ');?></span>
               </td>
               <td>
-                <span class="text-nowrap"><?=number_format($child['weight_defect'],2,'.',' ');?></span>
+                <span class="text-nowrap"><?=number_format($child['weight_defect'],0,'.',' ');?></span>
               </td>
               <td><?=$child['product_title'];?></td>
               <td>
@@ -138,17 +138,17 @@
           <th colspan="2"></th>
           <th></th>
           <th>
-            <span class="text-nowrap"><?=number_format($all_gross,2,'.',' ');?></span>
+            <span class="text-nowrap"><?=number_format($all_gross,0,'.',' ');?></span>
           </th>
           <th>
-            <span class="text-nowrap"><?=number_format($all_net,2,'.',' ');?></span>
+            <span class="text-nowrap"><?=number_format($all_net,0,'.',' ');?></span>
           </th>
           <th></th>
           <th></th>
           <th></th>
           <th></th>
           <th>
-            <span class="text-nowrap h5"><?=number_format($all_add_expenses,2,'.',' ');?></span>
+            <span class="text-nowrap h5"><?=number_format($all_add_expenses,0,'.',' ');?></span>
           </th>
           <th>
             <span class="text-nowrap h5"><?=number_format($all_price,2,'.',' ');?></span>

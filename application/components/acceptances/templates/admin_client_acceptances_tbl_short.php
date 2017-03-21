@@ -89,20 +89,20 @@
               </div>
           </td>
           <td>
-            <span class="hidden-print"><?=number_format($item['gross'],2,'.',' ');?></span>
-            <span class="visible-print"><?=number_format($item['gross'],2,'.','');?></span>
+            <span class="hidden-print"><?=number_format($item['gross'],0,'.',' ');?></span>
+            <span class="visible-print"><?=number_format($item['gross'],0,'.','');?></span>
           </td>
           <td>
-            <span class="hidden-print"><?=number_format($item['net'],2,'.',' ');?></span>
-            <span class="visible-print"><?=number_format($item['net'],2,'.','');?></span>
+            <span class="hidden-print"><?=number_format($item['net'],0,'.',' ');?></span>
+            <span class="visible-print"><?=number_format($item['net'],0,'.','');?></span>
           </td>
           <td>
             <span class="hidden-print"><?=number_format($item['price'],2,'.',' ');?></span>
             <span class="visible-print"><?=number_format($item['price'],2,'.','');?></span>
           </td>
           <td>
-            <span class="hidden-print"><?=number_format($item['add_expenses'],2,'.',' ');?></span>
-            <span class="visible-print"><?=number_format($item['add_expenses'],2,'.','');?></span>
+            <span class="hidden-print"><?=number_format($item['add_expenses'],0,'.',' ');?></span>
+            <span class="visible-print"><?=number_format($item['add_expenses'],0,'.','');?></span>
           </td>
           <td>
             <span class="hidden-print"><?=number_format($item['sum'],2,'.',' ');?></span>
@@ -122,20 +122,20 @@
         </th>
         <th>ИТОГО</th>
         <th>
-          <span class="hidden-print"><?=number_format($all_gross,2,'.',' ');?></span>
-          <span class="visible-print"><?=number_format($all_gross,2,'.','');?></span>
+          <span class="hidden-print"><?=number_format($all_gross,0,'.',' ');?></span>
+          <span class="visible-print"><?=number_format($all_gross,0,'.','');?></span>
         </th>
         <th>
-          <span class="hidden-print"><?=number_format($all_net,2,'.',' ');?></span>
-          <span class="visible-print"><?=number_format($all_net,2,'.','');?></span>
+          <span class="hidden-print"><?=number_format($all_net,0,'.',' ');?></span>
+          <span class="visible-print"><?=number_format($all_net,0,'.','');?></span>
         </th>
         <th>
           <span class="hidden-print"><?=number_format($all_price,2,'.',' ');?></span>
           <span class="visible-print"><?=number_format($all_price,2,'.','');?></span>
         </th>
         <th>
-          <span class="hidden-print"><?=number_format($all_add_expenses,2,'.',' ');?></span>
-          <span class="visible-print"><?=number_format($all_add_expenses,2,'.','');?></span>
+          <span class="hidden-print"><?=number_format($all_add_expenses,0,'.',' ');?></span>
+          <span class="visible-print"><?=number_format($all_add_expenses,0,'.','');?></span>
         </th>
         <th>
           <span class="hidden-print"><?=number_format($all_sum,2,'.',' ');?></span>

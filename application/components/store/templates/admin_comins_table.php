@@ -97,13 +97,13 @@
               <? } ?>
               <td>
                 <? if ($type_id == 1) {?>
-                  <span class="text-nowrap"><?=number_format(@$item['childs'][0]['gross'],2,'.',' ');?></span>
+                  <span class="text-nowrap"><?=number_format(@$item['childs'][0]['gross'],0,'.',' ');?></span>
                 <? } else {?>
-                  <span class="text-nowrap"><?=number_format(@$item['childs'][0]['net'],2,'.',' ');?></span>
+                  <span class="text-nowrap"><?=number_format(@$item['childs'][0]['net'],0,'.',' ');?></span>
                 <? } ?>
               </td>
               <td>
-                <span class="text-nowrap"><?=number_format(@$item['childs'][0]['cnt_places'],2,'.',' ');?></span>
+                <span class="text-nowrap"><?=number_format(@$item['childs'][0]['cnt_places'],0,'.',' ');?></span>
               </td>
               <td><?=@$item['childs'][0]['product_title'];?></td>
               <? //примечания ?>
@@ -116,13 +116,13 @@
               <tr>
                 <td>
                   <? if ($type_id == 1) {?>
-                    <span class="text-nowrap"><?=number_format($child['gross'],2,'.',' ');?></span>
+                    <span class="text-nowrap"><?=number_format($child['gross'],0,'.',' ');?></span>
                   <? } else {?>
-                    <span class="text-nowrap"><?=number_format($child['net'],2,'.',' ');?></span>
+                    <span class="text-nowrap"><?=number_format($child['net'],0,'.',' ');?></span>
                   <? } ?>
                 </td>
                 <td>
-                  <span class="text-nowrap"><?=number_format($child['cnt_places'],2,'.',' ');?></span>
+                  <span class="text-nowrap"><?=number_format($child['cnt_places'],0,'.',' ');?></span>
                 </td>
                 <td><?=$child['product_title'];?></td>
               </tr>

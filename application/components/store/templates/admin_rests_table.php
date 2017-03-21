@@ -29,7 +29,7 @@
       </h5>
     <? } ?>
     <? if (!$get_params['store_workshop_id']) { ?>
-    <h5 class="m-b-lg">Входящий остаток: <?=number_format($rest['start'],2,'.',' ');?> кг. на <?=rus_date($get_params['date_start'],'j m Yг.');?></h5>
+    <h5 class="m-b-lg">Входящий остаток: <?=number_format($rest['start'],0,'.',' ');?> кг. на <?=rus_date($get_params['date_start'],'j m Yг.');?></h5>
     <? } ?>
 
     <? if ($items) { ?>
@@ -69,10 +69,10 @@
           <tr>
             <td colspan="<?=($type_id == 1 ? 4 : 3);?>"><h5 class="text-right">Итого обороты</h5></td>
             <td>
-              <h4 class="text-nowrap"><?=number_format($rest['coming'],2,'.',' ');?></h4>
+              <h4 class="text-nowrap"><?=number_format($rest['coming'],0,'.',' ');?></h4>
             </td>
             <td>
-              <h4 class="text-nowrap"><?=number_format($rest['expenditure'],2,'.',' ');?></h4>
+              <h4 class="text-nowrap"><?=number_format($rest['expenditure'],0,'.',' ');?></h4>
             </td>
             <td></td>
           </tr>
@@ -80,7 +80,7 @@
             <tr>
               <td colspan="<?=($type_id == 1 ? 4 : 3);?>"><h5 class="text-right">Исходящий остаток на <?=rus_date($get_params['date_end'],'j m Yг.');?></h5></td>
               <td>
-                <h4 class="text-nowrap"><?=number_format($rest['end'],2,'.',' ');?></h4>
+                <h4 class="text-nowrap"><?=number_format($rest['end'],0,'.',' ');?></h4>
               </td>
               <td></td>
               <td></td>
@@ -98,8 +98,8 @@
           </tr>
           <tr>
             <td width="30%" class="text-middle"><h5>Итого обороты:</h5></td>
-            <td><h4 class="text-nowrap"><?=number_format($rest['coming'],2,'.',' ');?> кг.</h4></td>
-            <td><h4 class="text-nowrap"><?=number_format($rest['expenditure'],2,'.',' ');?> кг.</h4></td>
+            <td><h4 class="text-nowrap"><?=number_format($rest['coming'],0,'.',' ');?> кг.</h4></td>
+            <td><h4 class="text-nowrap"><?=number_format($rest['expenditure'],0,'.',' ');?> кг.</h4></td>
           </tr>
 
           <? if($type_id == 1 && $rest['end_clients']) { ?>
@@ -121,14 +121,14 @@
             <? if (!$get_params['store_workshop_id']) { ?>
               <tr>
                 <td colspan="2" class="text-middle"><h5 class="text-right">Исходящий остаток на <?=rus_date($get_params['date_end'],'j m Yг.');?></h5></td>
-                <td class="text-middle"><h4><?=number_format($rest['end'],2,'.',' ');?> кг.</h4></td>
+                <td class="text-middle"><h4><?=number_format($rest['end'],0,'.',' ');?> кг.</h4></td>
               </tr>
             <? } ?>
           <? } else { ?>
             <? if (!$get_params['store_workshop_id']) { ?>
               <tr>
                 <td width="30%" class="text-middle"><h5>Исходящий остаток на <?=rus_date($get_params['date_end'],'j m Yг.');?></h5></td>
-                <td colspan="2" class="text-middle"><h4><?=number_format($rest['end'],2,'.',' ');?> кг.</h4></td>
+                <td colspan="2" class="text-middle"><h4><?=number_format($rest['end'],0,'.',' ');?> кг.</h4></td>
               </tr>
             <? } ?>
           <?} ?>
