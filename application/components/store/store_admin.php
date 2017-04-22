@@ -1498,6 +1498,11 @@ class Store_admin extends CI_Component {
         'title'   => 'Цех:',
         'name'    => 'store_workshop_id',
         'options' => $this->workshops_model->get_workshops(),
+      ),
+      array(
+        'view'    => 'fields/'.($type_id == 1 ? 'hidden' : 'textarea'),
+        'title'   => 'Примечания',
+        'name'    => 'comment',
       )
     );
 
@@ -1541,7 +1546,8 @@ class Store_admin extends CI_Component {
       'store_type_id'     => $type_id,
       'client_id'         => ((int)$this->input->post('client_id') ? (int)$this->input->post('client_id') : NULL),
       'store_workshop_id' => ((int)$this->input->post('store_workshop_id') ? (int)$this->input->post('store_workshop_id') : NULL),
-      'date'              => ($this->input->post('date') ? date('Y-m-d H:i:s', strtotime($this->input->post('date'))) : NULL)
+      'date'              => ($this->input->post('date') ? date('Y-m-d H:i:s', strtotime($this->input->post('date'))) : NULL),
+      'comment'           => htmlspecialchars(trim($this->input->post('comment'))),
     );
 
     $errors = $this->_validate_expenditure_params($type_id, $params);
@@ -1693,6 +1699,12 @@ class Store_admin extends CI_Component {
         'options'  => $this->workshops_model->get_workshops(),
         'disabled' => ($item && $item['active'] ? true : false),
         'empty'    => true,
+      ),
+      array(
+        'view'    => 'fields/'.($type_id == 1 ? 'hidden' : 'textarea'),
+        'title'   => 'Примечания',
+        'name'    => 'comment',
+        'value'    => $item['comment'],
       )
     );
 
@@ -1760,6 +1772,7 @@ class Store_admin extends CI_Component {
       'date'              => ($this->input->post('date') ? date('Y-m-d H:i:s', strtotime($this->input->post('date'))) : NULL),
       'client_id'         => ((int)$this->input->post('client_id') ? (int)$this->input->post('client_id') : NULL),
       'store_workshop_id' => ((int)$this->input->post('store_workshop_id') ? (int)$this->input->post('store_workshop_id') : NULL),
+      'comment'           => htmlspecialchars(trim($this->input->post('comment'))),
 
     );
 

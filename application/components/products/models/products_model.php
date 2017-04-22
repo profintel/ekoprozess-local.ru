@@ -11,7 +11,7 @@ class Products_model extends CI_Model {
     if ($where) {
       $this->db->where($where);
     }
-    $this->db->order_by('order');
+    $this->db->order_by('title');
     $items = $this->db->get('products')->result_array();
     
     foreach ($items as &$item) {
