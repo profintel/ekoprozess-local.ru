@@ -52,6 +52,12 @@
                         <span class="glyphicon glyphicon-envelope"></span> Отправить акт по email
                       </a>
                     </li>
+                    <li class="divider"></li>
+                    <li>
+                      <a href="javascript:void(0)" onclick="setAcceptanceExceptions(<?=$item['id'];?>)">
+                        <span class="glyphicon glyphicon-"></span> Исключить акт из текущего отчета
+                      </a>
+                    </li>
                     <? if ($item['client_id']) {?>
                       <li class="divider"></li>
                       <li>
@@ -75,10 +81,10 @@
                   </ul>
                 </div>
               </td>
-              <td rowspan="<?=count($item['childs']);?>">
+              <td id="acceptanceDate<?=$item['id'];?>" rowspan="<?=count($item['childs']);?>">
                 <?=date('d.m.Y',strtotime($item['date']));?>
               </td>
-              <td rowspan="<?=count($item['childs']);?>">
+              <td id="acceptanceClientTitle<?=$item['id'];?>" rowspan="<?=count($item['childs']);?>">
                 <?=$item['client_title'];?>
               </td>
               <td>
@@ -100,7 +106,7 @@
               <td rowspan="<?=count($item['childs']);?>">
                 <span class="text-nowrap"><?=number_format($item['add_expenses'],0,'.',' ');?></span>
               </td>
-              <td rowspan="<?=count($item['childs']);?>">
+              <td id="acceptanceSum<?=$item['id'];?>" rowspan="<?=count($item['childs']);?>">
                 <span class="text-nowrap"><?=number_format($item['sum'],2,'.',' ');?></span>
               </td>
               <td rowspan="<?=count($item['childs']);?>">

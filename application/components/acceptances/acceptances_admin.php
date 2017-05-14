@@ -20,13 +20,30 @@ class Acceptances_admin extends CI_Component {
       'client_id'   => ((int)$this->uri->getParam('client_id') ? (int)$this->uri->getParam('client_id') : ''),
       'type_report' => ($this->uri->getParam('type_report') == 'short' ? 'short' : 'long'),
       'product_id'  => ($product_id && @$product_id[0] ? $product_id : array()),
+      //id актов, которые нужно исключить из отчета
+      'exceptions'  => ($this->uri->getParam('exceptions') ? $this->uri->getParam('exceptions') : ''),
     );
+    // для отображения исключений в форме
+    $exceptionsOptions = array();
+    if(is_array($get_params['exceptions']) && $get_params['exceptions']){
+      foreach ($get_params['exceptions'] as $key => $value) {
+        // добавляем данные акта в title
+        $acceptance = $this->acceptances_model->get_acceptance(array('id'=>(int)$value),true);
+        $exceptionsOptions[] = array(
+          'id' => $value,
+          'title' => ($acceptance ? date('d.m.Y',strtotime($acceptance['date'])).', '.$acceptance['client_title'].', '.number_format($acceptance['sum'],0,'.',' ') . ' руб.' : $value),
+        );
+      }
+      unset($acceptance);
+    }
+
     $data = array(
       'title' => 'Акты приемки',
       'component_item'  => array('name' => 'acceptance', 'title' => 'акт приемки'),
       'get_params'      => $get_params,
       'form' => $this->view->render_form(array(
         'method' => 'GET',
+        'id'     => 'acceptances_report',
         'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'?ajax=1' ,        
         'enctype' => '',
         'blocks' => array(
@@ -86,6 +103,16 @@ class Acceptances_admin extends CI_Component {
                 'onchange' => "submit_form(this, handle_ajaxResultAllData);",
               ),
               array(
+                'view'     => 'fields/checkbox',
+                'title'    => 'Приходы, которые исключены из текущего отчета:',
+                'id'       => 'acceptanceExceptions',
+                'name'     => 'exceptions[]',
+                'multiple' => true,
+                'options'  => ($exceptionsOptions ? $exceptionsOptions : array()),
+                'value'    => ($get_params['exceptions'] ? $get_params['exceptions'] : array()),
+                'onchange' => "setAcceptanceExceptions($(this).val(), 'delete');",
+              ),
+              array(
                 'view'          => 'fields/submit',
                 'id'            => 'btn-form',
                 'title'         => 'Сформировать',
@@ -104,15 +131,18 @@ class Acceptances_admin extends CI_Component {
     if($render_table || $this->uri->getParam('ajax') == 1){
       $error = '';
 
-      $where = array('client_acceptances.parent_id'=>null);
+      $where = 'client_acceptances.parent_id IS NULL';
       if($get_params['date_start']){
-        $where['client_acceptances.date >='] = $get_params['date_start'];
+        $where .= ' AND pr_client_acceptances.date >= "' . $get_params['date_start'].'"';
       }
       if($get_params['date_end']){
-        $where['client_acceptances.date <='] = $get_params['date_end'];
+        $where .= ' AND pr_client_acceptances.date <= "' . $get_params['date_end'].'"';
       }
       if($get_params['client_id']){
-        $where['client_acceptances.client_id'] = $get_params['client_id'];
+        $where .= ' AND pr_client_acceptances.client_id' . $get_params['client_id'];
+      }
+      if(is_array($get_params['exceptions']) && $get_params['exceptions']){
+        $where .= ' AND pr_client_acceptances.id NOT IN ('.implode(',', $get_params['exceptions']).')';
       }
 
       //если нет доступа к работе по всем клиентам добавляем условие

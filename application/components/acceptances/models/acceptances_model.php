@@ -152,6 +152,11 @@ class Acceptances_model extends CI_Model {
       $item['childs'] = $this->get_acceptances(0,0,array('parent_id'=>$item['id']),array('order'=>'asc','id'=>'asc'));
       foreach ($item['childs'] as $key => &$child) {
         $child['product'] = $this->products_model->get_product(array('id' => $child['product_id']));
+        $child['sum'] = $child['price']*$child['net'];
+        $item['gross'] += $child['gross'];
+        $item['net'] += $child['net'];
+        $item['price'] += ($child['price']*$child['net']);
+        $item['sum'] = $item['price']-$item['add_expenses'];
       }
       unset($child);
     }

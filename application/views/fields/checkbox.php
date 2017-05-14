@@ -18,7 +18,7 @@ $text_field  = (isset($vars['text_field'])  ? $vars['text_field']  : 'title');
       <label for="<?=$id;?>">
     <? } ?>
       <? if (isset($vars['title']) && $vars['title']) { ?>
-        <div class="title">
+        <div class="control-label">
           <? if (isset($vars['icon'])) { ?>
             <img src="<?=$vars['icon'];?>" class="icon" />
           <? } ?>
@@ -41,33 +41,36 @@ $text_field  = (isset($vars['text_field'])  ? $vars['text_field']  : 'title');
   
   <div class="col-sm-10">
     <? if (isset($vars['options'])) { ?>
-      <? foreach ($vars['options'] as $num => $option) { ?>
-        <div class="checkbox_item">
-          <input type="checkbox"
-            id="<?=$id;?>_<?=$num;?>"
-            name="<?=$name;?>"
-            class="default-generated<?=(isset($vars['class']) ? ' '. $vars['class'] : '');?>"
-            value="<?=$option[$value_field];?>"
-            <?=(isset($vars['tabindex']) ? 'tabindex="'. (int)$vars['tabindex'] .'"' : '');?>
-            <?
-            if (isset($vars['value'])) {
-              if (is_array($vars['value'])) {
-                if (in_array($option[$value_field], $vars['value'])) {
-                  echo ' checked';
-                }
-              } else {
-                if ($vars['value'] == $option[$value_field]) {
-                  echo ' checked';
+      <div id="<?=$id;?>">
+        <? foreach ($vars['options'] as $num => $option) { ?>
+          <div class="checkbox_item">
+            <input type="checkbox"
+              id="<?=$id;?>_<?=$num;?>"
+              name="<?=$name;?>"
+              class="default-generated<?=(isset($vars['class']) ? ' '. $vars['class'] : '');?>"
+              value="<?=$option[$value_field];?>"
+              <?=(isset($vars['onchange']) ? 'onChange="'. $vars['onchange'] .'"' : '');?>
+              <?=(isset($vars['tabindex']) ? 'tabindex="'. (int)$vars['tabindex'] .'"' : '');?>
+              <?
+              if (isset($vars['value'])) {
+                if (is_array($vars['value'])) {
+                  if (in_array($option[$value_field], $vars['value'])) {
+                    echo ' checked';
+                  }
+                } else {
+                  if ($vars['value'] == $option[$value_field]) {
+                    echo ' checked';
+                  }
                 }
               }
-            }
-            ?>
-            <?=(isset($vars['disabled']) && $vars['disabled'] ? 'disabled="disabled"' : '');?>
-          >
-          
-          <label for="<?=$id;?>_<?=$num;?>"><?=$option[$text_field];?></label>
-        </div>
-      <? } ?>
+              ?>
+              <?=(isset($vars['disabled']) && $vars['disabled'] ? 'disabled="disabled"' : '');?>
+            >
+            
+            <label for="<?=$id;?>_<?=$num;?>"><?=$option[$text_field];?></label>
+          </div>
+        <? } ?>
+      </div>
     <? } else { ?>
       <input type="checkbox"
         id="<?=$id;?>"

@@ -62,6 +62,7 @@ class View {
     $vars = array_merge(array(
       'view'     => 'forms/default',
       'action'   => '',
+      'id'       => '',
       'method'   => 'POST',
       'target'   => '_self',
       'enctype'  => 'multipart/form-data',

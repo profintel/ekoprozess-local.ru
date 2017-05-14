@@ -2,6 +2,7 @@
   <form
     class="form-horizontal panel"
     action="<?=$vars['action'];?>"
+    id="<?=$vars['id'];?>"
     method="<?=$vars['method'];?>"
     target="<?=$vars['target'];?>"
     enctype="<?=$vars['enctype'];?>"
