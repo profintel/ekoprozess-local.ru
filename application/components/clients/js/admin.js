@@ -43,9 +43,12 @@ function locationPagination(obj){
 function changeRegion(el,type){
   if(type == 'country'){
     $('#region_federal_id').parents('.form-group').addClass('loading');
+    $('select[name="region_federal_id"]').val(0);
   }
   if(type == 'federal' || type == 'country'){
     $('#region_id').parents('.form-group').addClass('loading');
+    $('select[name="region_id"]').val(0);
+    $('select[name="city_id"]').val(0);
   }
   $('#city_id').parents('.form-group').addClass('loading');
   //id федерального округа

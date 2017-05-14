@@ -1,4 +1,4 @@
-/*** Generated 15.03.2017 14:37:09 ***/
+/*** Generated 14.05.2017 23:42:05 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -3722,8 +3722,10 @@ function send_confirm(message, url, data, reaction, context, reactionCancel) {
   return my_modal('information', 'Требуется подтверждение', message, [
     {text: 'OK', handler: function(){
       my_modal('hide');
+      reaction = window[reaction];
       if(!url && typeof(reaction) == 'function'){
-        reaction.call();
+        context = context.split(',');
+        return reaction(context[0],context[1],context[2],context[3]);
       } else {
         return send_request(url, data, reaction, context);
       }
@@ -3769,7 +3771,7 @@ function submit_form(context, reaction, uri_postfix, data_type) {
   
   if (uri_postfix) {
     form.attr('action', path + uri_postfix);
-  } 
+  }
 
   // если метод get меняем путь браузера и сохраняем в историю браузера ссылку
   if(form.attr('method') == 'GET'){
@@ -3810,6 +3812,7 @@ function handle_answer(answer, reaction, context, data_type) {
   if(data_type == 'html'){
     answer = $.parseHTML(answer);
   }
+
   if(data_type == 'json'){
     try {
       answer = $.parseJSON(answer);
@@ -3820,6 +3823,10 @@ function handle_answer(answer, reaction, context, data_type) {
   
   if (answer.sysmsg) {
     return handle_sysmsg(answer.sysmsg);
+  }
+
+  if(typeof(answer.confirm) == 'object' && !$.isEmptyObject(answer.confirm)) {
+    return send_confirm(answer.confirm.message, answer.confirm.url, answer.confirm.data, answer.confirm.reaction, answer.confirm.context, answer.confirm.reactionCancel);
   }
 
   if(typeof(answer.errors) == 'object' && !$.isEmptyObject(answer.errors)) {
@@ -3852,7 +3859,7 @@ function handle_answer(answer, reaction, context, data_type) {
     document.location = answer.redirect;
   } else {
     var form = $(context).parents('form');
-    if (!reaction) {
+    if (!reaction || reaction == 'null') {
       sheet('hide');
       if(typeof(answer.success) == 'object' && !$.isEmptyObject(answer.success)) {
         alert_msg('success',answer.success);
@@ -4489,9 +4496,12 @@ function locationPagination(obj){
 function changeRegion(el,type){
   if(type == 'country'){
     $('#region_federal_id').parents('.form-group').addClass('loading');
+    $('select[name="region_federal_id"]').val(0);
   }
   if(type == 'federal' || type == 'country'){
     $('#region_id').parents('.form-group').addClass('loading');
+    $('select[name="region_id"]').val(0);
+    $('select[name="city_id"]').val(0);
   }
   $('#city_id').parents('.form-group').addClass('loading');
   //id федерального округа

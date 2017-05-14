@@ -216,8 +216,10 @@ function send_confirm(message, url, data, reaction, context, reactionCancel) {
   return my_modal('information', 'Требуется подтверждение', message, [
     {text: 'OK', handler: function(){
       my_modal('hide');
+      reaction = window[reaction];
       if(!url && typeof(reaction) == 'function'){
-        reaction.call();
+        context = context.split(',');
+        return reaction(context[0],context[1],context[2],context[3]);
       } else {
         return send_request(url, data, reaction, context);
       }
@@ -263,7 +265,7 @@ function submit_form(context, reaction, uri_postfix, data_type) {
   
   if (uri_postfix) {
     form.attr('action', path + uri_postfix);
-  } 
+  }
 
   // если метод get меняем путь браузера и сохраняем в историю браузера ссылку
   if(form.attr('method') == 'GET'){
@@ -304,6 +306,7 @@ function handle_answer(answer, reaction, context, data_type) {
   if(data_type == 'html'){
     answer = $.parseHTML(answer);
   }
+
   if(data_type == 'json'){
     try {
       answer = $.parseJSON(answer);
@@ -314,6 +317,10 @@ function handle_answer(answer, reaction, context, data_type) {
   
   if (answer.sysmsg) {
     return handle_sysmsg(answer.sysmsg);
+  }
+
+  if(typeof(answer.confirm) == 'object' && !$.isEmptyObject(answer.confirm)) {
+    return send_confirm(answer.confirm.message, answer.confirm.url, answer.confirm.data, answer.confirm.reaction, answer.confirm.context, answer.confirm.reactionCancel);
   }
 
   if(typeof(answer.errors) == 'object' && !$.isEmptyObject(answer.errors)) {
@@ -346,7 +353,7 @@ function handle_answer(answer, reaction, context, data_type) {
     document.location = answer.redirect;
   } else {
     var form = $(context).parents('form');
-    if (!reaction) {
+    if (!reaction || reaction == 'null') {
       sheet('hide');
       if(typeof(answer.success) == 'object' && !$.isEmptyObject(answer.success)) {
         alert_msg('success',answer.success);

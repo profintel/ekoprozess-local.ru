@@ -438,32 +438,181 @@ class Cities_admin extends CI_Component {
   /**
   *  Просмотр списка Городов
   */
-  function cities($page = 1) {
+  function cities($render_table = false) {
+    $get_params = array(
+      'title'             => ($this->uri->getParam('title') ? mysql_prepare($this->uri->getParam('title')) : ''),
+      'region_federal_id' => ($this->uri->getParam('region_federal_id') ? (int)$this->uri->getParam('region_federal_id') : ''),
+      'region_id'         => ($this->uri->getParam('region_id') ? (int)$this->uri->getParam('region_id') : ''),
+      'country_id'        => ($this->uri->getParam('country_id') ? (int)$this->uri->getParam('country_id') : 3159),
+    );
+
+    $data = array(
+      'title'           => 'Города',
+      'component_item'  => array('name' => 'city', 'title' => 'город'),
+      'get_params'      => $get_params,
+      //формируем ссылку на создание объекта
+      'link_create'     => array(
+          'title' => 'Создать',
+          'path'  => $this->lang_prefix.'/admin'.$this->component['path'].'create_city/',
+        ),
+      'quick_form' => $this->view->render_form(array(
+        'method'  => 'GET',
+        'action'  => $this->lang_prefix .'/admin'. $this->params['path'] .'cities_search/',
+        'view'    => 'forms/form_inline',
+        'blocks' => array(
+          array(
+            'title'    => '',
+            'fields'   => array(
+              array(
+                'view'      => 'fields/autocomplete_input',
+                'class'     => 'col-xs-11 quick_form_input',
+                'title'     => 'Название:',
+                'name'      => 'title',
+                'value'     => $get_params['title'],
+                'component' => $this->params['name'],
+                'method'    => 'cities_search',
+                'maxlength' => 256
+              ),
+              array(
+                'view'     => 'fields/submit',
+                'class'    => 'col-xs-1 quick_form_btn',
+                'icon'     => 'glyphicon-search',
+                'title'    => '',
+                'type'     => '',
+                'reaction' => $this->lang_prefix .'/admin'. $this->params['path']
+              )
+            )
+          )
+        )
+      )),
+      'form'            => $this->view->render_form(array(
+        'method' => 'GET',
+        'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'cities/?ajax=1',
+        'enctype' => '',
+        'blocks' => array(
+          array(
+            'title'    => 'Параметры поиска',
+            'fields'   => array(
+              array(
+                'view'     => 'fields/select',
+                'title'    => 'Страна:',
+                'name'     => 'country_id',
+                'multiple' => false,
+                'empty'    => true,
+                'optgroup' => false,
+                'options'  => $this->cities_model->get_countries(),
+                'value'    => $get_params['country_id'],
+                'onchange' => "changeRegion(this, 'country'); submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+              ),
+              array(
+                'view'    => 'fields/select',
+                'title'   => 'Федеральный округ:',
+                'id'      => 'region_federal_id',
+                'name'    => 'region_federal_id',
+                'value'   => $get_params['region_federal_id'],
+                'options' => $this->cities_model->get_regions_federal(0,0,array('country_id'=>$get_params['country_id'])),
+                'onchange'=> "changeRegion(this, 'federal'); submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+                'multiple' => false,
+                'empty'   => true
+              ),
+              array(
+                'view'     => 'fields/select',
+                'title'    => 'Регион:',
+                'name'     => 'region_id',
+                'multiple' => false,
+                'empty'    => true,
+                'optgroup' => false,
+                'options'  => $this->cities_model->get_regions(),
+                'value'    => $get_params['region_id'],
+                'onchange' => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+              ),
+              array(
+                'view'          => 'fields/submit',
+                'title'         => 'Сформировать',
+                'type'          => 'ajax',
+                'id'            => 'btn-form',
+                'reaction_func' => true,
+                'reaction'      => 'handle_ajaxResultHTML',
+                'data_type'     => 'html'
+              )
+            )
+          )
+        )
+      )),
+    );
+    
+    // если запрос на формирование данных, иначе возвращаем шаблон - обертку
+    if($render_table || $this->uri->getParam('ajax') == 1){
+      $where = array();
+      $error = '';
+      if($get_params['title']){
+        $where['pr_city.title LIKE '] = $get_params['title'].'%';
+      }
+      if($get_params['region_id']){
+        $where['pr_city.region_id'] = $get_params['region_id'];
+      }
+
+      $page = ($this->uri->getParam('page') ? $this->uri->getParam('page') : 1);
+      $limit = 50;
+      $offset = $limit * ($page - 1);
+      $cnt = $this->cities_model->get_cities_cnt($where);
+      $pages = get_pages($page, $cnt, $limit);
+      $postfix = '';
+      foreach ($get_params as $key => $get_param) {
+        if(is_array($get_param)){
+          $postfix .= $key.'[]='.implode('&'.$key.'[]=', $get_param).'&';
+        } else {
+          $postfix .= $key.'='.$get_param.'&';
+        }
+      }
+      $pagination_data = array(
+        'ajax'    => true,
+        'pages' => $pages,
+        'page' => $page,
+        'prefix' => '/admin'.$this->params['path'].'cities/',
+        'postfix' => $postfix
+      );
+
+      $data = array_merge($data, array(
+        'pagination'  => $this->load->view('templates/pagination', $pagination_data, true),
+        'error'       => $error,
+        'items'       => $this->cities_model->get_cities($limit, $offset, $where, false, $get_params['region_federal_id'], $get_params['country_id'])
+      ));
+      
+      if($render_table){
+        return $this->load->view('../../application/components/cities/templates/admin_table',$data,true);
+      } else if($this->uri->getParam('ajax') == 1){
+        echo $this->load->view('../../application/components/cities/templates/admin_table',$data,true);
+        return;
+      }
+    }
+
+    return $this->render_template('templates/admin_items', array('data'=>$data));
+  }
+
+  /**
+  *  Быстрый поиск города по названию
+  */
+  function cities_search() {
     $where = array();
-    $title = ($this->uri->getParam('title') ? mysql_prepare($this->uri->getParam('title')) : '');
+    $title = ($this->input->post('search_string') ? mysql_prepare($this->input->post('search_string')) : '');
     if($title){
       $where['title LIKE'] = $title.'%';
     }
-    $limit = 50;
-    $offset = $limit * ($page - 1);
-    $cnt = $this->cities_model->get_cities_cnt($where);
-    $pages = get_pages($page, $cnt, $limit);
-    $pagination_data = array(
-      'pages' => $pages,
-      'page' => $page,
-      'prefix' => '/admin'.$this->params['path'].'cities/',
-      'postfix' => ($title ? '?title='.$title : '')
-    );
-    $data = array(
-      'title' => 'Города',
-      'search_path'     => '/admin'.$this->params['path'].'cities/',
-      'search_title'    => $title,
-      'component_item'  => array('name' => 'city', 'title' => 'город'),
-      'items'           => $this->cities_model->get_cities($limit, $offset, $where),
-      'pagination'      => $this->load->view('admin/pagination', $pagination_data, true),
-    );
+    // var_dump($where);
+    $limit = 20;
+    $offset = 0;
+    $items = $this->cities_model->get_cities($limit, $offset, $where);
+    $result = array('items'=>array());
+    foreach ($items as $key => $item) {
+      $result['items'][] = array(
+        'id'        => $item['id'],
+        'title'     => $item['title_full'],
+        'location'  => '/admin'.$this->params['path'].'edit_city/'.$item['id'].'/',
+      );
+    }
 
-    return $this->render_template('admin/items', $data);
+    echo json_encode($result);
   }
   
   /**

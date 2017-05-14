@@ -737,12 +737,14 @@ class Acceptances_admin extends CI_Component {
           'view'     => 'fields/submit',
           'title'    => 'Сохранить',
           'type'     => 'ajax',
+          'id'       => 'submitAcceptance',
           'reaction' => ''
         ),
         array(
           'view'     => 'fields/submit',
           'title'    => 'Сохранить и просмотреть',
           'type'     => 'ajax',
+          'failure'  => '/0/0/'.urlencode(base64_encode('/admin'.$this->params['path'].'acceptance/'.$id.'/')),
           'reaction' => '/admin'.$this->params['path'].'acceptance/'.$id.'/'
         )
       )
@@ -811,7 +813,14 @@ class Acceptances_admin extends CI_Component {
     ), TRUE);
   }
   
-  function _edit_acceptance_process($id, $auto = false) {
+  /*
+  * @params:
+  *   id - id акта приемки, 
+  *   $auto - автоматическое редактирование, при редактировании прихода
+  *   $check_param - показывать или нет сообщение-предупреждение, если не указан необходимый параметр
+  *   $redirect_url - используется после сообщения-предупреждения, если после сохранения нужен редирект
+  */
+  function _edit_acceptance_process($id, $auto = false, $check_param = false, $redirect_url = false) {
     $item = $this->acceptances_model->get_acceptance(array('client_acceptances.id'=>$id));
     if(!$item){
       show_error('Объект не найден');
@@ -885,16 +894,45 @@ class Acceptances_admin extends CI_Component {
       //редактируем/добавляем к акту вторсырье
       $params_products = array(
         'item_id'       => $this->input->post('item_id'),
-        'product_id'    => $this->input->post('product_id'),
-        'weight_ttn'    => $this->input->post('weight_ttn'),
-        'gross'         => $this->input->post('gross'),
-        'weight_pack'   => $this->input->post('weight_pack'),
-        'weight_defect' => $this->input->post('weight_defect'),
-        'cnt_places'    => $this->input->post('cnt_places'),
-        'net'           => $this->input->post('net'),
-        'price'         => $this->input->post('price'),
+        'product_id'    => $this->input->post('product_id')
       );
+
+      // делаем проверку на каждый параметр, чтобы можно было записать значение 0
+      if($this->input->post('weight_ttn')){
+        $params_products['weight_ttn'] = $this->input->post('weight_ttn');
+      }
+      if($this->input->post('gross')){
+        $params_products['gross'] = $this->input->post('gross');
+      }
+      if($this->input->post('weight_pack')){
+        $params_products['weight_pack'] = $this->input->post('weight_pack');
+      }
+      if($this->input->post('weight_defect')){
+        $params_products['weight_defect'] = $this->input->post('weight_defect');
+      }
+      if($this->input->post('cnt_places')){
+        $params_products['cnt_places'] = $this->input->post('cnt_places');
+      }
+      if($this->input->post('net')){
+        $params_products['net'] = $this->input->post('net');
+      }
+      if($this->input->post('price')){
+        $params_products['price'] = $this->input->post('price');
+      }
+
+      // 22.04.2017 если не указан засор предупреждаем 1 раз, потом сохраняем
+      // проверяем отдельным методом, т.к. в акте эти поля disabled и не передаются из формы
+      if(!$this->acceptances_model->check_acceptance_products($id,'weight_defect') && !$check_param){
+        send_answer(array('confirm' => array(
+          'message' => 'Засор составляет 0%. Продолжить?',
+          'url'     => '',
+          'data'    => '{}',
+          'reaction'=> 'submit_form',
+          'context' => "#submitAcceptance,".($redirect_url ? urldecode(base64_decode($redirect_url)) : null).",0/1/,json",
+          )));
+      }
     }
+
     
     if (!$this->acceptances_model->update_acceptance($id, $main_params)) {
       send_answer(array('errors' => array('Ошибка при сохранении изменений')));
@@ -930,28 +968,28 @@ class Acceptances_admin extends CI_Component {
         if($auto || !$item['store_coming_id']){
           $params['client_id'] = $main_params['client_id'];
         }
-        if(isset($params_products['gross'][$key]) && $params_products['gross'][$key]){
+        if(isset($params_products['gross'][$key])){
           $params['gross'] = (float)str_replace(' ', '', $params_products['gross'][$key]);
         }
-        if(isset($params_products['weight_pack'][$key]) && $params_products['weight_pack'][$key]){
+        if(isset($params_products['weight_pack'][$key])){
           $params['weight_pack'] = (float)str_replace(' ', '', $params_products['weight_pack'][$key]);
         }
-        if(isset($params_products['weight_defect'][$key]) && $params_products['weight_defect'][$key]){
+        if(isset($params_products['weight_defect'][$key])){
           $params['weight_defect'] = (float)str_replace(' ', '', $params_products['weight_defect'][$key]);
         }
-        if(isset($params_products['cnt_places'][$key]) && $params_products['cnt_places'][$key]){
+        if(isset($params_products['cnt_places'][$key])){
           $params['cnt_places'] = (float)str_replace(' ', '', $params_products['cnt_places'][$key]);
         }
-        if(isset($params_products['weight_ttn'][$key]) && $params_products['weight_ttn'][$key]){
+        if(isset($params_products['weight_ttn'][$key])){
           $params['weight_ttn'] = (float)str_replace(' ', '', $params_products['weight_ttn'][$key]);
         }
-        if(isset($params_products['net'][$key]) && $params_products['net'][$key]){
+        if(isset($params_products['net'][$key])){
           $params['net'] = (float)str_replace(' ', '', $params_products['net'][$key]);
         }
-        if(isset($params_products['price'][$key]) && $params_products['price'][$key]){
+        if(isset($params_products['price'][$key])){
           $params['price'] = (float)str_replace(' ', '', $params_products['price'][$key]);
         }
-        if(isset($params_products['store_coming_id'][$key]) && $params_products['store_coming_id'][$key]){
+        if(isset($params_products['store_coming_id'][$key])){
           $params['store_coming_id'] = $params_products['store_coming_id'][$key];
         }
         if ($params_products['item_id'][$key] && 

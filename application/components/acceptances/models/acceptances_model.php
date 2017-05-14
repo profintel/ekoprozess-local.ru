@@ -213,4 +213,22 @@ class Acceptances_model extends CI_Model {
     }
     return false;
   }
+
+  /*
+  * Метод для проверки параметров,указанных в вторсырье
+  * @param: $field_param - поле вторсырья, котрое надо проверить
+  * @return: boolean
+  */
+  function check_acceptance_products($acceptance_id,$field_param){
+    $item = $this->get_acceptance(array('id'=>(int)$acceptance_id));
+    if(!$item) return false;
+    
+    foreach ($item['childs'] as $key => $child) {
+      if(!$child[$field_param]){
+        return false;
+      }
+    }
+
+    return true;
+  }
 }
