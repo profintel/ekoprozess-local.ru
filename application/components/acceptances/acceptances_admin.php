@@ -27,7 +27,7 @@ class Acceptances_admin extends CI_Component {
       'get_params'      => $get_params,
       'form' => $this->view->render_form(array(
         'method' => 'GET',
-        'action' => $this->lang_prefix .'/admin'. $this->params['path'] ,        
+        'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'?ajax=1' ,        
         'enctype' => '',
         'blocks' => array(
           array(
@@ -48,21 +48,21 @@ class Acceptances_admin extends CI_Component {
                     'title' => 'Расширенный',
                   )
                 ),
-                'onchange' => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+                'onchange' => "submit_form(this, handle_ajaxResultAllData);",
               ),
               array(
                 'view'        => 'fields/date',
                 'title'       => 'Дата приемки (от):',
                 'name'        => 'date_start',
                 'value'       => ($get_params['date_start']? date('d.m.Y',strtotime($get_params['date_start'])) : ''),
-                'onchange1'    => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+                'onchange1'    => "submit_form(this, handle_ajaxResultAllData);",
               ),
               array(
                 'view'        => 'fields/date',
                 'title'       => 'Дата приемки (до):',
                 'name'        => 'date_end',
                 'value'       => ($get_params['date_end']? date('d.m.Y',strtotime($get_params['date_end'])) : ''),
-                'onchange1'    => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+                'onchange1'    => "submit_form(this, handle_ajaxResultAllData);",
               ),
               array(
                 'view'       => 'fields/select',
@@ -72,7 +72,7 @@ class Acceptances_admin extends CI_Component {
                 'value'      => $get_params['client_id'],
                 'options'    => $this->clients_model->get_clients(),
                 'empty'      => true,
-                'onchange'   => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+                'onchange'   => "submit_form(this, handle_ajaxResultAllData);",
               ),
               array(
                 'view'     => 'fields/select',
@@ -83,16 +83,16 @@ class Acceptances_admin extends CI_Component {
                 'optgroup' => false,
                 'options'  => $this->products_model->get_products(array('parent_id' => null)),
                 'value'    => $get_params['product_id'],
-                'onchange' => "submit_form(this, handle_ajaxResultHTML, '?ajax=1', 'html');",
+                'onchange' => "submit_form(this, handle_ajaxResultAllData);",
               ),
               array(
                 'view'          => 'fields/submit',
+                'id'            => 'btn-form',
                 'title'         => 'Сформировать',
                 'type'          => 'ajax',
-                'failure'       => '?ajax=1',
                 'reaction_func' => true,
-                'reaction'      => 'handle_ajaxResultHTML',
-                'data_type'     => 'html'
+                'reaction'      => 'handle_ajaxResultAllData',
+                'data_type'     => 'json'
               )
             )
           )
@@ -161,9 +161,12 @@ class Acceptances_admin extends CI_Component {
       if($render_table){
         return $this->load->view('../../application/components/acceptances/templates/admin_client_acceptances_tbl_'.$type_report,$data,true);
       } else if($this->uri->getParam('ajax') == 1){
-        echo $this->load->view('../../application/components/acceptances/templates/admin_client_acceptances_tbl_'.$type_report,$data,true);
+        send_answer(array(
+          'page'  => (isset($page) ? $page : 1),
+          'pages' => (isset($pages) ? count($pages) : 0),
+          'html' => $this->load->view('../../application/components/acceptances/templates/admin_client_acceptances_tbl_'.$type_report,$data,true)
+          ));
       }
-      exit;
     }
 
     return $this->render_template('templates/admin_client_acceptances', $data);
