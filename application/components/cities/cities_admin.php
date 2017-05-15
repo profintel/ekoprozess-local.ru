@@ -443,7 +443,7 @@ class Cities_admin extends CI_Component {
       'title'             => ($this->uri->getParam('title') ? mysql_prepare($this->uri->getParam('title')) : ''),
       'region_federal_id' => ($this->uri->getParam('region_federal_id') ? (int)$this->uri->getParam('region_federal_id') : ''),
       'region_id'         => ($this->uri->getParam('region_id') ? (int)$this->uri->getParam('region_id') : ''),
-      'country_id'        => ($this->uri->getParam('country_id') ? (int)$this->uri->getParam('country_id') : 3159),
+      'country_id'        => ($this->uri->getParam('country_id') !== FALSE ? (int)$this->uri->getParam('country_id') : 3159),
     );
 
     $data = array(
@@ -555,7 +555,7 @@ class Cities_admin extends CI_Component {
       $page = ($this->uri->getParam('page') ? $this->uri->getParam('page') : 1);
       $limit = 50;
       $offset = $limit * ($page - 1);
-      $cnt = $this->cities_model->get_cities_cnt($where);
+      $cnt = $this->cities_model->get_cities_cnt($where, $get_params['region_federal_id'], $get_params['country_id']);
       $pages = get_pages($page, $cnt, $limit);
       $postfix = '';
       foreach ($get_params as $key => $get_param) {

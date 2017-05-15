@@ -241,9 +241,19 @@ class Cities_model extends CI_Model {
     return $items;
   }
   
-  function get_cities_cnt($where = '') {
+  function get_cities_cnt($where = '', $region_federal_id = 0, $country_id = 0) {
     if ($where) {
       $this->db->where($where);
+    }
+    if ($country_id || $region_federal_id) {
+      $this->db->join('region','region.id = city.region_id');
+    }
+    if ($country_id) {      
+      $this->db->where(array('region.country_id' => $country_id));
+    }
+    if ($region_federal_id) {
+      $this->db->join('region_federal_regions','region_federal_regions.region_id = region.id');
+      $this->db->where(array('region_federal_regions.federal_id' => $region_federal_id));
     }
     return $this->db->count_all_results('city');
   }
