@@ -1207,8 +1207,9 @@ class Acceptances_admin extends CI_Component {
   /**
   *  Отправление email с актом приемки
   *  @params $id - id акта приемки
+  *   $check_param - показывать или нет сообщение-предупреждение, если не указан необходимый параметр
   */
-  function _client_acceptance_email($id) {
+  function _client_acceptance_email($id, $check_param = false, $redirect_url = false) {
     $item = $this->acceptances_model->get_acceptance(array('client_acceptances.id'=>$id));
     if(!$item){
       send_answer(array('errors' => array('Объект не найден')));
@@ -1217,6 +1218,17 @@ class Acceptances_admin extends CI_Component {
     //если клиент не текущего менеджера и нет доступа к работе по всем клиентам
     if($item['client_id'] && $item['client']['admin_id'] != $this->admin_id && !$this->permits_model->check_access($this->admin_id, $this->component['name'], $method = 'permit_acceptance_allClients')){
       send_answer(array('errors' => array('У вас нет прав на работу с актами приемки для клиентов других менеджеров')));
+    }
+
+    // 22.04.2017 если не указан засор предупреждаем 1 раз, потом отправляем
+    if(!$this->acceptances_model->check_acceptance_products($id,'weight_defect') && !$check_param){
+      send_answer(array('confirm' => array(
+        'message' => 'Засор составляет 0%. Продолжить?',
+        'url'     => '',
+        'data'    => '{}',
+        'reaction'=> 'submit_form',
+        'context' => "#submitAcceptanceEmail,reload,1/,json",
+        )));
     }
 
     $from = $this->input->post('from');

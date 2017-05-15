@@ -58,7 +58,7 @@
     <div class="form-horizontal panel">
       <div class="form_block panel-body">
         <?=$html;?>
-        <a href="#" class="btn btn-primary btn-xs pull-right" onclick="return submit_form(this, 'reload', null);">
+        <a href="#" id="submitAcceptanceEmail" class="btn btn-primary btn-xs pull-right" onclick="return submit_form(this, 'reload', null);">
           <span class="glyphicon glyphicon-save"></span>  Отправить
         </a>
       </div>
