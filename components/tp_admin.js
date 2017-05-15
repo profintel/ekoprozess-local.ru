@@ -1,4 +1,4 @@
-/*** Generated 15.05.2017 16:13:07 ***/
+/*** Generated 15.05.2017 16:16:21 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -3731,10 +3731,6 @@ function send_confirm(message, url, data, reaction, context, reactionCancel) {
           reaction = window[reaction];
           if(typeof(reaction) == 'function'){
             context = context.split(',');
-            console.log('context[0]',context[0]);
-            console.log('context[0]',context[1]);
-            console.log('context[0]',context[2]);
-            console.log('context[0]',context[3]);
             return reaction(context[0],context[1],context[2],context[3]);
           } else {
             return my_modal('error', 'Возникли следующие ошибки:', 'Не найден метод для обработки запроса', 'OK');
@@ -3786,8 +3782,6 @@ function submit_form(context, reaction, uri_postfix, data_type) {
   if (uri_postfix) {
     form.attr('action', path + uri_postfix);
   }
-
-  console.log(reaction, path + uri_postfix);
 
   // если метод get меняем путь браузера и сохраняем в историю браузера ссылку
   if(form.attr('method') == 'GET'){
@@ -3874,7 +3868,6 @@ function handle_answer(answer, reaction, context, data_type) {
   } else if(typeof(answer.redirect) != 'undefined') {
     document.location = answer.redirect;
   } else {
-    console.log(answer,reaction);
     var form = $(context).parents('form');
     if (!reaction || reaction == 'null') {
       sheet('hide');
@@ -3989,7 +3982,6 @@ var defButtons = {
 * events - объект с событиями
 */
 function my_modal(type, title, messages, buttons, events) {
-  console.log('my_modal',type);
   var m = $('#modal');
   
   if (type == 'hide') {
