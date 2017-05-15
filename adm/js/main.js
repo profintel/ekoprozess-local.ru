@@ -483,10 +483,12 @@ var defButtons = {
 * events - объект с событиями
 */
 function my_modal(type, title, messages, buttons, events) {
+  console.log('my_modal',type);
   var m = $('#modal');
   
   if (type == 'hide') {
     m.modal('hide');
+    $('.modal-backdrop').remove();
     return false;
   }
   

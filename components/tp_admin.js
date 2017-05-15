@@ -1,4 +1,4 @@
-/*** Generated 15.05.2017 15:17:34 ***/
+/*** Generated 15.05.2017 16:13:07 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -3989,10 +3989,12 @@ var defButtons = {
 * events - объект с событиями
 */
 function my_modal(type, title, messages, buttons, events) {
+  console.log('my_modal',type);
   var m = $('#modal');
   
   if (type == 'hide') {
     m.modal('hide');
+    $('.modal-backdrop').remove();
     return false;
   }
   
