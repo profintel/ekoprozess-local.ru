@@ -368,7 +368,7 @@ function handle_answer(answer, reaction, context, data_type) {
   } else if(typeof(answer.redirect) != 'undefined') {
     document.location = answer.redirect;
   } else {
-    console.log(reaction);
+    console.log(answer,reaction);
     var form = $(context).parents('form');
     if (!reaction || reaction == 'null') {
       sheet('hide');

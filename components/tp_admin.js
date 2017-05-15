@@ -1,4 +1,4 @@
-/*** Generated 15.05.2017 15:15:07 ***/
+/*** Generated 15.05.2017 15:17:34 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -3874,7 +3874,7 @@ function handle_answer(answer, reaction, context, data_type) {
   } else if(typeof(answer.redirect) != 'undefined') {
     document.location = answer.redirect;
   } else {
-    console.log(reaction);
+    console.log(answer,reaction);
     var form = $(context).parents('form');
     if (!reaction || reaction == 'null') {
       sheet('hide');

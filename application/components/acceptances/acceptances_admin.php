@@ -1227,7 +1227,7 @@ class Acceptances_admin extends CI_Component {
         'url'     => '',
         'data'    => '{}',
         'reaction'=> 'submit_form',
-        'context' => "#submitAcceptanceEmail,reload,1/,json",
+        'context' => "#submitAcceptanceEmail,0,1/,json",
         )));
     }
 
