@@ -216,10 +216,20 @@ function send_confirm(message, url, data, reaction, context, reactionCancel) {
   return my_modal('information', 'Требуется подтверждение', message, [
     {text: 'OK', handler: function(){
       my_modal('hide');
-      reaction = window[reaction];
-      if(!url && typeof(reaction) == 'function'){
-        context = context.split(',');
-        return reaction(context[0],context[1],context[2],context[3]);
+
+      if(!url){
+        // если строкой передали название функции, проверяеми наличие функции и выполняем ее
+        if (typeof(reaction) == 'function') {
+          reaction.call();
+        } else {
+          reaction = window[reaction];
+          if(typeof(reaction) == 'function'){
+            context = context.split(',');
+            return reaction(context[0],context[1],context[2],context[3]);
+          } else {
+            return my_modal('error', 'Возникли следующие ошибки:', 'Не найден метод для обработки запроса', 'OK');
+          }
+        }
       } else {
         return send_request(url, data, reaction, context);
       }
