@@ -11,11 +11,9 @@ class Acceptances_model extends CI_Model {
   }
 
   function get_acceptances($limit = 0, $offset = 0, $where = array(), $order_by = array(), $product_id = array()) {
-    $this->db->select('client_acceptances.*');
-    //для проверки прав на работу по всем клиентам
-    if(is_array($where) && @$where['clients.admin_id']){
-      $this->db->join('clients','clients.id = client_acceptances.client_id');      
-    }
+    $this->db->select('client_acceptances.*,clients.title_full as client_title,client_childs.title_full as client_child_title');
+    $this->db->join('clients','clients.id = client_acceptances.client_id');
+    $this->db->join('clients as client_childs','client_childs.id = client_acceptances.client_child_id','left');
     if ($where) {
       $this->db->where($where);
     }
@@ -54,15 +52,9 @@ class Acceptances_model extends CI_Model {
     }
     $this->db->group_by('client_acceptances.id');
     $items = $this->db->get('client_acceptances')->result_array();
+    // echo $this->db->last_query();
     unset($where);
     foreach ($items as $key => &$item) {
-      $item['client_title'] = $item['company'];
-      if($item['client_id']){
-        $item['client'] = $this->clients_model->get_client(array('id'=>$item['client_id']));
-        if($item['client']){
-          $item['client_title'] = $item['client']['title_full'];
-        }
-      }
       if(is_null($item['parent_id'])){
         $this->db->select('client_acceptances.*,t2.title_full as product_title');
         // join-им чтобы вывести название товара и отчет по группе продукции
@@ -103,10 +95,8 @@ class Acceptances_model extends CI_Model {
   
   function get_acceptances_cnt($where = '', $product_id = array()) {
     $this->db->select('COUNT(DISTINCT(pr_client_acceptances.id)) as cnt');
-    //для проверки прав на работу по всем клиентам
-    if(is_array($where) && @$where['clients.admin_id']){
-      $this->db->join('clients','clients.id = client_acceptances.client_id');      
-    }
+    $this->db->join('clients','clients.id = client_acceptances.client_id');
+
     if ($where) {
       $this->db->where($where);
     }
@@ -136,20 +126,33 @@ class Acceptances_model extends CI_Model {
   }
 
   function get_acceptance($where = array(), $full = true) {
-    $this->db->select('client_acceptances.*');
+    $this->db->select('client_acceptances.*,
+      clients.title_full as client_title, 
+      clients.admin_id as client_admin_id,
+      clients.email as client_email,
+      client_childs.title_full as client_child_title,
+      client_childs.admin_id as client_child_admin_id,
+      client_childs.email as client_child_email');
+    // данные по клиенту
+    $this->db->join('clients','clients.id = client_acceptances.client_id');
+    // данные по компании, если указан client_child_id
+    $this->db->join('clients as client_childs','client_childs.id = client_acceptances.client_child_id','left');
     $item = $this->db->get_where('client_acceptances', $where)->row_array();
+
     if($item && $full){
-      $item['client_title'] = $item['company'];
-      if($item['client_id']){
-        $item['client'] = $this->clients_model->get_client(array('id'=>$item['client_id']));
-        if($item['client']){
-          $item['client_title'] = $item['client']['title'];
-          if($item['client']['city_id']){
-            $item['city'] = $this->cities_model->get_city(array('id' => $item['client']['city_id']));
-          }
-        }
-      }
-      $item['childs'] = $this->get_acceptances(0,0,array('parent_id'=>$item['id']),array('order'=>'asc','id'=>'asc'));
+      $item['client'] = array(
+        'id'          => $item['client_id'],
+        'admin_id'    => $item['client_admin_id'],
+        'client_title'=> $item['client_title'],
+        'email'       => $item['client_email'],
+      );
+      $item['client_child'] = array(
+        'id'          => $item['client_child_id'],
+        'admin_id'    => $item['client_child_admin_id'],
+        'client_title'=> $item['client_child_title'],
+        'email'       => $item['client_child_email'],
+      );
+      $item['childs'] = $this->get_acceptances(0,0,array('client_acceptances.parent_id'=>$item['id']),array('order'=>'asc','id'=>'asc'));
       foreach ($item['childs'] as $key => &$child) {
         $child['product'] = $this->products_model->get_product(array('id' => $child['product_id']));
         $child['sum'] = $child['price']*$child['net'];

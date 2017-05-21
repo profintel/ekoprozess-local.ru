@@ -13,7 +13,7 @@
   <table border="1" cellpadding="10" width="100%" style="background-color:#ffffff; border-collapse: collapse; font-size:14px;" class="table table-bordered">
     <tr>
       <th align="left">Поставщик</th>
-      <td><?=$item['client_title'];?></td>
+      <td><?=($item['client_child_id'] ? $item['client_child_title'] : $item['client_title']);?></td>
     </tr>
     <? if(isset($item['city']) && $item['city']){ ?>
       <tr>

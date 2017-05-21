@@ -316,7 +316,9 @@ class Clients_admin extends CI_Component {
   }
 
   /**
-  * Поиск клиентов по регионам/городам
+  * Поиск городов
+  * по указанным параметрам (страна, федеральный округ, регион)
+  * return json
   */
   function renderSelectsReport() {
     //Формирует html select-ов для отчета
@@ -792,14 +794,14 @@ class Clients_admin extends CI_Component {
       'onclick'  => 'window.open("/admin/acceptances/create_acceptance/?client_id='.$item['id'].'","_client_acceptance_create_'.$item['id'].'")',
     );
     //список актов приемки
-    $acceptances = $this->acceptances_model->get_acceptances(3, 0, array('client_id'=>$id,'parent_id'=>null), array('tm'=>'desc'));
+    $acceptances = $this->acceptances_model->get_acceptances(3, 0, '(pr_client_acceptances.client_id = ' . $id . ' OR pr_client_acceptances.client_child_id = ' . $id . ') AND pr_client_acceptances.parent_id IS NULL', array('tm'=>'desc'));
     //поля для формы
     $fields_acceptances = array();
     if($acceptances){
       $fields_acceptances[] = array(
         'view'      => 'fields/readonly_value',
         'title'     => '',
-        'value'     => $this->load->view('../../application/components/acceptances/templates/admin_client_acceptances_tbl_sm',array('items' => $acceptances,'client_id'=>$id),TRUE),
+        'value'     => $this->load->view('../../application/components/acceptances/templates/admin_client_acceptances_tbl_sm',array('items' => $acceptances, 'client_id' => ($item['parent_id'] ? $item['parent_id'] : $item['id']), 'client_child_id' => ($item['parent_id'] ? $item['id'] : 0)),TRUE),
       );
     }
 
@@ -1525,6 +1527,31 @@ class Clients_admin extends CI_Component {
     }
 
     send_answer(array('messages' => array('Файл успешно обработан')));
+  }
+
+
+  /**
+  * Поиск дочерних клиентов (компаний)
+  * по указанному client_id
+  * return json
+  */
+  function renderSelectClientChilds() {
+    //Формирует html select-ов для отчета
+    $result = array();
+    $type = $this->input->post('type');
+    $client_id = ((int)$this->input->post('client_id') ? (int)$this->input->post('client_id') : 0);
+    $vars = array(
+      'view'       => 'fields/select',
+      'title'      => 'Компания:',
+      'id'         => 'client_child_id',
+      'name'       => 'client_child_id',
+      'text_field' => 'title_full',
+      'options'    => $this->clients_model->get_clients(0,0,($client_id ? 'parent_id = ' . $client_id : 'parent_id IS NOT NULL')),
+      'empty'      => true,
+      'onchange'   => "submit_form(this, handle_ajaxResultAllData);",
+    );
+    $result['html'] = $this->load->view('fields/select', array('vars' => $vars), true);
+    echo json_encode($result);
   }
 
 }

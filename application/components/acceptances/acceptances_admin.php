@@ -10,7 +10,8 @@ class Acceptances_admin extends CI_Component {
     $this->load->model('store/models/store_model');
   }
   
-  /** Просмотр списка актов приемки по своим клиентам
+  /** 
+  * Просмотр списка актов приемки по своим клиентам
   */
   function index($render_table = false) {
     $product_id = $this->uri->getParam('product_id');
@@ -18,6 +19,7 @@ class Acceptances_admin extends CI_Component {
       'date_start'  => ($this->uri->getParam('date_start') ? date('Y-m-d',strtotime($this->uri->getParam('date_start'))) : date('Y-m-1')),
       'date_end'    => ($this->uri->getParam('date_end') ? date('Y-m-d',strtotime($this->uri->getParam('date_end'))) : ''),
       'client_id'   => ((int)$this->uri->getParam('client_id') ? (int)$this->uri->getParam('client_id') : ''),
+      'client_child_id'   => ((int)$this->uri->getParam('client_child_id') ? (int)$this->uri->getParam('client_child_id') : ''),
       'type_report' => ($this->uri->getParam('type_report') == 'short' ? 'short' : 'long'),
       'product_id'  => ($product_id && @$product_id[0] ? $product_id : array()),
       //id актов, которые нужно исключить из отчета
@@ -28,7 +30,7 @@ class Acceptances_admin extends CI_Component {
     if(is_array($get_params['exceptions']) && $get_params['exceptions']){
       foreach ($get_params['exceptions'] as $key => $value) {
         // добавляем данные акта в title
-        $acceptance = $this->acceptances_model->get_acceptance(array('id'=>(int)$value),true);
+        $acceptance = $this->acceptances_model->get_acceptance(array('pr_client_acceptances.id'=>(int)$value),true);
         $exceptionsOptions[] = array(
           'id' => $value,
           'title' => ($acceptance ? date('d.m.Y',strtotime($acceptance['date'])).', '.$acceptance['client_title'].', '.number_format($acceptance['sum'],0,'.',' ') . ' руб.' : $value),
@@ -89,6 +91,17 @@ class Acceptances_admin extends CI_Component {
                 'value'      => $get_params['client_id'],
                 'options'    => $this->clients_model->get_clients(),
                 'empty'      => true,
+                'onchange'   => "changeClientChilds(); submit_form(this, handle_ajaxResultAllData);",
+              ),
+              array(
+                'view'       => 'fields/select',
+                'title'      => 'Компания:',
+                'id'         => 'client_child_id',
+                'name'       => 'client_child_id',
+                'text_field' => 'title_full',
+                'value'      => $get_params['client_child_id'],
+                'options'    => $this->clients_model->get_clients(0,0,($get_params['client_id'] ? 'parent_id = ' . $get_params['client_id'] : 'parent_id IS NOT NULL')),
+                'empty'      => true,
                 'onchange'   => "submit_form(this, handle_ajaxResultAllData);",
               ),
               array(
@@ -140,6 +153,9 @@ class Acceptances_admin extends CI_Component {
       }
       if($get_params['client_id']){
         $where .= ' AND pr_client_acceptances.client_id = ' . $get_params['client_id'];
+      }
+      if($get_params['client_child_id']){
+        $where .= ' AND pr_client_acceptances.client_child_id = ' . $get_params['client_child_id'];
       }
       if(is_array($get_params['exceptions']) && $get_params['exceptions']){
         $where .= ' AND pr_client_acceptances.id NOT IN ('.implode(',', $get_params['exceptions']).')';
@@ -656,6 +672,9 @@ class Acceptances_admin extends CI_Component {
     if(!$item){
       show_error('Объект не найден');
     }
+    // компании клиента
+    $client_childs = $this->clients_model->get_clients(0,0,array('parent_id' => $item['client_id']));
+
     $blocks = array(array(
       'title'   => 'Основные параметры',
       'fields'   => array(
@@ -667,6 +686,16 @@ class Acceptances_admin extends CI_Component {
           'options'    => $this->clients_model->get_clients(),
           'value'      => $item['client_id'],
           'disabled'   => ($item && $item['store_coming_id'] ? true : false),
+          'empty'      => true,
+        ),
+        array(
+          'view'       => 'fields/'.($client_childs ? 'select' : 'hidden' ),
+          'title'      => 'Компания:',
+          'name'       => 'client_child_id',
+          'text_field' => 'title_full',
+          'options'    => $client_childs,
+          'value'      => $item['client_child_id'],
+          // 'disabled'   => ($item && $item['store_coming_id'] ? true : false),
           'empty'      => true,
         ),
         array(
@@ -901,12 +930,13 @@ class Acceptances_admin extends CI_Component {
     }
     if(!$auto){
       $main_params = array(
-        'company'       => htmlspecialchars(trim($this->input->post('company'))),
-        'add_expenses'  => (float)str_replace(' ', '', $this->input->post('add_expenses')),
-        'comment'       => htmlspecialchars(trim($this->input->post('comment'))),
-        'date_num'      => htmlspecialchars(trim($this->input->post('date_num'))),
-        'transport'     => htmlspecialchars(trim($this->input->post('transport'))),
-        'auto'          => 0,
+        'company'         => htmlspecialchars(trim($this->input->post('company'))),
+        'client_child_id' => (int)$this->input->post('client_child_id'),
+        'add_expenses'    => (float)str_replace(' ', '', $this->input->post('add_expenses')),
+        'comment'         => htmlspecialchars(trim($this->input->post('comment'))),
+        'date_num'        => htmlspecialchars(trim($this->input->post('date_num'))),
+        'transport'       => htmlspecialchars(trim($this->input->post('transport'))),
+        'auto'            => 0,
       );
 
       if($this->input->post('date') && !$item['store_coming_id']){
@@ -1132,7 +1162,7 @@ class Acceptances_admin extends CI_Component {
     );
 
     if($item['client_id']){
-      $item['email'] = $item['client']['email'];
+      $item['email'] = ($item['client_child_id'] ? $item['client_child']['email'] : $item['client']['email']);
       
       $block_title_btns = array_merge($block_title_btns, array(
         $this->load->view('fields/submit', 

@@ -85,7 +85,7 @@
                 <?=date('d.m.Y',strtotime($item['date']));?>
               </td>
               <td id="acceptanceClientTitle<?=$item['id'];?>" rowspan="<?=count($item['childs']);?>">
-                <?=$item['client_title'];?>
+                <?=($item['client_child_title'] ? $item['client_child_title'].'<br><small><strong>'.$item['client_title'].'</strong></small>' : $item['client_title']);?>
               </td>
               <td>
                 <span class="text-nowrap"><?=number_format(@$item['childs'][0]['gross'],0,'.',' ');?></span>
