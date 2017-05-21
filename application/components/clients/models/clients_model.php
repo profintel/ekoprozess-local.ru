@@ -23,6 +23,9 @@ class Clients_model extends CI_Model {
     if ($where) {
       $this->db->where($where);
     }
+    if (empty($where['parent_id'])) {
+      $this->db->where(array('parent_id' => null));
+    }
     $items = $this->db->get('clients')->result_array();
     
     return $items;
@@ -45,6 +48,7 @@ class Clients_model extends CI_Model {
       $this->db->where($where);
     }
     $items = $this->db->get('clients')->result_array();
+
     //Дополнительные параметры для события
     $client_param_desc = $this->clients_model->get_client_param();
     foreach ($items as $key => &$item) {
@@ -71,6 +75,9 @@ class Clients_model extends CI_Model {
   function get_clients_cnt($where = '') {
     if ($where) {
       $this->db->where($where);
+    }
+    if (empty($where['parent_id'])) {
+      $this->db->where(array('parent_id' => null));
     }
     return $this->db->count_all_results('clients');
   }
