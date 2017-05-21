@@ -139,7 +139,7 @@ class Acceptances_admin extends CI_Component {
         $where .= ' AND pr_client_acceptances.date <= "' . $get_params['date_end'].'"';
       }
       if($get_params['client_id']){
-        $where .= ' AND pr_client_acceptances.client_id' . $get_params['client_id'];
+        $where .= ' AND pr_client_acceptances.client_id = ' . $get_params['client_id'];
       }
       if(is_array($get_params['exceptions']) && $get_params['exceptions']){
         $where .= ' AND pr_client_acceptances.id NOT IN ('.implode(',', $get_params['exceptions']).')';
@@ -147,7 +147,7 @@ class Acceptances_admin extends CI_Component {
 
       //если нет доступа к работе по всем клиентам добавляем условие
       if(!$this->permits_model->check_access($this->admin_id, $this->component['name'], $method = 'permit_acceptance_allClients')){
-        $where['clients.admin_id'] = $this->admin_id;
+        $where .= ' AND pr_clients.admin_id =' . $this->admin_id;
         // проверка свой ли клиент указан
         if($get_params['client_id']){
           $client = $this->clients_model->get_client(array('id'=>$get_params['client_id']));
