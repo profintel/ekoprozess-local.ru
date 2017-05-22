@@ -228,7 +228,7 @@ class Acceptances_model extends CI_Model {
   * @return: boolean
   */
   function check_acceptance_products($acceptance_id,$field_param){
-    $item = $this->get_acceptance(array('id'=>(int)$acceptance_id));
+    $item = $this->get_acceptance(array('client_acceptances.id'=>(int)$acceptance_id));
     if(!$item) return false;
     
     foreach ($item['childs'] as $key => $child) {
