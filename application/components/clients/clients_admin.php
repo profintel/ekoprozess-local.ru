@@ -152,14 +152,6 @@ class Clients_admin extends CI_Component {
                 'empty'       => true
               ),
               array(
-                'view'    => 'fields/hidden',
-                'title'   => 'ID:',
-                'name'    => 'client_id',
-                'value'   => $get_params['client_id'],
-                'options' => $this->clients_model->get_clients(),
-                'empty'   => true
-              ),
-              array(
                 'view'          => 'fields/submit',
                 'title'         => 'Поиск',
                 'type'          => 'ajax',
@@ -377,46 +369,6 @@ class Clients_admin extends CI_Component {
     );
     $result['city'] = $this->load->view('fields/select', array('vars' => $vars), true);
     echo json_encode($result);
-  }
-
-  /**
-  *  Просмотр списка клиентов
-  */
-  function _clients_list($page = 1) {
-    $where = array();
-    $title = ($this->uri->getParam('title') ? mysql_prepare($this->uri->getParam('title')) : '');
-    if($title){
-      $where['title LIKE'] = $title.'%';
-    }
-    $limit = 50;
-    $offset = $limit * ($page - 1);
-    $cnt = $this->clients_model->get_clients_cnt($where );
-    $pages = get_pages($page, $cnt, $limit);
-    $pagination_data = array(
-      'pages'   => $pages,
-      'page'    => $page,
-      'prefix'  => '/admin'.$this->params['path'].'clients_list/',
-      'postfix' => ($title ? '?title='.$title : '')
-    );
-    $items = $this->clients_model->get_clients($limit, $offset, $where);
-    foreach ($items as $key => &$item) {
-      $city = $this->cities_model->get_city(array('id'=>$item['city_id']));
-      if($city){
-        $region_federal = $this->cities_model->get_region_federal_region($city['region_id']);
-        $item['title'] = $city['title_full'] .' ('.@$region_federal['title'] .') '. $item['title'];
-      }
-    }
-    unset($item);
-    $data = array(
-      'title'           => 'Клиенты',
-      'search_path'     => '/admin'.$this->params['path'].'clients_list/',
-      'search_title'    => $title,
-      'component_item'  => array('name' => 'client', 'title' => 'клиента'),
-      'items'           => $items,
-      'pagination'      => $this->load->view('admin/pagination', $pagination_data, true),
-    );
-
-    return $this->render_template('admin/items', $data);
   }
 
   /**
