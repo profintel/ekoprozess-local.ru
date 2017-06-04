@@ -689,6 +689,52 @@ class Clients_admin extends CI_Component {
       show_error('У вас нет прав на просмотр карточки клиента других менеджеров');
     }
 
+    // основные параметры
+    $main_fields = array(
+      array(
+        'view'      => 'fields/text',
+        'title'     => 'Название:',
+        'name'      => 'title',
+        'value'     => $item['title'],
+        'maxlength' => 256
+      ),
+      array(
+        'view'  => 'fields/text',
+        'title' => 'Email:',
+        'name'  => 'email',
+        'value' => $item['email'],
+      ),
+      array(
+        'view'    => 'fields/select',
+        'title'   => 'Город:',
+        'name'    => 'city_id',
+        'value'   => $item['city_id'],
+        'options' => $this->cities_model->get_cities(),
+        'empty'   => true
+      ),
+      array(
+        'view'        => 'fields/select',
+        'title'       => 'Менеджер:',
+        'name'        => 'admin_id',
+        'value'       => $item['admin_id'],
+        'text_field'  => 'name_ru',
+        'options'     => $this->administrators_model->get_admins(),
+        'empty'       => true
+      ),
+      array(
+        'view'    => 'fields/checkbox',
+        'title'   => 'Разовый клиент',
+        'name'    => 'one_time',
+        'checked' => $item['one_time'],
+      ),
+      array(
+        'view'     => 'fields/submit',
+        'title'    => 'Сохранить',
+        'type'     => 'ajax',
+        'reaction' => ''
+      )
+    );
+
     $languages = $this->languages_model->get_languages(1, 0);
     //Дополнительные параметры
     $client_params = $this->clients_model->get_client_params();
@@ -767,16 +813,18 @@ class Clients_admin extends CI_Component {
       $fields_companies = array();
       foreach($companies as $company){
         $fields_companies[] = array(
-          'view'      => 'fields/readonly_value',
+          'view'      => 'fields/readonly',
           'title'     => '',
           'value'     => '<a href="/admin/clients/edit_client/'.$company['id'].'">'.$company['title_full'].'</a>',
         );
-      }      
+      }
+      // добавляем в основные параметры, после названия
+      array_splice($main_fields,1,0,$fields_companies);
     }
 
     // заголовок страницы
     if($item['parent_id']){
-      $title = 'Карточка компании <small>(ID '.$item['id'].')'.'<br/>Клиент: '.(isset($parent) && $parent ? $parent['title_full'] : '').'</small>';
+      $title = 'Карточка компании <small>(ID '.$item['id'].')'.'<br/>Клиент: <a href="/admin/clients/edit_client/'.$item['parent_id'].'">'.(isset($parent) && $parent ? $parent['title_full'] : '').'</a></small>';
     } else {
       $title = 'Карточка клиента <small>(ID '.$item['id'].')</small>';
     }
@@ -788,7 +836,7 @@ class Clients_admin extends CI_Component {
           'title'   => 'Удалить карточку',
           'class'   => 'btn-default',
           'icon'    => 'glyphicon-remove',
-          'onclick' =>  'return send_confirm("Вы уверены, что хотите удалить клиента - ID'.$item['id'].' '.$item['title'].'?","'.$this->lang_prefix .'/admin'. $this->params['path'] .'delete_client/'.$id.'/", {},"'.$this->lang_prefix .'/admin'. $this->params['path'].'clients_report/" );'
+          'onclick' =>  'return send_confirm("Вы уверены, что хотите удалить клиента - ID'.$item['id'].' '.$item['title'].'?","'.$this->lang_prefix .'/admin'. $this->params['path'] .'delete_client/'.$id.'/", {},"'.($item['parent_id'] ? $this->lang_prefix .'/admin'. $this->params['path'].'edit_client/'.$item['parent_id'] : $this->lang_prefix .'/admin'. $this->params['path'].'clients_report/').'" );'
         )), true),
       'html' => $this->view->render_form(array(
         'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'_edit_client_process/'.$id.'/',
@@ -798,50 +846,12 @@ class Clients_admin extends CI_Component {
             'title'   => 'Основные параметры',
             'col'     => 1,
             'small'   => false,
-            'fields'  => array(
-              array(
-                'view'      => 'fields/text',
-                'title'     => 'Название:',
-                'name'      => 'title',
-                'value'     => $item['title'],
-                'maxlength' => 256
-              ),
-              array(
-                'view'  => 'fields/text',
-                'title' => 'Email:',
-                'name'  => 'email',
-                'value' => $item['email'],
-              ),
-              array(
-                'view'    => 'fields/select',
-                'title'   => 'Город:',
-                'name'    => 'city_id',
-                'value'   => $item['city_id'],
-                'options' => $this->cities_model->get_cities(),
-                'empty'   => true
-              ),
-              array(
-                'view'        => 'fields/select',
-                'title'       => 'Менеджер:',
-                'name'        => 'admin_id',
-                'value'       => $item['admin_id'],
-                'text_field'  => 'name_ru',
-                'options'     => $this->administrators_model->get_admins(),
-                'empty'       => true
-              ),
-              array(
-                'view'    => 'fields/checkbox',
-                'title'   => 'Разовый клиент',
-                'name'    => 'one_time',
-                'checked' => $item['one_time'],
-              ),
-              array(
-                'view'     => 'fields/submit',
-                'title'    => 'Сохранить',
-                'type'     => 'ajax',
-                'reaction' => ''
-              )
-            )
+            'title_btn' => (is_null($item['parent_id']) ? $this->load->view('fields/submit', array('vars' => array(
+                'title'   => 'Добавить компанию',
+                'icon'    => 'glyphicon-add',
+                'onclick' => 'window.open("/admin/clients/create_client/'.$item['id'].'/")',
+              )), true) : ''),
+            'fields'  => $main_fields
           ),
           array(
             'title'   => 'Дополнительные параметры',
@@ -982,19 +992,6 @@ class Clients_admin extends CI_Component {
                 'reaction' => 'reload'
               )
             ),
-            'aria-expanded' => true
-          ),
-          array(
-            'title'     => 'Компании',
-            'col'       => 2,
-            'small'     => true,
-            'class'     => 'block_companies ' . ($item['parent_id'] ? 'hide' : ''),
-            'title_btn' => $this->load->view('fields/submit', array('vars' => array(
-                'title'   => 'Добавить компанию',
-                'icon'    => 'glyphicon-add',
-                'onclick' => 'window.open("/admin/clients/create_client/'.$item['id'].'/")',
-              )), true),
-            'fields'  => (isset($fields_companies) ? $fields_companies : ''),
             'aria-expanded' => true
           ),
         )
