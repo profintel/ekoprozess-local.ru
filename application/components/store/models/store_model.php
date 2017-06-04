@@ -106,7 +106,7 @@ class Store_model extends CI_Model {
         $item['workshop'] = $this->workshops_model->get_workshop(array('id'=>$item['store_workshop_id']));
       }
       // акт приемки
-      $item['acceptance'] = $this->acceptances_model->get_acceptance(array('store_coming_id'=>$item['id']));
+      $item['acceptance'] = $this->acceptances_model->get_acceptance(array('client_acceptances.store_coming_id'=>$item['id']));
       //считаем общие параметры
       if(is_null($item['parent_id'])){
         // Делаем запрос на дочерние, для отображения видов сырья
@@ -243,7 +243,7 @@ class Store_model extends CI_Model {
           }
         }
         // акт приемки
-        $item['acceptance'] = $this->acceptances_model->get_acceptance(array('store_coming_id'=>$item['id']),false); 
+        $item['acceptance'] = $this->acceptances_model->get_acceptance(array('client_acceptances.store_coming_id'=>$item['id']),false); 
       }
 
       if($item['parent_id']){

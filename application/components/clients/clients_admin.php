@@ -452,14 +452,14 @@ class Clients_admin extends CI_Component {
                 'view'  => 'fields/text',
                 'title' => 'Email:',
                 'name'  => 'email',
-                'value' => ($parent ? $parent['email'] : ''),
+                'value' => (isset($parent) && $parent ? $parent['email'] : ''),
               ),
               array(
                 'view'    => 'fields/select',
                 'title'   => 'Город:',
                 'name'    => 'city_id',
                 'options' => $this->cities_model->get_cities(),
-                'value'   => ($parent ? $parent['city_id'] : ''),
+                'value'   => (isset($parent) && $parent ? $parent['city_id'] : ''),
                 'empty'   => true
               ),
               array(
@@ -469,7 +469,7 @@ class Clients_admin extends CI_Component {
                 'value'       => $this->admin_id,
                 'text_field'  => 'name_ru',
                 'options'     => $this->administrators_model->get_admins(),
-                'value'       => ($parent ? $parent['admin_id'] : $this->admin_id),
+                'value'       => (isset($parent) && $parent ? $parent['admin_id'] : $this->admin_id),
                 'empty'       => true
               ),
               array(

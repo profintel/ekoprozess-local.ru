@@ -931,7 +931,7 @@ class Acceptances_admin extends CI_Component {
     if(!$auto){
       $main_params = array(
         'company'         => htmlspecialchars(trim($this->input->post('company'))),
-        'client_child_id' => (int)$this->input->post('client_child_id'),
+        'client_child_id' => ((int)$this->input->post('client_child_id') ? (int)$this->input->post('client_child_id') : NULL),
         'add_expenses'    => (float)str_replace(' ', '', $this->input->post('add_expenses')),
         'comment'         => htmlspecialchars(trim($this->input->post('comment'))),
         'date_num'        => htmlspecialchars(trim($this->input->post('date_num'))),

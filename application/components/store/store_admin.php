@@ -1002,7 +1002,7 @@ class Store_admin extends CI_Component {
     // Редактируем акт приемки по приходу, если первичная продукция
     if($item['store_type_id'] == 1){
       $this->load->component(array('name' => 'acceptances'));
-      $acceptance = $this->acceptances_model->get_acceptance(array('store_coming_id'=>$id));
+      $acceptance = $this->acceptances_model->get_acceptance(array('client_acceptances.store_coming_id'=>$id));
       if($acceptance){
         if (!$this->acceptances->_edit_acceptance_process($acceptance['id'], true)){
           $this->delete_coming($id, true);
