@@ -613,6 +613,7 @@ class Acceptances_admin extends CI_Component {
         'date_num'        => htmlspecialchars(trim($this->input->post('date_num'))),
         'transport'       => htmlspecialchars(trim($this->input->post('transport'))),
         'client_id'       => ((int)$this->input->post('client_id') ? (int)$this->input->post('client_id') : NULL),
+        'client_child_id' => ((int)$this->input->post('client_child_id') ? (int)$this->input->post('client_child_id') : NULL),
         'company'         => htmlspecialchars(trim($this->input->post('company'))),
         'date_time'       => ($this->input->post('date_time') ? date('Y-m-d H:i:s', strtotime($this->input->post('date_time'))) : NULL),
         'add_expenses'    => (float)str_replace(' ', '', $this->input->post('add_expenses')),
