@@ -577,6 +577,8 @@ class Acceptances_admin extends CI_Component {
         'store_coming_id' => $store_coming_id,
         'date'            => date('Y-m-d', strtotime($store_coming['date_second'])),
         'client_id'       => $store_coming['client_id'],
+        // статус "в обработке"
+        'status_id'       => 1,
         'date_time'       => $store_coming['date_primary'],
         'date_num'        => $store_coming['date_num'],
         'transport'       => $store_coming['transport'],
@@ -614,6 +616,8 @@ class Acceptances_admin extends CI_Component {
         'transport'       => htmlspecialchars(trim($this->input->post('transport'))),
         'client_id'       => ((int)$this->input->post('client_id') ? (int)$this->input->post('client_id') : NULL),
         'client_child_id' => ((int)$this->input->post('client_child_id') ? (int)$this->input->post('client_child_id') : NULL),
+        // статус "в обработке"
+        'status_id'       => 1,
         'company'         => htmlspecialchars(trim($this->input->post('company'))),
         'date_time'       => ($this->input->post('date_time') ? date('Y-m-d H:i:s', strtotime($this->input->post('date_time'))) : NULL),
         'add_expenses'    => (float)str_replace(' ', '', $this->input->post('add_expenses')),
@@ -950,6 +954,11 @@ class Acceptances_admin extends CI_Component {
         'transport'       => htmlspecialchars(trim($this->input->post('transport'))),
         'auto'            => 0,
       );
+
+      // меняем статус Новый на статус В обработке
+      if($item['status_id'] == 1){
+        $main_params['status_id'] = 2;
+      }
 
       if($this->input->post('date') && !$item['store_coming_id']){
         $main_params['date'] = date('Y-m-d', strtotime($this->input->post('date')));

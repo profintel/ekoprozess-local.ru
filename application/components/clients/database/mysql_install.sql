@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS `pr_client_acceptance_statuses`;
+
 DROP TABLE IF EXISTS `pr_client_acceptance_emails`;
 
 DROP TABLE IF EXISTS `pr_client_acceptances`;
@@ -66,8 +68,21 @@ CREATE TABLE `pr_products` (
 ALTER TABLE `pr_products`
   ADD CONSTRAINT `pr_products_ibfk_1` FOREIGN KEY (`parent_id`) REFERENCES `pr_products` (`id`) ON DELETE CASCADE;
 
+CREATE TABLE IF NOT EXISTS `pr_client_acceptance_statuses` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(256) NOT NULL,
+  `color` varchar(256) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `pr_client_acceptances`;
+DELETE FROM `pr_client_acceptance_statuses`;
+
+INSERT INTO `pr_client_acceptance_statuses` (`id`,`title`,`color`) VALUES 
+  (1,'Новый','rgb(217,237,247)'),
+  (2,'В обработке',''),
+  (3,'Отправлен по email',''),
+  (4,'Отправлено в бухгалтерию','rgb(254,244,217)'),
+  (5,'Оплачено','rgb(208,241,220)');
 
 -- Акты приемки
 CREATE TABLE IF NOT EXISTS `pr_client_acceptances` (
@@ -76,6 +91,7 @@ CREATE TABLE IF NOT EXISTS `pr_client_acceptances` (
   `date_time` datetime DEFAULT NULL,
   `parent_id` int(10) unsigned DEFAULT NULL,
   `client_id` int(10) unsigned DEFAULT NULL,
+  `status_id` int(10) unsigned DEFAULT NULL,
   `company` varchar(100) DEFAULT NULL,
   `date_num` varchar(100) DEFAULT NULL,
   `transport` varchar(100) DEFAULT NULL,
@@ -97,6 +113,7 @@ CREATE TABLE IF NOT EXISTS `pr_client_acceptances` (
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 ALTER TABLE `pr_client_acceptances`
+  ADD CONSTRAINT `pr_client_acceptances_ibfk_4` FOREIGN KEY (`status_id`) REFERENCES `pr_client_acceptance_statuses` (`id`) ON DELETE SET NULL,
   ADD CONSTRAINT `pr_client_acceptances_ibfk_3` FOREIGN KEY (`product_id`) REFERENCES `pr_products` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `pr_client_acceptances_ibfk_2` FOREIGN KEY (`client_id`) REFERENCES `pr_clients` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `pr_client_acceptances_ibfk_1` FOREIGN KEY (`parent_id`) REFERENCES `pr_client_acceptances` (`id`) ON DELETE CASCADE;
@@ -111,8 +128,6 @@ ALTER TABLE  `pr_client_acceptances` ADD INDEX (  `store_coming_id` );
 ALTER TABLE `pr_client_acceptances` ADD CONSTRAINT `pr_client_acceptances_ibfk_4` FOREIGN KEY (`store_coming_id`) REFERENCES `pr_store_comings` (`id`) ON DELETE CASCADE;
 
 ALTER TABLE  `pr_client_acceptances` ADD  `auto` BOOLEAN NOT NULL AFTER  `comment`;
-
-DROP TABLE IF EXISTS `pr_client_acceptance_emails`;
 
 CREATE TABLE IF NOT EXISTS `pr_client_acceptance_emails` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -130,4 +145,3 @@ CREATE TABLE IF NOT EXISTS `pr_client_acceptance_emails` (
 ALTER TABLE `pr_client_acceptance_emails`
   ADD CONSTRAINT `pr_client_acceptance_emails_ibfk_2` FOREIGN KEY (`admin_id`) REFERENCES `pr_admins` (`id`) ON DELETE SET NULL,
   ADD CONSTRAINT `pr_client_acceptance_emails_ibfk_1` FOREIGN KEY (`acceptance_id`) REFERENCES `pr_client_acceptances` (`id`) ON DELETE CASCADE;
-  

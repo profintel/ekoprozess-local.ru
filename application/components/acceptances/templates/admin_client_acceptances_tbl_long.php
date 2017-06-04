@@ -32,7 +32,7 @@
         <tbody>
           <?$all_gross = $all_net = $all_price = $all_add_expenses = $all_sum = 0; ?>
           <? foreach ($items as $item) { ?>
-            <tr class="<?=($item['auto'] ? 'info' : '');?>">
+            <tr style="background-color:<?=($item['status_color'] ? $item['status_color'] : 'none');?>">
               <td class="td-dropdown hidden-print" rowspan="<?=count($item['childs']);?>">
                 <div class="dropdown">
                   <a class="dropdown-toggle" data-toggle="dropdown"></a>
