@@ -52,7 +52,7 @@
             <? } ?>
             <div id="collapse<?=$num;?>" class="panel-collapse collapse <?=(@$block['aria-expanded'] === FALSE ? '' : 'in');?>" role="tabpanel" aria-labelledby="heading<?=$num;?>">
               <div class="panel-body clearfix">
-                <div class="panel-body__fields <?=(isset($block['small']) && $block['small'] ? 'panel-body_sm'  : '');?>">
+                <div class="panel-body__fields panel-body__fields_close <?=(isset($block['small']) && $block['small'] ? 'panel-body_sm'  : '');?>">
                   <?=$block['fields'];?>
                 </div>
                 <div class="panel-body__fields_more">
@@ -112,7 +112,7 @@
             <? } ?>
             <div id="collapse<?=$num;?>" class="panel-collapse collapse <?=(@$block['aria-expanded'] === FALSE ? '' : 'in');?>" role="tabpanel" aria-labelledby="heading<?=$num;?>">
               <div class="panel-body clearfix">
-                <div class="panel-body__fields <?=(isset($block['small']) && $block['small'] ? 'panel-body_sm'  : '');?>">
+                <div class="panel-body__fields panel-body__fields_close <?=(isset($block['small']) && $block['small'] ? 'panel-body_sm'  : '');?>">
                   <?=$block['fields'];?>
                 </div>
                 <div class="panel-body__fields_more">

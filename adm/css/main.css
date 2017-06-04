@@ -516,11 +516,19 @@ div.quick_form_input+div{
   padding: 15px;
 }
 .form_cols .panel-body__fields.panel-body_sm{
-  overflow: hidden;
   max-height: 250px;
+}
+.form_cols .panel-body__fields.panel-body_sm.panel-body__fields_close{
+  overflow: hidden;
+}
+.form_cols .panel-body__fields.panel-body_sm.panel-body__fields_open{
+  overflow: visible;
+  max-height:100%;
 }
 .block_docs .panel-body__fields.panel-body_sm{
   min-height: 200px;
+  max-height:100% !important;
+  overflow: visible !important;
 }
 .form_cols .panel-body__fields_more{
   padding: 10px 15px 5px 15px;

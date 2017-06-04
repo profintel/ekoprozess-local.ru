@@ -1,4 +1,4 @@
-/*** Generated 04.06.2017 16:04:03 ***/
+/*** Generated 04.06.2017 20:43:34 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -4057,18 +4057,12 @@ function make_button(container, button) {
 function togglePanel(obj){
   var container = $(obj).parents('.panel-body').find('.panel-body__fields');
   if(container.length){
-    if(container[0].scrollHeight > container.outerHeight()){
-      container.animate({
-        'max-height': container[0].scrollHeight+"px"
-      },200,function(){
-        $(obj).html('<span class="glyphicon glyphicon-menu-up"></span> свернуть');
-      })
+    if(container.hasClass('panel-body__fields_close')){
+      container.removeClass('panel-body__fields_close').addClass('panel-body__fields_open');
+      $(obj).html('<span class="glyphicon glyphicon-menu-up"></span> свернуть');
     } else {
-      container.animate({
-        'max-height': "250px"
-      },200,function(){
-        $(obj).html('<span class="glyphicon glyphicon-menu-down"></span> развернуть');
-      })
+      container.removeClass('panel-body__fields_open').addClass('panel-body__fields_close');
+      $(obj).html('<span class="glyphicon glyphicon-menu-down"></span> развернуть');
     }
   }
 }
