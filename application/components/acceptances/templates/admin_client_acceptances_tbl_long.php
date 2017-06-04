@@ -116,7 +116,7 @@
             <?//убираем 1 элемент, т.к. вставили его уже выше?>
             <?array_shift($item['childs']);?>
             <?foreach ($item['childs'] as $key => $child) {?>
-              <tr class="<?=($item['auto'] ? 'info' : '');?>">
+              <tr style="background-color:<?=($item['status_color'] ? $item['status_color'] : 'none');?>">
                 <td>
                   <span class="text-nowrap"><?=number_format($child['gross'],0,'.',' ');?></span>
                 </td>
