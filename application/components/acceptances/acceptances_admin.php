@@ -473,6 +473,17 @@ class Acceptances_admin extends CI_Component {
           'options'   => $this->clients_model->get_clients(0,0,array('parent_id' => null)),
           'value'     => $client_id,
           'empty'     => true,
+          'onchange'   => "changeClientChilds(0);",
+        ),
+        array(
+          'view'       => 'fields/select',
+          'title'      => 'Компания:',
+          'id'         => 'client_child_id',
+          'name'       => 'client_child_id',
+          'text_field' => 'title_full',
+          'options'    => ($client_id ? $this->clients_model->get_clients(0,0,array('parent_id'=>$client_id)) : array()),
+          'empty'      => true,
+          'onchange'   => "return false;",
         ),
         array(
           'view'  => 'fields/datetime',
@@ -1077,7 +1088,7 @@ class Acceptances_admin extends CI_Component {
     if(!@$item['store_coming_id']){
       if (!$params['client_id'] && !$params['company']) { 
         $errors['client_id'] = 'Не указан поставщик';
-        $errors['company'] = 'Не указана поставщик'; 
+        $errors['company'] = 'Не указан поставщик'; 
       }
       $client = $this->clients_model->get_client(array('id' => (int)$params['client_id']));
       if($params['client_id'] && !$client){

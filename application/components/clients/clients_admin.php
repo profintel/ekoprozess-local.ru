@@ -1492,6 +1492,7 @@ class Clients_admin extends CI_Component {
     $result = array();
     $type = $this->input->post('type');
     $client_id = ((int)$this->input->post('client_id') ? (int)$this->input->post('client_id') : 0);
+    $onchange = ($this->input->post('onchange') ? 1 : 0);
     $vars = array(
       'view'       => 'fields/select',
       'title'      => 'Компания:',
@@ -1500,7 +1501,7 @@ class Clients_admin extends CI_Component {
       'text_field' => 'title_full',
       'options'    => $this->clients_model->get_clients(0,0,($client_id ? 'parent_id = ' . $client_id : 'parent_id IS NOT NULL')),
       'empty'      => true,
-      'onchange'   => "submit_form(this, handle_ajaxResultAllData);",
+      'onchange'   => ($onchange ? "submit_form(this, handle_ajaxResultAllData);" : ''),
     );
     $result['html'] = $this->load->view('fields/select', array('vars' => $vars), true);
     echo json_encode($result);

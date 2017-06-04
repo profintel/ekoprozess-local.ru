@@ -1,4 +1,4 @@
-/*** Generated 21.05.2017 19:30:22 ***/
+/*** Generated 04.06.2017 16:04:03 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -4076,13 +4076,13 @@ function togglePanel(obj){
 /**
 * Меняет значения select компаний (дочерние клиенты) по клиентам
 */
-function changeClientChilds(){
+function changeClientChilds(onchange){
   $('#client_child_id').parents('.form-group').addClass('loading').val(0);
   //id клиента
   client_id = $('select[name="client_id"]').val();
 
-  $.post('/admin/clients/renderSelectClientChilds/', {client_id: client_id}, function(result) {
-    console.log('result',result, typeof result.html);
+  $.post('/admin/clients/renderSelectClientChilds/', {client_id: client_id, onchange:(onchange?1:0)}, function(result) {
+    // console.log('result',result, typeof result.html);
     if(typeof result.html != 'undefined'){
       $('#client_child_id').parents('.form-group').find('.col-sm-10').html($(result.html).find('.col-sm-10').html());
       $('#client_child_id').chosen({
