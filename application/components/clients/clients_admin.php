@@ -833,10 +833,10 @@ class Clients_admin extends CI_Component {
       'title' => $title,
       'block_title_btn' => $this->load->view('fields/submit', 
         array('vars' => array(
-          'title'   => 'Удалить карточку',
+          'title'   => 'Удалить '.($item['parent_id'] ? 'компанию' : 'карточку'),
           'class'   => 'btn-default',
           'icon'    => 'glyphicon-remove',
-          'onclick' =>  'return send_confirm("Вы уверены, что хотите удалить клиента - ID'.$item['id'].' '.$item['title'].'?","'.$this->lang_prefix .'/admin'. $this->params['path'] .'delete_client/'.$id.'/", {},"'.($item['parent_id'] ? $this->lang_prefix .'/admin'. $this->params['path'].'edit_client/'.$item['parent_id'] : $this->lang_prefix .'/admin'. $this->params['path'].'clients_report/').'" );'
+          'onclick' =>  'return send_confirm("Вы уверены, что хотите удалить '.($item['parent_id'] ? 'компанию' : 'карточку').' - ID'.$item['id'].' '.$item['title'].'?","'.$this->lang_prefix .'/admin'. $this->params['path'] .'delete_client/'.$id.'/", {},"'.($item['parent_id'] ? $this->lang_prefix .'/admin'. $this->params['path'].'edit_client/'.$item['parent_id'] : $this->lang_prefix .'/admin'. $this->params['path'].'clients_report/').'" );'
         )), true),
       'html' => $this->view->render_form(array(
         'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'_edit_client_process/'.$id.'/',
