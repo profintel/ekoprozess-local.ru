@@ -782,7 +782,7 @@ class Clients_admin extends CI_Component {
         'view'      => 'fields/readonly',
         'title'     => '<small>'.date('d.m.Y H:i:s',strtotime($value['start'])).'</small> '.
                        "<small><a href='javascript:void(0)' onClick='editEvent(".json_encode($value).")'>Редактировать</a></small>",
-        'value'     => '<small>'.$value['admin']['params']['name_'.$this->language].($value['event'] ? '<br/>'.$value['event'] : '').($value['result'] ? '<br/>('.$value['result'].')' : '').'</small>',
+        'value'     => '<div class="col-xs-10"><small>'.$value['admin']['params']['name_'.$this->language].($value['event'] ? '<br/>'.$value['event'] : '').($value['result'] ? '<br/>('.$value['result'].')' : '').'</small></div><div class="col-xs-2"><small><a href="javascript:void(0)" onClick="deleteEvent('.$value['id'].',`'.$value['event'].'`)">Удалить</a></small></div>',
       );
     }
     //параметры для добавления акта приемки

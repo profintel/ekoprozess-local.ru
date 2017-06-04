@@ -261,6 +261,17 @@ class Calendar_admin extends CI_Component {
     send_answer();
   }
 
+  /**
+   * Удаление события
+  **/
+  function delete_event($id) {
+    if (!$this->calendar_model->delete_event((int)$id)) {
+      send_answer(array('errors' => array('Не удалось удалить объект')));
+    }
+    
+    send_answer();
+  }
+  
   function get_events() {
     $where = array('admin_id'=>$this->admin_id);
     if($this->uri->getParam('start')){

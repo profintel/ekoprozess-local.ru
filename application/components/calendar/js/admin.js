@@ -141,6 +141,15 @@ function editEvent(calEvent, reaction){
     
   })
 }
+
+
+/* Удаление события календаря
+* @param calEvent - данные события в формате json
+*/
+function deleteEvent(id,title){
+  return send_confirm('Вы уверены, что хотите удалить событие '+title+'?','/admin/calendar/delete_event/'+id+'/',{},'reload');
+}
+
 //Обновление данных события после отправки формы редактирования
 function updateEvent(calEvent){
   setTimeout(function(){

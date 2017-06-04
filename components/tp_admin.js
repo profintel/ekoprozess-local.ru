@@ -1,4 +1,4 @@
-/*** Generated 04.06.2017 20:43:34 ***/
+/*** Generated 04.06.2017 22:25:12 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -4427,6 +4427,15 @@ function editEvent(calEvent, reaction){
     
   })
 }
+
+
+/* Удаление события календаря
+* @param calEvent - данные события в формате json
+*/
+function deleteEvent(id,title){
+  return send_confirm('Вы уверены, что хотите удалить событие '+title+'?','/admin/calendar/delete_event/'+id+'/',{},'reload');
+}
+
 //Обновление данных события после отправки формы редактирования
 function updateEvent(calEvent){
   setTimeout(function(){
