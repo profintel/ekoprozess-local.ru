@@ -32,7 +32,7 @@
         <tbody>
           <?$all_gross = $all_net = $all_price = $all_add_expenses = $all_sum = 0; ?>
           <? foreach ($items as $item) { ?>
-            <tr style="background-color:<?=($item['status_color'] ? $item['status_color'] : 'none');?>">
+            <tr style="background-color:<?=(!$item['auto'] && $item['status_color'] ? $item['status_color'] : ($item['auto'] ? 'rgb(217,237,247)' : 'none'));?>">
               <td class="td-dropdown hidden-print" rowspan="<?=count($item['childs']);?>">
                 <div class="dropdown">
                   <a class="dropdown-toggle" data-toggle="dropdown"></a>
@@ -116,7 +116,7 @@
             <?//убираем 1 элемент, т.к. вставили его уже выше?>
             <?array_shift($item['childs']);?>
             <?foreach ($item['childs'] as $key => $child) {?>
-              <tr style="background-color:<?=($item['status_color'] ? $item['status_color'] : 'none');?>">
+              <tr style="background-color:<?=(!$item['auto'] && $item['status_color'] ? $item['status_color'] : ($item['auto'] ? 'rgb(217,237,247)' : 'none'));?>">
                 <td>
                   <span class="text-nowrap"><?=number_format($child['gross'],0,'.',' ');?></span>
                 </td>
