@@ -848,38 +848,65 @@ class Acceptances_admin extends CI_Component {
         }
       }
     }
-
+    
     // доп. кнопки в шапке
-    $block_title_btns = array(
+    $block_title_btns = array();
+
+    $block_title_btns = array_merge($block_title_btns, array(
       $this->load->view('fields/submit', 
           array('vars' => array(
             'title'   => 'Просмотреть акт',
-            'class'   => 'pull-left btn-primary m-r',
+            'class'   => 'btn-block btn-primary',
             'icon'    => 'glyphicon-share',
             'href'    =>  '/admin/acceptances/acceptance/'.$item['id'].'/'
           )), true),
+    ));
+    $block_title_btns = array_merge($block_title_btns, array(
       $this->load->view('fields/submit', 
-          array('vars' => array(
-            'title'   => 'Отправить акт по email',
-            'class'   => 'pull-left btn-primary m-r',
-            'icon'    => 'glyphicon-envelope',
-            'href'    =>  '/admin/acceptances/client_acceptance_email/'.$item['id'].'/'
-          )), true)
-    );
-
+        array('vars' => array(
+          'title'   => 'Отправить по email',
+          'class'   => 'btn-block btn-primary',
+          'icon'    => 'glyphicon-envelope',
+          'href'    =>  '/admin/acceptances/client_acceptance_email/'.$item['id'].'/'
+        )), true)
+    ));
+    // если приход отправлен на склад - кнопка отправки в бухгалтерию
+    if($item['store_coming_id'] && $store_coming['active']){
+      if(!$this->acceptances_model->get_acceptance_payment(array('acceptance_id'=>$item['id']))){
+        $block_title_btns = array_merge($block_title_btns, array(
+          $this->load->view('fields/submit', 
+            array('vars' => array(
+              'title'   => 'Отправить в бухгалтерию',
+              'class'   => 'btn-block btn-primary',
+              'icon'    => 'glyphicon-credit-card',
+              'onclick' =>  'send_request("'.$this->lang_prefix .'/admin'. $this->params['path'] .'_set_status_acceptance/'.$item['id'].'/4/")'
+            )), true)
+        ));
+      } else {
+        $block_title_btns = array_merge($block_title_btns, array(
+          $this->load->view('fields/submit', 
+            array('vars' => array(
+              'title'   => 'Перейти в бухгалтерию',
+              'class'   => 'btn-block btn-primary',
+              'icon'    => 'glyphicon-credit-card',
+              'href'    =>  '/admin'.$this->params['path'].'edit_acceptance_payment/'.$item['id'].'/'
+            )), true)
+        ));
+      }
+    }
     if($item['client_id']){
       $block_title_btns = array_merge($block_title_btns, array(
         $this->load->view('fields/submit', 
           array('vars' => array(
             'title'   => 'Карточка клиента',
-            'class'   => 'pull-left btn-primary m-r',
+            'class'   => 'btn-block btn-primary',
             'icon'    => 'glyphicon-list-alt',
             'href'    =>  '/admin/clients/edit_client/'.$item['client_id'].'/'
           )), true)
       ));
     }
 
-    return $this->render_template('admin/inner', array(
+    return $this->render_template('templates/admin_client_acceptance_inner', array(
       'title' => 'Карточка акта приемки <small>(ID '.$item['id'].')</small>',
       'block_title_btn' => $block_title_btns,
       'html' => $this->view->render_form(array(
@@ -946,6 +973,7 @@ class Acceptances_admin extends CI_Component {
     }
     if(!$auto){
       $main_params = array(
+        'client_id'       => $item['client_id'],
         'company'         => htmlspecialchars(trim($this->input->post('company'))),
         'client_child_id' => ((int)$this->input->post('client_child_id') ? (int)$this->input->post('client_child_id') : NULL),
         'add_expenses'    => (float)str_replace(' ', '', $this->input->post('add_expenses')),
@@ -1095,22 +1123,20 @@ class Acceptances_admin extends CI_Component {
   function _validate_acceptance($params, $item = array()) {
     $errors = array();
 
-    if(!@$item['store_coming_id']){
-      if (!$params['client_id'] && !$params['company']) { 
-        $errors['client_id'] = 'Не указан поставщик';
-        $errors['company'] = 'Не указан поставщик'; 
-      }
-      $client = $this->clients_model->get_client(array('id' => (int)$params['client_id']));
-      if($params['client_id'] && !$client){
-        $errors['client_id'] = 'Клиент не найден';
-      }
-      //если клиент не текущего менеджера и нет доступа к работе по всем клиентам
-      if(!$params['client_id'] && $params['company'] && !$this->permits_model->check_access($this->admin_id, $this->component['name'], $method = 'permit_acceptance_allClients')){
-        $errors['company'] = 'У вас нет прав на добавление/редактирование актов приемки для клиентов других менеджеров';
-      }
-      if($client && $client['admin_id'] != $this->admin_id && !$this->permits_model->check_access($this->admin_id, $this->component['name'], $method = 'permit_acceptance_allClients')){
-        $errors['client_id'] = 'У вас нет прав на добавление/редактирование актов приемки для клиентов других менеджеров';
-      }
+    if (!$params['client_id'] && !$params['company']) { 
+      $errors['client_id'] = 'Не указан поставщик';
+      $errors['company'] = 'Не указан поставщик'; 
+    }
+    $client = $this->clients_model->get_client(array('id' => (int)$params['client_id']));
+    if($params['client_id'] && !$client){
+      $errors['client_id'] = 'Клиент не найден';
+    }
+    //если клиент не текущего менеджера и нет доступа к работе по всем клиентам
+    if(!$params['client_id'] && $params['company'] && !$this->permits_model->check_access($this->admin_id, $this->component['name'], $method = 'permit_acceptance_allClients')){
+      $errors['company'] = 'У вас нет прав на добавление/редактирование актов приемки для клиентов других менеджеров';
+    }
+    if($client && $client['admin_id'] != $this->admin_id && !$this->permits_model->check_access($this->admin_id, $this->component['name'], $method = 'permit_acceptance_allClients')){
+      $errors['client_id'] = 'У вас нет прав на добавление/редактирование актов приемки для клиентов других менеджеров';
     }
 
     return $errors;
@@ -1163,6 +1189,10 @@ class Acceptances_admin extends CI_Component {
     if($item['client_id'] && $item['client']['admin_id'] != $this->admin_id && !$this->permits_model->check_access($this->admin_id, $this->component['name'], $method = 'permit_acceptance_allClients')){
       show_error('У вас нет прав на работу с актами приемки для клиентов других менеджеров');
     }
+    
+    if($item['store_coming_id']){
+      $store_coming = $this->store_model->get_coming(array('store_comings.id'=>$item['store_coming_id']));
+    }
 
     // доп. кнопки в шапке
     $block_title_btns = array(
@@ -1182,6 +1212,19 @@ class Acceptances_admin extends CI_Component {
           )), true)
     );
 
+    // если приход отправлен на склад - кнопка отправки в бухгалтерию
+    if($store_coming['active'] && !$this->acceptances_model->get_acceptance_payment(array('acceptance_id'=>$item['id']))){
+      $block_title_btns = array_merge($block_title_btns, array(
+        $this->load->view('fields/submit', 
+          array('vars' => array(
+            'title'   => 'Отправить в бухгалтерию',
+            'class'   => 'pull-left btn-primary m-r',
+            'icon'    => 'glyphicon-credit-card',
+            'onclick' =>  'send_request("'.$this->lang_prefix .'/admin'. $this->params['path'] .'_set_status_acceptance/'.$item['id'].'/4/")'
+          )), true)
+      ));
+    }
+
     if($item['client_id']){
       $item['email'] = ($item['client_child_id'] ? $item['client_child']['email'] : $item['client']['email']);
       
@@ -1194,10 +1237,6 @@ class Acceptances_admin extends CI_Component {
             'href'    =>  '/admin/clients/edit_client/'.$item['client_id'].'/'
           )), true)
       ));
-    }
-    
-    if($item['store_coming_id']){
-      $store_coming = $this->store_model->get_coming(array('store_comings.id'=>$item['store_coming_id']));
     }
 
     return $this->render_template('templates/admin_client_acceptance_email', array(
@@ -1321,6 +1360,11 @@ class Acceptances_admin extends CI_Component {
       send_answer(array('errors' => array('Сообщение успешно отправлено. Не удалось сохранить письмо в истории')));
     }
 
+    // меняем статус на "Отправлено по email" если не оплачено
+    if($item['status_id'] < 3 && !$this->acceptances_model->update_acceptance($item['acceptance_id'], array('status_id' => 3))){
+      send_answer(array('errors' => array('Ошибка при изменении статуса акта приемки')));
+    }
+
     send_answer(array('messages' => array('Сообщение успешно отправлено')));
   }
 
@@ -1343,6 +1387,192 @@ class Acceptances_admin extends CI_Component {
     }
     
     send_answer();
+  }
+
+  /**
+  * 18.06.2017
+  * Смена статуса акта приемки
+  * добавление в раздел бухгалтерия
+  * @params $acceptance_id - id акта приемки
+  *         $status_id - id статуса
+  *         $force - принудительная смена статуса (без проверок)
+  *         $return - в ответе использовать return или send_answer
+  */
+  function _set_status_acceptance($acceptance_id,$status_id,$force = false,$return=false){
+    $item = $this->acceptances_model->get_acceptance(array('client_acceptances.id'=>(int)$acceptance_id));
+    if(!$item){
+      show_error('Объект не найден');
+    }
+    // проверяем права доступа к акту приемки
+    $errors = $this->_validate_acceptance($item, $item);
+    if ($errors) {
+      if($return) return false;
+      send_answer(array('errors' => $errors));
+    }
+
+    // если статус "Оплачено" статус менять нельзя
+    if($status_id == 5){
+      if($return) return false;
+      send_answer(array('errors' => array('Статус "Оплачено" сменить нельзя')));
+    }
+
+    if($status_id == $item['status_id'] && !$force){
+      if($return) return false;
+      send_answer(array('errors' => array('Ошибка при смене статуса. Новый статус совпадает с текущим.')));
+    }
+
+    // если статус "Отправлено в бухгалтерию" проверям отправлен ли акт по email
+    if($status_id == 4 && !$this->acceptances_model->get_acceptance_emails(array('acceptance_id'=>$item['id'])) && !$force){
+      if($return) return false;
+
+      // если не отправлен предупреждаем 1 раз, потом сохраняем
+      // проверяем отдельным методом, т.к. в акте эти поля disabled и не передаются из формы
+      send_answer(array('confirm' => array(
+        'message' => 'Акт не отправлен по email. Продолжить?',
+        'url'     => '',
+        'data'    => '{}',
+        'reaction'=> 'send_request',
+        'context' => $this->lang_prefix .'/admin'. $this->params['path'] .'_set_status_acceptance/'.$item['id'].'/4/1/',
+        )));
+    }
+
+    // если статус "Отправлено в бухгалтерию" добавляем акт в раздел Бухгалтерия
+    // pr_client_acceptance_payments
+    if($status_id == 4){
+      // если в оплатах акт не найден, создаем
+      if(!$this->acceptances_model->get_acceptance_payment(array('acceptance_id'=>$acceptance_id))){
+        if (!$this->acceptances_model->create_acceptance_payment(
+          array(
+            'acceptance_id' => $acceptance_id,
+            'method'        => 'cash',
+            'sale_percent'  => 0,
+          ))) {
+          if($return) return false;
+          send_answer(array('errors' => array('Ошибка при добавлении акта в раздел "Бухгалтерия"')));
+        }
+      }
+    }
+
+    if (!$this->acceptances_model->update_acceptance($acceptance_id, array('status_id' => $status_id))) {
+      if($return) return false;
+      send_answer(array('errors' => array('Ошибка при изменении статуса')));
+    }
+
+    if($return) return true;
+
+    //отправляем на редактирование оплаты данного акта
+    send_answer(array('redirect' => '/admin'.$this->params['path'].'edit_acceptance_payment/'.$acceptance_id.'/'));
+  }
+
+  /**
+  *  Редактирование оплаты акта приемки
+  */  
+  function edit_acceptance_payment($acceptance_id) {
+    $item = $this->acceptances_model->get_acceptance_payment(array('acceptance_id'=>(int)$acceptance_id));
+    if(!$item){
+      show_error('Объект не найден');
+    }
+    $acceptance = $this->acceptances_model->get_acceptance(array('pr_client_acceptances.id'=>(int)$acceptance_id));
+    if(!$item){
+      show_error('Акт не найден');
+    }
+
+    $blocks = array(
+      array(
+        'title'         => 'Акт приемки',
+        'fields'        => array(array(
+          'view'      => 'fields/readonly_value',
+          'title'     => '',
+          'value'     => $this->load->view('../../application/components/acceptances/templates/admin_client_acceptance_tbl_short',array('item' => $acceptance),TRUE),
+        )),
+        'aria-expanded' => true
+      ),
+      array(
+      'title'   => 'Параметры оплаты',
+      'fields'   => array(
+        array(
+          'view'     => 'fields/'.($acceptance['status_id'] < 5 ? 'hidden' : 'readonly'),
+          'title'    => 'Статус',
+          'value'    => 'Оплачено'
+        ),
+        array(
+          'view'       => 'fields/select',
+          'title'      => 'Способ оплаты:',
+          'name'       => 'method',
+          'text_field' => 'title',
+          'value_field'=> 'value',
+          'options'    => array(array('title'=>'Наличный расчет','value'=>'cash'),array('title'=>'Безналичный расчет','value'=>'card')),
+          'value'      => $item['method'],
+        ),
+        array(
+          'view'     => 'fields/text',
+          'title'    => '% скидки:',
+          'name'     => 'sale_percent',
+          'value'    => $item['sale_percent'],
+        ),
+        array(
+          'view'     => 'fields/'.($acceptance['status_id'] < 5 ? 'checkbox' : 'hidden'),
+          'title'    => 'Оплачено:',
+          'name'     => 'pay'
+        ),
+        array(
+          'view'     => 'fields/'.($acceptance['status_id'] < 5 ? 'submit' : 'hidden'),
+          'title'    => 'Сохранить',
+          'type'     => 'ajax',
+          'reaction' => ''
+        )
+      )
+    ));
+
+    return $this->render_template('admin/inner', array(
+      'title' => 'Настройки оплаты акта приемки <small>(ID '.$item['id'].')</small>',
+      'block_title_btn' => array(),
+      'html' => $this->view->render_form(array(
+        'view'   => 'forms/default',
+        'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'_edit_acceptance_payment_process/'.$item['id'].'/',
+        'blocks' => $blocks
+      ))
+    ), TRUE);
+  }
+  
+  /*
+  * @params:
+  *   id - id акта приемки
+  */
+  function _edit_acceptance_payment_process($id) {
+    $item = $this->acceptances_model->get_acceptance_payment(array('id'=>$id));
+    if(!$item){
+      show_error('Объект не найден');
+    }
+    $acceptance = $this->acceptances_model->get_acceptance(array('pr_client_acceptances.id'=>(int)$item['acceptance_id']));
+    if(!$acceptance){
+      show_error('Акт не найден');
+    }
+
+    if($acceptance['status_id'] > 4){
+      send_answer(array('errors' => array('Акт оплачен. Редактирование невозможно.')));
+    }
+    // проверяем права доступа к акту приемки
+    $errors = $this->_validate_acceptance($acceptance, $acceptance);
+    if ($errors) {
+      send_answer(array('errors' => $errors));
+    }
+
+    $params = array(
+      'method'       => htmlspecialchars(trim($this->input->post('method'))),
+      'sale_percent' => (int) $this->input->post('sale_percent'),
+    );
+    
+    if (!$this->acceptances_model->update_acceptance_payment($id, $params)) {
+      send_answer(array('errors' => array('Ошибка при сохранении изменений')));
+    }
+
+    // меняем статус если оплачено
+    if($this->input->post('pay') && !$this->acceptances_model->update_acceptance($item['acceptance_id'], array('status_id' => 5))){
+      send_answer(array('errors' => array('Ошибка при изменении статуса')));
+    }
+    
+    send_answer(array('success' => array('Изменения успешно сохранены')));
   }
   
 }

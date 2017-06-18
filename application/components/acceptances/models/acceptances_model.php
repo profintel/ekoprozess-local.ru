@@ -240,4 +240,64 @@ class Acceptances_model extends CI_Model {
 
     return true;
   }
+
+  /***  раздел Бухгалтерия  ***/
+
+  function get_acceptance_payments($limit = 0, $offset = 0, $where = array(), $order_by = array()) {
+    $this->db->select('client_acceptance_payments.*');
+    if ($where) {
+      $this->db->where($where);
+    }
+    if ($limit) {
+      $this->db->limit($limit, $offset);
+    }
+    if ($order_by) {
+      foreach ($order_by as $field => $dest) {
+        $this->db->order_by($field,$dest);
+      }
+    } else {
+      $this->db->order_by('date','desc');
+      $this->db->order_by('id','asc');
+    }
+    $items = $this->db->get('client_acceptance_payments')->result_array();
+    
+    return $items;
+  }
+  
+  function get_acceptance_payments_cnt($where = '') {
+    $this->db->select('COUNT(DISTINCT(pr_client_acceptance_payments.id)) as cnt');
+
+    if ($where) {
+      $this->db->where($where);
+    }
+    return $this->db->get('client_acceptance_payments')->row()->cnt;
+  }
+
+  function get_acceptance_payment($where = array(), $full = true) {
+    $this->db->select('client_acceptance_payments.*');
+    $item = $this->db->get_where('client_acceptance_payments', $where)->row_array();
+
+    return $item;
+  }
+  
+  function create_acceptance_payment($params) {
+    if ($this->db->insert('client_acceptance_payments', $params)) {
+      return $this->db->query("SELECT LAST_INSERT_ID() as id")->row()->id;
+    }
+    return false;
+  }
+
+  function update_acceptance_payment($id, $params) {
+    if ($this->db->update('client_acceptance_payments', $params, array('id' => $id))) {
+      return true;
+    }
+    return false;
+  }
+  
+  function delete_acceptance_payment($id) {
+    if ($this->db->delete('client_acceptance_payments', array('id' => $id))) {
+      return true;
+    }
+    return false;
+  }
 }

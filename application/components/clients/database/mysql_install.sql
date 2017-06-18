@@ -75,8 +75,6 @@ CREATE TABLE IF NOT EXISTS `pr_client_acceptance_statuses` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
-DELETE FROM `pr_client_acceptance_statuses`;
-
 INSERT INTO `pr_client_acceptance_statuses` (`id`,`title`,`color`) VALUES 
   (1,'Новый','rgb(217,237,247)'),
   (2,'В обработке',''),
@@ -145,3 +143,17 @@ CREATE TABLE IF NOT EXISTS `pr_client_acceptance_emails` (
 ALTER TABLE `pr_client_acceptance_emails`
   ADD CONSTRAINT `pr_client_acceptance_emails_ibfk_2` FOREIGN KEY (`admin_id`) REFERENCES `pr_admins` (`id`) ON DELETE SET NULL,
   ADD CONSTRAINT `pr_client_acceptance_emails_ibfk_1` FOREIGN KEY (`acceptance_id`) REFERENCES `pr_client_acceptances` (`id`) ON DELETE CASCADE;
+
+DROP TABLE IF EXISTS `pr_client_acceptance_payments`;
+
+CREATE TABLE IF NOT EXISTS `pr_client_acceptance_payments` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `acceptance_id` int(10) unsigned NOT NULL,
+  `method` varchar(100) NOT NULL,
+  `sale_percent` int(10) unsigned default NULL,
+  `tm` timestamp NOT NULL default CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+ALTER TABLE `pr_client_acceptance_payments`
+  ADD CONSTRAINT `pr_client_acceptance_payments_ibfk_1` FOREIGN KEY (`acceptance_id`) REFERENCES `pr_client_acceptances` (`id`) ON DELETE CASCADE;
