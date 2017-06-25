@@ -73,6 +73,14 @@ class Main_model extends CI_Model {
     return $result;
   }
   
+  function get_param($category, $owner_id, $param_name) {
+    $result = array();
+    
+    $params = $this->db->get_where('params', array('category' => $category, 'owner_id' => $owner_id, 'name' => $param_name))->row_array();
+    
+    return $params;
+  }
+  
   function delete_params($category, $owner_id) {
     
     return (bool)$this->db->delete('params', array('category' => $category, 'owner_id' => $owner_id));

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component>
+  
+  <information>
+    <title>Бухгалтерия</title>
+    <description>Отслеживание оплаты по актам приемки</description>
+  </information>
+  
+  <install>
+    <menu>secondary</menu>
+    <icon>glyphicon glyphicon-credit-card</icon>
+  </install>
+  
+</component>

@@ -125,6 +125,43 @@ class Acceptances_model extends CI_Model {
     }
     return $this->db->get('client_acceptances')->row()->cnt;
   }
+  
+  function get_acceptances_total($where = '', $product_id = array()) {
+    $this->db->select('SUM(client_acceptance_childs.price*client_acceptance_childs.net)-SUM(pr_client_acceptances.add_expenses) as sum_total');
+    $this->db->select('SUM(client_acceptance_childs.price*client_acceptance_childs.net) as sum');
+    $this->db->select('SUM(pr_client_acceptances.add_expenses) as add_expenses');
+    $this->db->select('SUM(client_acceptance_childs.gross) as gross');
+    $this->db->select('SUM(client_acceptance_childs.net) as net');
+    $this->db->join('client_acceptances as client_acceptance_childs','client_acceptances.id = client_acceptance_childs.parent_id');
+
+    if ($where) {
+      $this->db->where($where);
+    }
+    if ($product_id) {
+      if(!is_array($product_id)){
+        $product_id = array($product_id);
+      }
+      $this->db->join('client_acceptances t2','t2.parent_id = client_acceptances.id');
+      // join-им чтобы вывести отчет по группе продукции
+      $this->db->join('products t3','t3.id = t2.product_id');
+      $product_where = '';
+      if ($where) {
+        $product_where .= '(';
+      }
+      foreach ($product_id as $key => $value) {
+        if($key != 0){
+          $product_where .= ' OR ';
+        }
+        $product_where .= 't3.id = '.$value.' OR t3.parent_id = '.$value;
+      }
+      if ($where) {
+        $product_where .= ')';
+      }
+      $this->db->where($product_where);
+    }
+
+    return $this->db->get('client_acceptances')->row_array();
+  }
 
   function get_acceptance($where = array(), $full = true) {
     $this->db->select('client_acceptances.*,
@@ -133,11 +170,13 @@ class Acceptances_model extends CI_Model {
       clients.email as client_email,
       client_childs.title_full as client_child_title,
       client_childs.admin_id as client_child_admin_id,
+      status.title as status_title,
       client_childs.email as client_child_email');
     // данные по клиенту
     $this->db->join('clients','clients.id = client_acceptances.client_id');
     // данные по компании, если указан client_child_id
     $this->db->join('clients as client_childs','client_childs.id = client_acceptances.client_child_id','left');
+    $this->db->join('client_acceptance_statuses as status','status.id = client_acceptances.status_id','left');
     $item = $this->db->get_where('client_acceptances', $where)->row_array();
 
     if($item && $full){
@@ -239,65 +278,5 @@ class Acceptances_model extends CI_Model {
     }
 
     return true;
-  }
-
-  /***  раздел Бухгалтерия  ***/
-
-  function get_acceptance_payments($limit = 0, $offset = 0, $where = array(), $order_by = array()) {
-    $this->db->select('client_acceptance_payments.*');
-    if ($where) {
-      $this->db->where($where);
-    }
-    if ($limit) {
-      $this->db->limit($limit, $offset);
-    }
-    if ($order_by) {
-      foreach ($order_by as $field => $dest) {
-        $this->db->order_by($field,$dest);
-      }
-    } else {
-      $this->db->order_by('date','desc');
-      $this->db->order_by('id','asc');
-    }
-    $items = $this->db->get('client_acceptance_payments')->result_array();
-    
-    return $items;
-  }
-  
-  function get_acceptance_payments_cnt($where = '') {
-    $this->db->select('COUNT(DISTINCT(pr_client_acceptance_payments.id)) as cnt');
-
-    if ($where) {
-      $this->db->where($where);
-    }
-    return $this->db->get('client_acceptance_payments')->row()->cnt;
-  }
-
-  function get_acceptance_payment($where = array(), $full = true) {
-    $this->db->select('client_acceptance_payments.*');
-    $item = $this->db->get_where('client_acceptance_payments', $where)->row_array();
-
-    return $item;
-  }
-  
-  function create_acceptance_payment($params) {
-    if ($this->db->insert('client_acceptance_payments', $params)) {
-      return $this->db->query("SELECT LAST_INSERT_ID() as id")->row()->id;
-    }
-    return false;
-  }
-
-  function update_acceptance_payment($id, $params) {
-    if ($this->db->update('client_acceptance_payments', $params, array('id' => $id))) {
-      return true;
-    }
-    return false;
-  }
-  
-  function delete_acceptance_payment($id) {
-    if ($this->db->delete('client_acceptance_payments', array('id' => $id))) {
-      return true;
-    }
-    return false;
   }
 }

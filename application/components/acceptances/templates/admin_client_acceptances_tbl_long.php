@@ -30,7 +30,6 @@
           </tr>
         </thead>
         <tbody>
-          <?$all_gross = $all_net = $all_price = $all_add_expenses = $all_sum = 0; ?>
           <? foreach ($items as $item) { ?>
             <tr style="background-color:<?=(!$item['auto'] && $item['status_color'] ? $item['status_color'] : ($item['auto'] ? 'rgb(217,237,247)' : 'none'));?>">
               <td class="td-dropdown hidden-print" rowspan="<?=count($item['childs']);?>">
@@ -135,50 +134,46 @@
                 </td>
               </tr>
             <?}?>
-            <?
-              $all_gross += $item['gross'];
-              $all_net += $item['net'];
-              $all_price += $item['price'];
-              $all_add_expenses += $item['add_expenses'];
-              $all_sum += $item['sum'];
-            ?>
           <? } ?>
         </tbody>
         <tfoot>
+          <? if(isset($pagination) && $pagination) {?>
+            <tr>
+              <td colspan="12" class="text-right pagination-wrap">
+                <?=$pagination;?>
+              </td>
+            </tr>
+          <? } ?>
           <tr>
             <th colspan="2"></th>
             <th></th>
             <th>
-              <span class="text-nowrap"><?=number_format($all_gross,0,'.',' ');?></span>
+              <span class="text-nowrap"><?=number_format($total_result['gross'],0,'.',' ');?></span>
             </th>
             <th>
-              <span class="text-nowrap"><?=number_format($all_net,0,'.',' ');?></span>
+              <span class="text-nowrap"><?=number_format($total_result['net'],0,'.',' ');?></span>
             </th>
             <th></th>
             <th></th>
             <th></th>
             <th></th>
             <th>
-              <span class="text-nowrap h5"><?=number_format($all_add_expenses,0,'.',' ');?></span>
+              <span class="text-nowrap h5"><?=number_format($total_result['add_expenses'],0,'.',' ');?></span>
             </th>
             <th>
-              <span class="text-nowrap h5"><?=number_format($all_price,2,'.',' ');?></span>
+              <span class="text-nowrap h5"><?=number_format($total_result['sum'],2,'.',' ');?></span>
             </th>
             <th></th>
           </tr>
           <tr>
             <td colspan="9" class="text-right"><span class="h4">ИТОГО</span></td>
             <td colspan="2" class="text-center">
-              <span class="h4"><?=number_format($all_sum,2,'.',' ');?></span>
+              <span class="h4"><?=number_format($total_result['sum_total'],2,'.',' ');?></span>
             </td>
             <td></td>
           </tr>
         </tfoot>
       </table>
-
-      <? if(isset($pagination) && $pagination) {?>
-        <div class="pagination-wrap"><?=$pagination;?></div>
-      <? } ?>
     <? } else { ?>
       <div class="alert alert-warning">
         <h2>Акты приемки не найдены</h2>
