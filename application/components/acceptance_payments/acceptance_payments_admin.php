@@ -345,4 +345,24 @@ class Acceptance_payments_admin extends CI_Component {
     send_answer(array('success' => array('Изменения успешно сохранены')));
   }
   
+  /**
+   * Удаление оплаты акта приемки по своим клиентам
+  **/
+  function delete_acceptance_payment($id) {
+    $item = $this->acceptance_payments_model->get_acceptance_payment(array('client_acceptance_payments.id'=>(int)$id));
+    if(!$item){
+      send_answer(array('errors' => array('Объект не найден')));
+    }
+
+    //если клиент не текущего менеджера и нет доступа к работе по всем клиентам
+    if($item['client_admin_id'] != $this->admin_id && !$this->permits_model->check_access($this->admin_id, $this->component['name'], $method = 'permit_acceptance_payments_allClients')){
+      send_answer(array('errors' => array('У вас нет прав на редактирование оплаты актов приемки для клиентов других менеджеров')));
+    }
+
+    if (!$this->acceptance_payments_model->delete_acceptance_payment((int)$id)){
+      send_answer(array('errors' => array('Не удалось удалить объект')));
+    }
+    
+    send_answer();
+  }
 }
