@@ -1,4 +1,4 @@
-/* Generated 26.06.2017 22:46:57 */
+/* Generated 26.06.2017 23:11:30 */
 
 /* components */
 
@@ -552,6 +552,15 @@ body {
 }
 .text-bottom{
   vertical-align: bottom !important;
+}
+
+.block_flex_center{
+  display: flex;
+  justify-content: space-between;
+  align-items:center;
+}
+.block_flex_center > div{
+  flex-grow:1;
 }
 
 .padding_0{

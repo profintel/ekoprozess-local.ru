@@ -48,6 +48,15 @@ body {
   vertical-align: bottom !important;
 }
 
+.block_flex_center{
+  display: flex;
+  justify-content: space-between;
+  align-items:center;
+}
+.block_flex_center > div{
+  flex-grow:1;
+}
+
 .padding_0{
   padding: 0;
 }

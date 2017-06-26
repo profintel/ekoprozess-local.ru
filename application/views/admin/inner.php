@@ -1,18 +1,18 @@
 <div class="block-title row hidden-print">
-  <div class="<?=(isset($block_title_btn) && $block_title_btn ? 'col-sm-6' : 'col-xs-12');?>">
+  <div class="<?=(isset($block_title_btn) && $block_title_btn ? 'col-sm-4' : 'col-xs-12');?>">
     <h1><span class="glyphicon <?=($this->component['icon']?$this->component['icon']:'glyphicon-ok');?>"></span>
       <?=(@$data['title'] ? $data['title'] : $this->component['title']);?>
     </h1>
     <p class="visible-xs-block">&nbsp;</p>
   </div>
   <? if (isset($block_title_btn) && $block_title_btn) { ?>
-    <div class="col-sm-6 text-right">
+    <div class="col-sm-8 text-right">
         <? if (!is_array($block_title_btn)) { ?>
           <?$block_title_btn = array($block_title_btn);?>
         <? } ?>
-        <div class="btn-group">
+        <div class="btn-group block_flex_center btn-block row">
           <? foreach ($block_title_btn as $key => $btn) { ?>
-            <?=$btn;?>
+            <div class="clearfix m-t m-b m-r p-l-0"><?=$btn;?></div>
           <? } ?>
         </div>
     </div>

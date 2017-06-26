@@ -247,32 +247,53 @@ class Acceptances_admin extends CI_Component {
       $this->load->view('fields/submit', 
           array('vars' => array(
             'title'   => 'Печать',
-            'class'   => 'pull-left btn-primary m-r m-b',
+            'class'   => 'btn-block pull-left btn-primary',
             'icon'    => 'glyphicon-print',
             'onclick' =>  'window.print();'
           )), true),
       $this->load->view('fields/submit', 
           array('vars' => array(
             'title'   => 'Редактировать акт',
-            'class'   => 'pull-left btn-primary m-r m-b',
+            'class'   => 'btn-block pull-left btn-primary',
             'icon'    => 'glyphicon-edit',
             'href'    =>  '/admin/acceptances/edit_acceptance/'.$item['id'].'/'
           )), true),
       $this->load->view('fields/submit', 
           array('vars' => array(
             'title'   => 'Отправить акт по email',
-            'class'   => 'pull-left btn-primary m-r m-b',
+            'class'   => 'btn-block pull-left btn-primary',
             'icon'    => 'glyphicon-envelope',
             'href'    =>  '/admin/acceptances/client_acceptance_email/'.$item['id'].'/'
           )), true)
     );
-
+    // если приход отправлен на склад - кнопка отправки в бухгалтерию
+    if($this->acceptance_payments_model->get_acceptance_payment(array('acceptance_id'=>$item['id']))){
+      $block_title_btns = array_merge($block_title_btns, array(
+        $this->load->view('fields/submit', 
+          array('vars' => array(
+            'title'   => 'Перейти в бухгалтерию',
+            'class'   => 'btn-block btn-primary',
+            'icon'    => 'glyphicon-credit-card',
+            'href'    =>  '/admin/acceptance_payments/edit_acceptance_payment/'.$item['id'].'/'
+          )), true)
+      ));        
+    } elseif($item['status_id'] < 5) {
+      $block_title_btns = array_merge($block_title_btns, array(
+        $this->load->view('fields/submit', 
+          array('vars' => array(
+            'title'   => 'Отправить в бухгалтерию',
+            'class'   => 'btn-block btn-primary',
+            'icon'    => 'glyphicon-credit-card',
+            'onclick' =>  'send_request("'.$this->lang_prefix .'/admin'. $this->params['path'] .'_set_status_acceptance/'.$item['id'].'/4/")'
+          )), true)
+      ));
+    }
     if($item['client_id']){
       $block_title_btns = array_merge($block_title_btns, array(
         $this->load->view('fields/submit', 
           array('vars' => array(
             'title'   => 'Карточка клиента',
-            'class'   => 'pull-left btn-primary m-r',
+            'class'   => 'btn-block pull-left btn-primary m-r',
             'icon'    => 'glyphicon-list-alt',
             'href'    =>  '/admin/clients/edit_client/'.$item['client_id'].'/'
           )), true)
