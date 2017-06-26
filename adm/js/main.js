@@ -462,6 +462,10 @@ function handle_sys_UNAUTH() {
   document.location = '/autorization/';
 }
 
+function locationUrl(url) {
+  document.location = url;
+}
+
 var defButtons = {
   'OK':     {text: 'OK',     handler: function() { my_modal('hide'); sheet('hide'); }, icon: 'glyphicon-ok'},
   'CANCEL': {text: 'Отмена', handler: function() { my_modal('hide'); sheet('hide'); }, icon: 'glyphicon-remove', class: 'btn-default'}

@@ -1,4 +1,4 @@
-/*** Generated 25.06.2017 23:35:21 ***/
+/*** Generated 26.06.2017 22:46:57 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -3966,6 +3966,10 @@ function handle_sysmsg(msg) {
 
 function handle_sys_UNAUTH() {
   document.location = '/autorization/';
+}
+
+function locationUrl(url) {
+  document.location = url;
 }
 
 var defButtons = {

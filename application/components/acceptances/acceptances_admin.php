@@ -876,28 +876,26 @@ class Acceptances_admin extends CI_Component {
         )), true)
     ));
     // если приход отправлен на склад - кнопка отправки в бухгалтерию
-    if($item['store_coming_id'] && $store_coming['active']){
-      if($this->acceptance_payments_model->get_acceptance_payment(array('acceptance_id'=>$item['id']))){
-        $block_title_btns = array_merge($block_title_btns, array(
-          $this->load->view('fields/submit', 
-            array('vars' => array(
-              'title'   => 'Перейти в бухгалтерию',
-              'class'   => 'btn-block btn-primary',
-              'icon'    => 'glyphicon-credit-card',
-              'href'    =>  '/admin/acceptance_payments/edit_acceptance_payment/'.$item['id'].'/'
-            )), true)
-        ));        
-      } elseif($item['status_id'] < 5) {
-        $block_title_btns = array_merge($block_title_btns, array(
-          $this->load->view('fields/submit', 
-            array('vars' => array(
-              'title'   => 'Отправить в бухгалтерию',
-              'class'   => 'btn-block btn-primary',
-              'icon'    => 'glyphicon-credit-card',
-              'onclick' =>  'send_request("'.$this->lang_prefix .'/admin'. $this->params['path'] .'_set_status_acceptance/'.$item['id'].'/4/")'
-            )), true)
-        ));
-      }
+    if($this->acceptance_payments_model->get_acceptance_payment(array('acceptance_id'=>$item['id']))){
+      $block_title_btns = array_merge($block_title_btns, array(
+        $this->load->view('fields/submit', 
+          array('vars' => array(
+            'title'   => 'Перейти в бухгалтерию',
+            'class'   => 'btn-block btn-primary',
+            'icon'    => 'glyphicon-credit-card',
+            'href'    =>  '/admin/acceptance_payments/edit_acceptance_payment/'.$item['id'].'/'
+          )), true)
+      ));        
+    } elseif($item['status_id'] < 5) {
+      $block_title_btns = array_merge($block_title_btns, array(
+        $this->load->view('fields/submit', 
+          array('vars' => array(
+            'title'   => 'Отправить в бухгалтерию',
+            'class'   => 'btn-block btn-primary',
+            'icon'    => 'glyphicon-credit-card',
+            'onclick' =>  'send_request("'.$this->lang_prefix .'/admin'. $this->params['path'] .'_set_status_acceptance/'.$item['id'].'/4/")'
+          )), true)
+      ));
     }
     if($item['client_id']){
       $block_title_btns = array_merge($block_title_btns, array(
@@ -1204,26 +1202,36 @@ class Acceptances_admin extends CI_Component {
       $this->load->view('fields/submit', 
           array('vars' => array(
             'title'   => 'Просмотреть акт',
-            'class'   => 'pull-left btn-primary m-r',
+            'class'   => 'btn-block pull-left btn-primary m-r',
             'icon'    => 'glyphicon-share',
             'href'    =>  '/admin/acceptances/acceptance/'.$item['id'].'/'
           )), true),
       $this->load->view('fields/submit', 
           array('vars' => array(
             'title'   => 'Редактировать акт',
-            'class'   => 'pull-left btn-primary m-r',
+            'class'   => 'btn-block pull-left btn-primary m-r',
             'icon'    => 'glyphicon-edit',
             'href'    =>  '/admin/acceptances/edit_acceptance/'.$item['id'].'/'
           )), true)
     );
 
     // если приход отправлен на склад - кнопка отправки в бухгалтерию
-    if($store_coming['active'] && !$this->acceptance_payments_model->get_acceptance_payment(array('acceptance_id'=>$item['id']))){
+    if($this->acceptance_payments_model->get_acceptance_payment(array('acceptance_id'=>$item['id']))){
+      $block_title_btns = array_merge($block_title_btns, array(
+        $this->load->view('fields/submit', 
+          array('vars' => array(
+            'title'   => 'Перейти в бухгалтерию',
+            'class'   => 'btn-block btn-primary',
+            'icon'    => 'glyphicon-credit-card',
+            'href'    =>  '/admin/acceptance_payments/edit_acceptance_payment/'.$item['id'].'/'
+          )), true)
+      ));
+    } elseif($item['status_id'] < 5) {
       $block_title_btns = array_merge($block_title_btns, array(
         $this->load->view('fields/submit', 
           array('vars' => array(
             'title'   => 'Отправить в бухгалтерию',
-            'class'   => 'pull-left btn-primary m-r',
+            'class'   => 'btn-block btn-primary',
             'icon'    => 'glyphicon-credit-card',
             'onclick' =>  'send_request("'.$this->lang_prefix .'/admin'. $this->params['path'] .'_set_status_acceptance/'.$item['id'].'/4/")'
           )), true)
@@ -1237,7 +1245,7 @@ class Acceptances_admin extends CI_Component {
         $this->load->view('fields/submit', 
           array('vars' => array(
             'title'   => 'Карточка клиента',
-            'class'   => 'pull-left btn-primary m-r',
+            'class'   => 'btn-block pull-left btn-primary m-r',
             'icon'    => 'glyphicon-list-alt',
             'href'    =>  '/admin/clients/edit_client/'.$item['client_id'].'/'
           )), true)
@@ -1366,8 +1374,22 @@ class Acceptances_admin extends CI_Component {
     }
 
     // меняем статус на "Отправлено по email" если не оплачено
-    if($item['status_id'] < 3 && !$this->acceptances_model->update_acceptance($item['id'], array('status_id' => 3))){
+    if($item['status_id'] < 3 && !$this->_set_status_acceptance($item['id'],3,true,true)){
       send_answer(array('errors' => array('Ошибка при изменении статуса акта приемки')));
+    }
+
+    // проверяем, если акт не в бухгалтерии, отправляем
+    if(!$this->acceptance_payments_model->get_acceptance_payment(array('acceptance_id'=>$item['id']))){
+      if(!$this->_set_status_acceptance($item['id'],4,true,true)){
+        send_answer(array('errors' => array('Ошибка при отправлении акта приемки в бухгалтерию')));
+      }
+      send_answer(array('confirm' => array(
+        'message' => 'Перейти в раздел бухгалтерия?',
+        'url'     => '',
+        'data'    => '{}',
+        'reaction'=> 'locationUrl',
+        'context' => '/admin/acceptance_payments/edit_acceptance_payment/'.$item['id'].'/',
+        )));
     }
 
     send_answer(array('messages' => array('Сообщение успешно отправлено')));
