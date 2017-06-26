@@ -1366,7 +1366,7 @@ class Acceptances_admin extends CI_Component {
     }
 
     // меняем статус на "Отправлено по email" если не оплачено
-    if($item['status_id'] < 3 && !$this->acceptances_model->update_acceptance($item['acceptance_id'], array('status_id' => 3))){
+    if($item['status_id'] < 3 && !$this->acceptances_model->update_acceptance($item['id'], array('status_id' => 3))){
       send_answer(array('errors' => array('Ошибка при изменении статуса акта приемки')));
     }
 
