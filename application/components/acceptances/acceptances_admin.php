@@ -277,7 +277,7 @@ class Acceptances_admin extends CI_Component {
             'href'    =>  '/admin/acceptance_payments/edit_acceptance_payment/'.$item['id'].'/'
           )), true)
       ));        
-    } elseif($item['status_id'] < 5) {
+    } elseif($item['status_id'] < 10) {
       $block_title_btns = array_merge($block_title_btns, array(
         $this->load->view('fields/submit', 
           array('vars' => array(
@@ -907,7 +907,7 @@ class Acceptances_admin extends CI_Component {
             'href'    =>  '/admin/acceptance_payments/edit_acceptance_payment/'.$item['id'].'/'
           )), true)
       ));        
-    } elseif($item['status_id'] < 5) {
+    } elseif($item['status_id'] < 10) {
       $block_title_btns = array_merge($block_title_btns, array(
         $this->load->view('fields/submit', 
           array('vars' => array(
@@ -1247,7 +1247,7 @@ class Acceptances_admin extends CI_Component {
             'href'    =>  '/admin/acceptance_payments/edit_acceptance_payment/'.$item['id'].'/'
           )), true)
       ));
-    } elseif($item['status_id'] < 5) {
+    } elseif($item['status_id'] < 10) {
       $block_title_btns = array_merge($block_title_btns, array(
         $this->load->view('fields/submit', 
           array('vars' => array(
@@ -1446,7 +1446,7 @@ class Acceptances_admin extends CI_Component {
   *         $force - принудительная смена статуса (без проверок)
   *         $return - в ответе использовать return или send_answer
   */
-  function _set_status_acceptance($acceptance_id,$status_id,$force = false,$return=false){
+  function _set_status_acceptance($acceptance_id,$status_id,$force = false,$return=false,$redirect=true){
     $item = $this->acceptances_model->get_acceptance(array('client_acceptances.id'=>(int)$acceptance_id));
     if(!$item){
       show_error('Объект не найден');
@@ -1459,7 +1459,7 @@ class Acceptances_admin extends CI_Component {
     }
 
     // если статус "Оплачено" статус менять нельзя
-    if($item['status_id'] == 5){
+    if($item['status_id'] == 10){
       if($return) return false;
       send_answer(array('errors' => array('Статус "Оплачено" сменить нельзя')));
     }
@@ -1508,7 +1508,11 @@ class Acceptances_admin extends CI_Component {
 
     if($return) return true;
 
-    //отправляем на редактирование оплаты данного акта
-    send_answer(array('redirect' => '/admin/acceptance_payments/edit_acceptance_payment/'.$acceptance_id.'/'));
+    if($redirect){
+      //отправляем на редактирование оплаты данного акта
+      send_answer(array('redirect' => '/admin/acceptance_payments/edit_acceptance_payment/'.$acceptance_id.'/'));
+    }
+
+    send_answer();
   }
 }

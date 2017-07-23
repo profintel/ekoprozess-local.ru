@@ -19,6 +19,7 @@ class Acceptance_payments_model extends CI_Model {
       client_acceptances.date,
       client_acceptances.client_id,
       client_acceptances.add_expenses,
+      client_acceptances.status_id,
       client_acceptance_childs.price,
       client_acceptance_childs.net,
       SUM(client_acceptance_childs.price * client_acceptance_childs.net) as sum,

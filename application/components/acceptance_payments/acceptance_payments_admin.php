@@ -235,7 +235,7 @@ class Acceptance_payments_admin extends CI_Component {
       'title'   => 'Параметры оплаты',
       'fields'   => array(
         array(
-          'view'     => 'fields/'.($acceptance['status_id'] < 5 ? 'hidden' : 'readonly'),
+          'view'     => 'fields/'.($acceptance['status_id'] < 10 ? 'hidden' : 'readonly'),
           'title'    => 'Статус',
           'value'    => 'Оплачено'
         ),
@@ -268,12 +268,12 @@ class Acceptance_payments_admin extends CI_Component {
           'value'    => $item['comment'],
         ),
         array(
-          'view'     => 'fields/'.($acceptance['status_id'] < 5 ? 'checkbox' : 'hidden'),
+          'view'     => 'fields/'.($acceptance['status_id'] < 10 ? 'checkbox' : 'hidden'),
           'title'    => 'Оплачено:',
           'name'     => 'pay'
         ),
         array(
-          'view'     => 'fields/'.($acceptance['status_id'] < 5 ? 'submit' : 'hidden'),
+          'view'     => 'fields/'.($acceptance['status_id'] < 10 ? 'submit' : 'hidden'),
           'title'    => 'Сохранить',
           'type'     => 'ajax',
           'reaction' => ''
@@ -298,7 +298,7 @@ class Acceptance_payments_admin extends CI_Component {
       show_error('Объект не найден');
     }
 
-    if($item['status_id'] > 4){
+    if($item['status_id'] >= 10){
       send_answer(array('errors' => array('Акт оплачен. Редактирование невозможно.')));
     }
     // проверяем права доступа к акту приемки
@@ -307,7 +307,7 @@ class Acceptance_payments_admin extends CI_Component {
     }
 
     $params = array(
-      'date'         => date('Y-m-d H:i:s', strtotime($this->input->post('date'))),
+      'date'         => ($this->input->post('date') ? date('Y-m-d H:i:s', strtotime($this->input->post('date'))) : ''),
       'method'       => htmlspecialchars(trim($this->input->post('method'))),
       'sale_percent' => (int)$this->input->post('sale_percent'),
       'comment'      => htmlspecialchars(trim($this->input->post('comment'))),
@@ -338,7 +338,12 @@ class Acceptance_payments_admin extends CI_Component {
     }
 
     // меняем статус если оплачено
-    if($this->input->post('pay') && !$this->acceptances_model->update_acceptance($item['acceptance_id'], array('status_id' => 5))){
+    if($this->input->post('pay') && !$this->acceptances_model->update_acceptance($item['acceptance_id'], array('status_id' => 10))){
+      send_answer(array('errors' => array('Ошибка при изменении статуса')));
+    }
+
+    // меняем статус если не оплачено и указана дата оплаты
+    if($params['date'] && !$this->acceptances_model->update_acceptance($item['acceptance_id'], array('status_id' => 5))){
       send_answer(array('errors' => array('Ошибка при изменении статуса')));
     }
     

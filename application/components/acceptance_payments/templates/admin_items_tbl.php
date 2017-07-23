@@ -20,20 +20,20 @@
           <tr>
             <td class="td-dropdown hidden-print"></td>
             <th></th>
-            <th colspan="2" class="text-center">Безналичный расчет</th>
-            <th colspan="2" class="text-center">Наличный расчет</th>
-            <th rowspan="2">Дата поставки</th>
-            <th rowspan="2">Дата оплаты план</th>
-            <th rowspan="2">Реквизиты перевода</th>
-            <th rowspan="2">Примечание</th>
+            <th width="40%" colspan="2" class="text-center">Безналичный расчет</th>
+            <th width="40%" colspan="2" class="text-center">Наличный расчет</th>
+            <th width="5%" rowspan="2">Дата поставки</th>
+            <th width="5%" rowspan="2">Дата оплаты план</th>
+            <th width="5%" rowspan="2">Реквизиты перевода</th>
+            <th width="5%" rowspan="2">Примечание</th>
           </tr>
           <tr>
             <td class="td-dropdown hidden-print"></td>
             <th>№</th>
-            <th>Компания</th>
-            <th>Сумма</th>
-            <th>Компания</th>
-            <th>Сумма</th>
+            <th width="20%" >Компания</th>
+            <th width="20%" >Сумма</th>
+            <th width="20%" >Компания</th>
+            <th width="20%" >Сумма</th>
           </tr>
         </thead>
         <tbody>
@@ -45,9 +45,24 @@
                   <ul class="dropdown-menu">
                     <li>
                       <a href="/admin/acceptance_payments/edit_acceptance_payment/<?=$item['acceptance_id'];?>/" title="Редактировать">
-                        <span class="glyphicon glyphicon-edit"></span> Редактировать
+                        <? if ($item['status_id'] < 10) {?>
+                          <span class="glyphicon glyphicon-edit"></span> Редактировать
+                        <? } else { ?>
+                          <span class="glyphicon glyphicon-share"></span> Просмотреть
+                        <? } ?>
                       </a>
                     </li>
+                    <? if ($item['status_id'] < 10) {?>
+                      <li class="divider"></li>
+                      <li>
+                        <form action="/admin/acceptances/_set_status_acceptance/<?=$item['acceptance_id'];?>/10/0/0/0/" onsubmit="return false;" >
+                          <a href="javascript:void(0)" onclick="submit_form(this,'reload')" title="Оплачено">
+                            <span class="glyphicon glyphicon-ruble"></span> Оплачено
+                          </a>                          
+                        </form>
+                      </li>
+                    <? } ?>
+                    <li class="divider"></li>
                     <li>
                       <a href="/admin/acceptances/acceptance/<?=$item['acceptance_id'];?>/" title="Просмотреть">
                         <span class="glyphicon glyphicon-share"></span> Aкт приемки
@@ -103,7 +118,7 @@
               <td></td>
               <td>
                 <?if($item['method']=='card'){?>
-                  <?=$item['client_params']['bank_ru'];?> 
+                  <?=$item['client_params']['bank_ru'];?> <br>
                   <?=$item['client_params']['bank_account_ru'];?>
                 <?}?>
               </td>
@@ -115,7 +130,6 @@
           <tr>
             <td class="text-right h4" colspan="5">Касса</td>
             <td class="h4 text-nowrap"><?=number_format($cashbox['value'],2,'.',' ');?></td>
-            <td></td>
             <td></td>
             <td></td>
             <td></td>
