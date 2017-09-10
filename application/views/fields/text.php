@@ -21,7 +21,7 @@
           <div class="language"><img src="<?=$language['icon'];?>" /><?=$language['title'];?>:</div>
         <? } ?>
         
-        <input type="text"
+        <input type="<?=(isset($vars['type']) && $vars['type'] ? $vars['type'] : 'text');?>"
           class="form-control input-sm multilanguage default-generated<?=(isset($vars['class']) ? ' '. $vars['class'] : '');?>"
           <?=(isset($vars['tabindex']) ? 'tabindex="'. (int)$vars['tabindex'] .'"' : '');?>
           <?=(isset($vars['name']) ? 'name="'. $vars['name'] .'_'. $language['name'] .'"' : '');?>
@@ -34,7 +34,7 @@
         />
       <? } ?>
     <? } else { ?>
-      <input type="text"
+      <input type="<?=(isset($vars['type']) && $vars['type'] ? $vars['type'] : 'text');?>"
         class="form-control input-sm default-generated<?=(isset($vars['class']) ? ' '. $vars['class'] : '');?>"
         <?=(isset($vars['tabindex']) ? 'tabindex="'. (int)$vars['tabindex'] .'"' : '');?>
         <?=(isset($vars['name']) ? 'name="'. $vars['name'] .'"' : '');?>

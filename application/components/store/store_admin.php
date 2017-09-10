@@ -332,6 +332,7 @@ class Store_admin extends CI_Component {
       ),
       array(
         'view'     => 'fields/'.($type_id == 1 ? 'text' : 'hidden'),
+        'type'     => 'number',
         'title'    => ($label ? 'Брутто, (кг)' : ''),
         'name'     => 'gross[]',
         'value'    => ($item ? $item['gross'] : ''),
@@ -341,6 +342,7 @@ class Store_admin extends CI_Component {
       ),
       array(
         'view'     => 'fields/'.($type_id == 2 ? 'text' : 'hidden'),
+        'type'     => 'number',
         'title'    => ($label ? 'Нетто, (кг)' : ''),
         'name'     => 'net[]',
         'value'    => ($item ? $item['net'] : ''),
@@ -350,6 +352,7 @@ class Store_admin extends CI_Component {
       ),
       array(
         'view'  => 'fields/'.($type_id == 1 && $section == 'coming' ? 'text' : 'hidden'),
+        'type'  => 'number',
         'title' => ($label ? 'Упаковка, (кг)' : ''),
         'name'  => 'weight_pack[]',
         'value' => ($item && $section == 'coming' ? $item['weight_pack'] : ''),
@@ -358,6 +361,7 @@ class Store_admin extends CI_Component {
       ),
       array(
         'view'  => 'fields/'.($type_id == 1 && $section == 'coming' ? 'text' : 'hidden'),
+        'type'  => 'number',
         'title' => ($label ? 'Засор, (%)' : ''),
         'name'  => 'weight_defect[]',
         'value' => ($item && $section == 'coming' ? $item['weight_defect'] : ''),
@@ -366,6 +370,7 @@ class Store_admin extends CI_Component {
       ),
       array(
         'view'  => 'fields/text',
+        'type'  => 'number',
         'title' => ($label ? 'Кол-во мест' : ''),
         'name'  => 'cnt_places[]',
         'value' => ($item ? $item['cnt_places'] : ''),

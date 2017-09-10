@@ -92,7 +92,7 @@ class Acceptances_admin extends CI_Component {
                 'value'      => $get_params['client_id'],
                 'options'    => $this->clients_model->get_clients(0,0,array('parent_id' => null)),
                 'empty'      => true,
-                'onchange'   => "changeClientChilds(); submit_form(this, handle_ajaxResultAllData);",
+                'onchange'   => "changeClientChilds('submit_form(this, handle_ajaxResultAllData)'); submit_form(this, handle_ajaxResultAllData);",
               ),
               array(
                 'view'       => 'fields/select',
@@ -156,7 +156,7 @@ class Acceptances_admin extends CI_Component {
         $where .= ' AND pr_client_acceptances.client_id = ' . $get_params['client_id'];
       }
       if($get_params['client_child_id']){
-        $where .= ' AND pr_client_acceptances.client_child_id = ' . $get_params['client_child_id'];
+        $where .= ' AND (pr_client_acceptances.client_child_id = ' . $get_params['client_child_id'] . ' OR pr_client_acceptances.client_id = ' . $get_params['client_child_id'] . ')';
       }
       if(is_array($get_params['exceptions']) && $get_params['exceptions']){
         $where .= ' AND pr_client_acceptances.id NOT IN ('.implode(',', $get_params['exceptions']).')';
@@ -381,6 +381,7 @@ class Acceptances_admin extends CI_Component {
       ),
       array(
         'view'  => 'fields/text',
+        'type'  => 'number',
         'title' => ($label ? 'Вес в ТТН Поставщика,&nbsp;(кг)' : ''),
         'name'  => 'weight_ttn[]',
         'value' => ($item ? $item['weight_ttn'] : ''),
@@ -389,6 +390,7 @@ class Acceptances_admin extends CI_Component {
       ),
       array(
         'view'     => 'fields/text',
+        'type'     => 'number',
         'title'    => ($label ? 'Брутто, (кг)' : ''),
         'name'     => 'gross[]',
         'value'    => ($item ? $item['gross'] : ''),
@@ -398,6 +400,7 @@ class Acceptances_admin extends CI_Component {
       ),
       array(
         'view'     => 'fields/text',
+        'type'     => 'number',
         'title'    => ($label ? 'Упаковка, (кг)' : ''),
         'name'     => 'weight_pack[]',
         'value'    => ($item ? $item['weight_pack'] : ''),
@@ -407,6 +410,7 @@ class Acceptances_admin extends CI_Component {
       ),
       array(
         'view'     => 'fields/text',
+        'type'     => 'number',
         'title'    => ($label ? 'Засор, (%)' : ''),
         'name'     => 'weight_defect[]',
         'value'    => ($item ? $item['weight_defect'] : ''),
@@ -416,6 +420,7 @@ class Acceptances_admin extends CI_Component {
       ),
       array(
         'view'     => 'fields/text',
+        'type'     => 'number',
         'title'    => ($label ? 'Кол-во мест' : ''),
         'name'     => 'cnt_places[]',
         'value'    => ($item ? $item['cnt_places'] : ''),
@@ -425,6 +430,7 @@ class Acceptances_admin extends CI_Component {
       ),
       array(
         'view'      => 'fields/text',
+        'type'      => 'number',
         'title'     => ($label ? 'Нетто, (кг)' : ''),
         'name'      => 'net[]',
         'value'     => ($item ? $item['net'] : ''),
@@ -434,6 +440,7 @@ class Acceptances_admin extends CI_Component {
       ),
       array(
         'view'      => 'fields/text',
+        'type'      => 'number',
         'title'     => ($label ? 'Цена, (руб.)' : ''),
         'name'      => 'price[]',
         'value'     => ($item ? $item['price'] : ''),

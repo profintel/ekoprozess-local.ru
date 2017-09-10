@@ -141,9 +141,8 @@ class Acceptances_model extends CI_Model {
       if(!is_array($product_id)){
         $product_id = array($product_id);
       }
-      $this->db->join('client_acceptances t2','t2.parent_id = client_acceptances.id');
       // join-им чтобы вывести отчет по группе продукции
-      $this->db->join('products t3','t3.id = t2.product_id');
+      $this->db->join('pr_products','pr_products.id = client_acceptance_childs.product_id');
       $product_where = '';
       if ($where) {
         $product_where .= '(';
@@ -152,7 +151,7 @@ class Acceptances_model extends CI_Model {
         if($key != 0){
           $product_where .= ' OR ';
         }
-        $product_where .= 't3.id = '.$value.' OR t3.parent_id = '.$value;
+        $product_where .= 'pr_products.id = '.$value.' OR pr_products.parent_id = '.$value;
       }
       if ($where) {
         $product_where .= ')';

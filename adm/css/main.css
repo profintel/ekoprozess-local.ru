@@ -373,6 +373,10 @@ input[type="file"]{
   height: 30px;
 }
 
+select.input-sm{
+  height: 30px;
+}
+
 .form-control{
   font-size: 12px;
 }
@@ -454,6 +458,22 @@ input[type="file"]{
 .form_group_product_field .rest,
 .form_group_product_field .rest_all{
   line-height: 30px;
+}
+
+@media(max-width: 768px){
+  .input-sm{
+    padding: 2px;
+  }
+  .form_group_product_field_btn{
+    margin-top: 0;
+  }
+
+  .form_group_product_field{
+    width: 20%;
+  }
+  .form_group_product_field.form_group_w20{
+    width: 40%;
+  }
 }
 
 

@@ -55,7 +55,7 @@ class Acceptance_payments_admin extends CI_Component {
                 'value'      => $get_params['client_id'],
                 'options'    => $this->clients_model->get_clients(0,0,array('parent_id' => null)),
                 'empty'      => true,
-                'onchange'   => "changeClientChilds(); submit_form(this, handle_ajaxResultAllData);",
+                'onchange'   => "changeClientChilds('submit_form(this, handle_ajaxResultAllData)'); submit_form(this, handle_ajaxResultAllData);",
               ),
               array(
                 'view'       => 'fields/select',
@@ -98,7 +98,7 @@ class Acceptance_payments_admin extends CI_Component {
         $where .= ' AND pr_client_acceptances.client_id = ' . $get_params['client_id'];
       }
       if($get_params['client_child_id']){
-        $where .= ' AND pr_client_acceptances.client_child_id = ' . $get_params['client_child_id'];
+        $where .= ' AND (pr_client_acceptances.client_child_id = ' . $get_params['client_child_id'] . ' OR pr_client_acceptances.client_id = ' . $get_params['client_child_id'] . ')';
       }
 
       //если нет доступа к работе по всем клиентам добавляем условие

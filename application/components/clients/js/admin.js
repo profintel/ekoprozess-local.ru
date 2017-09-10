@@ -6,9 +6,7 @@ $(document).ready(function(){
       locationPagination($(this));
     })  
   }
-  //маска для поля с номером
-  $('input.number').number(true, 0, '.', ' ');
-  $('input.number_float').number(true, 2, '.', ' ');
+
 })
 
 /**
@@ -100,9 +98,7 @@ function renderFieldsProducts(path, obj){
       $('#'+$(result).find('select').attr('id')).chosen({
         width: "100%",
         allow_single_deselect: true
-      });      
-      //маска для поля с номером
-      $('input.number').number(true, 2, '.', ' ');
+      });
     }
   });
 }
