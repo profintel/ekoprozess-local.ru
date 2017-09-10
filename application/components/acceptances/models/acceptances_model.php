@@ -133,6 +133,7 @@ class Acceptances_model extends CI_Model {
     $this->db->select('SUM(client_acceptance_childs.gross) as gross');
     $this->db->select('SUM(client_acceptance_childs.net) as net');
     $this->db->join('client_acceptances as client_acceptance_childs','client_acceptances.id = client_acceptance_childs.parent_id');
+    $this->db->join('clients','clients.id = client_acceptances.client_id');
 
     if ($where) {
       $this->db->where($where);

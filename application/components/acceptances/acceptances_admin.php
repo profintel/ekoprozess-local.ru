@@ -19,6 +19,7 @@ class Acceptances_admin extends CI_Component {
     $get_params = array(
       'date_start'  => ($this->uri->getParam('date_start') ? date('Y-m-d',strtotime($this->uri->getParam('date_start'))) : date('Y-m-1')),
       'date_end'    => ($this->uri->getParam('date_end') ? date('Y-m-d',strtotime($this->uri->getParam('date_end'))) : ''),
+      'admin_id'    => ((int)$this->uri->getParam('admin_id') ? (int)$this->uri->getParam('admin_id') : ''),
       'client_id'   => ((int)$this->uri->getParam('client_id') ? (int)$this->uri->getParam('client_id') : ''),
       'client_child_id'   => ((int)$this->uri->getParam('client_child_id') ? (int)$this->uri->getParam('client_child_id') : ''),
       'type_report' => ($this->uri->getParam('type_report') == 'short' ? 'short' : 'long'),
@@ -158,6 +159,9 @@ class Acceptances_admin extends CI_Component {
       if($get_params['client_child_id']){
         $where .= ' AND (pr_client_acceptances.client_child_id = ' . $get_params['client_child_id'] . ' OR pr_client_acceptances.client_id = ' . $get_params['client_child_id'] . ')';
       }
+      if($get_params['admin_id']){
+        $where .= ' AND pr_clients.admin_id = ' . $get_params['admin_id'];
+      }
       if(is_array($get_params['exceptions']) && $get_params['exceptions']){
         $where .= ' AND pr_client_acceptances.id NOT IN ('.implode(',', $get_params['exceptions']).')';
       }
@@ -175,6 +179,12 @@ class Acceptances_admin extends CI_Component {
             $error = 'У вас нет прав на просмотр актов приемки для клиентов других менеджеров';
           }
         }
+
+        if($get_params['admin_id']){
+          if($get_params['admin_id'] != $this->admin_id){
+            $error = 'У вас нет прав на просмотр актов приемки других менеджеров';
+          }
+        }        
       }
 
       $page = ($this->uri->getParam('page') ? $this->uri->getParam('page') : 1);
