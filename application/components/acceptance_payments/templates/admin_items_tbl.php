@@ -163,8 +163,7 @@
           </tr>
         </tfoot>
       </table>
-
-      <? if(isset($pagination) && $pagination) {?>
+      <? if(!$render_table_email && isset($pagination) && $pagination) {?>
         <div class="pagination-wrap"><?=$pagination;?></div>
       <? } ?>
     <? } else { ?>

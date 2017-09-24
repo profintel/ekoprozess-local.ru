@@ -137,7 +137,7 @@ class Acceptance_payments_admin extends CI_Component {
         'prefix' => '/admin'.$this->params['path'],
         'postfix' => $postfix
       );
-      $items = $this->acceptance_payments_model->get_acceptance_payments($limit, $offset, $where, false);
+      $items = $this->acceptance_payments_model->get_acceptance_payments(($render_table_email ? 0 : $limit), ($render_table_email ? 0 : $offset), $where, false);
       $data = array_merge($data, array(
         'items'           => $items,
         'postfix'         => $postfix,
