@@ -85,6 +85,7 @@ class Acceptance_payments_model extends CI_Model {
       client_acceptances.status_id,
       client_acceptances.client_id,
       client_acceptances.add_expenses,
+      clients.title_full as client_title, 
       SUM(client_acceptance_childs.price * client_acceptance_childs.net) as sum,
       clients.admin_id as client_admin_id');
     $this->db->join('client_acceptances','client_acceptances.id = client_acceptance_payments.acceptance_id');
@@ -93,15 +94,94 @@ class Acceptance_payments_model extends CI_Model {
     $this->db->limit(1);
     $this->db->group_by('client_acceptance_payments.id');
     $item = $this->db->get_where('client_acceptance_payments', $where)->row_array();
+    
+    $item['childs'] = $this->acceptances_model->get_acceptances(0,0,array('client_acceptances.parent_id'=>$item['id']),array('order'=>'asc','id'=>'asc'));
+    foreach ($item['childs'] as $key => &$child) {
+      $child['product'] = $this->products_model->get_product(array('id' => $child['product_id']));
+      $child['sum'] = $child['price']*$child['net'];
+      $item['gross'] += $child['gross'];
+      $item['net'] += $child['net'];
+      $item['price'] += ($child['price']*$child['net']);
+      $item['sum'] = $item['price']-$item['add_expenses'];
+    }
+    unset($child);
 
     return $item;
   }
   
   function create_acceptance_payment($params) {
-    if ($this->db->insert('client_acceptance_payments', $params)) {
-      return $this->db->query("SELECT LAST_INSERT_ID() as id")->row()->id;
+    // копируем все параметры указанного акта приемки
+    $item = $this->acceptances_model->get_acceptance(array('client_acceptances.id'=>(int)$params['acceptance_id']));
+    if(!$item){
+      return false;
     }
-    return false;
+    array_merge($params, array(
+      'acceptance_id'         => $item['id'],
+      'acceptance_parent_id'  => $item['parent_id'],
+      'client_id'             => $item['client_id'],
+      'client_child_id'       => $item['client_child_id'],
+      'store_coming_id'       => $item['store_coming_id'],
+      'date'                  => $item['date'],
+      'date_time'             => $item['date_time'],
+      'status_id'             => $item['status_id'],
+      'company'               => $item['company'],
+      'date_num'              => $item['date_num'],
+      'transport'             => $item['transport'],
+      'product_id'            => $item['product_id'],
+      'price'                 => $item['price'],
+      'weight_ttn'            => $item['weight_ttn'],
+      'weight_pack'           => $item['weight_pack'],
+      'weight_defect'         => $item['weight_defect'],
+      'cnt_places'            => $item['cnt_places'],
+      'cnt_places'            => $item['cnt_places'],
+      'gross'                 => $item['gross'],
+      'net'                   => $item['net'],
+      'add_expenses'          => $item['add_expenses'],
+      'comment_acceptance'    => $item['comment'],
+    ));
+
+    // копируем параметры прихода
+    $item['childs'] = $this->acceptances_model->get_acceptances(0,0,array('client_acceptances.parent_id'=>$item['id']),array('order'=>'asc','id'=>'asc'));
+    
+    $this->db->trans_begin();
+    $this->db->insert('client_acceptance_payments', $params);
+
+    foreach ($item['childs'] as $key => $child) {
+      $child_params = array(
+        'acceptance_id'         => $child['id'],
+        'acceptance_parent_id'  => $child['parent_id'],
+        'client_id'             => $child['client_id'],
+        'client_child_id'       => $child['client_child_id'],
+        'store_coming_id'       => $child['store_coming_id'],
+        'date'                  => $child['date'],
+        'date_time'             => $child['date_time'],
+        'status_id'             => $child['status_id'],
+        'company'               => $child['company'],
+        'date_num'              => $child['date_num'],
+        'transport'             => $child['transport'],
+        'product_id'            => $child['product_id'],
+        'price'                 => $child['price'],
+        'weight_ttn'            => $child['weight_ttn'],
+        'weight_pack'           => $child['weight_pack'],
+        'weight_defect'         => $child['weight_defect'],
+        'cnt_places'            => $child['cnt_places'],
+        'cnt_places'            => $child['cnt_places'],
+        'gross'                 => $child['gross'],
+        'net'                   => $child['net'],
+        'add_expenses'          => $child['add_expenses'],
+        'comment_acceptance'    => $child['comment'],
+      );
+      $this->db->insert('client_acceptance_payments', $child_params);
+    }
+
+    if ($this->db->trans_status() === FALSE) {
+      $this->db->trans_rollback();
+      return FALSE;
+    }
+    
+    $this->db->trans_commit();
+
+    return true;
   }
 
   function update_acceptance_payment($id, $params) {

@@ -31,6 +31,10 @@ ALTER TABLE `pr_clients`
   ADD CONSTRAINT `pr_clients_ibfk_2` FOREIGN KEY (`admin_id`) REFERENCES `pr_admins` (`id`) ON DELETE SET NULL,
   ADD CONSTRAINT `pr_clients_ibfk_1` FOREIGN KEY (`city_id`) REFERENCES `pr_city` (`id`) ON DELETE SET NULL;
 
+ALTER TABLE `pr_clients` ADD `parent_id` INTEGER UNSIGNED DEFAULT NULL AFTER `id`;
+
+ALTER TABLE `pr_clients` ADD CONSTRAINT `pr_clients_ibfk_3` FOREIGN KEY (`parent_id`) REFERENCES `pr_clients` (`id`) ON DELETE SET NULL;
+
 CREATE TABLE IF NOT EXISTS `pr_client_params` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `title` varchar(128) NOT NULL DEFAULT '',
@@ -123,9 +127,13 @@ ALTER TABLE  `pr_client_acceptances` ADD  `store_coming_id` INT UNSIGNED DEFAULT
 
 ALTER TABLE  `pr_client_acceptances` ADD INDEX (  `store_coming_id` );
 
-ALTER TABLE `pr_client_acceptances` ADD CONSTRAINT `pr_client_acceptances_ibfk_4` FOREIGN KEY (`store_coming_id`) REFERENCES `pr_store_comings` (`id`) ON DELETE CASCADE;
+ALTER TABLE `pr_client_acceptances` ADD CONSTRAINT `pr_client_acceptances_ibfk_5` FOREIGN KEY (`store_coming_id`) REFERENCES `pr_store_comings` (`id`) ON DELETE CASCADE;
 
 ALTER TABLE  `pr_client_acceptances` ADD  `auto` BOOLEAN NOT NULL AFTER  `comment`;
+
+ALTER TABLE `pr_client_acceptances` ADD `client_child_id` INTEGER UNSIGNED DEFAULT NULL AFTER `client_id`;
+
+ALTER TABLE `pr_client_acceptances` ADD CONSTRAINT `pr_client_acceptances_ibfk_6` FOREIGN KEY (`client_child_id`) REFERENCES `pr_clients` (`id`) ON DELETE SET NULL;
 
 CREATE TABLE IF NOT EXISTS `pr_client_acceptance_emails` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,

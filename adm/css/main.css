@@ -10,6 +10,17 @@ body {
 .modal-dialog{
   z-index: 2000;
 }
+
+.modal-w100{
+  width: 100%;
+}
+
+@media(min-width: 1200px){
+  .modal-w100{
+    width: 1200px;
+  }
+}
+
 #wrapper{
   padding: 0;
   margin: 0 auto;

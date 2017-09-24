@@ -1505,12 +1505,16 @@ class Acceptances_admin extends CI_Component {
     // pr_client_acceptance_payments
     if($status_id == 4){
       // если в оплатах акт не найден, создаем
-      if(!$this->acceptance_payments_model->get_acceptance_payment(array('acceptance_id'=>$acceptance_id))){
+      if(!$this->acceptance_payments_model->get_acceptance_payment(array(
+        'client_acceptance_payments.acceptance_id'        =>$item['id'],
+        'client_acceptance_payments.acceptance_parent_id' =>null,
+        'client_acceptance_payments.client_id'            =>$item['client_id'],
+        'client_acceptance_payments.client_child_id'      =>$item['client_child_id']))){
         if (!$this->acceptance_payments_model->create_acceptance_payment(
           array(
-            'acceptance_id' => $acceptance_id,
-            'method'        => 'cash',
-            'sale_percent'  => 0,
+            'acceptance_id'   => $item['id'],
+            'method'          => 'cash',
+            'sale_percent'    => 0,
           ))) {
           if($return) return false;
           send_answer(array('errors' => array('Ошибка при добавлении акта в раздел "Бухгалтерия"')));

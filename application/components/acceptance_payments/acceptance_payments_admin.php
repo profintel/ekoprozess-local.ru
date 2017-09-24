@@ -212,16 +212,16 @@ class Acceptance_payments_admin extends CI_Component {
 
   /**
   *  Редактирование оплаты акта приемки по своим клиентам
-  */  
+  */
   function edit_acceptance_payment($acceptance_id) {
     $item = $this->acceptance_payments_model->get_acceptance_payment(array('client_acceptance_payments.acceptance_id'=>(int)$acceptance_id));
     if(!$item){
       show_error('Объект не найден');
     }
-    $acceptance = $this->acceptances_model->get_acceptance(array('pr_client_acceptances.id'=>(int)$acceptance_id));
-    if(!$item){
-      show_error('Акт не найден');
-    }
+    // $acceptance = $this->acceptances_model->get_acceptance(array('pr_client_acceptances.id'=>(int)$acceptance_id));
+    // if(!$acceptance){
+    //   show_error('Акт не найден');
+    // }
 
     $blocks = array(
       array(
@@ -229,7 +229,7 @@ class Acceptance_payments_admin extends CI_Component {
         'fields'        => array(array(
           'view'      => 'fields/readonly_value',
           'title'     => '',
-          'value'     => $this->load->view('../../application/components/acceptances/templates/admin_client_acceptance_tbl_short',array('item' => $acceptance),TRUE),
+          'value'     => $this->load->view('../../application/components/acceptances/templates/admin_client_acceptance_tbl_short',array('item' => $item),TRUE),
         )),
         'aria-expanded' => true
       ),
@@ -237,16 +237,16 @@ class Acceptance_payments_admin extends CI_Component {
       'title'   => 'Параметры оплаты',
       'fields'   => array(
         array(
-          'view'     => 'fields/'.($acceptance['status_id'] < 10 ? 'hidden' : 'readonly'),
+          'view'     => 'fields/'.($item['status_id'] < 10 ? 'hidden' : 'readonly'),
           'title'    => 'Статус',
           'value'    => 'Оплачено'
         ),
         array(
           'view'     => 'fields/datetime',
           'title'    => 'Дата оплаты:',
-          'name'     => 'date',
-          'disabled' => ($acceptance['status_id'] > 4 ? true : false),
-          'value'    => (strtotime($item['date']) ? date('d.m.Y H:i:s', strtotime($item['date'])) : '')
+          'name'     => 'date_payment',
+          'disabled' => ($item['status_id'] > 4 ? true : false),
+          'value'    => (strtotime($item['date_payment']) ? date('d.m.Y H:i:s', strtotime($item['date_payment'])) : '')
         ),
         array(
           'view'       => 'fields/select',
@@ -270,12 +270,12 @@ class Acceptance_payments_admin extends CI_Component {
           'value'    => $item['comment'],
         ),
         array(
-          'view'     => 'fields/'.($acceptance['status_id'] < 10 ? 'checkbox' : 'hidden'),
+          'view'     => 'fields/'.($item['status_id'] < 10 ? 'checkbox' : 'hidden'),
           'title'    => 'Оплачено:',
           'name'     => 'pay'
         ),
         array(
-          'view'     => 'fields/'.($acceptance['status_id'] < 10 ? 'submit' : 'hidden'),
+          'view'     => 'fields/'.($item['status_id'] < 10 ? 'submit' : 'hidden'),
           'title'    => 'Сохранить',
           'type'     => 'ajax',
           'reaction' => ''
@@ -309,7 +309,7 @@ class Acceptance_payments_admin extends CI_Component {
     }
 
     $params = array(
-      'date'         => ($this->input->post('date') ? date('Y-m-d H:i:s', strtotime($this->input->post('date'))) : ''),
+      'date_payment'  => ($this->input->post('date_payment') ? date('Y-m-d H:i:s', strtotime($this->input->post('date_payment'))) : ''),
       'method'       => htmlspecialchars(trim($this->input->post('method'))),
       'sale_percent' => (int)$this->input->post('sale_percent'),
       'comment'      => htmlspecialchars(trim($this->input->post('comment'))),
@@ -430,7 +430,7 @@ class Acceptance_payments_admin extends CI_Component {
       }
     }
     $subject = htmlspecialchars(trim($this->input->post('subject')));
-    $message = htmlspecialchars(trim($this->input->post('message')));
+    $message = $this->input->post('message');
 
     foreach ($to as $key => $email) {
       $email = trim($email);
