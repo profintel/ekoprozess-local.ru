@@ -430,7 +430,7 @@ class Acceptance_payments_admin extends CI_Component {
       }
     }
     $subject = htmlspecialchars(trim($this->input->post('subject')));
-    $message = htmlspecialchars(trim($this->input->post('message')));
+    $message = $this->input->post('message');
 
     foreach ($to as $key => $email) {
       $email = trim($email);
