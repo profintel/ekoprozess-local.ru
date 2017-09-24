@@ -279,4 +279,42 @@ class Acceptances_model extends CI_Model {
 
     return true;
   }
+
+
+  /*
+  * Возвращает список статусов для актов приемки
+  */
+  function get_acceptance_statuses($where = array(), $order_by = array()){
+    if ($where) {
+      $this->db->where($where);
+    }
+    if ($order_by) {
+      foreach ($order_by as $field => $dest) {
+        $this->db->order_by($field,$dest);
+      }
+    }
+
+    $items = $this->db->get('pr_client_acceptance_statuses')->result_array();
+    
+    return $items;
+  }
+
+  function get_acceptance_status($where = array()) {
+    $item = $this->db->get_where('pr_client_acceptance_statuses', $where)->row_array();
+    return $item;
+  }
+
+  function create_acceptance_status($params) {
+    if ($this->db->insert('pr_client_acceptance_statuses', $params)) {
+      return $this->db->query("SELECT LAST_INSERT_ID() as id")->row()->id;
+    }
+    return false;
+  }
+
+  function update_acceptance_status($id, $params) {
+    if ($this->db->update('pr_client_acceptance_statuses', $params, array('id' => $id))) {
+      return true;
+    }
+    return false;
+  }
 }

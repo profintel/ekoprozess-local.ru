@@ -25,9 +25,11 @@
     <? if (count($items) > 20) { ?>
       <a class="btn btn-default btn-xs" href="/admin<?=$_component['path'];?>"><span class="glyphicon glyphicon-backward"></span> Назад</a>
     <? } ?>
-    <a href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>create_<?=$component_item['name'];?>/<?=(isset($parent_id) ? $parent_id.'/' : '');?>" class="btn btn-primary btn-xs pull-right">
-      <span class="glyphicon glyphicon-plus"></span> Создать <?=@$component_item['title'];?>
-    </a>
+    <? if (empty($btn_create_disabled)) { ?>
+      <a href="<?=$_lang_prefix;?>/admin<?=$_component['path'];?>create_<?=$component_item['name'];?>/<?=(isset($parent_id) ? $parent_id.'/' : '');?>" class="btn btn-primary btn-xs pull-right">
+        <span class="glyphicon glyphicon-plus"></span> Создать <?=@$component_item['title'];?>
+      </a>    
+    <? } ?>
   </div>
   <? if (@$search_title && !$items) { ?>
     <div class="alert alert-warning clearfix">
@@ -37,7 +39,7 @@
   <? } ?>
   <ul class="list-group">
     <? foreach ($items as $item) { ?>
-      <li class="clearfix list-group-item">
+      <li class="clearfix list-group-item" <?=(isset($item['color']) ? 'style="background-color:'.$item['color'].'"' : '')?>>
         <a class="pull-left icon" data-toggle="dropdown">
           <span class="glyphicon glyphicon-cog"></span>
         </a>
@@ -106,7 +108,7 @@
   <? if(isset($back)) {?>
     <a class="btn btn-default btn-xs" href="<?=$back;?>"><span class="glyphicon glyphicon-backward"></span> Назад</a>
   <? } else {?>
-    <a class="btn btn-default btn-xs" href="/admin<?=$_component['path'];?>"><span class="glyphicon glyphicon-backward"></span> Назад</a>
+    <a class="btn btn-default btn-xs hidden-print" href="javascript:void(0);" onclick="goBack()"><span class="glyphicon glyphicon-backward"></span> Назад</a>
   <? } ?>
 </div>
 <br/>

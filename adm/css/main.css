@@ -672,7 +672,7 @@ div.quick_form_input+div{
   cursor: pointer;
 }
 .table-dropdown td.td-dropdown{
-  width: 0px !important;
+  // width: 0px !important;
   padding: 0;
   border-right: 0;
   vertical-align: middle;

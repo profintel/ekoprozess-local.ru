@@ -1,4 +1,4 @@
-/* Generated 10.09.2017 19:24:45 */
+/* Generated 24.09.2017 19:48:13 */
 
 /* components */
 
@@ -1178,7 +1178,7 @@ div.quick_form_input+div{
   cursor: pointer;
 }
 .table-dropdown td.td-dropdown{
-  width: 0px !important;
+  // width: 0px !important;
   padding: 0;
   border-right: 0;
   vertical-align: middle;

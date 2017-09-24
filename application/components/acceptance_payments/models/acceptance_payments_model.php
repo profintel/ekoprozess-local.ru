@@ -49,11 +49,12 @@ class Acceptance_payments_model extends CI_Model {
     $this->db->group_by('client_acceptance_payments.id');
     $items = $this->db->get('client_acceptance_payments')->result_array();
     foreach ($items as $key => &$item) {
-      if($item['client_child_id']){
-        $item['client_params'] = $this->main_model->get_params('clients', $item['client_id']);
+      // если оплата по наличному рассчету смотрим карту клиента из поля Деятельность и вид расчета
+      if($item['method']=='cash' && $item['client_child_id']){
+        $item['client_params'] = $this->main_model->get_params('client_params', $item['client_child_id']);
       }
-      if(!$item['client_child_id'] || !$item['client_params']['bank_ru'] || !$item['client_params']['bank_account_ru']){
-        $item['client_params'] = $this->main_model->get_params('clients', $item['client_id']);
+      if($item['method']=='cash' && !$item['client_child_id']){
+        $item['client_params'] = $this->main_model->get_params('client_params', $item['client_id']);
       }
       // сумма с вычетом доп.стоимости акта
       $item['sum'] = $item['sum'] - $item['add_expenses'];
@@ -116,4 +117,46 @@ class Acceptance_payments_model extends CI_Model {
     }
     return false;
   }
+
+  function get_acceptance_payments_emails($where = array(), $order_by = array(), $limit = 0, $offset = 0, $group_by = array()) {
+    $this->db->select('pr_client_acceptance_payments_emails.*,admins.username as username');
+    if ($order_by) {
+      foreach ($order_by as $field => $dest) {
+        $this->db->order_by($field,$dest);
+      }
+    } else {
+      $this->db->order_by('tm','desc');
+    }
+    if ($group_by) {
+      foreach ($group_by as $key => $field) {
+        $this->db->group_by($field);
+      }
+    }
+    if ($where) {
+      $this->db->where($where);
+    }
+    $this->db->join('admins','admins.id=pr_client_acceptance_payments_emails.admin_id');
+    if ($limit) {
+      $this->db->limit($limit, $offset);
+    }
+    $items = $this->db->get('pr_client_acceptance_payments_emails')->result_array();
+    // echo $this->db->last_query();
+
+    return $items;
+  }
+
+  function create_acceptance_payments_email($params) {
+    if ($this->db->insert('pr_client_acceptance_payments_emails', $params)) {
+      return $this->db->query("SELECT LAST_INSERT_ID() as id")->row()->id;
+    }
+    return false;
+  }
+  
+  function delete_acceptances_payments_emails($where = array()) {
+    if ($this->db->delete('pr_client_acceptance_payments_emails',$where)) {
+      return true;
+    }
+    return false;
+  }
+
 }

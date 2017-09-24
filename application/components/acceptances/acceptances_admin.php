@@ -1532,4 +1532,88 @@ class Acceptances_admin extends CI_Component {
 
     send_answer();
   }
+  
+  /**
+  *  Просмотр списка статусов актов приемки
+  */
+  function statuses_acceptances(){
+    $data = array(
+      'title'  => 'Акты приемки: список статусов',
+      'btn_create_disabled'  => true,
+      'component_item'  => array('name' => 'acceptance_status', 'title' => 'акт приемки'),
+      'items' => $this->acceptances_model->get_acceptance_statuses()
+    );
+
+    return $this->render_template('admin/items', $data);
+  }
+  
+  /**
+  *  Редактирование цвета для статуса акта приемки
+  */  
+  function edit_acceptance_status($id) {
+    $item = $this->acceptances_model->get_acceptance_status(array('id'=>$id));
+    if(!$item){
+      show_error('Объект не найден');
+    }
+
+    return $this->render_template('admin/inner', array(
+      'title' => 'Редактирование статуса',
+      'html' => $this->view->render_form(array(
+        'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'_edit_acceptance_status_process/'.$id.'/',
+        'blocks' => array(
+          array(
+            'title'   => 'Основные параметры',
+            'fields'   => array(
+              array(
+                'view'      => 'fields/readonly',
+                'title'     => 'Название:',
+                'name'      => 'title',
+                'value'     => $item['title'],
+                'maxlength' => 256
+              ),
+              array(
+                'view'      => 'fields/text',
+                'title'     => 'Цвет фона для строк в отчетах:',
+                'type'      => 'color',
+                'name'      => 'color',
+                'value'     => $item['color'],
+                'maxlength' => 256
+              ),
+              array(
+                'view'     => 'fields/submit',
+                'title'    => 'Сохранить',
+                'type'     => 'ajax',
+                'reaction' => 'reload'
+              )
+            )
+          )
+        )
+      )),
+      'back' => $this->lang_prefix .'/admin'. $this->params['path'].'cities/'
+    ), TRUE);
+  }
+  
+  function _edit_acceptance_status_process($id) {    
+    $params = array(
+      'color' => htmlspecialchars(trim($this->input->post('color')))
+    );
+
+    $errors = $this->_validate_acceptance_status($params);
+    if ($errors) {
+      send_answer(array('errors' => $errors));
+    } 
+    
+    if (!$this->acceptances_model->update_acceptance_status($id, $params)) {
+      send_answer(array('errors' => array('Ошибка при сохранении изменений')));
+    }
+
+    send_answer(array('success' => array('Изменения успешно сохранены')));
+  }
+  
+  function _validate_acceptance_status($params) {
+    $errors = array();
+    if (!$params['color']) { $errors['title'] = 'Не указан цвет'; }
+    return $errors;
+  }
+
 }

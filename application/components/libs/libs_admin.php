@@ -4,6 +4,8 @@ class Libs_admin extends CI_Component {
   
   function __construct() {
     parent::__construct();
+
+    $this->load->model('acceptances/models/acceptances_model');
   }
   
   /**
@@ -33,6 +35,12 @@ class Libs_admin extends CI_Component {
       $items[] = array(
         'title' => 'Цеха',
         'link'  => $this->lang_prefix .'/admin/workshops/'
+      );
+    }
+    if(exists_component('acceptances')) {
+      $items[] = array(
+        'title' => 'Статусы актов приемки',
+        'link'  => $this->lang_prefix .'/admin/acceptances/statuses_acceptances'
       );
     }
     return $this->render_template('admin/menu', array(

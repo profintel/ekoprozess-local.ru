@@ -12,7 +12,7 @@ class Acceptance_payments_admin extends CI_Component {
   /** 
   * Просмотр списка актов приемки по своим клиентам
   */
-  function index($render_table = false) {
+  function index($render_table = false, $render_table_email = false) {
     $get_params = array(
       'date_start'  => ($this->uri->getParam('date_start') ? date('Y-m-d',strtotime($this->uri->getParam('date_start'))) : date('Y-m-1')),
       'date_end'    => ($this->uri->getParam('date_end') ? date('Y-m-d',strtotime($this->uri->getParam('date_end'))) : ''),
@@ -21,9 +21,10 @@ class Acceptance_payments_admin extends CI_Component {
     );
 
     $data = array(
-      'title'           => 'Акты приемки. Бухгалтерия.',
-      'component_item'  => array('name' => 'acceptance_payment', 'title' => 'Бухгалтерия'),
-      'cashbox'         => $this->main_model->get_param('cashbox', 1, 'cashbox_0'),
+      'title'               => 'Акты приемки. Бухгалтерия.',
+      'component_item'      => array('name' => 'acceptance_payment', 'title' => 'Бухгалтерия'),
+      'cashbox'             => $this->main_model->get_param('cashbox', 1, 'cashbox_0'),
+      'render_table_email'  => $render_table_email,
       'form' => $this->view->render_form(array(
         'method' => 'GET',
         'id'     => 'acceptance_payments_report',
@@ -139,6 +140,7 @@ class Acceptance_payments_admin extends CI_Component {
       $items = $this->acceptance_payments_model->get_acceptance_payments($limit, $offset, $where, false);
       $data = array_merge($data, array(
         'items'           => $items,
+        'postfix'         => $postfix,
         'error'           => $error,
         'pagination'      => $this->load->view('templates/pagination', $pagination_data, true),
       ));
@@ -368,6 +370,95 @@ class Acceptance_payments_admin extends CI_Component {
       send_answer(array('errors' => array('Не удалось удалить объект')));
     }
     
+    send_answer();
+  }
+
+  function send_acceptances_payment_email(){
+    $message = $this->index(true,true);
+
+    return $this->render_template('templates/admin_items_email', 
+      array(
+        'title' => 'Отчет по бухгалтерии',
+        'emails'=> $this->acceptance_payments_model->get_acceptance_payments_emails(),
+        'html'  => $this->view->render_fields(array(
+          array(
+            'view'        => 'fields/readonly',
+            'title'       => 'От кого:',
+            'value'       => '<h6>info@ekoprozess.isnet.ru</h6>',
+          ),
+          array(
+            'view'        => 'fields/hidden',
+            'name'        => 'from',
+            'title'       => 'От кого:',
+            'value'       => 'info@ekoprozess.isnet.ru',
+          ),
+          array(
+            'view'        => 'fields/text',
+            'title'       => 'Кому:',
+            'name'        => 'to',
+          ),
+          array(
+            'view'  => 'fields/text',
+            'title' => 'Тема письма:',
+            'name'  => 'subject',
+            'value' => 'Отчет. ',
+          ),
+          array(
+            'view'    => 'fields/editor',
+            'title'   => 'Текст письма:',
+            'id'      => 'message_acceptances_payment_email',
+            'name'    => 'message',
+            'value'   => $message,
+            // 'toolbar' => 'Full',
+            'height' => '500',
+          )
+        )),
+      )
+    );
+  }
+
+  function _send_acceptances_payment_email(){
+    $from = $this->input->post('from');
+    if (!preg_match('/^[-0-9a-z_\.]+@[-0-9a-z^\.]+\.[a-z]{2,4}$/i', $from)) { 
+      send_answer(array('errors' => array('Некорректный еmail отправителя '.$from)));
+    }
+    $to = explode(',', $this->input->post('to'));
+    foreach ($to as $key => $email) {
+      $email = htmlspecialchars(trim($email));
+      if (!preg_match('/@{1}/', $email)) { 
+        send_answer(array('errors' => array('Некорректный еmail получателя - "'.$email.'"')));
+      }
+    }
+    $subject = htmlspecialchars(trim($this->input->post('subject')));
+    $message = htmlspecialchars(trim($this->input->post('message')));
+
+    foreach ($to as $key => $email) {
+      $email = trim($email);
+      if(!send_mail($from, $email, $subject, $message)){
+        send_answer(array('errors' => array('Не удалось отправить сообщение на email - "'.$email.'"')));
+      }
+    }
+    $params = array(
+      'admin_id'     => $this->admin_id,
+      'from'         => $from,
+      'to'           => implode(',', $to),
+      'subject'      => $subject,
+      'message'      => $message 
+    );
+    if(!$this->acceptance_payments_model->create_acceptance_payments_email($params)){
+      send_answer(array('errors' => array('Сообщение успешно отправлено. Не удалось сохранить письмо в истории')));
+    }
+
+    send_answer(array('messages' => array('Сообщение успешно отправлено')));
+  }
+
+  /*
+  * Удаление всей истории писем из раздела Бухгалтерия
+  **/
+  function delete_acceptances_payments_emails(){
+    if(!$this->acceptance_payments_model->delete_acceptances_payments_emails('id IS NOT NULL')){
+      send_answer(array('errors' => array('Не удалось удалить историю')));
+    };
     send_answer();
   }
 }

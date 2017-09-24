@@ -290,7 +290,7 @@ function send_mail_old($from, $email, $subject, $message) {
   return true;
 }
 
-function send_mail($from, $email, $subject, $message, $files) {
+function send_mail($from, $email, $subject, $message, $files = false) {
   $CI =& get_instance();
   $data = array(
       'title'   => $subject,
