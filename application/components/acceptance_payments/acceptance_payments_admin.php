@@ -214,22 +214,25 @@ class Acceptance_payments_admin extends CI_Component {
   *  Редактирование оплаты акта приемки по своим клиентам
   */
   function edit_acceptance_payment($acceptance_id) {
-    $item = $this->acceptance_payments_model->get_acceptance_payment(array('client_acceptance_payments.acceptance_id'=>(int)$acceptance_id));
+    $acceptance = $this->acceptances_model->get_acceptance(array('pr_client_acceptances.id'=>(int)$acceptance_id));
+    if(!$acceptance){
+      show_error('Акт не найден');
+    }
+
+    $item = $this->acceptance_payments_model->get_acceptance_payment(array('client_acceptance_payments.acceptance_id'=>(int)$acceptance['id'], 'client_acceptance_payments.client_id'=>(int)$acceptance['client_id']));
     if(!$item){
       show_error('Объект не найден');
     }
-    // $acceptance = $this->acceptances_model->get_acceptance(array('pr_client_acceptances.id'=>(int)$acceptance_id));
-    // if(!$acceptance){
-    //   show_error('Акт не найден');
-    // }
+    $acceptance = $item;
+    $acceptance['id'] = $item['acceptance_id'];
 
     $blocks = array(
       array(
-        'title'         => 'Акт приемки',
-        'fields'        => array(array(
+        'title'   => 'Акт приемки',
+        'fields'  => array(array(
           'view'      => 'fields/readonly_value',
           'title'     => '',
-          'value'     => $this->load->view('../../application/components/acceptances/templates/admin_client_acceptance_tbl_short',array('item' => $item),TRUE),
+          'value'     => $this->load->view('../../application/components/acceptances/templates/admin_client_acceptance_tbl_short',array('item' => $acceptance),TRUE),
         )),
         'aria-expanded' => true
       ),

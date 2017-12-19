@@ -144,7 +144,6 @@
               </td>
               <td>
                 <?if($item['method']=='cash'){?>
-                  <?=$item['client_params']['param_2_ru'];?> <br>
                   <?=$item['client_params']['param_1_ru'];?>
                 <?}?>
               </td>

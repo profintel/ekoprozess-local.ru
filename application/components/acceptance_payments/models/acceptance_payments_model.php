@@ -94,17 +94,19 @@ class Acceptance_payments_model extends CI_Model {
     $this->db->limit(1);
     $this->db->group_by('client_acceptance_payments.id');
     $item = $this->db->get_where('client_acceptance_payments', $where)->row_array();
-    
-    $item['childs'] = $this->acceptances_model->get_acceptances(0,0,array('client_acceptances.parent_id'=>$item['id']),array('order'=>'asc','id'=>'asc'));
-    foreach ($item['childs'] as $key => &$child) {
-      $child['product'] = $this->products_model->get_product(array('id' => $child['product_id']));
-      $child['sum'] = $child['price']*$child['net'];
-      $item['gross'] += $child['gross'];
-      $item['net'] += $child['net'];
-      $item['price'] += ($child['price']*$child['net']);
-      $item['sum'] = $item['price']-$item['add_expenses'];
+    // echo $this->db->last_query();
+    if($item){
+      $item['childs'] = $this->acceptances_model->get_acceptances(0,0,array('client_acceptances.parent_id'=>$item['id']),array('order'=>'asc','id'=>'asc'));
+      foreach ($item['childs'] as $key => &$child) {
+        $child['product'] = $this->products_model->get_product(array('id' => $child['product_id']));
+        $child['sum'] = $child['price']*$child['net'];
+        $item['gross'] += $child['gross'];
+        $item['net'] += $child['net'];
+        $item['price'] += ($child['price']*$child['net']);
+        $item['sum'] = $item['price']-$item['add_expenses'];
+      }
+      unset($child);
     }
-    unset($child);
 
     return $item;
   }
@@ -112,10 +114,11 @@ class Acceptance_payments_model extends CI_Model {
   function create_acceptance_payment($params) {
     // копируем все параметры указанного акта приемки
     $item = $this->acceptances_model->get_acceptance(array('client_acceptances.id'=>(int)$params['acceptance_id']));
+
     if(!$item){
       return false;
     }
-    array_merge($params, array(
+    $params = array_merge($params, array(
       'acceptance_id'         => $item['id'],
       'acceptance_parent_id'  => $item['parent_id'],
       'client_id'             => $item['client_id'],
@@ -142,7 +145,7 @@ class Acceptance_payments_model extends CI_Model {
 
     // копируем параметры прихода
     $item['childs'] = $this->acceptances_model->get_acceptances(0,0,array('client_acceptances.parent_id'=>$item['id']),array('order'=>'asc','id'=>'asc'));
-    
+    // var_dump($params);exit;
     $this->db->trans_begin();
     $this->db->insert('client_acceptance_payments', $params);
 

@@ -277,7 +277,7 @@ class Acceptances_admin extends CI_Component {
           )), true)
     );
     // если приход отправлен на склад - кнопка отправки в бухгалтерию
-    if($this->acceptance_payments_model->get_acceptance_payment(array('acceptance_id'=>$item['id']))){
+    if($this->acceptance_payments_model->get_acceptance_payment(array('pr_client_acceptance_payments.acceptance_id'=>$item['id'],'pr_client_acceptance_payments.client_id'=>$item['client_id'],'pr_client_acceptance_payments.client_child_id'=>$item['client_child_id']))){
       $block_title_btns = array_merge($block_title_btns, array(
         $this->load->view('fields/submit', 
           array('vars' => array(
@@ -914,7 +914,7 @@ class Acceptances_admin extends CI_Component {
         )), true)
     ));
     // если приход отправлен на склад - кнопка отправки в бухгалтерию
-    if($this->acceptance_payments_model->get_acceptance_payment(array('acceptance_id'=>$item['id']))){
+    if($this->acceptance_payments_model->get_acceptance_payment(array('pr_client_acceptance_payments.acceptance_id'=>$item['id'],'pr_client_acceptance_payments.client_id'=>$item['client_id'],'pr_client_acceptance_payments.client_child_id'=>$item['client_child_id']))){
       $block_title_btns = array_merge($block_title_btns, array(
         $this->load->view('fields/submit', 
           array('vars' => array(
@@ -1038,6 +1038,9 @@ class Acceptances_admin extends CI_Component {
       if((int)$this->input->post('client_id') && !$item['store_coming_id']){
         $main_params['client_id'] = (int)$this->input->post('client_id');
       }
+      if($main_params['client_id'] != $item['client_id'] || $main_params['client_child_id'] != $item['client_child_id']){
+        $main_params['status_id'] = 2;
+      }
 
       $errors = $this->_validate_acceptance($main_params, $item);
       if ($errors) {
@@ -1086,7 +1089,6 @@ class Acceptances_admin extends CI_Component {
       }
     }
 
-    
     if (!$this->acceptances_model->update_acceptance($id, $main_params)) {
       send_answer(array('errors' => array('Ошибка при сохранении изменений')));
     }
@@ -1254,7 +1256,7 @@ class Acceptances_admin extends CI_Component {
     );
 
     // если приход отправлен на склад - кнопка отправки в бухгалтерию
-    if($this->acceptance_payments_model->get_acceptance_payment(array('acceptance_id'=>$item['id']))){
+    if($this->acceptance_payments_model->get_acceptance_payment(array('pr_client_acceptance_payments.acceptance_id'=>$item['id'],'pr_client_acceptance_payments.client_id'=>$item['client_id'],'pr_client_acceptance_payments.client_child_id'=>$item['client_child_id']))){
       $block_title_btns = array_merge($block_title_btns, array(
         $this->load->view('fields/submit', 
           array('vars' => array(
@@ -1417,7 +1419,7 @@ class Acceptances_admin extends CI_Component {
     }
 
     // проверяем, если акт не в бухгалтерии, отправляем
-    if(!$this->acceptance_payments_model->get_acceptance_payment(array('acceptance_id'=>$item['id']))){
+    if(!$this->acceptance_payments_model->get_acceptance_payment(array('pr_client_acceptance_payments.acceptance_id'=>$item['id'],'pr_client_acceptance_payments.client_id'=>$item['client_id'],'pr_client_acceptance_payments.client_child_id'=>$item['client_child_id']))){
       if(!$this->_set_status_acceptance($item['id'],4,true,true)){
         send_answer(array('errors' => array('Ошибка при отправлении акта приемки в бухгалтерию')));
       }
