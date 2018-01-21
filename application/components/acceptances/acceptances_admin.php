@@ -446,6 +446,7 @@ class Acceptances_admin extends CI_Component {
         'value'     => ($item ? $item['net'] : ''),
         'onkeyup'   => 'updateAcceptanceSumProduct()',
         'class'     => 'product_field_count number',
+        'disabled' => ($item && $item['store_coming_id'] ? true : false),
         'form_group_class' => 'form_group_product_field',
       ),
       array(

@@ -366,7 +366,7 @@ class Store_admin extends CI_Component {
         'title'    => ($label ? 'Нетто, (кг)' : ''),
         'name'     => 'net[]',
         'value'    => ($item ? $item['net'] : ''),
-        'disabled' => ($item && $item['active'] ? true : false),
+        'disabled' => ($type_id == 2 && $item && $item['active'] ? true : false),
         'class'    => 'number',
         'form_group_class' => 'form_group_product_field'.($type_id == 2 ? ' form_group_w20' : ''),
       ),
