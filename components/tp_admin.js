@@ -1,4 +1,4 @@
-/*** Generated 09.11.2017 11:46:32 ***/
+/*** Generated 21.01.2018 23:57:53 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -4651,6 +4651,19 @@ function updateAcceptanceSumProduct(){
   allSum = allSum - add_expenses;
 
   containerAllSum.text($.number(allSum,2,'.'));
+}
+
+
+/**
+* Считает нетто в приходах и подставляет в input
+*/
+function updateComingNet(obj){
+  var parent = $(obj).parents('.panel-body'),
+      netInput = parent.find('[name="net[]"]'),
+      gross = parseFloat(parent.find('[name="gross[]"]').val()),
+      weight_defect = parseFloat(parent.find('[name="weight_defect[]"]').val());
+
+  netInput.val(Math.round(gross - gross*weight_defect/100));
 }
 
 /*** acceptances ***/

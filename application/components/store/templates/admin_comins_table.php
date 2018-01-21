@@ -16,7 +16,8 @@
             <? if ($type_id == 1) {?><th width="40%">Поставщик</th><? } ?>
             <? if ($type_id == 1) {?><th>Брутто, кг</th><? } ?>
             <? if ($type_id == 2) {?><th>Цех</th><? } ?>
-            <? if ($type_id == 2) {?><th>Нетто, кг</th><? } ?>
+            <th>Нетто, кг</th>
+            <? if ($type_id == 1) {?><th>Засор, %</th><? } ?>
             <th>Кол-во мест</th>
             <th>Вид вторсырья</th>
             <? if ($type_id == 2) {?><th>Примечания</th><? } ?>
@@ -95,13 +96,19 @@
                   <?=$item['workshop']['title'];?>
                 </td>
               <? } ?>
-              <td>
-                <? if ($type_id == 1) {?>
+              <? if ($type_id == 1) {?>
+                <td>
                   <span class="text-nowrap"><?=number_format(@$item['childs'][0]['gross'],0,'.',' ');?></span>
-                <? } else {?>
-                  <span class="text-nowrap"><?=number_format(@$item['childs'][0]['net'],0,'.',' ');?></span>
-                <? } ?>
+                </td>
+              <? } ?>
+              <td>
+                <span class="text-nowrap"><?=number_format(@$item['childs'][0]['net'],0,'.',' ');?></span>
               </td>
+              <? if ($type_id == 1) {?>
+                <td>
+                  <span class="text-nowrap"><?=number_format(@$item['childs'][0]['weight_defect'],0,'.',' ');?></span>
+                </td>
+              <? } ?>
               <td>
                 <span class="text-nowrap"><?=number_format(@$item['childs'][0]['cnt_places'],0,'.',' ');?></span>
               </td>
@@ -114,13 +121,19 @@
             <?array_shift($item['childs']);?>
             <?foreach ($item['childs'] as $key => $child) {?>
               <tr>
-                <td>
-                  <? if ($type_id == 1) {?>
+                <? if ($type_id == 1) {?>
+                  <td>
                     <span class="text-nowrap"><?=number_format($child['gross'],0,'.',' ');?></span>
-                  <? } else {?>
+                  </td>
+                <? } ?>
+                <td>
                     <span class="text-nowrap"><?=number_format($child['net'],0,'.',' ');?></span>
-                  <? } ?>
                 </td>
+                <? if ($type_id == 1) {?>
+                  <td>
+                    <span class="text-nowrap"><?=number_format($child['weight_defect'],0,'.',' ');?></span>
+                  </td>
+                <? } ?>
                 <td>
                   <span class="text-nowrap"><?=number_format($child['cnt_places'],0,'.',' ');?></span>
                 </td>
@@ -132,7 +145,7 @@
         <tfoot>
           <? if(isset($pagination) && $pagination) {?>
             <tr>
-              <td colspan="9" class="text-right pagination-wrap">
+              <td colspan="10" class="text-right pagination-wrap">
                 <?=$pagination;?>
               </td>
             </tr>
@@ -141,7 +154,7 @@
             <td colspan="<?=($type_id == 1 ? 5 : 4);?>" class="text-right">
               <h4>ИТОГО <small>за период  с <?=rus_date($get_params['date_start'],'j m Yг.');?> по <?=rus_date($get_params['date_end'],'j m Yг.');?></small></h4>
             </td>
-            <td colspan="<?=($type_id == 1 ? 3 : 4);?>"><h4><?=($type_id == 1 ? number_format($all_gross,0,'.',' ') : number_format($all_net,0,'.',' '));?> кг</h4></td>
+            <td colspan="<?=($type_id == 1 ? 5 : 4);?>"><h4><?=($type_id == 1 ? '<p>Брутто: '.number_format($all_gross,0,'.',' ').' кг</p> <p>Нетто: '.number_format($all_net,0,'.',' ').' кг</p>' : number_format($all_net,0,'.',' ').' кг');?></h4></td>
           </tr>
         </tfoot>
       </table>

@@ -242,7 +242,7 @@ class Store_admin extends CI_Component {
          //общая сумма брутто 
         'all_gross' => ($type['id'] == 1 ? $this->store_model->get_comming_sum_field('gross', $where, $get_params['product_id']) : 0),
         //общая сумма нетто 
-        'all_net'   => ($type['id'] == 2 ? $this->store_model->get_comming_sum_field('net', $where, $get_params['product_id']) : 0),
+        'all_net'   => $this->store_model->get_comming_sum_field('net', $where, $get_params['product_id']),
 
       ));
       
@@ -339,16 +339,7 @@ class Store_admin extends CI_Component {
         'disabled' => ($item && $item['active'] ? true : false),
         'class'    => 'number',
         'form_group_class' => 'form_group_product_field',
-      ),
-      array(
-        'view'     => 'fields/'.($type_id == 2 ? 'text' : 'hidden'),
-        'type'     => 'number',
-        'title'    => ($label ? 'Нетто, (кг)' : ''),
-        'name'     => 'net[]',
-        'value'    => ($item ? $item['net'] : ''),
-        'disabled' => ($item && $item['active'] ? true : false),
-        'class'    => 'number',
-        'form_group_class' => 'form_group_product_field'.($type_id == 2 ? ' form_group_w20' : ''),
+        'onkeyup' => (!$item ? 'updateComingNet(this);' : ''),
       ),
       array(
         'view'  => 'fields/'.($type_id == 1 && $section == 'coming' ? 'text' : 'hidden'),
@@ -367,6 +358,17 @@ class Store_admin extends CI_Component {
         'value' => ($item && $section == 'coming' ? $item['weight_defect'] : ''),
         'class' => 'number',
         'form_group_class' => 'form_group_product_field',
+        'onkeyup' => (!$item ? 'updateComingNet(this);' : ''),
+      ),
+      array(
+        'view'     => 'fields/text',
+        'type'     => 'number',
+        'title'    => ($label ? 'Нетто, (кг)' : ''),
+        'name'     => 'net[]',
+        'value'    => ($item ? $item['net'] : ''),
+        'disabled' => ($item && $item['active'] ? true : false),
+        'class'    => 'number',
+        'form_group_class' => 'form_group_product_field'.($type_id == 2 ? ' form_group_w20' : ''),
       ),
       array(
         'view'  => 'fields/text',

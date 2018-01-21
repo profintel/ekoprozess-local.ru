@@ -149,3 +149,16 @@ function updateAcceptanceSumProduct(){
 
   containerAllSum.text($.number(allSum,2,'.'));
 }
+
+
+/**
+* Считает нетто в приходах и подставляет в input
+*/
+function updateComingNet(obj){
+  var parent = $(obj).parents('.panel-body'),
+      netInput = parent.find('[name="net[]"]'),
+      gross = parseFloat(parent.find('[name="gross[]"]').val()),
+      weight_defect = parseFloat(parent.find('[name="weight_defect[]"]').val());
+
+  netInput.val(Math.round(gross - gross*weight_defect/100));
+}
