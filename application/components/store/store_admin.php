@@ -339,7 +339,7 @@ class Store_admin extends CI_Component {
         'disabled' => ($item && $item['active'] ? true : false),
         'class'    => 'number',
         'form_group_class' => 'form_group_product_field',
-        'onkeyup' => (!$item ? 'updateComingNet(this);' : ''),
+        'onkeyup' => 'updateComingNet(this);',
       ),
       array(
         'view'  => 'fields/'.($type_id == 1 && $section == 'coming' ? 'text' : 'hidden'),
@@ -348,7 +348,8 @@ class Store_admin extends CI_Component {
         'name'  => 'weight_pack[]',
         'value' => ($item && $section == 'coming' ? $item['weight_pack'] : ''),
         'class' => 'number',
-        'form_group_class' => 'form_group_product_field'
+        'form_group_class' => 'form_group_product_field',
+        'onkeyup' => 'updateComingNet(this);',
       ),
       array(
         'view'  => 'fields/'.($type_id == 1 && $section == 'coming' ? 'text' : 'hidden'),
@@ -358,7 +359,7 @@ class Store_admin extends CI_Component {
         'value' => ($item && $section == 'coming' ? $item['weight_defect'] : ''),
         'class' => 'number',
         'form_group_class' => 'form_group_product_field',
-        'onkeyup' => (!$item ? 'updateComingNet(this);' : ''),
+        'onkeyup' => 'updateComingNet(this);',
       ),
       array(
         'view'     => 'fields/text',

@@ -1,4 +1,4 @@
-/*** Generated 21.01.2018 23:57:53 ***/
+/*** Generated 23.01.2018 20:31:21 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -4662,8 +4662,9 @@ function updateComingNet(obj){
       netInput = parent.find('[name="net[]"]'),
       gross = parseFloat(parent.find('[name="gross[]"]').val()),
       weight_defect = parseFloat(parent.find('[name="weight_defect[]"]').val());
+      weight_pack = parseFloat(parent.find('[name="weight_pack[]"]').val());
 
-  netInput.val(Math.round(gross - gross*weight_defect/100));
+  netInput.val(Math.round(gross - weight_pack - gross*weight_defect/100));
 }
 
 /*** acceptances ***/

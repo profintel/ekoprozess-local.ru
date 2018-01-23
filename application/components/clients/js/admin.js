@@ -159,6 +159,7 @@ function updateComingNet(obj){
       netInput = parent.find('[name="net[]"]'),
       gross = parseFloat(parent.find('[name="gross[]"]').val()),
       weight_defect = parseFloat(parent.find('[name="weight_defect[]"]').val());
+      weight_pack = parseFloat(parent.find('[name="weight_pack[]"]').val());
 
-  netInput.val(Math.round(gross - gross*weight_defect/100));
+  netInput.val(Math.round(gross - weight_pack - gross*weight_defect/100));
 }
