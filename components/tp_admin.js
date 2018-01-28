@@ -1,4 +1,4 @@
-/*** Generated 23.01.2018 20:31:21 ***/
+/*** Generated 28.01.2018 21:29:33 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -4663,6 +4663,15 @@ function updateComingNet(obj){
       gross = parseFloat(parent.find('[name="gross[]"]').val()),
       weight_defect = parseFloat(parent.find('[name="weight_defect[]"]').val());
       weight_pack = parseFloat(parent.find('[name="weight_pack[]"]').val());
+  if(!$.isNumeric(weight_defect)){
+    weight_defect = 0;
+  }
+  if(!$.isNumeric(weight_pack)){
+    weight_pack = 0;
+  }
+  if(!$.isNumeric(gross)){
+    gross = 0;
+  }
 
   netInput.val(Math.round(gross - weight_pack - gross*weight_defect/100));
 }
