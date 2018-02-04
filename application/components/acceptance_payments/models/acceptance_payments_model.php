@@ -11,27 +11,19 @@ class Acceptance_payments_model extends CI_Model {
 
   function get_acceptance_payments($limit = 0, $offset = 0, $where = array(), $order_by = array()) {
     $this->db->select('
-      client_acceptance_payments.id,
-      client_acceptance_payments.method,
-      client_acceptance_payments.acceptance_id,
-      client_acceptance_payments.sale_percent,
-      client_acceptance_payments.comment,
-      client_acceptances.date,
-      client_acceptances.client_id,
-      client_acceptances.add_expenses,
-      client_acceptances.status_id,
-      client_acceptance_childs.price,
-      client_acceptance_childs.net,
-      SUM(client_acceptance_childs.price * client_acceptance_childs.net) as sum,
+      client_acceptance_payments.*,
+      client_acceptance_payment_childs.price,
+      client_acceptance_payment_childs.net,
+      (SUM(client_acceptance_payment_childs.price * client_acceptance_payment_childs.net) - pr_client_acceptance_payments.add_expenses) as sum,
       clients.title_full as client_title,
       client_childs.id as client_child_id,
       client_childs.title_full as client_child_title,
       status.color as status_color');
-    $this->db->join('client_acceptances','client_acceptances.id = client_acceptance_payments.acceptance_id');
-    $this->db->join('client_acceptances as client_acceptance_childs','client_acceptances.id = client_acceptance_childs.parent_id');
-    $this->db->join('clients','clients.id = client_acceptances.client_id');
-    $this->db->join('clients as client_childs','client_childs.id = client_acceptances.client_child_id','left');
-    $this->db->join('client_acceptance_statuses as status','status.id = client_acceptances.status_id','left');
+    $this->db->join('client_acceptance_payments as client_acceptance_payment_childs','client_acceptance_payments.id = client_acceptance_payment_childs.parent_id','left');
+    $this->db->join('clients','clients.id = client_acceptance_payments.client_id');
+    $this->db->join('clients as client_childs','client_childs.id = client_acceptance_payments.client_child_id','left');
+    $this->db->join('client_acceptances as acceptance','acceptance.id = client_acceptance_payments.acceptance_id','left');
+    $this->db->join('client_acceptance_statuses as status','status.id = acceptance.status_id','left');
     if ($where) {
       $this->db->where($where);
     }
@@ -43,11 +35,12 @@ class Acceptance_payments_model extends CI_Model {
         $this->db->order_by($field,$dest);
       }
     } else {
-      $this->db->order_by('date','desc');
+      $this->db->order_by('client_acceptance_payments.date','desc');
       $this->db->order_by('client_acceptance_payments.id','asc');
     }
     $this->db->group_by('client_acceptance_payments.id');
     $items = $this->db->get('client_acceptance_payments')->result_array();
+    // echo $this->db->last_query();exit;
     foreach ($items as $key => &$item) {
       // если оплата по наличному рассчету смотрим карту клиента из поля Деятельность и вид расчета
       if($item['method']=='cash' && $item['client_child_id']){
@@ -57,7 +50,7 @@ class Acceptance_payments_model extends CI_Model {
         $item['client_params'] = $this->main_model->get_params('client_params', $item['client_id']);
       }
       // сумма с вычетом доп.стоимости акта
-      $item['sum'] = $item['sum'] - $item['add_expenses'];
+      // $item['sum'] = $item['sum'] - $item['add_expenses'];
       // учитываем скидку
       if($item['method'] == 'cash' && $item['sale_percent']){
         $item['sum'] = $item['sum'] - $item['sum']*($item['sale_percent']/100);
@@ -69,8 +62,6 @@ class Acceptance_payments_model extends CI_Model {
   
   function get_acceptance_payments_cnt($where = '') {
     $this->db->select('COUNT(DISTINCT(pr_client_acceptance_payments.id)) as cnt');
-    $this->db->join('pr_client_acceptances','pr_client_acceptances.id = client_acceptance_payments.acceptance_id');
-    $this->db->join('client_acceptance_statuses as status','status.id = client_acceptances.status_id','left');
 
     if ($where) {
       $this->db->where($where);
@@ -81,29 +72,25 @@ class Acceptance_payments_model extends CI_Model {
   function get_acceptance_payment($where = array(), $full = true) {
     $this->db->select('
       client_acceptance_payments.*,
-      client_acceptances.date,
-      client_acceptances.status_id,
-      client_acceptances.client_id,
-      client_acceptances.add_expenses,
+      SUM(client_acceptance_payment_childs.gross) as gross,
+      SUM(client_acceptance_payment_childs.net) as net,
+      (SUM(client_acceptance_payment_childs.price * client_acceptance_payment_childs.net) - pr_client_acceptance_payments.add_expenses) as sum,
+      client_childs.title_full as client_child_title,
       clients.title_full as client_title, 
-      SUM(client_acceptance_childs.price * client_acceptance_childs.net) as sum,
       clients.admin_id as client_admin_id');
-    $this->db->join('client_acceptances','client_acceptances.id = client_acceptance_payments.acceptance_id');
-    $this->db->join('client_acceptances as client_acceptance_childs','client_acceptances.id = client_acceptance_childs.parent_id');
-    $this->db->join('clients','clients.id = client_acceptances.client_id');
+    $this->db->join('clients','clients.id = client_acceptance_payments.client_id');
+    // данные по компании, если указан client_child_id
+    $this->db->join('clients as client_childs','client_childs.id = client_acceptance_payments.client_child_id','left');
+    $this->db->join('client_acceptance_payments as client_acceptance_payment_childs','client_acceptance_payments.id = client_acceptance_payment_childs.parent_id');
     $this->db->limit(1);
     $this->db->group_by('client_acceptance_payments.id');
     $item = $this->db->get_where('client_acceptance_payments', $where)->row_array();
-    // echo $this->db->last_query();
-    if($item){
-      $item['childs'] = $this->acceptances_model->get_acceptances(0,0,array('client_acceptances.parent_id'=>$item['id']),array('order'=>'asc','id'=>'asc'));
+    // echo $this->db->last_query();exit;
+    if($item && $full){
+      $item['childs'] = $this->get_acceptance_payments(0,0,array('client_acceptance_payments.parent_id'=>$item['id']),false);
+      $item['price'] = 0;
       foreach ($item['childs'] as $key => &$child) {
         $child['product'] = $this->products_model->get_product(array('id' => $child['product_id']));
-        $child['sum'] = $child['price']*$child['net'];
-        $item['gross'] += $child['gross'];
-        $item['net'] += $child['net'];
-        $item['price'] += ($child['price']*$child['net']);
-        $item['sum'] = $item['price']-$item['add_expenses'];
       }
       unset($child);
     }
@@ -112,13 +99,29 @@ class Acceptance_payments_model extends CI_Model {
   }
   
   function create_acceptance_payment($params) {
-    // копируем все параметры указанного акта приемки
+    //акт приемки
     $item = $this->acceptances_model->get_acceptance(array('client_acceptances.id'=>(int)$params['acceptance_id']));
-
     if(!$item){
       return false;
     }
+    
+    $this->db->trans_begin();
+
+    // если данный акт уже есть в таблице, объединяем оплаты по parent_id
+    $payment = $this->get_acceptance_payment(array('client_acceptance_payments.acceptance_id'=>$item['id']));
+    if($payment){
+      $parent_id = $payment['parent_id'];
+    } else {
+      // создаем родительскую строку, чтобы можно было прирепит несольк акто к дной строке оплаты
+      $this->db->insert('client_acceptance_payments', array('id'=>null));
+      $parent_id = $this->db->query("SELECT LAST_INSERT_ID() as id")->row()->id;
+    }
+
+    // создаем дочернюю строку с актом
+
+    // копируем все параметры указанного акта приемки
     $params = array_merge($params, array(
+      'parent_id'             => $parent_id,
       'acceptance_id'         => $item['id'],
       'acceptance_parent_id'  => $item['parent_id'],
       'client_id'             => $item['client_id'],
@@ -142,15 +145,15 @@ class Acceptance_payments_model extends CI_Model {
       'add_expenses'          => $item['add_expenses'],
       'comment_acceptance'    => $item['comment'],
     ));
+    $this->db->insert('client_acceptance_payments', $params);
+    $payment_id = $this->db->query("SELECT LAST_INSERT_ID() as id")->row()->id;
 
     // копируем параметры прихода
     $item['childs'] = $this->acceptances_model->get_acceptances(0,0,array('client_acceptances.parent_id'=>$item['id']),array('order'=>'asc','id'=>'asc'));
     // var_dump($params);exit;
-    $this->db->trans_begin();
-    $this->db->insert('client_acceptance_payments', $params);
-
     foreach ($item['childs'] as $key => $child) {
       $child_params = array(
+        'parent_id'             => $payment_id,
         'acceptance_id'         => $child['id'],
         'acceptance_parent_id'  => $child['parent_id'],
         'client_id'             => $child['client_id'],
@@ -184,7 +187,7 @@ class Acceptance_payments_model extends CI_Model {
     
     $this->db->trans_commit();
 
-    return true;
+    return $payment_id;
   }
 
   function update_acceptance_payment($id, $params) {

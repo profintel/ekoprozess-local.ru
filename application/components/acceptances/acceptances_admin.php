@@ -277,16 +277,17 @@ class Acceptances_admin extends CI_Component {
           )), true)
     );
     // если приход отправлен на склад - кнопка отправки в бухгалтерию
-    if($this->acceptance_payments_model->get_acceptance_payment(array('pr_client_acceptance_payments.acceptance_id'=>$item['id'],'pr_client_acceptance_payments.client_id'=>$item['client_id'],'pr_client_acceptance_payments.client_child_id'=>$item['client_child_id']))){
+    $payment = $this->acceptance_payments_model->get_acceptance_payment(array('pr_client_acceptance_payments.acceptance_id'=>$item['id'],'pr_client_acceptance_payments.client_id'=>$item['client_id'],'pr_client_acceptance_payments.client_child_id'=>$item['client_child_id']));
+    if($payment){
       $block_title_btns = array_merge($block_title_btns, array(
         $this->load->view('fields/submit', 
           array('vars' => array(
             'title'   => 'Перейти в бухгалтерию',
             'class'   => 'btn-block btn-primary',
             'icon'    => 'glyphicon-credit-card',
-            'href'    =>  '/admin/acceptance_payments/edit_acceptance_payment/'.$item['id'].'/'
+            'href'    =>  '/admin/acceptance_payments/edit_acceptance_payment/'.$payment['id'].'/'
           )), true)
-      ));        
+      ));
     } elseif($item['status_id'] < 10) {
       $block_title_btns = array_merge($block_title_btns, array(
         $this->load->view('fields/submit', 
@@ -915,14 +916,15 @@ class Acceptances_admin extends CI_Component {
         )), true)
     ));
     // если приход отправлен на склад - кнопка отправки в бухгалтерию
-    if($this->acceptance_payments_model->get_acceptance_payment(array('pr_client_acceptance_payments.acceptance_id'=>$item['id'],'pr_client_acceptance_payments.client_id'=>$item['client_id'],'pr_client_acceptance_payments.client_child_id'=>$item['client_child_id']))){
+    $payment = $this->acceptance_payments_model->get_acceptance_payment(array('pr_client_acceptance_payments.acceptance_id'=>$item['id'],'pr_client_acceptance_payments.client_id'=>$item['client_id'],'pr_client_acceptance_payments.client_child_id'=>$item['client_child_id']));
+    if($payment){
       $block_title_btns = array_merge($block_title_btns, array(
         $this->load->view('fields/submit', 
           array('vars' => array(
             'title'   => 'Перейти в бухгалтерию',
             'class'   => 'btn-block btn-primary',
             'icon'    => 'glyphicon-credit-card',
-            'href'    =>  '/admin/acceptance_payments/edit_acceptance_payment/'.$item['id'].'/'
+            'href'    =>  '/admin/acceptance_payments/edit_acceptance_payment/'.$payment['id'].'/'
           )), true)
       ));        
     } elseif($item['status_id'] < 10) {
@@ -1257,14 +1259,15 @@ class Acceptances_admin extends CI_Component {
     );
 
     // если приход отправлен на склад - кнопка отправки в бухгалтерию
-    if($this->acceptance_payments_model->get_acceptance_payment(array('pr_client_acceptance_payments.acceptance_id'=>$item['id'],'pr_client_acceptance_payments.client_id'=>$item['client_id'],'pr_client_acceptance_payments.client_child_id'=>$item['client_child_id']))){
+    $payment = $this->acceptance_payments_model->get_acceptance_payment(array('pr_client_acceptance_payments.acceptance_id'=>$item['id'],'pr_client_acceptance_payments.client_id'=>$item['client_id'],'pr_client_acceptance_payments.client_child_id'=>$item['client_child_id']));
+    if($payment){
       $block_title_btns = array_merge($block_title_btns, array(
         $this->load->view('fields/submit', 
           array('vars' => array(
             'title'   => 'Перейти в бухгалтерию',
             'class'   => 'btn-block btn-primary',
             'icon'    => 'glyphicon-credit-card',
-            'href'    =>  '/admin/acceptance_payments/edit_acceptance_payment/'.$item['id'].'/'
+            'href'    =>  '/admin/acceptance_payments/edit_acceptance_payment/'.$payment['id'].'/'
           )), true)
       ));
     } elseif($item['status_id'] < 10) {
@@ -1420,7 +1423,8 @@ class Acceptances_admin extends CI_Component {
     }
 
     // проверяем, если акт не в бухгалтерии, отправляем
-    if(!$this->acceptance_payments_model->get_acceptance_payment(array('pr_client_acceptance_payments.acceptance_id'=>$item['id'],'pr_client_acceptance_payments.client_id'=>$item['client_id'],'pr_client_acceptance_payments.client_child_id'=>$item['client_child_id']))){
+    $payment = $this->acceptance_payments_model->get_acceptance_payment(array('pr_client_acceptance_payments.acceptance_id'=>$item['id'],'pr_client_acceptance_payments.client_id'=>$item['client_id'],'pr_client_acceptance_payments.client_child_id'=>$item['client_child_id']));
+    if(!$payment){
       if(!$this->_set_status_acceptance($item['id'],4,true,true)){
         send_answer(array('errors' => array('Ошибка при отправлении акта приемки в бухгалтерию')));
       }
@@ -1513,12 +1517,13 @@ class Acceptances_admin extends CI_Component {
         'client_acceptance_payments.acceptance_parent_id' =>null,
         'client_acceptance_payments.client_id'            =>$item['client_id'],
         'client_acceptance_payments.client_child_id'      =>$item['client_child_id']))){
-        if (!$this->acceptance_payments_model->create_acceptance_payment(
+        $payment_id = $this->acceptance_payments_model->create_acceptance_payment(
           array(
             'acceptance_id'   => $item['id'],
             'method'          => 'cash',
             'sale_percent'    => 0,
-          ))) {
+          ));
+        if (!$payment_id) {
           if($return) return false;
           send_answer(array('errors' => array('Ошибка при добавлении акта в раздел "Бухгалтерия"')));
         }
@@ -1532,9 +1537,9 @@ class Acceptances_admin extends CI_Component {
 
     if($return) return true;
 
-    if($redirect){
+    if($status_id == 4 && $redirect && isset($payment_id) && $payment_id){
       //отправляем на редактирование оплаты данного акта
-      send_answer(array('redirect' => '/admin/acceptance_payments/edit_acceptance_payment/'.$acceptance_id.'/'));
+      send_answer(array('redirect' => '/admin/acceptance_payments/edit_acceptance_payment/'.$payment_id.'/'));
     }
 
     send_answer();

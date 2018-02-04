@@ -5,6 +5,7 @@ DROP TABLE IF EXISTS `pr_client_acceptance_payments`;
 -- Акты приемки
 CREATE TABLE IF NOT EXISTS `pr_client_acceptance_payments` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `parent_id` int(10) unsigned DEFAULT NULL,
   `acceptance_id` int(10) unsigned DEFAULT NULL,
   `acceptance_parent_id` int(10) unsigned DEFAULT NULL,
   `store_coming_id` int(10) unsigned DEFAULT NULL,
@@ -35,6 +36,7 @@ CREATE TABLE IF NOT EXISTS `pr_client_acceptance_payments` (
   `tm` timestamp NOT NULL default CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `client_id` (`client_id`),
+  KEY `parent_id` (`parent_id`),
   KEY `client_child_id` (`client_child_id`),
   KEY `acceptance_id` (`acceptance_id`),
   KEY `acceptance_parent_id` (`acceptance_parent_id`),
@@ -44,6 +46,7 @@ CREATE TABLE IF NOT EXISTS `pr_client_acceptance_payments` (
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 ALTER TABLE `pr_client_acceptance_payments`
+  ADD CONSTRAINT `pr_client_acceptance_payments_ibfk_8` FOREIGN KEY (`parent_id`) REFERENCES `pr_client_acceptance_payments` (`id`) ON DELETE SET NULL,
   ADD CONSTRAINT `pr_client_acceptance_payments_ibfk_7` FOREIGN KEY (`client_child_id`) REFERENCES `pr_clients` (`id`) ON DELETE SET NULL,
   ADD CONSTRAINT `pr_client_acceptance_payments_ibfk_6` FOREIGN KEY (`store_coming_id`) REFERENCES `pr_store_comings` (`id`) ON DELETE SET NULL,
   ADD CONSTRAINT `pr_client_acceptance_payments_ibfk_5` FOREIGN KEY (`acceptance_id`) REFERENCES `pr_client_acceptances` (`id`) ON DELETE SET NULL,

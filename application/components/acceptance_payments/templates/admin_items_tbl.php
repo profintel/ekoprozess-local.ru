@@ -45,26 +45,28 @@
             <th width="10%">Дата оплаты</th>
             <th width="10%">Реквизиты перевода</th>
           </tr>
-          <? foreach ($items as $num=> $item) { ?>
-            <tr style="background-color:<?=($item['status_color'] ? $item['status_color'] : 'none');?>">
+          <?$num=1;?>
+          <? foreach ($items as $parent_items) { ?>
+            <?$rowspan = count($parent_items['card']) + count($parent_items['cash']) - 1;?>
+            <tr style="background-color:<?=($parent_items['status_color'] ? $parent_items['status_color'] : 'none');?>">
               <?if(!$render_table_email){?>
-                <td width="1%" class="td-dropdown hidden-print">
+                <td width="1%" class="td-dropdown hidden-print" rowspan="<?=$rowspan;?>">
                   <div class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown"></a>
                     <ul class="dropdown-menu">
                       <li>
-                        <a href="/admin/acceptance_payments/edit_acceptance_payment/<?=$item['acceptance_id'];?>/" title="Редактировать">
-                          <? if ($item['status_id'] < 10) {?>
+                        <a href="/admin/acceptance_payments/edit_acceptance_payment/<?=$parent_items['parent_id'];?>/" title="Редактировать">
+                          <? if ($parent_items['status_id'] < 10) {?>
                             <span class="glyphicon glyphicon-edit"></span> Редактировать
                           <? } else { ?>
                             <span class="glyphicon glyphicon-share"></span> Просмотреть
                           <? } ?>
                         </a>
                       </li>
-                      <? if ($item['status_id'] < 10) {?>
+                      <? if ($parent_items['status_id'] < 10) {?>
                         <li class="divider"></li>
                         <li>
-                          <form action="/admin/acceptances/_set_status_acceptance/<?=$item['acceptance_id'];?>/10/0/0/0/" onsubmit="return false;" >
+                          <form action="/admin/acceptances/_set_status_acceptance/<?=$parent_items['acceptance_id'];?>/10/0/0/0/" onsubmit="return false;" >
                             <a href="javascript:void(0)" onclick="submit_form(this,'reload')" title="Оплачено">
                               <span class="glyphicon glyphicon-ruble"></span> Оплачено
                             </a>                          
@@ -73,24 +75,10 @@
                       <? } ?>
                       <li class="divider"></li>
                       <li>
-                        <a href="/admin/acceptances/acceptance/<?=$item['acceptance_id'];?>/" title="Просмотреть">
-                          <span class="glyphicon glyphicon-share"></span> Aкт приемки
-                        </a>
-                      </li>
-                      <? if ($item['client_id']) {?>
-                        <li class="divider"></li>
-                        <li>
-                          <a href="/admin/clients/edit_client/<?=$item['client_id'];?>/" target="_edit_client_<?=$item['client_id'];?>" title="Карточка клиента">
-                            <span class="glyphicon glyphicon-list-alt"></span> Карточка клиента
-                          </a>
-                        </li>
-                      <? } ?>
-                      <li class="divider"></li>
-                      <li>
                         <a href="#"
                           onClick="return send_confirm(
-                            'Вы уверены, что хотите удалить строку оплаты - <?=date('d.m.Y',strtotime($item['date']));?>&emsp;<?=$item['client_title'];?>?',
-                            '/admin/acceptance_payments/delete_acceptance_payment/<?=$item['id'];?>/',
+                            'Вы уверены, что хотите удалить строку оплаты?',
+                            '/admin/acceptance_payments/delete_acceptance_payment/<?=$parent_items['id'];?>/',
                             {},
                             'reload'
                           );"
@@ -99,56 +87,122 @@
                       </li>
                     </ul>
                   </div>
+                  <??>
                 </td>
               <?}?>
-              <td width="1%"><?=$num+1;?></td>
-              <td id="acceptanceClientTitle<?=$item['id'];?>">
-                <?if($item['method']=='card'){?>
-                  <?=($item['client_child_title'] ? $item['client_child_title'].'<br><small><strong>'.$item['client_title'].'</strong></small>' : $item['client_title']);?>
+              <td width="1%" rowspan="<?=$rowspan;?>"><?=$num;?></td>
+              <td id="acceptanceClientTitle<?=$parent_items['id'];?>">
+                <? if($parent_items['card']) {?>
+                  <?=($parent_items['card'][0]['client_child_title'] ? $parent_items['card'][0]['client_child_title'].'<br><small><strong>'.$parent_items['card'][0]['client_title'].'</strong></small>' : $parent_items['card'][0]['client_title']);?>
                 <?}?>
               </td>
               <td class="text-nowrap">
-                <?if($item['method']=='card'){?>
-                  <?=number_format($item['sum'],2,'.',' ')?>
+                <? if($parent_items['card']) {?>
+                <?=number_format($parent_items['card'][0]['sum'],2,'.',' ')?>
                 <?}?>
               </td>
               <td class="text-nowrap">
-                <?if($item['method']=='card'){?>
-                  <?=date('d.m.Y',strtotime($item['date']));?>
+                <? if($parent_items['card']) {?>
+                <?=date('d.m.Y',strtotime($parent_items['card'][0]['date']));?>
                 <?}?>
               </td>
               <td class="text-nowrap">
-                <?if($item['method']=='card'){?>
-                  
+                <? if($parent_items['card']) {?>
+                <?=($parent_items['card'][0]['date_payment'] ? date('d.m.Y',strtotime($parent_items['card'][0]['date_payment'])) : '');?>
                 <?}?>
               </td>
               <td>
-                <?if($item['method']=='cash'){?>
-                  <?=($item['client_child_title'] ? $item['client_child_title'].'<br><small><strong>'.$item['client_title'].'</strong></small>' : $item['client_title']);?>
+                <? if($parent_items['cash']) {?>
+                <?=($parent_items['cash'][0]['client_child_title'] ? $parent_items['cash'][0]['client_child_title'].'<br><small><strong>'.$parent_items['cash'][0]['client_title'].'</strong></small>' : $parent_items['cash'][0]['client_title']);?>
                 <?}?>
               </td>
-              <td class="text-nowrap">                
-                <?if($item['method']=='cash'){?>
-                  <?=number_format($item['sum'],2,'.',' ')?>
-                <?}?>
-              </td>
-              <td class="text-nowrap">
-                <?if($item['method']=='cash'){?>
-                  <?=date('d.m.Y',strtotime($item['date']));?>
+              <td class="text-nowrap">  
+                <? if($parent_items['cash']) {?>           
+                <?=number_format($parent_items['cash'][0]['sum'],2,'.',' ')?>
                 <?}?>
               </td>
               <td class="text-nowrap">
-                <?if($item['method']=='cash'){?>
-                  
+                <? if($parent_items['cash']) {?>
+                <?=date('d.m.Y',strtotime($parent_items['cash'][0]['date']));?>
+                <?}?>
+              </td>
+              <td class="text-nowrap">
+                <? if($parent_items['cash']) {?>
+                <?=($parent_items['cash'][0]['date_payment'] ? date('d.m.Y',strtotime($parent_items['cash'][0]['date_payment'])) : '');?>
                 <?}?>
               </td>
               <td>
-                <?if($item['method']=='cash'){?>
-                  <?=$item['client_params']['param_1_ru'];?>
+                <? if($parent_items['cash']) {?>
+                <?=$parent_items['cash'][0]['client_params']['param_1_ru'];?>
                 <?}?>
               </td>
-              <td><?=$item['comment'];?> </td>
+              <td rowspan="<?=$rowspan;?>"><?=$parent_items['comment'];?> </td>
             </tr>
+            <?unset($parent_items['card'][0],$parent_items['cash'][0])?>
+            <? foreach ($parent_items['card'] as $num_card=> $item) { ?>
+              <tr style="background-color:<?=($item['status_color'] ? $item['status_color'] : 'none');?>">
+                <td id="acceptanceClientTitle<?=$item['id'];?>">
+                  <?if($item['method']=='card'){?>
+                    <?=($item['client_child_title'] ? $item['client_child_title'].'<br><small><strong>'.$item['client_title'].'</strong></small>' : $item['client_title']);?>
+                  <?}?>
+                </td>
+                <td class="text-nowrap">
+                  <?if($item['method']=='card'){?>
+                    <?=number_format($item['sum'],2,'.',' ')?>
+                  <?}?>
+                </td>
+                <td class="text-nowrap">
+                  <?if($item['method']=='card'){?>
+                    <?=date('d.m.Y',strtotime($item['date']));?>
+                  <?}?>
+                </td>
+                <td class="text-nowrap">
+                  <?if($item['method']=='card'){?>
+                    <?=($item['date_payment'] ? date('d.m.Y',strtotime($item['date_payment'])) : '');?>
+                  <?}?>
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+            <? } ?>
+            <? foreach ($parent_items['cash'] as $num_cash=> $item) { ?>
+              <tr style="background-color:<?=($item['status_color'] ? $item['status_color'] : 'none');?>">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td >
+                  <?if($item['method']=='cash'){?>
+                    <?=($item['client_child_title'] ? $item['client_child_title'].'<br><small><strong>'.$item['client_title'].'</strong></small>' : $item['client_title']);?>
+                  <?}?>
+                </td>
+                <td class="text-nowrap">                
+                  <?if($item['method']=='cash'){?>
+                    <?=number_format($item['sum'],2,'.',' ')?>
+                  <?}?>
+                </td>
+                <td class="text-nowrap">
+                  <?if($item['method']=='cash'){?>
+                    <?=date('d.m.Y',strtotime($item['date']));?>
+                  <?}?>
+                </td>
+                <td class="text-nowrap">
+                  <?if($item['method']=='cash'){?>
+                    <?=($item['date_payment'] ? date('d.m.Y',strtotime($item['date_payment'])) : '');?>
+                  <?}?>
+                </td>
+                <td>
+                  <?if($item['method']=='cash'){?>
+                    <?=$item['client_params']['param_1_ru'];?>
+                  <?}?>
+                </td>
+              </tr>
+            <? } ?>
+
+            <?$num++;?>
           <? } ?>
         </tbody>
         <tfoot>

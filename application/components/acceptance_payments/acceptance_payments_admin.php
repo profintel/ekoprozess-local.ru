@@ -88,18 +88,18 @@ class Acceptance_payments_admin extends CI_Component {
     if($render_table || $this->uri->getParam('ajax') == 1){
       $error = '';
 
-      $where = 'pr_client_acceptances.parent_id IS NULL';
+      $where = 'pr_client_acceptance_payments.acceptance_parent_id IS NULL';
       if($get_params['date_start']){
-        $where .= ' AND pr_client_acceptances.date >= "' . $get_params['date_start'].'"';
+        $where .= ' AND pr_client_acceptance_payments.date >= "' . $get_params['date_start'].'"';
       }
       if($get_params['date_end']){
-        $where .= ' AND pr_client_acceptances.date <= "' . $get_params['date_end'].'"';
+        $where .= ' AND pr_client_acceptance_payments.date <= "' . $get_params['date_end'].'"';
       }
       if($get_params['client_id']){
-        $where .= ' AND pr_client_acceptances.client_id = ' . $get_params['client_id'];
+        $where .= ' AND pr_client_acceptance_payments.client_id = ' . $get_params['client_id'];
       }
       if($get_params['client_child_id']){
-        $where .= ' AND (pr_client_acceptances.client_child_id = ' . $get_params['client_child_id'] . ' OR pr_client_acceptances.client_id = ' . $get_params['client_child_id'] . ')';
+        $where .= ' AND (pr_client_acceptance_payments.client_child_id = ' . $get_params['client_child_id'] . ' OR pr_client_acceptance_payments.client_id = ' . $get_params['client_child_id'] . ')';
       }
 
       //если нет доступа к работе по всем клиентам добавляем условие
@@ -138,8 +138,27 @@ class Acceptance_payments_admin extends CI_Component {
         'postfix' => $postfix
       );
       $items = $this->acceptance_payments_model->get_acceptance_payments(($render_table_email ? 0 : $limit), ($render_table_email ? 0 : $offset), $where, false);
+      // группируем строки по parent_id
+      $new_items = array();
+      foreach ($items as $key => $item) {
+        if(!isset($new_items[$item['parent_id']])){
+          $new_items[$item['parent_id']] = array(
+            'id' => $item['id'],
+            'parent_id' => $item['parent_id'],
+            'status_color' => $item['status_color'],
+            'acceptance_id' => $item['acceptance_id'],
+            'status_id' => $item['status_id'],
+            'comment' => $item['comment'],
+            'cash' => array(),
+            'card' => array()
+          );
+        }
+        $new_items[$item['parent_id']][$item['method']][] = $item;
+      }
+      // var_dump($new_items);exit;
+
       $data = array_merge($data, array(
-        'items'           => $items,
+        'items'           => $new_items,
         'postfix'         => $postfix,
         'error'           => $error,
         'pagination'      => $this->load->view('templates/pagination', $pagination_data, true),
@@ -213,18 +232,11 @@ class Acceptance_payments_admin extends CI_Component {
   /**
   *  Редактирование оплаты акта приемки по своим клиентам
   */
-  function edit_acceptance_payment($acceptance_id) {
-    $acceptance = $this->acceptances_model->get_acceptance(array('pr_client_acceptances.id'=>(int)$acceptance_id));
-    if(!$acceptance){
-      show_error('Акт не найден');
-    }
-
-    $item = $this->acceptance_payments_model->get_acceptance_payment(array('client_acceptance_payments.acceptance_id'=>(int)$acceptance['id'], 'client_acceptance_payments.client_id'=>(int)$acceptance['client_id']));
+  function edit_acceptance_payment($id) {
+    $item = $this->acceptance_payments_model->get_acceptance_payment(array('client_acceptance_payments.id'=>(int)$id));
     if(!$item){
       show_error('Объект не найден');
     }
-    $acceptance = $item;
-    $acceptance['id'] = $item['acceptance_id'];
 
     $blocks = array(
       array(
@@ -232,7 +244,7 @@ class Acceptance_payments_admin extends CI_Component {
         'fields'  => array(array(
           'view'      => 'fields/readonly_value',
           'title'     => '',
-          'value'     => $this->load->view('../../application/components/acceptances/templates/admin_client_acceptance_tbl_short',array('item' => $acceptance),TRUE),
+          'value'     => $this->load->view('../../application/components/acceptance_payments/templates/admin_client_acceptance_tbl_short',array('item' => $item),TRUE),
         )),
         'aria-expanded' => true
       ),
@@ -249,7 +261,7 @@ class Acceptance_payments_admin extends CI_Component {
           'title'    => 'Дата оплаты:',
           'name'     => 'date_payment',
           'disabled' => ($item['status_id'] > 4 ? true : false),
-          'value'    => (strtotime($item['date_payment']) ? date('d.m.Y H:i:s', strtotime($item['date_payment'])) : '')
+          'value'    => ($item['date_payment'] ? date('d.m.Y H:i:s', strtotime($item['date_payment'])) : '')
         ),
         array(
           'view'       => 'fields/select',
@@ -288,7 +300,13 @@ class Acceptance_payments_admin extends CI_Component {
 
     return $this->render_template('admin/inner', array(
       'title' => 'Настройки оплаты акта приемки <small>(ID '.$item['id'].')</small>',
-      'block_title_btn' => array(),
+      'block_title_btn' => $this->load->view('fields/submit', 
+        array('vars' => array(
+          'title'   => 'Удалить карточку оплаты',
+          'class'   => 'btn-default',
+          'icon'    => 'glyphicon-remove',
+          'onclick' =>  'return send_confirm("Вы уверены, что хотите удалить карточку оплаты - ID'.$item['id'].'?","'.$this->lang_prefix .'/admin'. $this->params['path'] .'delete_acceptance_payment/'.$id.'/", {},"/admin/acceptance_payments/" );'
+        )), true),
       'html' => $this->view->render_form(array(
         'view'   => 'forms/default',
         'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'_edit_acceptance_payment_process/'.$item['id'].'/',
@@ -312,7 +330,7 @@ class Acceptance_payments_admin extends CI_Component {
     }
 
     $params = array(
-      'date_payment'  => ($this->input->post('date_payment') ? date('Y-m-d H:i:s', strtotime($this->input->post('date_payment'))) : ''),
+      'date_payment'  => ($this->input->post('date_payment') ? date('Y-m-d H:i:s', strtotime($this->input->post('date_payment'))) : null),
       'method'       => htmlspecialchars(trim($this->input->post('method'))),
       'sale_percent' => (int)$this->input->post('sale_percent'),
       'comment'      => htmlspecialchars(trim($this->input->post('comment'))),
@@ -348,7 +366,7 @@ class Acceptance_payments_admin extends CI_Component {
     }
 
     // меняем статус если не оплачено и указана дата оплаты
-    if($params['date'] && !$this->acceptances_model->update_acceptance($item['acceptance_id'], array('status_id' => 5))){
+    if(!$this->input->post('pay') && $params['date_payment'] && !$this->acceptances_model->update_acceptance($item['acceptance_id'], array('status_id' => 5))){
       send_answer(array('errors' => array('Ошибка при изменении статуса')));
     }
     
@@ -368,8 +386,18 @@ class Acceptance_payments_admin extends CI_Component {
     if($item['client_admin_id'] != $this->admin_id && !$this->permits_model->check_access($this->admin_id, $this->component['name'], $method = 'permit_acceptance_payments_allClients')){
       send_answer(array('errors' => array('У вас нет прав на редактирование оплаты актов приемки для клиентов других менеджеров')));
     }
-
-    if (!$this->acceptance_payments_model->delete_acceptance_payment((int)$id)){
+    // если есть родительская, удаляем ее
+    if($item['parent_id']){
+      if (!$this->acceptance_payments_model->delete_acceptance_payment((int)$item['parent_id'])){
+        send_answer(array('errors' => array('Не удалось удалить объект')));
+      }
+      
+      // если статус у акта "Отправлено в бухгалтерию" меняем на статус в обработке
+      $acceptance = $this->acceptances_model->get_acceptance(array('client_acceptances.id'=>(int)$item['acceptance_id']));
+      if($acceptance && $acceptance['status_id'] == 4){
+        $this->acceptances_model->update_acceptance($acceptance['id'], array('status_id' => 2));
+      }
+    } else if (!$this->acceptance_payments_model->delete_acceptance_payment((int)$id)){
       send_answer(array('errors' => array('Не удалось удалить объект')));
     }
     
