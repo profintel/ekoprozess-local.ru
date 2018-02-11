@@ -1430,7 +1430,8 @@ class Acceptances_admin extends CI_Component {
     // проверяем, если акт не в бухгалтерии, отправляем
     $payment = $this->acceptance_payments_model->get_acceptance_payment(array('pr_client_acceptance_payments.acceptance_id'=>$item['id'],'pr_client_acceptance_payments.client_id'=>$item['client_id'],'pr_client_acceptance_payments.client_child_id'=>$item['client_child_id']));
     if(!$payment){
-      if(!$this->_set_status_acceptance($item['id'],4,true,true)){
+      $payment_id = $this->_set_status_acceptance($item['id'],4,true,true);
+      if(!$payment_id){
         send_answer(array('errors' => array('Ошибка при отправлении акта приемки в бухгалтерию')));
       }
       send_answer(array('confirm' => array(
@@ -1438,7 +1439,7 @@ class Acceptances_admin extends CI_Component {
         'url'     => '',
         'data'    => '{}',
         'reaction'=> 'locationUrl',
-        'context' => '/admin/acceptance_payments/edit_acceptance_payment/'.$item['parent_id'].'/',
+        'context' => '/admin/acceptance_payments/edit_acceptance_payment/'.$payment_id.'/',
         )));
     }
 
@@ -1532,6 +1533,7 @@ class Acceptances_admin extends CI_Component {
           if($return) return false;
           send_answer(array('errors' => array('Ошибка при добавлении акта в раздел "Бухгалтерия"')));
         }
+        if($return) return $payment_id;
       }
     }
 
