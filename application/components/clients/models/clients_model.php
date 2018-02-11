@@ -29,8 +29,14 @@ class Clients_model extends CI_Model {
   }
 
   function get_clients_report($limit = 0, $offset = 0, $where = array(), $order_by = array()) {   
-    $this->db->select('clients.*, city.title_full as city_title, city.number as city_number, city.dist_ekb as city_dist_ekb');
+    $this->db->select('
+      clients.*, 
+      parent.title as parent_title, 
+      city.title_full as city_title, 
+      city.number as city_number, 
+      city.dist_ekb as city_dist_ekb');
     $this->db->join('city', 'city.id = clients.city_id', 'LEFT');
+    $this->db->join('clients as parent', 'parent.id = clients.parent_id', 'LEFT');
     if ($limit) {
       $this->db->limit($limit, $offset);
     }

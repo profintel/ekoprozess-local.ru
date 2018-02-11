@@ -29,7 +29,7 @@
               </td>
               <td onclick="window.open('/admin/clients/edit_client/<?=$item['id'];?>/','_client_<?=$item['id'];?>')"><?=($item['admin'] ? $item['admin']['params']['name_'.$this->language] : 'Не указан');?></td>
               <td>
-                <?=$item['title'];?>
+                <?=$item['title'];?><?=($item['parent_title'] ? ' ('.$item['parent_title'].')' : '');?>
                 <div class="well-sm text-center">
                   <a href="/admin/acceptances/create_acceptance/?client_id=<?=$item['id'];?>" class="label label-primary">
                     <span class="glyphicon glyphicon-plus"></span> Акт приемки

@@ -52,8 +52,7 @@ ALTER TABLE `pr_client_acceptance_payments`
   ADD CONSTRAINT `pr_client_acceptance_payments_ibfk_5` FOREIGN KEY (`acceptance_id`) REFERENCES `pr_client_acceptances` (`id`) ON DELETE SET NULL,
   ADD CONSTRAINT `pr_client_acceptance_payments_ibfk_4` FOREIGN KEY (`status_id`) REFERENCES `pr_client_acceptance_statuses` (`id`) ON DELETE SET NULL,
   ADD CONSTRAINT `pr_client_acceptance_payments_ibfk_3` FOREIGN KEY (`product_id`) REFERENCES `pr_products` (`id`) ON DELETE SET NULL,
-  ADD CONSTRAINT `pr_client_acceptance_payments_ibfk_2` FOREIGN KEY (`client_id`) REFERENCES `pr_clients` (`id`) ON DELETE SET NULL,
-  ADD CONSTRAINT `pr_client_acceptance_payments_ibfk_1` FOREIGN KEY (`acceptance_parent_id`) REFERENCES `pr_client_acceptance_payments` (`acceptance_id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `pr_client_acceptance_payments_ibfk_2` FOREIGN KEY (`client_id`) REFERENCES `pr_clients` (`id`) ON DELETE SET NULL;
 
 CREATE TABLE IF NOT EXISTS `pr_client_acceptance_payments_emails` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,

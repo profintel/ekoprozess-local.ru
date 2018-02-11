@@ -18,31 +18,7 @@
   </thead>
   <tbody>
     <tr>
-      <td class="td-dropdown hidden-print" rowspan="<?=count($item['childs']);?>">
-        <div class="dropdown">
-          <a class="dropdown-toggle" data-toggle="dropdown"></a>
-          <ul class="dropdown-menu">
-            <li>
-              <a href="/admin/acceptances/acceptance/<?=$item['acceptance_id'];?>/" title="Просмотреть">
-                <span class="glyphicon glyphicon-share"></span> Просмотреть акт
-              </a>
-              </li>
-            <li>
-              <a href="/admin/acceptances/edit_acceptance/<?=$item['acceptance_id'];?>/" title="Редактировать">
-                <span class="glyphicon glyphicon-edit"></span> Редактировать акт
-              </a>
-            </li>
-            <? if ($item['client_id']) {?>
-              <li class="divider"></li>
-              <li>
-                <a href="/admin/clients/edit_client/<?=$item['client_id'];?>/" target="_edit_client_<?=$item['client_id'];?>" title="Карточка клиента">
-                  <span class="glyphicon glyphicon-list-alt"></span> Карточка клиента
-                </a>
-              </li>
-            <? } ?>
-          </ul>
-        </div>
-      </td>
+      <td class="td-dropdown hidden-print" rowspan="<?=count($item['childs']);?>"></td>
       <td id="acceptanceDate<?=$item['acceptance_id'];?>" rowspan="<?=count($item['childs']);?>">
         <?=date('d.m.Y',strtotime($item['date']));?>
       </td>

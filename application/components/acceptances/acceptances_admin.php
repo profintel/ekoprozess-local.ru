@@ -285,7 +285,7 @@ class Acceptances_admin extends CI_Component {
             'title'   => 'Перейти в бухгалтерию',
             'class'   => 'btn-block btn-primary',
             'icon'    => 'glyphicon-credit-card',
-            'href'    =>  '/admin/acceptance_payments/edit_acceptance_payment/'.$payment['id'].'/'
+            'href'    =>  '/admin/acceptance_payments/edit_acceptance_payment/'.$payment['parent_id'].'/'
           )), true)
       ));
     } elseif($item['status_id'] < 10) {
@@ -924,7 +924,7 @@ class Acceptances_admin extends CI_Component {
             'title'   => 'Перейти в бухгалтерию',
             'class'   => 'btn-block btn-primary',
             'icon'    => 'glyphicon-credit-card',
-            'href'    =>  '/admin/acceptance_payments/edit_acceptance_payment/'.$payment['id'].'/'
+            'href'    =>  '/admin/acceptance_payments/edit_acceptance_payment/'.$payment['parent_id'].'/'
           )), true)
       ));        
     } elseif($item['status_id'] < 10) {
@@ -1163,7 +1163,12 @@ class Acceptances_admin extends CI_Component {
     if($auto){
       return true;
     }
-    send_answer(array('success' => array('Изменения успешно сохранены')));
+    if($item['store_coming_id']){
+      send_answer(array('success' => array('Изменения успешно сохранены')));
+    } else {
+      // для перезагрузки со сменой кнопки бухгалтерии
+      send_answer(array('redirect' => $this->lang_prefix .'/admin'. $this->params['path'] .'edit_acceptance/'.$item['id'].'/'));
+    }
   }
   
   function _validate_acceptance($params, $item = array()) {
@@ -1267,7 +1272,7 @@ class Acceptances_admin extends CI_Component {
             'title'   => 'Перейти в бухгалтерию',
             'class'   => 'btn-block btn-primary',
             'icon'    => 'glyphicon-credit-card',
-            'href'    =>  '/admin/acceptance_payments/edit_acceptance_payment/'.$payment['id'].'/'
+            'href'    =>  '/admin/acceptance_payments/edit_acceptance_payment/'.$payment['parent_id'].'/'
           )), true)
       ));
     } elseif($item['status_id'] < 10) {
@@ -1433,7 +1438,7 @@ class Acceptances_admin extends CI_Component {
         'url'     => '',
         'data'    => '{}',
         'reaction'=> 'locationUrl',
-        'context' => '/admin/acceptance_payments/edit_acceptance_payment/'.$item['id'].'/',
+        'context' => '/admin/acceptance_payments/edit_acceptance_payment/'.$item['parent_id'].'/',
         )));
     }
 

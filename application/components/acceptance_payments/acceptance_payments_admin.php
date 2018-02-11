@@ -143,11 +143,6 @@ class Acceptance_payments_admin extends CI_Component {
       foreach ($items as $key => $item) {
         if(!isset($new_items[$item['parent_id']])){
           $new_items[$item['parent_id']] = array(
-            'id' => $item['id'],
-            'parent_id' => $item['parent_id'],
-            'status_color' => $item['status_color'],
-            'acceptance_id' => $item['acceptance_id'],
-            'status_id' => $item['status_id'],
             'comment' => $item['comment'],
             'cash' => array(),
             'card' => array()
@@ -233,71 +228,110 @@ class Acceptance_payments_admin extends CI_Component {
   *  Редактирование оплаты акта приемки по своим клиентам
   */
   function edit_acceptance_payment($id) {
-    $item = $this->acceptance_payments_model->get_acceptance_payment(array('client_acceptance_payments.id'=>(int)$id));
+    $item = $this->acceptance_payments_model->get_acceptance_payment(array('client_acceptance_payments.id'=>(int)$id), false);
     if(!$item){
       show_error('Объект не найден');
     }
-
-    $blocks = array(
-      array(
-        'title'   => 'Акт приемки',
-        'fields'  => array(array(
-          'view'      => 'fields/readonly_value',
-          'title'     => '',
-          'value'     => $this->load->view('../../application/components/acceptance_payments/templates/admin_client_acceptance_tbl_short',array('item' => $item),TRUE),
-        )),
-        'aria-expanded' => true
-      ),
-      array(
-      'title'   => 'Параметры оплаты',
-      'fields'   => array(
-        array(
-          'view'     => 'fields/'.($item['status_id'] < 10 ? 'hidden' : 'readonly'),
-          'title'    => 'Статус',
-          'value'    => 'Оплачено'
-        ),
-        array(
-          'view'     => 'fields/datetime',
-          'title'    => 'Дата оплаты:',
-          'name'     => 'date_payment',
-          'disabled' => ($item['status_id'] > 4 ? true : false),
-          'value'    => ($item['date_payment'] ? date('d.m.Y H:i:s', strtotime($item['date_payment'])) : '')
-        ),
-        array(
-          'view'       => 'fields/select',
-          'title'      => 'Способ оплаты:',
-          'name'       => 'method',
-          'text_field' => 'title',
-          'value_field'=> 'value',
-          'options'    => array(array('title'=>'Наличный расчет','value'=>'cash'),array('title'=>'Безналичный расчет','value'=>'card')),
-          'value'      => $item['method'],
-        ),
-        array(
-          'view'     => 'fields/text',
-          'title'    => '% скидки:',
-          'name'     => 'sale_percent',
-          'value'    => $item['sale_percent'],
-        ),
-        array(
-          'view'     => 'fields/textarea',
-          'title'    => 'Примечания',
-          'name'     => 'comment',
-          'value'    => $item['comment'],
-        ),
-        array(
-          'view'     => 'fields/'.($item['status_id'] < 10 ? 'checkbox' : 'hidden'),
-          'title'    => 'Оплачено:',
-          'name'     => 'pay'
-        ),
-        array(
-          'view'     => 'fields/'.($item['status_id'] < 10 ? 'submit' : 'hidden'),
-          'title'    => 'Сохранить',
-          'type'     => 'ajax',
-          'reaction' => ''
+    // массив с актами прикрепленными к данной оплате
+    $item['acceptances'] = $this->acceptance_payments_model->get_acceptance_payments(0,0,array('client_acceptance_payments.parent_id'=>(int)$item['id']),false,true);
+// var_dump($item['acceptances']);exit();
+    $html = '';
+    $blocks = array();
+    // примечание общее на строку оплаты
+    $html .= $this->view->render_form(array(
+        'view'   => 'forms/default',
+        'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'_edit_acceptance_payment_process/'.$item['id'].'/',
+        'blocks' => array(
+          array(
+            'title'   => '',
+            'fields'   => array(
+              array(
+                'view'     => 'fields/textarea',
+                'title'    => 'Примечания',
+                'name'     => 'comment',
+                'value'    => $item['comment'],
+              ),
+              array(
+                'view'     => 'fields/submit',
+                'view'     => 'fields/submit',
+                'title'    => 'Сохранить',
+                'type'     => 'ajax',
+                'reaction' => ''
+              )
+            )
+          )
         )
-      )
-    ));
-
+      ));
+    // на каждый акт своя форма
+    foreach ($item['acceptances'] as $key => $acceptance_payment) {
+      $html .= $this->view->render_form(array(
+        'view'   => 'forms/default',
+        'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'_edit_acceptance_payment_process/'.$acceptance_payment['id'].'/',
+        'blocks' => array(
+          array(
+            'title'   => 'Акт приемки',
+            'fields'  => array(array(
+              'view'      => 'fields/readonly_value',
+              'title'     => '',
+              'value'     => $this->load->view('../../application/components/acceptance_payments/templates/admin_client_acceptance_tbl_short',array('item' => $acceptance_payment),TRUE),
+            )),
+            'aria-expanded' => true
+          ),
+          array(
+            'title'   => 'Параметры оплаты',
+            'fields'   => array(
+              array(
+                'view'     => 'fields/'.($acceptance_payment['status_id'] < 10 ? 'hidden' : 'readonly'),
+                'title'    => 'Статус',
+                'value'    => 'Оплачено'
+              ),
+              array(
+                'view'     => 'fields/datetime',
+                'title'    => 'Дата оплаты:',
+                'name'     => 'date_payment',
+                'id'       => 'date_payment'.$acceptance_payment['id'],
+                'disabled' => ($acceptance_payment['status_id'] > 4 ? true : false),
+                'value'    => ($acceptance_payment['date_payment'] ? date('d.m.Y H:i:s', strtotime($acceptance_payment['date_payment'])) : '')
+              ),
+              array(
+                'view'       => 'fields/select',
+                'title'      => 'Способ оплаты:',
+                'name'       => 'method',
+                'id'         => 'method'.$acceptance_payment['id'],
+                'text_field' => 'title',
+                'value_field'=> 'value',
+                'options'    => array(array('title'=>'Наличный расчет','value'=>'cash'),array('title'=>'Безналичный расчет','value'=>'card')),
+                'value'      => $acceptance_payment['method'],
+              ),
+              array(
+                'view'     => 'fields/text',
+                'title'    => '% скидки:',
+                'name'     => 'sale_percent',
+                'value'    => $acceptance_payment['sale_percent'],
+              ),/*
+              array(
+                'view'     => 'fields/textarea',
+                'title'    => 'Примечания',
+                'name'     => 'comment',
+                'value'    => $item['comment'],
+              ),*/
+              array(
+                'view'     => 'fields/'.($acceptance_payment['status_id'] < 10 ? 'checkbox' : 'hidden'),
+                'title'    => 'Оплачено:',
+                'id'       => 'pay'.$acceptance_payment['id'],
+                'name'     => 'pay'
+              ),
+              array(
+                'view'     => 'fields/'.($acceptance_payment['status_id'] < 10 ? 'submit' : 'hidden'),
+                'title'    => 'Сохранить',
+                'type'     => 'ajax',
+                'reaction' => ''
+              )
+            )
+          )
+        )
+      ));
+    }
     return $this->render_template('admin/inner', array(
       'title' => 'Настройки оплаты акта приемки <small>(ID '.$item['id'].')</small>',
       'block_title_btn' => $this->load->view('fields/submit', 
@@ -307,11 +341,7 @@ class Acceptance_payments_admin extends CI_Component {
           'icon'    => 'glyphicon-remove',
           'onclick' =>  'return send_confirm("Вы уверены, что хотите удалить карточку оплаты - ID'.$item['id'].'?","'.$this->lang_prefix .'/admin'. $this->params['path'] .'delete_acceptance_payment/'.$id.'/", {},"/admin/acceptance_payments/" );'
         )), true),
-      'html' => $this->view->render_form(array(
-        'view'   => 'forms/default',
-        'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'_edit_acceptance_payment_process/'.$item['id'].'/',
-        'blocks' => $blocks
-      ))
+      'html' => $html
     ), TRUE);
   }
   
@@ -360,19 +390,66 @@ class Acceptance_payments_admin extends CI_Component {
       }
     }
 
-    // меняем статус если оплачено
-    if($this->input->post('pay') && !$this->acceptances_model->update_acceptance($item['acceptance_id'], array('status_id' => 10))){
+    // меняем статус у строки оплаты если оплачено
+    if($this->input->post('pay') && !$this->acceptance_payments_model->update_acceptance_payment($id, array('status_id' => 10))){
       send_answer(array('errors' => array('Ошибка при изменении статуса')));
     }
 
-    // меняем статус если не оплачено и указана дата оплаты
-    if(!$this->input->post('pay') && $params['date_payment'] && !$this->acceptances_model->update_acceptance($item['acceptance_id'], array('status_id' => 5))){
+    // меняем статус у строки оплаты если не оплачено и указана дата оплаты
+    if(!$this->input->post('pay') && $params['date_payment'] && !$this->acceptance_payments_model->update_acceptance_payment($id, array('status_id' => 5))){
       send_answer(array('errors' => array('Ошибка при изменении статуса')));
+    }
+
+    // акт приемки
+    $acceptance = $this->acceptances_model->get_acceptance(array('pr_client_acceptances.id'=>$item['acceptance_id'],'pr_client_acceptances.client_id'=>$item['client_id'],'pr_client_acceptances.client_child_id'=>$item['client_child_id']));
+    if($acceptance){
+      // меняем статус у акта приемки если оплачено
+      if($this->input->post('pay') && !$this->acceptances_model->update_acceptance($acceptance['id'], array('status_id' => 10))){
+        send_answer(array('errors' => array('Ошибка при изменении статуса')));
+      }
+
+      // меняем статус у акта приемки если не оплачено и указана дата оплаты
+      if(!$this->input->post('pay') && $params['date_payment'] && !$this->acceptances_model->update_acceptance($acceptance['id'], array('status_id' => 5))){
+        send_answer(array('errors' => array('Ошибка при изменении статуса')));
+      }
     }
     
     send_answer(array('success' => array('Изменения успешно сохранены')));
   }
   
+  /**
+  * Смена статуса оплаты и акта приемки
+  */
+  function _set_status_acceptance_payment($id, $status_id){
+    $item = $this->acceptance_payments_model->get_acceptance_payment(array('client_acceptance_payments.id'=>$id));
+    if(!$item){
+      show_error('Объект не найден');
+    }
+
+    if($item['status_id'] >= 10){
+      send_answer(array('errors' => array('Акт оплачен. Редактирование невозможно.')));
+    }
+    // проверяем права доступа к акту приемки
+    if($item['client_admin_id'] != $this->admin_id && !$this->permits_model->check_access($this->admin_id, $this->component['name'], $method = 'permit_acceptance_payments_allClients')){
+      send_answer(array('errors' => array('У вас нет прав на редактирование оплаты актов приемки для клиентов других менеджеров')));
+    }
+
+    // меняем статус у строки оплаты
+    if(!$this->acceptance_payments_model->update_acceptance_payment($id, array('status_id' => $status_id))){
+      send_answer(array('errors' => array('Ошибка при изменении статуса')));
+    }
+
+    // акт приемки
+    $acceptance = $this->acceptances_model->get_acceptance(array('pr_client_acceptances.id'=>$item['acceptance_id'],'pr_client_acceptances.client_id'=>$item['client_id'],'pr_client_acceptances.client_child_id'=>$item['client_child_id']));
+    if($acceptance){
+      // меняем статус у акта приемки
+      if(!$this->acceptances_model->update_acceptance($acceptance['id'], array('status_id' => $status_id))){
+        send_answer(array('errors' => array('Ошибка при изменении статуса')));
+      }
+    }
+    send_answer();
+  }
+
   /**
    * Удаление оплаты акта приемки по своим клиентам
   **/

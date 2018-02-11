@@ -41,7 +41,7 @@ class Clients_admin extends CI_Component {
   * Просмотр списка своих клиентов
   */
   function clients_report($render_table = false) {
-    $where = 'pr_clients.one_time = 0 AND pr_clients.parent_id IS NULL ';
+    $where = 'pr_clients.one_time = 0';
     $error = '';
     $get_params = array(
       'title'      => ($this->uri->getParam('title') ? mysql_prepare($this->uri->getParam('title')) : ''),
@@ -374,7 +374,7 @@ class Clients_admin extends CI_Component {
   /**
   *  Поиск клиентов
   */
-  function client_search() {
+  function client_search($location = true) {
     $where = array();
     $title = $this->input->post('search_string');
     if($title){
@@ -388,7 +388,7 @@ class Clients_admin extends CI_Component {
       $result['items'][] = array(
         'id'        => $item['id'],
         'title'     => $item['title_full'],
-        'location'  => '/admin'.$this->params['path'].'edit_client/'.$item['id'].'/',
+        'location'  => ($location ? '/admin'.$this->params['path'].'edit_client/'.$item['id'].'/' : false),
       );
     }
 
