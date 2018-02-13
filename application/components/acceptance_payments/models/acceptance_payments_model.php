@@ -37,8 +37,7 @@ class Acceptance_payments_model extends CI_Model {
         $this->db->order_by($field,$dest);
       }
     } else {
-      $this->db->order_by('client_acceptance_payments.date','desc');
-      $this->db->order_by('client_acceptance_payments.id','asc');
+      $this->db->order_by('client_acceptance_payments.tm','desc');
     }
     $this->db->group_by('client_acceptance_payments.id');
     $items = $this->db->get('client_acceptance_payments')->result_array();
@@ -211,6 +210,13 @@ class Acceptance_payments_model extends CI_Model {
   
   function delete_acceptance_payment($id) {
     if ($this->db->delete('client_acceptance_payments', array('id' => $id))) {
+      return true;
+    }
+    return false;
+  }
+  
+  function delete_acceptances_empty() {
+    if ($this->db->query('DELETE t1 FROM pr_client_acceptance_payments as t1 LEFT JOIN pr_client_acceptance_payments as childs ON childs.parent_id = t1.id WHERE t1.parent_id IS NULL AND childs.id IS NULL')) {
       return true;
     }
     return false;

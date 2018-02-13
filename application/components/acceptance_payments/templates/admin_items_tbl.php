@@ -97,7 +97,7 @@
                           <a href="#"
                             onClick="return send_confirm(
                               'Вы уверены, что хотите удалить строку оплаты?',
-                              '/admin/acceptance_payments/delete_acceptance_payment/<?=$parent_id;?>/',
+                              '/admin/acceptance_payments/delete_acceptance_payment/<?=$parent_items['card'][0]['id'];?>/',
                               {},
                               'reload'
                             );"
@@ -170,7 +170,7 @@
                           <a href="#"
                             onClick="return send_confirm(
                               'Вы уверены, что хотите удалить строку оплаты?',
-                              '/admin/acceptance_payments/delete_acceptance_payment/<?=$parent_id;?>/',
+                              '/admin/acceptance_payments/delete_acceptance_payment/<?=$parent_items['cash'][0]['id'];?>/',
                               {},
                               'reload'
                             );"
@@ -253,7 +253,7 @@
                             <a href="#"
                               onClick="return send_confirm(
                                 'Вы уверены, что хотите удалить строку оплаты?',
-                                '/admin/acceptance_payments/delete_acceptance_payment/<?=$parent_id;?>/',
+                                '/admin/acceptance_payments/delete_acceptance_payment/<?=$item['id'];?>/',
                                 {},
                                 'reload'
                               );"
@@ -339,7 +339,7 @@
                             <a href="#"
                               onClick="return send_confirm(
                                 'Вы уверены, что хотите удалить строку оплаты?',
-                                '/admin/acceptance_payments/delete_acceptance_payment/<?=$parent_id;?>/',
+                                '/admin/acceptance_payments/delete_acceptance_payment/<?=$item['id'];?>/',
                                 {},
                                 'reload'
                               );"

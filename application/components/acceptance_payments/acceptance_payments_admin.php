@@ -463,21 +463,19 @@ class Acceptance_payments_admin extends CI_Component {
     if($item['client_admin_id'] != $this->admin_id && !$this->permits_model->check_access($this->admin_id, $this->component['name'], $method = 'permit_acceptance_payments_allClients')){
       send_answer(array('errors' => array('У вас нет прав на редактирование оплаты актов приемки для клиентов других менеджеров')));
     }
-    // если есть родительская, удаляем ее
-    if($item['parent_id']){
-      if (!$this->acceptance_payments_model->delete_acceptance_payment((int)$item['parent_id'])){
-        send_answer(array('errors' => array('Не удалось удалить объект')));
-      }
-      
-      // если статус у акта "Отправлено в бухгалтерию" меняем на статус в обработке
-      $acceptance = $this->acceptances_model->get_acceptance(array('client_acceptances.id'=>(int)$item['acceptance_id']));
-      if($acceptance && $acceptance['status_id'] == 4){
-        $this->acceptances_model->update_acceptance($acceptance['id'], array('status_id' => 2));
-      }
-    } else if (!$this->acceptance_payments_model->delete_acceptance_payment((int)$id)){
+    // если статус у акта "Отправлено в бухгалтерию" меняем на статус в обработке
+    $acceptance = $this->acceptances_model->get_acceptance(array('client_acceptances.id'=>(int)$item['acceptance_id']));
+    if($acceptance && $acceptance['status_id'] == 4){
+      $this->acceptances_model->update_acceptance($acceptance['id'], array('status_id' => 2));
+    }
+
+    if (!$this->acceptance_payments_model->delete_acceptance_payment((int)$id)){
       send_answer(array('errors' => array('Не удалось удалить объект')));
     }
     
+    // удаляем все родительские строки, у которых нет дочерних
+    $this->acceptance_payments_model->delete_acceptances_empty();
+
     send_answer();
   }
 
