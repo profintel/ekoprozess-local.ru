@@ -198,7 +198,7 @@
                 <?}?>
               </td>
               <td  style="background-color:<?=($parent_items['cash'] ? $parent_items['cash'][0]['status_color'] : 'none');?>">
-                <? if($parent_items['cash']) {?>
+                <? if($parent_items['cash'] && isset($parent_items['cash'][0]['client_params']['param_1_ru'])) {?>
                 <?=$parent_items['cash'][0]['client_params']['param_1_ru'];?>
                 <?}?>
               </td>

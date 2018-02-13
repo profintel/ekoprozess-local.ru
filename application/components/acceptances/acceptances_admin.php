@@ -1533,7 +1533,6 @@ class Acceptances_admin extends CI_Component {
           if($return) return false;
           send_answer(array('errors' => array('Ошибка при добавлении акта в раздел "Бухгалтерия"')));
         }
-        if($return) return $payment_id;
       }
     }
 
@@ -1542,9 +1541,11 @@ class Acceptances_admin extends CI_Component {
       send_answer(array('errors' => array('Ошибка при изменении статуса')));
     }
 
+    if($return && !empty($payment_id)) return $payment_id;
+
     if($return) return true;
 
-    if($status_id == 4 && $redirect && isset($payment_id) && $payment_id){
+    if($status_id == 4 && $redirect && !empty($payment_id)){
       //отправляем на редактирование оплаты данного акта
       send_answer(array('redirect' => '/admin/acceptance_payments/edit_acceptance_payment/'.$payment_id.'/'));
     }

@@ -375,8 +375,6 @@ class Acceptance_payments_admin extends CI_Component {
 
     // если оплачено и наличные, прибавляем в кассу сумму
     if($this->input->post('pay') && $params['method'] == 'cash'){
-      // сумма с вычетом доп.стоимости акта
-      $item['sum'] = $item['sum'] - $item['add_expenses'];
       // учитываем скидку
       if($params['method'] == 'cash' && $params['sale_percent']){
         $item['sum'] = $item['sum'] - $item['sum']*($params['sale_percent']/100);
@@ -439,6 +437,21 @@ class Acceptance_payments_admin extends CI_Component {
       send_answer(array('errors' => array('Ошибка при изменении статуса')));
     }
 
+    // если оплачено и наличные, прибавляем в кассу сумму
+    if($status_id == 10 && $item['method'] == 'cash'){
+      // учитываем скидку
+      if($item['method'] == 'cash' && $item['sale_percent']){
+        $item['sum'] = $item['sum'] - $item['sum']*($item['sale_percent']/100);
+      }    
+      $cashbox = $this->main_model->get_param('cashbox', 1, 'cashbox_0');
+      $cashbox = array(array(
+        'cashbox' => (float)@$cashbox['value'] + $item['sum']
+      ));
+      if (!$this->main_model->set_params('cashbox', 1, $cashbox)) {
+        send_answer(array('errors' => array('Не удалось сохранить изменения в кассе')));
+      }
+    }
+
     // акт приемки
     $acceptance = $this->acceptances_model->get_acceptance(array('pr_client_acceptances.id'=>$item['acceptance_id'],'pr_client_acceptances.client_id'=>$item['client_id'],'pr_client_acceptances.client_child_id'=>$item['client_child_id']));
     if($acceptance){
@@ -466,7 +479,14 @@ class Acceptance_payments_admin extends CI_Component {
     // если статус у акта "Отправлено в бухгалтерию" меняем на статус в обработке
     $acceptance = $this->acceptances_model->get_acceptance(array('client_acceptances.id'=>(int)$item['acceptance_id']));
     if($acceptance && $acceptance['status_id'] == 4){
-      $this->acceptances_model->update_acceptance($acceptance['id'], array('status_id' => 2));
+      // если акт отправлен в бухгалтерию, то статус 3
+      $acceptance_emails = $this->acceptances_model->get_acceptance_emails(array('acceptance_id'=>(int)$item['acceptance_id']));
+      if($acceptance_emails){
+        $this->acceptances_model->update_acceptance($acceptance['id'], array('status_id' => 3));
+      } else{
+        // статус в обработке
+        $this->acceptances_model->update_acceptance($acceptance['id'], array('status_id' => 2));
+      }
     }
 
     if (!$this->acceptance_payments_model->delete_acceptance_payment((int)$id)){
