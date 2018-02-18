@@ -28,7 +28,7 @@ class Acceptance_payments_admin extends CI_Component {
       'form' => $this->view->render_form(array(
         'method' => 'GET',
         'id'     => 'acceptance_payments_report',
-        'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'?ajax=1' ,        
+        'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'?ajax=1' ,
         'enctype' => '',
         'blocks' => array(
           array(
@@ -71,7 +71,7 @@ class Acceptance_payments_admin extends CI_Component {
               ),
               array(
                 'view'          => 'fields/submit',
-                'id'            => 'btn-form',
+                'id'            => 'btnFormAcceptance_payments_report',
                 'title'         => 'Сформировать',
                 'type'          => 'ajax',
                 'reaction_func' => true,
@@ -225,6 +225,85 @@ class Acceptance_payments_admin extends CI_Component {
   }
 
   /**
+  *  Редактирование оплаты акта приемки по своим клиентам для модального окна
+  */
+  function edit_acceptance_paymentModal($id){
+    $acceptance_payment = $this->acceptance_payments_model->get_acceptance_payment(array('client_acceptance_payments.id'=>(int)$id));
+    if(!$acceptance_payment){
+      show_error('Объект не найден');
+    }
+
+    echo $this->view->render_form(array(
+        'view'   => 'forms/default',
+        'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'_edit_acceptance_payment_process/'.$acceptance_payment['id'].'/',
+        'blocks' => array(
+          array(
+            'title'   => 'Акт приемки',
+            'fields'  => array(array(
+              'view'      => 'fields/readonly_value',
+              'title'     => '',
+              'value'     => $this->load->view('../../application/components/acceptance_payments/templates/admin_client_acceptance_tbl_short',array('item' => $acceptance_payment),TRUE),
+            )),
+            'aria-expanded' => true
+          ),
+          array(
+            'title'   => 'Параметры оплаты',
+            'fields'   => array(
+              array(
+                'view'   => 'fields/hidden',
+                'name'   => 'modal',
+                'value'  => 1
+              ),
+              array(
+                'view'     => 'fields/'.($acceptance_payment['status_id'] < 10 ? 'hidden' : 'readonly'),
+                'title'    => 'Статус',
+                'value'    => 'Оплачено'
+              ),
+              array(
+                'view'     => 'fields/datetime',
+                'title'    => 'Дата оплаты:',
+                'name'     => 'date_payment',
+                'id'       => 'date_payment'.$acceptance_payment['id'],
+                'disabled' => ($acceptance_payment['status_id'] > 4 ? true : false),
+                'value'    => ($acceptance_payment['date_payment'] ? date('d.m.Y H:i:s', strtotime($acceptance_payment['date_payment'])) : '')
+              ),
+              array(
+                'view'       => 'fields/select',
+                'title'      => 'Способ оплаты:',
+                'name'       => 'method',
+                'id'         => 'method'.$acceptance_payment['id'],
+                'text_field' => 'title',
+                'value_field'=> 'value',
+                'options'    => array(array('title'=>'Наличный расчет','value'=>'cash'),array('title'=>'Безналичный расчет','value'=>'card')),
+                'disabled' => ($acceptance_payment['status_id'] > 4 ? true : false),
+                'value'      => $acceptance_payment['method'],
+              ),
+              array(
+                'view'     => 'fields/text',
+                'title'    => '% скидки:',
+                'name'     => 'sale_percent',
+                'disabled' => ($acceptance_payment['status_id'] > 4 ? true : false),
+                'value'    => $acceptance_payment['sale_percent'],
+              ),
+              array(
+                'view'     => 'fields/'.($acceptance_payment['status_id'] < 10 ? 'checkbox' : 'hidden'),
+                'title'    => 'Оплачено:',
+                'id'       => 'pay'.$acceptance_payment['id'],
+                'name'     => 'pay'
+              ),
+              array(
+                'view'     => 'fields/'.($acceptance_payment['status_id'] < 10 ? 'submit' : 'hidden'),
+                'title'    => 'Сохранить',
+                'type'     => 'ajax',
+                'reaction' => ''
+              )
+            )
+          )
+        )
+      ));
+  }
+
+  /**
   *  Редактирование оплаты акта приемки по своим клиентам
   */
   function edit_acceptance_payment($id) {
@@ -234,7 +313,7 @@ class Acceptance_payments_admin extends CI_Component {
     }
     // массив с актами прикрепленными к данной оплате
     $item['acceptances'] = $this->acceptance_payments_model->get_acceptance_payments(0,0,array('client_acceptance_payments.parent_id'=>(int)$item['id']),false,true);
-// var_dump($item['acceptances']);exit();
+    // var_dump($item['acceptances']);exit();
     $html = '';
     $blocks = array();
     // примечание общее на строку оплаты
@@ -266,6 +345,7 @@ class Acceptance_payments_admin extends CI_Component {
     foreach ($item['acceptances'] as $key => $acceptance_payment) {
       $html .= $this->view->render_form(array(
         'view'   => 'forms/default',
+        'id'     => 'formAcceptancePayment'.$acceptance_payment['id'],
         'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'_edit_acceptance_payment_process/'.$acceptance_payment['id'].'/',
         'blocks' => array(
           array(
@@ -307,14 +387,9 @@ class Acceptance_payments_admin extends CI_Component {
                 'view'     => 'fields/text',
                 'title'    => '% скидки:',
                 'name'     => 'sale_percent',
+                'onkeyup'  => "submit_form(this);",
                 'value'    => $acceptance_payment['sale_percent'],
-              ),/*
-              array(
-                'view'     => 'fields/textarea',
-                'title'    => 'Примечания',
-                'name'     => 'comment',
-                'value'    => $item['comment'],
-              ),*/
+              ),
               array(
                 'view'     => 'fields/'.($acceptance_payment['status_id'] < 10 ? 'checkbox' : 'hidden'),
                 'title'    => 'Оплачено:',
@@ -373,12 +448,13 @@ class Acceptance_payments_admin extends CI_Component {
       send_answer(array('errors' => array('Ошибка при сохранении изменений')));
     }
 
+    // учитываем скидку
+    if($params['method'] == 'cash' && $params['sale_percent']){
+      $item['sum'] = $item['sumAcceptance'] - $item['sumAcceptance']*($params['sale_percent']/100);
+    } 
+
     // если оплачено и наличные, прибавляем в кассу сумму
-    if($this->input->post('pay') && $params['method'] == 'cash'){
-      // учитываем скидку
-      if($params['method'] == 'cash' && $params['sale_percent']){
-        $item['sum'] = $item['sum'] - $item['sum']*($params['sale_percent']/100);
-      }    
+    if($this->input->post('pay') && $params['method'] == 'cash'){   
       $cashbox = $this->main_model->get_param('cashbox', 1, 'cashbox_0');
       $cashbox = array(array(
         'cashbox' => (float)@$cashbox['value'] + $item['sum']
@@ -412,6 +488,12 @@ class Acceptance_payments_admin extends CI_Component {
       }
     }
     
+    if($this->input->post('modal')){
+      send_answer(array('success' => array('function'=>'setAcceptancePaymentModal','item'=>$item)));
+    }
+    if($params['method'] == 'cash' && $params['sale_percent']){
+      send_answer(array('success' => array('function'=>'setAcceptancePaymentSum','item'=>$item)));
+    }
     send_answer(array('success' => array('Изменения успешно сохранены')));
   }
   

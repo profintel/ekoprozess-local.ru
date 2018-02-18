@@ -1,4 +1,4 @@
-/*** Generated 13.02.2018 22:14:07 ***/
+/*** Generated 18.02.2018 23:05:21 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -3882,6 +3882,14 @@ function handle_answer(answer, reaction, context, data_type) {
     var form = $(context).parents('form');
     if (!reaction || reaction == 'null') {
       sheet('hide');
+
+      if (typeof(answer.success) != 'undefined' && typeof(answer.success.function) != 'undefined') {
+        reaction = window[answer.success.function];
+        if(typeof(reaction) == 'function'){
+          return reaction((context ? context : this), answer);
+        }
+      }
+
       if(typeof(answer.success) == 'object' && !$.isEmptyObject(answer.success)) {
         alert_msg('success',answer.success);
       }
@@ -4809,4 +4817,31 @@ function updateClientsRests(obj){
       }
     },
   'json')
+}
+
+/*** acceptance_payments ***/
+
+$(function() {
+  $('#acceptancePaymentEditModal').on('hidden.bs.modal', function(){
+    $(this).removeData('bs.modal');
+  });
+})
+
+/**
+* После измененеия параметров оплаты в модальном окне
+* перерендерим таблицу с отчетом
+*/
+function setAcceptancePaymentModal(context,answer) {
+  console.log('setAcceptancePaymentModal');
+  $('#acceptancePaymentEditModal').modal('hide');
+  $('#btnFormAcceptance_payments_report').click();
+}
+/**
+* Меняет итоговую стоимость акта оплаты после измененеия параметров
+*/
+function setAcceptancePaymentSum(context,answer) {
+  if(answer.success.item){
+    $('#acceptanceSum'+answer.success.item.id).text(answer.success.item.sum);
+  }
+  alert_msg('success','Изменения успешно сохранены');
 }

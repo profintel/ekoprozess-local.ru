@@ -13,9 +13,25 @@ class Acceptance_payments_model extends CI_Model {
     $this->db->select('
       client_acceptance_payments.*,
       client_acceptance_payment_parent.comment,
-      client_acceptance_payment_childs.price,
-      client_acceptance_payment_childs.net,
-      (SUM(client_acceptance_payment_childs.price * client_acceptance_payment_childs.net) - pr_client_acceptance_payments.add_expenses) as sum,
+      (SUM(client_acceptance_payment_childs.price * client_acceptance_payment_childs.net - pr_client_acceptance_payments.add_expenses)) as sumAcceptance,
+      (SUM(client_acceptance_payment_childs.price * client_acceptance_payment_childs.net) - pr_client_acceptance_payments.add_expenses) as sumAcceptance,
+      (
+        (
+          SUM(client_acceptance_payment_childs.price * client_acceptance_payment_childs.net)    
+            - 
+          pr_client_acceptance_payments.add_expenses
+        )
+      - 
+        (
+          (
+            SUM(client_acceptance_payment_childs.price * client_acceptance_payment_childs.net)       
+              - 
+            pr_client_acceptance_payments.add_expenses
+          )
+          *
+          pr_client_acceptance_payments.sale_percent/100
+        )
+      ) as sum,
       clients.title_full as client_title,
       client_childs.id as client_child_id,
       client_childs.title_full as client_child_title,
@@ -50,16 +66,11 @@ class Acceptance_payments_model extends CI_Model {
       if($item['method']=='cash' && !$item['client_child_id']){
         $item['client_params'] = $this->main_model->get_params('client_params', $item['client_id']);
       }
-      // сумма с вычетом доп.стоимости акта
-      // $item['sum'] = $item['sum'] - $item['add_expenses'];
-      // учитываем скидку
-      if($item['method'] == 'cash' && $item['sale_percent']){
-        $item['sum'] = $item['sum'] - $item['sum']*($item['sale_percent']/100);
-      }
 
       if($childs){
-        $item['childs'] = $this->get_acceptance_payments(0,0,array('client_acceptance_payments.parent_id'=>$item['id']),false);
+        $item['childs'] =  $this->db->get_where('client_acceptance_payments', array('client_acceptance_payments.parent_id'=>$item['id']))->result_array();
         foreach ($item['childs'] as $key => &$child) {
+          $child['sum'] = $child['price']*$child['net'];
           $child['product'] = $this->products_model->get_product(array('id' => $child['product_id']));
         }
         unset($child);
@@ -84,7 +95,24 @@ class Acceptance_payments_model extends CI_Model {
       $this->db->select('
       SUM(client_acceptance_payment_childs.gross) as gross,
       SUM(client_acceptance_payment_childs.net) as net,
-      (SUM(client_acceptance_payment_childs.price * client_acceptance_payment_childs.net) - pr_client_acceptance_payments.add_expenses) as sum,
+      (SUM(client_acceptance_payment_childs.price * client_acceptance_payment_childs.net) - pr_client_acceptance_payments.add_expenses) as sumAcceptance,
+      (
+        (
+          SUM(client_acceptance_payment_childs.price * client_acceptance_payment_childs.net)    
+            - 
+          pr_client_acceptance_payments.add_expenses
+        )
+      - 
+        (
+          (
+            SUM(client_acceptance_payment_childs.price * client_acceptance_payment_childs.net)       
+              - 
+            pr_client_acceptance_payments.add_expenses
+          )
+          *
+          pr_client_acceptance_payments.sale_percent/100
+        )
+      ) as sum,
       client_childs.title_full as client_child_title,
       clients.title_full as client_title, 
       clients.admin_id as client_admin_id');
@@ -98,9 +126,9 @@ class Acceptance_payments_model extends CI_Model {
     $item = $this->db->get_where('client_acceptance_payments', $where)->row_array();
     // echo $this->db->last_query();exit;
     if($item && $full){
-      $item['childs'] = $this->get_acceptance_payments(0,0,array('client_acceptance_payments.parent_id'=>$item['id']),false);
-      // $item['price'] = 0;
+      $item['childs'] =  $this->db->get_where('client_acceptance_payments', array('client_acceptance_payments.parent_id'=>$item['id']))->result_array();
       foreach ($item['childs'] as $key => &$child) {
+        $child['sum'] = $child['price']*$child['net'];
         $child['product'] = $this->products_model->get_product(array('id' => $child['product_id']));
       }
       unset($child);

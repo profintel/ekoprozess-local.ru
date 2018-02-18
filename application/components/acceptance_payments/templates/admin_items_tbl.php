@@ -8,6 +8,9 @@
     <? if ($items) { ?>
       <? if (!$render_table_email) { ?>
         <div class="well-sm text-right">
+          <a href="/admin/acceptance_payments/edit_cashbox/" class="btn btn-primary btn-xs hidden-print">
+            <span class="glyphicon glyphicon-rub"></span> Касса
+          </a>
           <a href="/admin/acceptance_payments/send_acceptances_payment_email/?<?=$postfix;?>" onclick="" class="btn btn-primary btn-xs hidden-print">
             <span class="glyphicon glyphicon-print"></span> 
             Отправить по email
@@ -60,7 +63,7 @@
                       <a class="dropdown-toggle" data-toggle="dropdown"><?=($parent_items['card'][0]['client_child_title'] ? $parent_items['card'][0]['client_child_title'].'<br><small><strong>'.$parent_items['card'][0]['client_title'].'</strong></small>' : $parent_items['card'][0]['client_title']);?></a>
                       <ul class="dropdown-menu">
                         <li>
-                          <a href="/admin/acceptance_payments/edit_acceptance_payment/<?=$parent_id;?>/" title="Редактировать">
+                          <a data-toggle="modal" href="/admin/acceptance_payments/edit_acceptance_paymentModal/<?=$parent_items['card'][0]['id'];?>/" data-target="#acceptancePaymentEditModal" title="Редактировать">
                             <? if ($parent_items['card'][0]['status_id'] < 10) {?>
                               <span class="glyphicon glyphicon-edit"></span> Редактировать
                             <? } else { ?>
@@ -133,7 +136,7 @@
                       <a class="dropdown-toggle" data-toggle="dropdown"><?=($parent_items['cash'][0]['client_child_title'] ? $parent_items['cash'][0]['client_child_title'].'<br><small><strong>'.$parent_items['cash'][0]['client_title'].'</strong></small>' : $parent_items['cash'][0]['client_title']);?></a>
                       <ul class="dropdown-menu">
                         <li>
-                          <a href="/admin/acceptance_payments/edit_acceptance_payment/<?=$parent_id;?>/" title="Редактировать">
+                          <a data-toggle="modal" href="/admin/acceptance_payments/edit_acceptance_paymentModal/<?=$parent_items['cash'][0]['id'];?>/" data-target="#acceptancePaymentEditModal" title="Редактировать">
                             <? if ($parent_items['cash'][0]['status_id'] < 10) {?>
                               <span class="glyphicon glyphicon-edit"></span> Редактировать
                             <? } else { ?>
@@ -216,7 +219,7 @@
                         <a class="dropdown-toggle" data-toggle="dropdown"><?=($item['client_child_title'] ? $item['client_child_title'].'<br><small><strong>'.$item['client_title'].'</strong></small>' : $item['client_title']);?></a>
                         <ul class="dropdown-menu">
                           <li>
-                            <a href="/admin/acceptance_payments/edit_acceptance_payment/<?=$parent_id;?>/" title="Редактировать">
+                            <a data-toggle="modal" href="/admin/acceptance_payments/edit_acceptance_paymentModal/<?=$item['id'];?>/" data-target="#acceptancePaymentEditModal" title="Редактировать">
                               <? if ($item['status_id'] < 10) {?>
                                 <span class="glyphicon glyphicon-edit"></span> Редактировать
                               <? } else { ?>
@@ -302,7 +305,7 @@
                         <a class="dropdown-toggle" data-toggle="dropdown"><?=($item['client_child_title'] ? $item['client_child_title'].'<br><small><strong>'.$item['client_title'].'</strong></small>' : $item['client_title']);?></a>
                         <ul class="dropdown-menu">
                           <li>
-                            <a href="/admin/acceptance_payments/edit_acceptance_payment/<?=$parent_id;?>/" title="Редактировать">
+                            <a data-toggle="modal" href="/admin/acceptance_payments/edit_acceptance_paymentModal/<?=$item['id'];?>/" data-target="#acceptancePaymentEditModal" title="Редактировать">
                               <? if ($item['status_id'] < 10) {?>
                                 <span class="glyphicon glyphicon-edit"></span> Редактировать
                               <? } else { ?>

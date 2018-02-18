@@ -376,6 +376,14 @@ function handle_answer(answer, reaction, context, data_type) {
     var form = $(context).parents('form');
     if (!reaction || reaction == 'null') {
       sheet('hide');
+
+      if (typeof(answer.success) != 'undefined' && typeof(answer.success.function) != 'undefined') {
+        reaction = window[answer.success.function];
+        if(typeof(reaction) == 'function'){
+          return reaction((context ? context : this), answer);
+        }
+      }
+
       if(typeof(answer.success) == 'object' && !$.isEmptyObject(answer.success)) {
         alert_msg('success',answer.success);
       }

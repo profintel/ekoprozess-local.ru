@@ -11,10 +11,11 @@ class Acceptances_model extends CI_Model {
   }
 
   function get_acceptances($limit = 0, $offset = 0, $where = array(), $order_by = array(), $product_id = array()) {
-    $this->db->select('client_acceptances.*,clients.title_full as client_title,client_childs.title_full as client_child_title, status.color as status_color');
+    $this->db->select('client_acceptances.*,clients.title_full as client_title,client_childs.title_full as client_child_title, status.color as status_color,payment.parent_id as payment_id');
     $this->db->join('clients','clients.id = client_acceptances.client_id');
     $this->db->join('clients as client_childs','client_childs.id = client_acceptances.client_child_id','left');
     $this->db->join('client_acceptance_statuses as status','status.id = client_acceptances.status_id','left');
+    $this->db->join('client_acceptance_payments as payment','payment.acceptance_id = pr_client_acceptances.id  AND payment.client_id = pr_client_acceptances.client_id AND (payment.client_child_id = pr_client_acceptances.client_child_id OR payment.client_child_id IS NULL)', 'left');
     if ($where) {
       $this->db->where($where);
     }
@@ -53,7 +54,7 @@ class Acceptances_model extends CI_Model {
     }
     $this->db->group_by('client_acceptances.id');
     $items = $this->db->get('client_acceptances')->result_array();
-    // echo $this->db->last_query();
+    // echo $this->db->last_query();exit;
     unset($where);
     foreach ($items as $key => &$item) {
       if(is_null($item['parent_id'])){

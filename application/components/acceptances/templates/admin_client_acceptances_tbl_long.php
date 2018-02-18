@@ -52,6 +52,20 @@
                       </a>
                     </li>
                     <li class="divider"></li>
+                    <? if($item['payment_id']) {?>
+                      <li>
+                        <a href="/admin/acceptance_payments/edit_acceptance_payment/<?=$item['payment_id'];?>" >
+                          <span class="glyphicon glyphicon-credit-card"></span> Перейти в бухгалтерию
+                        </a>
+                      </li>
+                    <?} else {?>
+                      <li>
+                        <a href="javascript:void(0)" onclick="send_request('/admin/acceptances/_set_status_acceptance/<?=$item['id'];?>/4/')">
+                          <span class="glyphicon glyphicon-credit-card"></span> Отправить в бухгалтерию
+                        </a>
+                      </li>
+                    <?}?>
+                    <li class="divider"></li>
                     <li>
                       <a href="javascript:void(0)" onclick="setAcceptanceExceptions(<?=$item['id'];?>)">
                         <span class="glyphicon glyphicon-"></span> Исключить акт из текущего отчета

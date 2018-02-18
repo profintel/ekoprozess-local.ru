@@ -45,7 +45,7 @@
         <span class="text-nowrap"><?=number_format($item['add_expenses'],0,'.',' ');?></span>
       </td>
       <td id="acceptanceSum<?=$item['acceptance_id'];?>" rowspan="<?=count($item['childs']);?>">
-        <span class="text-nowrap"><?=number_format($item['sum'],2,'.',' ');?></span>
+        <span class="text-nowrap"><?=number_format($item['sumAcceptance'],2,'.',' ');?></span>
       </td>
       <td rowspan="<?=count($item['childs']);?>">
         <?=$item['comment'];?>
@@ -92,14 +92,14 @@
         <span class="text-nowrap h5"><?=number_format($item['add_expenses'],0,'.',' ');?></span>
       </th>
       <th>
-        <span class="text-nowrap h5"><?=number_format($item['sum'],2,'.',' ');?></span>
+        <span class="text-nowrap h5"><?=number_format($item['sumAcceptance'],2,'.',' ');?></span>
       </th>
       <th></th>
     </tr>
     <tr>
-      <td colspan="9" class="text-right"><span class="h4">ИТОГО</span></td>
+      <td colspan="9" class="text-right"><span class="h4">ИТОГО</span><br><small>с учетом скидки</small></td>
       <td colspan="2" class="text-center">
-        <span class="h4"><?=number_format($item['sum'],2,'.',' ');?></span>
+        <span id="acceptanceSum<?=$item['id'];?>" class="h4"><?=number_format($item['sum'],2,'.',' ');?></span>
       </td>
       <td></td>
     </tr>
