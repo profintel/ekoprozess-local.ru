@@ -1,4 +1,4 @@
-/* Generated 19.02.2018 00:05:06 */
+/* Generated 26.02.2018 00:51:02 */
 
 /* components */
 
@@ -176,6 +176,8 @@
 .move_i_s {
   background-image: url(/adm/images/icons/move_s.png);
   cursor: move;
+  height: 14px;
+  width: 24px;
 }
 .copy_i_s {
   background-image: url(/adm/images/icons/page_copy_s.png);
@@ -521,6 +523,18 @@ body {
   width: 100%;
 }
 
+.droppable.for-drop{
+  background-color: #ffffcc;
+}
+.draggable {
+  position: relative;
+}
+.draggable .move_i_s{
+  position: absolute;
+  top: 0px;
+  right: -10px;
+}
+
 @media(min-width: 1200px){
   .modal-w100{
     width: 1200px;
@@ -553,6 +567,9 @@ body {
 }
 .text-dark{
   color: #676a6c;
+}
+.text-light-gray{
+  color: #eceaea;
 }
 
 .text-top{
@@ -1137,6 +1154,10 @@ div.quick_form_input+div{
   left: 50%;
   margin-left: 0px;
   z-index: 150;  
+}
+
+.form_group_method_pay_cash{
+  display: none;
 }
 
 .pagination > .disabled > span,

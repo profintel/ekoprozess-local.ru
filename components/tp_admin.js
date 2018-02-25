@@ -1,4 +1,4 @@
-/*** Generated 19.02.2018 00:05:06 ***/
+/*** Generated 26.02.2018 00:51:02 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -4866,6 +4866,25 @@ $(function() {
   $('#acceptancePaymentEditModal').on('hidden.bs.modal', function(){
     $(this).removeData('bs.modal');
   });
+
+  //объединение строк в отчете по бухгалтерии
+  $('.draggable').draggable({
+    cursor: "move",
+    axis: 'y',
+    scroll: true,
+    revert: "invalid",
+    handle: "span"
+  });
+  $('.droppable').droppable({
+    addClasses: false,
+    hoverClass: 'for-drop',
+    tolerance: 'pointer',
+    drop: function(event, ui) {
+      var id = $(ui.draggable).data('id');
+      var parent_id = $(this).data('parent');
+      set_acceptancePaymentParent(id, parent_id);
+    }
+  });
 })
 
 /**
@@ -4885,4 +4904,23 @@ function setAcceptancePaymentSum(context,answer) {
     $('#acceptanceSum'+answer.success.item.id).text(answer.success.item.sum);
   }
   alert_msg('success','Изменения успешно сохранены');
+}
+/**
+* Отображает select выбор метода подсчета кассы
+* в момент когда активна галочка "Оплачено"
+*/
+function setElMethodPayCash(obj) {
+  if($(obj).prop('checked') === true){
+    $('.form_group_method_pay_cash').show();
+  } else {
+    $('.form_group_method_pay_cash').hide();
+  }
+}
+
+//объединение строк в отчете по бухгалтерии
+function set_acceptancePaymentParent(id, parent_id) {
+  send_request('/admin/acceptance_payments/edit_acceptancePaymentParent/', {
+    id: id,
+    parent_id: parent_id
+  }, 'reload');
 }

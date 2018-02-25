@@ -883,6 +883,14 @@ class Store_admin extends CI_Component {
     if(!$item){
       send_answer(array('errors' => array('Объект не найден')));
     }
+    // проверяем акт приемки если первичная продукция
+    // если статус Оплачено, редактировать нельзя
+    if($item['store_type_id'] == 1){
+      $acceptance = $this->acceptances_model->get_acceptance(array('client_acceptances.store_coming_id'=>$id));
+      if($acceptance && $acceptance['status_id'] >= 10){
+        send_answer(array('errors' => array('Невозможно изменить приход. Статус акта приемки - "Оплачено"')));
+      }
+    }
 
     $main_params = array(
       'active'    => $item['active'],
@@ -1013,7 +1021,6 @@ class Store_admin extends CI_Component {
       $acceptance = $this->acceptances_model->get_acceptance(array('client_acceptances.store_coming_id'=>$id));
       if($acceptance){
         if (!$this->acceptances->_edit_acceptance_process($acceptance['id'], true)){
-          $this->delete_coming($id, true);
           send_answer(array('errors' => array('Не удалось Изменить акт приемки')));
         }
       } else {

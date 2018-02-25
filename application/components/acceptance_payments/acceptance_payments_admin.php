@@ -14,7 +14,9 @@ class Acceptance_payments_admin extends CI_Component {
   */
   function index($render_table = false, $render_table_email = false) {
     $get_params = array(
-      'date_start'  => ($this->uri->getParam('date_start') ? date('Y-m-d',strtotime($this->uri->getParam('date_start'))) : date('Y-m-1')),
+      'tm_start'  => ($this->uri->getParam('tm_start') ? date('Y-m-d',strtotime($this->uri->getParam('tm_start'))) : date('Y-m-1')),
+      'tm_end'    => ($this->uri->getParam('tm_end') ? date('Y-m-d',strtotime($this->uri->getParam('tm_end'))) : ''),
+      'date_start'  => ($this->uri->getParam('date_start') ? date('Y-m-d',strtotime($this->uri->getParam('date_start'))) : ''),
       'date_end'    => ($this->uri->getParam('date_end') ? date('Y-m-d',strtotime($this->uri->getParam('date_end'))) : ''),
       'client_id'   => ((int)$this->uri->getParam('client_id') ? (int)$this->uri->getParam('client_id') : ''),
       'client_child_id'   => ((int)$this->uri->getParam('client_child_id') ? (int)$this->uri->getParam('client_child_id') : '')
@@ -34,6 +36,20 @@ class Acceptance_payments_admin extends CI_Component {
           array(
             'title'         => 'Параметры отчета',
             'fields'   => array(
+              array(
+                'view'        => 'fields/date',
+                'title'       => 'Дата добавления в бухгалтерию (от):',
+                'name'        => 'tm_start',
+                'value'       => ($get_params['tm_start']? date('d.m.Y',strtotime($get_params['tm_start'])) : ''),
+                'onchange1'    => "submit_form(this, handle_ajaxResultAllData);",
+              ),
+              array(
+                'view'        => 'fields/date',
+                'title'       => 'Дата добавления в бухгалтерию (до):',
+                'name'        => 'tm_end',
+                'value'       => ($get_params['tm_end']? date('d.m.Y',strtotime($get_params['tm_end'])) : ''),
+                'onchange1'    => "submit_form(this, handle_ajaxResultAllData);",
+              ),
               array(
                 'view'        => 'fields/date',
                 'title'       => 'Дата приемки (от):',
@@ -89,6 +105,12 @@ class Acceptance_payments_admin extends CI_Component {
       $error = '';
 
       $where = 'pr_client_acceptance_payments.acceptance_parent_id IS NULL';
+      if($get_params['tm_start']){
+        $where .= ' AND pr_client_acceptance_payments.tm >= "' . $get_params['tm_start'].'"';
+      }
+      if($get_params['tm_end']){
+        $where .= ' AND pr_client_acceptance_payments.tm <= "' . $get_params['tm_end'].'"';
+      }
       if($get_params['date_start']){
         $where .= ' AND pr_client_acceptance_payments.date >= "' . $get_params['date_start'].'"';
       }
@@ -290,7 +312,23 @@ class Acceptance_payments_admin extends CI_Component {
                 'view'     => 'fields/'.($acceptance_payment['status_id'] < 10 ? 'checkbox' : 'hidden'),
                 'title'    => 'Оплачено:',
                 'id'       => 'pay'.$acceptance_payment['id'],
-                'name'     => 'pay'
+                'name'     => 'pay',
+                'onchange' => 'setElMethodPayCash(this)'
+              ),
+              array(
+                'view'              => 'fields/'.($acceptance_payment['status_id'] < 10 ? 'select' : 'hidden'),
+                'title'             => 'Метод оплаты:',
+                'name'              => 'method_pay_cash',
+                'id'                => 'method_pay_cash',
+                'form_group_class'  => 'form_group_method_pay_cash',
+                'text_field'        => 'title',
+                'value_field'       => 'value',
+                'options'           => array(
+                  array('title'=>'Прибавить в кассу','value'=>'plus'),
+                  array('title'=>'Вычесть из кассы','value'=>'minus')),
+                'value'          => 'plus',
+                'chosen_disable' => true,
+                'description'    => 'Используется при наличном расчете в момент когда активна галочка "Оплачено"',
               ),
               array(
                 'view'     => 'fields/'.($acceptance_payment['status_id'] < 10 ? 'submit' : 'hidden'),
@@ -381,7 +419,9 @@ class Acceptance_payments_admin extends CI_Component {
                 'id'         => 'method'.$acceptance_payment['id'],
                 'text_field' => 'title',
                 'value_field'=> 'value',
-                'options'    => array(array('title'=>'Наличный расчет','value'=>'cash'),array('title'=>'Безналичный расчет','value'=>'card')),
+                'options'    => array(
+                  array('title'=>'Наличный расчет','value'=>'cash'),
+                  array('title'=>'Безналичный расчет','value'=>'card')),
                 'value'      => $acceptance_payment['method'],
               ),
               array(
@@ -395,13 +435,29 @@ class Acceptance_payments_admin extends CI_Component {
                 'view'     => 'fields/'.($acceptance_payment['status_id'] < 10 ? 'checkbox' : 'hidden'),
                 'title'    => 'Оплачено:',
                 'id'       => 'pay'.$acceptance_payment['id'],
-                'name'     => 'pay'
+                'name'     => 'pay',
+                'onchange' => 'setElMethodPayCash(this)'
+              ),
+              array(
+                'view'              => 'fields/'.($acceptance_payment['status_id'] < 10 ? 'select' : 'hidden'),
+                'title'             => 'Метод оплаты:',
+                'name'              => 'method_pay_cash',
+                'id'                => 'method_pay_cash',
+                'form_group_class'  => 'form_group_method_pay_cash',
+                'text_field'        => 'title',
+                'value_field'       => 'value',
+                'options'           => array(
+                  array('title'=>'Прибавить в кассу','value'=>'plus'),
+                  array('title'=>'Вычесть из кассы','value'=>'minus')),
+                'value'          => 'plus',
+                'chosen_disable' => true,
+                'description'    => 'Используется при наличном расчете в момент когда активна галочка "Оплачено"',
               ),
               array(
                 'view'     => 'fields/'.($acceptance_payment['status_id'] < 10 ? 'submit' : 'hidden'),
                 'title'    => 'Сохранить',
                 'type'     => 'ajax',
-                'reaction' => ''
+                'reaction' => 'reload'
               )
             )
           )
@@ -421,6 +477,26 @@ class Acceptance_payments_admin extends CI_Component {
     ), TRUE);
   }
   
+  function edit_acceptancePaymentParent(){
+    $id = (int)$this->input->post('id');
+    $parent_id = (int)$this->input->post('parent_id');
+
+    $item = $this->acceptance_payments_model->get_acceptance_payment(array('client_acceptance_payments.id'=>$id));
+    if(!$item){
+      send_answer(array('errors' => array('Акт не найден.')));
+    }
+    $parent = $this->acceptance_payments_model->get_acceptance_payment(array('client_acceptance_payments.id'=>$parent_id));
+    if(!$parent){
+      send_answer(array('errors' => array('Родительский акт не найден.')));
+    }
+
+    if (!$this->acceptance_payments_model->update_acceptance_payment($id, array('parent_id'=>$parent_id,'tm'=>$parent['tm']))) {
+      send_answer(array('errors' => array('Ошибка при сохранении изменений')));
+    }
+
+    send_answer();
+  }
+
   function _edit_acceptance_payment_process($id) {
     $item = $this->acceptance_payments_model->get_acceptance_payment(array('client_acceptance_payments.id'=>$id));
     if(!$item){
@@ -457,9 +533,15 @@ class Acceptance_payments_admin extends CI_Component {
     // если оплачено и наличные, прибавляем в кассу сумму
     if($this->input->post('pay') && $params['method'] == 'cash'){   
       $cashbox = $this->main_model->get_param('cashbox', 1, 'cashbox_0');
-      $cashbox = array(array(
-        'cashbox' => (float)@$cashbox['value'] + $item['sum']
-      ));
+      if($this->input->post('method_pay_cash') == 'minus'){
+        $cashbox = array(array(
+          'cashbox' => (float)@$cashbox['value'] - $item['sum']
+        ));
+      } else {
+        $cashbox = array(array(
+          'cashbox' => (float)@$cashbox['value'] + $item['sum']
+        ));        
+      }
       if (!$this->main_model->set_params('cashbox', 1, $cashbox)) {
         send_answer(array('errors' => array('Не удалось сохранить изменения в кассе')));
       }
@@ -478,6 +560,11 @@ class Acceptance_payments_admin extends CI_Component {
     // акт приемки
     $acceptance = $this->acceptances_model->get_acceptance(array('pr_client_acceptances.id'=>$item['acceptance_id'],'pr_client_acceptances.client_id'=>$item['client_id'],'pr_client_acceptances.client_child_id'=>$item['client_child_id']));
     if($acceptance){
+      // меняем параметр auto у акта приемки, необходимо в случае изменения прихода, чтобы изменился цвет строки
+      if(!$this->acceptances_model->update_acceptance($acceptance['id'], array('auto' => 0))){
+        send_answer(array('errors' => array('Ошибка при изменении статуса акта приемки')));
+      }
+
       // меняем статус у акта приемки если оплачено
       if($this->input->post('pay') && !$this->acceptances_model->update_acceptance($acceptance['id'], array('status_id' => 10))){
         send_answer(array('errors' => array('Ошибка при изменении статуса')));
@@ -527,9 +614,15 @@ class Acceptance_payments_admin extends CI_Component {
         $item['sum'] = $item['sum'] - $item['sum']*($item['sale_percent']/100);
       }    
       $cashbox = $this->main_model->get_param('cashbox', 1, 'cashbox_0');
-      $cashbox = array(array(
-        'cashbox' => (float)@$cashbox['value'] + $item['sum']
-      ));
+      if($this->input->post('method_pay_cash') == 'minus'){
+        $cashbox = array(array(
+          'cashbox' => (float)@$cashbox['value'] - $item['sum']
+        ));
+      } else {
+        $cashbox = array(array(
+          'cashbox' => (float)@$cashbox['value'] + $item['sum']
+        ));        
+      }
       if (!$this->main_model->set_params('cashbox', 1, $cashbox)) {
         send_answer(array('errors' => array('Не удалось сохранить изменения в кассе')));
       }
@@ -543,7 +636,8 @@ class Acceptance_payments_admin extends CI_Component {
         send_answer(array('errors' => array('Ошибка при изменении статуса')));
       }
     }
-    send_answer();
+
+    send_answer(array('success' => array('function'=>'setAcceptancePaymentModal','item'=>$item)));
   }
 
   /**
@@ -562,7 +656,7 @@ class Acceptance_payments_admin extends CI_Component {
     // если статус у акта "Отправлено в бухгалтерию" меняем на статус в обработке
     $acceptance = $this->acceptances_model->get_acceptance(array('client_acceptances.id'=>(int)$item['acceptance_id']));
     if($acceptance && $acceptance['status_id'] == 4){
-      // если акт отправлен в бухгалтерию, то статус 3
+      // если акт отправлен по email, то статус 3
       $acceptance_emails = $this->acceptances_model->get_acceptance_emails(array('acceptance_id'=>(int)$item['acceptance_id']));
       if($acceptance_emails){
         $this->acceptances_model->update_acceptance($acceptance['id'], array('status_id' => 3));

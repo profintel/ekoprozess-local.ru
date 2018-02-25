@@ -21,7 +21,6 @@
 </div>
 <br/>
 
-<a data-toggle="modal" href="/admin/acceptance_payments/edit_acceptance_paymentModal/21/" data-target="#acceptancePaymentEditModal">Click me</a>
 <div class="modal fade" id="acceptancePaymentEditModal" tabindex="-1" role="dialog" aria-labelledby="acceptancePaymentEditModalLabel">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">

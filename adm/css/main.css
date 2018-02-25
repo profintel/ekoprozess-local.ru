@@ -15,6 +15,18 @@ body {
   width: 100%;
 }
 
+.droppable.for-drop{
+  background-color: #ffffcc;
+}
+.draggable {
+  position: relative;
+}
+.draggable .move_i_s{
+  position: absolute;
+  top: 0px;
+  right: -10px;
+}
+
 @media(min-width: 1200px){
   .modal-w100{
     width: 1200px;
@@ -47,6 +59,9 @@ body {
 }
 .text-dark{
   color: #676a6c;
+}
+.text-light-gray{
+  color: #eceaea;
 }
 
 .text-top{
@@ -631,6 +646,10 @@ div.quick_form_input+div{
   left: 50%;
   margin-left: 0px;
   z-index: 150;  
+}
+
+.form_group_method_pay_cash{
+  display: none;
 }
 
 .pagination > .disabled > span,

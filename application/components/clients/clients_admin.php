@@ -491,6 +491,28 @@ class Clients_admin extends CI_Component {
             'col'      => 1,
             'small'    => false,
             'fields'   => $fields_params
+          ),          
+          array(
+            'title'         => 'Клиент <small>(Укажите, если карточка является компанией)</small>',
+            'col'           => 2,
+            'small'         => false,
+            'fields'        => array(
+              array(
+                'view'        => 'fields/select',
+                'title'       => 'Клиент:',
+                'name'        => 'parent_id',
+                'options'     => $this->clients_model->get_clients(0,0,array('parent_id'=>null)),
+                'empty'       => true,
+                'description' => ''
+              ),
+              array(
+                'view'     => 'fields/submit',
+                'title'    => 'Создать',
+                'type'     => 'ajax',
+                'reaction' => ''
+              )
+            ),
+            'aria-expanded' => true
           ),
           array(
             'title'    => 'Реквизиты',
@@ -594,6 +616,7 @@ class Clients_admin extends CI_Component {
       'email'       => htmlspecialchars(trim($this->input->post('email'))),
       'city_id'     => (int)$this->input->post('city_id'),
       'admin_id'    => ((int)$this->input->post('admin_id') ? (int)$this->input->post('admin_id') : null),
+      'parent_id'   => ((int)$this->input->post('parent_id') ? (int)$this->input->post('parent_id') : null),
       'active'      => 1,
       'one_time'    => ($this->input->post('one_time') ? true : false),
       'order'       => $this->clients_model->get_client_order()
@@ -860,6 +883,30 @@ class Clients_admin extends CI_Component {
             'fields'  => $fields_params
           ),
           array(
+            'title'         => 'Клиент <small>(Укажите, если карточка является компанией)</small>',
+            'col'           => 2,
+            'small'         => false,
+            'class'         => (!empty($companies) ? 'hidden' : ''),
+            'fields'        => array(
+              array(
+                'view'        => 'fields/select',
+                'title'       => 'Клиент:',
+                'name'        => 'parent_id',
+                'value'       => $item['parent_id'],
+                'options'     => (empty($companies) ? $this->clients_model->get_clients(0,0,array('parent_id'=>null)) : array()),
+                'empty'       => true,
+                'description' => ''
+              ),
+              array(
+                'view'     => 'fields/submit',
+                'title'    => 'Сохранить',
+                'type'     => 'ajax',
+                'reaction' => ''
+              )
+            ),
+            'aria-expanded' => true
+          ),
+          array(
             'title'         => 'Акты приемки',
             'col'           => 2,
             'small'         => false,
@@ -1011,6 +1058,7 @@ class Clients_admin extends CI_Component {
       'email'     => htmlspecialchars(trim($this->input->post('email'))),
       'city_id'   => (int)$this->input->post('city_id'),
       'admin_id'  => ((int)$this->input->post('admin_id') ? (int)$this->input->post('admin_id') : null),
+      'parent_id'  => ((int)$this->input->post('parent_id') ? (int)$this->input->post('parent_id') : null),
       'active'    => 1,
       'one_time'  => ($this->input->post('one_time') ? true : false),
     );

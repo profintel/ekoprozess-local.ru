@@ -235,6 +235,34 @@ class Acceptance_payments_model extends CI_Model {
     }
     return false;
   }
+
+  function set_acceptance_payment($id) {
+    //строка акта в оплате
+    $item = $this->get_acceptance_payment('pr_client_acceptance_payments.parent_id IS NOT NULL AND pr_client_acceptance_payments.id = '.(int)$id);
+    if(!$item){
+      return false;
+    }
+    // удаляем строки вторсырья
+    if (!$this->db->delete('client_acceptance_payments', array('parent_id' => $item['id']))) {
+      return false;
+    }
+    // удаляем акт
+    if (!$this->db->delete('client_acceptance_payments', array('id' => $item['id']))) {
+      return false;
+    }
+    // удаляем пустые родительские строки
+    $this->delete_acceptances_empty();
+    // создаем акт
+    $payment_id = $this->create_acceptance_payment(
+      array(
+        'acceptance_id'   => $item['acceptance_id'],
+        'method'          => $item['method'],
+        'sale_percent'    => $item['sale_percent'],
+        'tm'              => $item['tm'],
+      ));
+
+    return $payment_id;
+  }
   
   function delete_acceptance_payment($id) {
     if ($this->db->delete('client_acceptance_payments', array('id' => $id))) {

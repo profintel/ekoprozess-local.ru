@@ -11,11 +11,18 @@ class Acceptances_model extends CI_Model {
   }
 
   function get_acceptances($limit = 0, $offset = 0, $where = array(), $order_by = array(), $product_id = array()) {
-    $this->db->select('client_acceptances.*,clients.title_full as client_title,client_childs.title_full as client_child_title, status.color as status_color,payment.parent_id as payment_id');
+    $this->db->select('
+      client_acceptances.*,
+      clients.title_full as client_title,
+      client_childs.title_full as client_child_title, 
+      status.color as status_color,
+      payment.parent_id as payment_id,
+      client_acceptance_emails.id as email');
     $this->db->join('clients','clients.id = client_acceptances.client_id');
     $this->db->join('clients as client_childs','client_childs.id = client_acceptances.client_child_id','left');
     $this->db->join('client_acceptance_statuses as status','status.id = client_acceptances.status_id','left');
     $this->db->join('client_acceptance_payments as payment','payment.acceptance_id = pr_client_acceptances.id  AND payment.client_id = pr_client_acceptances.client_id AND (payment.client_child_id = pr_client_acceptances.client_child_id OR payment.client_child_id IS NULL)', 'left');
+    $this->db->join('client_acceptance_emails','client_acceptance_emails.acceptance_id = client_acceptances.id','left');
     if ($where) {
       $this->db->where($where);
     }
@@ -172,12 +179,15 @@ class Acceptances_model extends CI_Model {
       client_childs.title_full as client_child_title,
       client_childs.admin_id as client_child_admin_id,
       status.title as status_title,
-      client_childs.email as client_child_email');
+      client_childs.email as client_child_email,
+      payment.parent_id as payment_id,
+      payment.id as payment_acceptance_id');
     // данные по клиенту
     $this->db->join('clients','clients.id = client_acceptances.client_id');
     // данные по компании, если указан client_child_id
     $this->db->join('clients as client_childs','client_childs.id = client_acceptances.client_child_id','left');
     $this->db->join('client_acceptance_statuses as status','status.id = client_acceptances.status_id','left');
+    $this->db->join('client_acceptance_payments as payment','payment.acceptance_id = pr_client_acceptances.id  AND payment.client_id = pr_client_acceptances.client_id AND (payment.client_child_id = pr_client_acceptances.client_child_id OR payment.client_child_id IS NULL)', 'left');
     $item = $this->db->get_where('client_acceptances', $where)->row_array();
 
     if($item && $full){

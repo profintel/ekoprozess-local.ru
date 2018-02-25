@@ -814,7 +814,7 @@ class Acceptances_admin extends CI_Component {
     $productsFields = $this->renderProductsFields('array',$item['childs']);
     foreach ($productsFields as $key => $productField) {
       $blocks[] = $productField;
-      foreach($productField['fields'] as $product_field){        
+      foreach($productField['fields'] as $product_field){
         if(isset($product_field['class']) && $product_field['class'] == 'sum_product' && isset($product_field['num'])){
           $all_sum += (float)$product_field['num'];
         }
@@ -974,6 +974,7 @@ class Acceptances_admin extends CI_Component {
     if(!$item){
       show_error('Объект не найден');
     }
+
     if($auto){
       $store_coming = $this->store_model->get_coming(array('store_comings.id'=>$item['store_coming_id']));
       if(!$store_coming){
@@ -1026,6 +1027,12 @@ class Acceptances_admin extends CI_Component {
         'transport'       => htmlspecialchars(trim($this->input->post('transport'))),
         'auto'            => 0,
       );
+
+      // проверяем акт приемки 
+      // если статус Оплачено, редактировать нельзя
+      if($item['client_id'] == $main_params['client_id'] && $item['client_child_id'] == $main_params['client_child_id'] && $item['status_id'] >= 10){
+        send_answer(array('errors' => array('Невозможно изменить. Статус акта приемки - "Оплачено"')));
+      }
 
       // меняем статус Новый на статус В обработке
       if($item['status_id'] == 1){
@@ -1157,6 +1164,13 @@ class Acceptances_admin extends CI_Component {
         if (!$params_products['item_id'][$key] && !$this->acceptances_model->create_acceptance($params)) {
           send_answer(array('errors' => array('Ошибка при добавлении вторсырья в акт')));
         }
+      }
+    }
+
+    //25.02.2018 если отправлено в бухгалтерию, редактируем акт в бухгалтерии
+    if($item['payment_id']){
+      if(!$this->acceptance_payments_model->set_acceptance_payment($item['payment_acceptance_id'])){
+        send_answer(array('errors' => array('Ошибка при сохранении изменений в бухгалтерии')));
       }
     }
     
@@ -1492,11 +1506,6 @@ class Acceptances_admin extends CI_Component {
     if($item['status_id'] == 10){
       if($return) return false;
       send_answer(array('errors' => array('Статус "Оплачено" сменить нельзя')));
-    }
-
-    if($status_id == $item['status_id'] && !$force){
-      if($return) return false;
-      send_answer(array('errors' => array('Ошибка при смене статуса. Новый статус совпадает с текущим.')));
     }
 
     // если статус "Отправлено в бухгалтерию" проверям отправлен ли акт по email

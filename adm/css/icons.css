@@ -72,6 +72,8 @@
 .move_i_s {
   background-image: url(/adm/images/icons/move_s.png);
   cursor: move;
+  height: 14px;
+  width: 24px;
 }
 .copy_i_s {
   background-image: url(/adm/images/icons/page_copy_s.png);

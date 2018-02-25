@@ -16,6 +16,7 @@
         <thead>
           <tr>
             <td class="td-dropdown hidden-print"></td>
+            <td class="hidden-print"></td>
             <th>Дата приемки</th>
             <th width="20%">Поставщик</th>
             <th>Брутто, кг</th>
@@ -94,6 +95,13 @@
                   </ul>
                 </div>
               </td>
+              <td class="hidden-print" rowspan="<?=count($item['childs']);?>">
+                <? if ($item['email']) { ?>
+                  <span class="glyphicon glyphicon-envelope text-muted"></span>
+                <? } else { ?>
+                  <span class="glyphicon glyphicon-envelope text-light-gray"></span>
+                <? } ?>
+              </td>
               <td id="acceptanceDate<?=$item['id'];?>" rowspan="<?=count($item['childs']);?>">
                 <?=date('d.m.Y',strtotime($item['date']));?>
               </td>
@@ -153,13 +161,14 @@
         <tfoot>
           <? if(isset($pagination) && $pagination) {?>
             <tr>
-              <td colspan="12" class="text-right pagination-wrap">
+              <td colspan="13" class="text-right pagination-wrap">
                 <?=$pagination;?>
               </td>
             </tr>
           <? } ?>
           <tr>
-            <th colspan="2"></th>
+            <th colspan="2" class="hidden-print"></th>
+            <th></th>
             <th></th>
             <th>
               <span class="text-nowrap"><?=number_format($total_result['gross'],0,'.',' ');?></span>
@@ -180,7 +189,8 @@
             <th></th>
           </tr>
           <tr>
-            <td colspan="9" class="text-right"><span class="h4">ИТОГО</span></td>
+            <th colspan="2" class="hidden-print"></th>
+            <td colspan="8" class="text-right"><span class="h4">ИТОГО</span></td>
             <td colspan="2" class="text-center">
               <span class="h4"><?=number_format($total_result['sum_total'],2,'.',' ');?></span>
             </td>

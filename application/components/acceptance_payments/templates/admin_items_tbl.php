@@ -54,14 +54,15 @@
             }?>
             <tr>
               <td width="1%" rowspan="<?=$rowspan;?>"><?=$num;?></td>
-              <td style="background-color:<?=($parent_items['card'] ? $parent_items['card'][0]['status_color'] : 'none');?>" >
-                <? if($parent_items['card']) {?>
+              <td data-id="<?=($parent_items['card'] ? $parent_items['card'][0]['id'] : '');?>" data-parent="<?=($parent_items['card'] ? $parent_items['card'][0]['parent_id'] : ($parent_items['cash'] ? $parent_items['cash'][0]['parent_id'] : ''));?>" class="<?=($parent_items['card'] ? 'draggable' : 'droppable');?>" style="background-color:<?=($parent_items['card'] ? $parent_items['card'][0]['status_color'] : 'none');?>" >
+                <? if($parent_items['card']) {?>                  
+                  <span class="icon_small move_i_s hidden-print"></span>
                   <?if($render_table_email){?>
                     <?=($parent_items['card'][0]['client_child_title'] ? $parent_items['card'][0]['client_child_title'].'<br><small><strong>'.$parent_items['card'][0]['client_title'].'</strong></small>' : $parent_items['card'][0]['client_title']);?>
                   <?} else {?>
-                    <div class="dropdown hidden-print">
+                    <div class="dropdown">
                       <a class="dropdown-toggle" data-toggle="dropdown"><?=($parent_items['card'][0]['client_child_title'] ? $parent_items['card'][0]['client_child_title'].'<br><small><strong>'.$parent_items['card'][0]['client_title'].'</strong></small>' : $parent_items['card'][0]['client_title']);?></a>
-                      <ul class="dropdown-menu">
+                      <ul class="dropdown-menu hidden-print">
                         <li>
                           <a data-toggle="modal" href="/admin/acceptance_payments/edit_acceptance_paymentModal/<?=$parent_items['card'][0]['id'];?>/" data-target="#acceptancePaymentEditModal" title="Редактировать">
                             <? if ($parent_items['card'][0]['status_id'] < 10) {?>
@@ -75,7 +76,7 @@
                           <li class="divider"></li>
                           <li>
                             <form action="/admin/acceptance_payments/_set_status_acceptance_payment/<?=$parent_items['card'][0]['id'];?>/10/" onsubmit="return false;" >
-                              <a href="javascript:void(0)" onclick="submit_form(this,'reload')" title="Оплачено">
+                              <a href="javascript:void(0)" onclick="submit_form(this)" title="Оплачено">
                                 <span class="glyphicon glyphicon-ruble"></span> Оплачено
                               </a>
                             </form>
@@ -127,14 +128,15 @@
                 <?=($parent_items['card'][0]['date_payment'] ? date('d.m.Y',strtotime($parent_items['card'][0]['date_payment'])) : '');?>
                 <?}?>
               </td>
-              <td style="background-color:<?=($parent_items['cash'] ? $parent_items['cash'][0]['status_color'] : 'none');?>">
+              <td data-id="<?=($parent_items['cash'] ? $parent_items['cash'][0]['id'] : '');?>" data-parent="<?=($parent_items['cash'] ? $parent_items['cash'][0]['parent_id'] : ($parent_items['card'] ? $parent_items['card'][0]['parent_id'] : ''));?>" class="<?=($parent_items['cash'] ? 'draggable' : 'droppable');?>" style="background-color:<?=($parent_items['cash'] ? $parent_items['cash'][0]['status_color'] : 'none');?>">     
                 <? if($parent_items['cash']) {?>
+                  <span class="icon_small move_i_s hidden-print"></span>
                   <?if($render_table_email){?>
                     <?=($parent_items['cash'][0]['client_child_title'] ? $parent_items['cash'][0]['client_child_title'].'<br><small><strong>'.$parent_items['cash'][0]['client_title'].'</strong></small>' : $parent_items['cash'][0]['client_title']);?>
                   <?} else {?>
-                    <div class="dropdown hidden-print">
+                    <div class="dropdown">
                       <a class="dropdown-toggle" data-toggle="dropdown"><?=($parent_items['cash'][0]['client_child_title'] ? $parent_items['cash'][0]['client_child_title'].'<br><small><strong>'.$parent_items['cash'][0]['client_title'].'</strong></small>' : $parent_items['cash'][0]['client_title']);?></a>
-                      <ul class="dropdown-menu">
+                      <ul class="dropdown-menu hidden-print">
                         <li>
                           <a data-toggle="modal" href="/admin/acceptance_payments/edit_acceptance_paymentModal/<?=$parent_items['cash'][0]['id'];?>/" data-target="#acceptancePaymentEditModal" title="Редактировать">
                             <? if ($parent_items['cash'][0]['status_id'] < 10) {?>
@@ -147,9 +149,19 @@
                         <? if ($parent_items['cash'][0]['status_id'] < 10) {?>
                           <li class="divider"></li>
                           <li>
-                            <form action="/admin/acceptance_payments/_set_status_acceptance_payment/<?=$parent_items['cash'][0]['id'];?>/10/" onsubmit="return false;" >
-                              <a href="javascript:void(0)" onclick="submit_form(this,'reload')" title="Оплачено">
-                                <span class="glyphicon glyphicon-ruble"></span> Оплачено
+                            <form action="/admin/acceptance_payments/_set_status_acceptance_payment/<?=$parent_items['cash'][0]['id'];?>/10/"  method="POST" target="_self" enctype="multipart/form-data" onsubmit="return false;" >
+                              <input type="hidden" name="method_pay_cash" value="plus">
+                              <a href="javascript:void(0)" onclick="submit_form(this)" title="Оплачено">
+                                <span class="glyphicon glyphicon-ruble"></span> Оплачено ( + )
+                              </a>
+                            </form>
+                          </li>
+                          <li class="divider"></li>
+                          <li>
+                            <form action="/admin/acceptance_payments/_set_status_acceptance_payment/<?=$parent_items['cash'][0]['id'];?>/10/" method="POST" target="_self" enctype="multipart/form-data" onsubmit="return false;" >
+                              <input type="hidden" name="method_pay_cash" value="minus">
+                              <a href="javascript:void(0)" onclick="submit_form(this)" title="Оплачено">
+                                <span class="glyphicon glyphicon-ruble"></span> Оплачено ( - )
                               </a>
                             </form>
                           </li>
@@ -210,14 +222,15 @@
             <?unset($parent_items['card'][0],$parent_items['cash'][0])?>
             <? foreach ($parent_items['card'] as $num_card=> $item) { ?>
               <tr style="background-color:<?=($item['status_color'] ? $item['status_color'] : 'none');?>">
-                <td id="acceptanceClientTitle<?=$item['id'];?>">
+                <td data-id="<?=$item['id'];?>" data-parent="<?=$item['parent_id'];?>" class="<?=($item['method']=='card' ? 'draggable' : 'droppable');?>" id="acceptanceClientTitle<?=$item['id'];?>">
                   <?if($item['method']=='card'){?>
+                    <span class="icon_small move_i_s hidden-print"></span>
                     <?if($render_table_email){?>
                       <?=($item['client_child_title'] ? $item['client_child_title'].'<br><small><strong>'.$item['client_title'].'</strong></small>' : $item['client_title']);?>
                     <?} else {?>
-                      <div class="dropdown hidden-print">
+                      <div class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown"><?=($item['client_child_title'] ? $item['client_child_title'].'<br><small><strong>'.$item['client_title'].'</strong></small>' : $item['client_title']);?></a>
-                        <ul class="dropdown-menu">
+                        <ul class="dropdown-menu hidden-print">
                           <li>
                             <a data-toggle="modal" href="/admin/acceptance_payments/edit_acceptance_paymentModal/<?=$item['id'];?>/" data-target="#acceptancePaymentEditModal" title="Редактировать">
                               <? if ($item['status_id'] < 10) {?>
@@ -231,7 +244,7 @@
                             <li class="divider"></li>
                             <li>
                               <form action="/admin/acceptance_payments/_set_status_acceptance_payment/<?=$item['id'];?>/10/" onsubmit="return false;" >
-                                <a href="javascript:void(0)" onclick="submit_form(this,'reload')" title="Оплачено">
+                                <a href="javascript:void(0)" onclick="submit_form(this)" title="Оплачено">
                                   <span class="glyphicon glyphicon-ruble"></span> Оплачено
                                 </a>
                               </form>
@@ -296,14 +309,15 @@
                 <td></td>
                 <td></td>
                 <td></td>
-                <td >
+                <td data-id="<?=$item['id'];?>" data-parent="<?=$item['parent_id'];?>" class="<?=($item['method']=='cash' ? 'draggable' : 'droppable');?>">
                   <?if($item['method']=='cash'){?>
+                    <span class="icon_small move_i_s hidden-print"></span>
                     <?if($render_table_email){?>
                       <?=($item['client_child_title'] ? $item['client_child_title'].'<br><small><strong>'.$item['client_title'].'</strong></small>' : $item['client_title']);?>
                     <?} else {?>
-                      <div class="dropdown hidden-print">
+                      <div class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown"><?=($item['client_child_title'] ? $item['client_child_title'].'<br><small><strong>'.$item['client_title'].'</strong></small>' : $item['client_title']);?></a>
-                        <ul class="dropdown-menu">
+                        <ul class="dropdown-menu hidden-print">
                           <li>
                             <a data-toggle="modal" href="/admin/acceptance_payments/edit_acceptance_paymentModal/<?=$item['id'];?>/" data-target="#acceptancePaymentEditModal" title="Редактировать">
                               <? if ($item['status_id'] < 10) {?>
@@ -316,9 +330,19 @@
                           <? if ($item['status_id'] < 10) {?>
                             <li class="divider"></li>
                             <li>
-                              <form action="/admin/acceptance_payments/_set_status_acceptance_payment/<?=$item['id'];?>/10/" onsubmit="return false;" >
-                                <a href="javascript:void(0)" onclick="submit_form(this,'reload')" title="Оплачено">
-                                  <span class="glyphicon glyphicon-ruble"></span> Оплачено
+                              <form action="/admin/acceptance_payments/_set_status_acceptance_payment/<?=$item['id'];?>/10/" method="POST" target="_self" enctype="multipart/form-data" onsubmit="return false;" >
+                                <input type="hidden" name="method_pay_cash" value="plus">
+                                <a href="javascript:void(0)" onclick="submit_form(this)" title="Оплачено">
+                                  <span class="glyphicon glyphicon-ruble"></span> Оплачено ( + )
+                                </a>
+                              </form>
+                            </li>
+                            <li class="divider"></li>
+                            <li>
+                              <form action="/admin/acceptance_payments/_set_status_acceptance_payment/<?=$item['id'];?>/10/" method="POST" target="_self" enctype="multipart/form-data" onsubmit="return false;" >
+                                <input type="hidden" name="method_pay_cash" value="minus">
+                                <a href="javascript:void(0)" onclick="submit_form(this)" title="Оплачено">
+                                  <span class="glyphicon glyphicon-ruble"></span> Оплачено ( - )
                                 </a>
                               </form>
                             </li>
