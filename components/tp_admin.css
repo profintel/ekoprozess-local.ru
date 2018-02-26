@@ -1,4 +1,4 @@
-/* Generated 26.02.2018 00:51:02 */
+/* Generated 26.02.2018 10:50:15 */
 
 /* components */
 
@@ -530,9 +530,14 @@ body {
   position: relative;
 }
 .draggable .move_i_s{
+  display: none;
   position: absolute;
   top: 0px;
   right: -10px;
+}
+
+.draggable:hover .move_i_s{
+  display: block;
 }
 
 @media(min-width: 1200px){

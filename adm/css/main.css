@@ -22,9 +22,14 @@ body {
   position: relative;
 }
 .draggable .move_i_s{
+  display: none;
   position: absolute;
   top: 0px;
   right: -10px;
+}
+
+.draggable:hover .move_i_s{
+  display: block;
 }
 
 @media(min-width: 1200px){
