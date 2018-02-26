@@ -406,6 +406,7 @@ input[type="file"]{
 
 select.input-sm{
   height: 30px;
+  padding: 0px 12px;
 }
 
 .form-control{

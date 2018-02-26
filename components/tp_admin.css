@@ -1,4 +1,4 @@
-/* Generated 26.02.2018 10:50:15 */
+/* Generated 26.02.2018 17:51:34 */
 
 /* components */
 
@@ -914,6 +914,7 @@ input[type="file"]{
 
 select.input-sm{
   height: 30px;
+  padding: 0px 12px;
 }
 
 .form-control{

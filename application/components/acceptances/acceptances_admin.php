@@ -970,7 +970,7 @@ class Acceptances_admin extends CI_Component {
   *   $redirect_url - используется после сообщения-предупреждения, если после сохранения нужен редирект
   */
   function _edit_acceptance_process($id, $auto = false, $check_param = false, $redirect_url = false) {
-    $item = $this->acceptances_model->get_acceptance(array('client_acceptances.id'=>$id));
+    $item = $this->acceptances_model->get_acceptance(array('client_acceptances.id'=>(int)$id));
     if(!$item){
       show_error('Объект не найден');
     }
@@ -1169,7 +1169,7 @@ class Acceptances_admin extends CI_Component {
 
     //25.02.2018 если отправлено в бухгалтерию, редактируем акт в бухгалтерии
     if($item['payment_id']){
-      if(!$this->acceptance_payments_model->set_acceptance_payment($item['payment_acceptance_id'])){
+      if(!$this->acceptance_payments_model->set_acceptance_payment($item['id'])){
         send_answer(array('errors' => array('Ошибка при сохранении изменений в бухгалтерии')));
       }
     }
