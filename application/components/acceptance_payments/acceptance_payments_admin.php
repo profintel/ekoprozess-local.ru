@@ -286,7 +286,7 @@ class Acceptance_payments_admin extends CI_Component {
                 'title'    => 'Дата оплаты:',
                 'name'     => 'date_payment',
                 'id'       => 'date_payment'.$acceptance_payment['id'],
-                'disabled' => ($acceptance_payment['status_id'] > 4 ? true : false),
+                'disabled' => ($acceptance_payment['status_id'] == 10 ? true : false),
                 'value'    => ($acceptance_payment['date_payment'] ? date('d.m.Y H:i:s', strtotime($acceptance_payment['date_payment'])) : '')
               ),
               array(
@@ -298,14 +298,14 @@ class Acceptance_payments_admin extends CI_Component {
                 'value_field'   => 'value',
                 'chosen_disable'=> true,
                 'options'       => array(array('title'=>'Наличный расчет','value'=>'cash'),array('title'=>'Безналичный расчет','value'=>'card')),
-                'disabled'      => ($acceptance_payment['status_id'] > 4 ? true : false),
+                'disabled'      => ($acceptance_payment['status_id'] == 10 ? true : false),
                 'value'         => $acceptance_payment['method'],
               ),
               array(
                 'view'     => 'fields/text',
                 'title'    => '% скидки:',
                 'name'     => 'sale_percent',
-                'disabled' => ($acceptance_payment['status_id'] > 4 ? true : false),
+                'disabled' => ($acceptance_payment['status_id'] == 10 ? true : false),
                 'value'    => $acceptance_payment['sale_percent'],
               ),
               array(
