@@ -242,7 +242,9 @@ function send_confirm(message, url, data, reaction, context, reactionCancel) {
           }
         }
       } else {
-        return send_request(url, data, reaction, context);
+        setTimeout(function(){
+          return send_request(url, data, reaction, context);
+        },200)
       }
     }, icon: 'glyphicon-ok'},
     {text: 'Отмена', handler: function(){

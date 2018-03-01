@@ -14,7 +14,7 @@ class Acceptance_payments_admin extends CI_Component {
   */
   function index($render_table = false, $render_table_email = false) {
     $get_params = array(
-      'tm_start'  => ($this->uri->getParam('tm_start') ? date('Y-m-d',strtotime($this->uri->getParam('tm_start'))) : date('Y-m-1')),
+      'tm_start'  => ($this->uri->getParam('tm_start') ? date('Y-m-d',strtotime($this->uri->getParam('tm_start'))) : ''),
       'tm_end'    => ($this->uri->getParam('tm_end') ? date('Y-m-d',strtotime($this->uri->getParam('tm_end'))) : ''),
       'date_start'  => ($this->uri->getParam('date_start') ? date('Y-m-d',strtotime($this->uri->getParam('date_start'))) : ''),
       'date_end'    => ($this->uri->getParam('date_end') ? date('Y-m-d',strtotime($this->uri->getParam('date_end'))) : ''),
@@ -641,9 +641,10 @@ class Acceptance_payments_admin extends CI_Component {
   }
 
   /**
-   * Удаление оплаты акта приемки по своим клиентам
-  **/
-  function delete_acceptance_payment($id) {
+  *  Удаление оплаты акта приемки по своим клиентам
+  *  $force - принудительное удаление 
+  */
+  function delete_acceptance_payment($id, $force = false) {
     $item = $this->acceptance_payments_model->get_acceptance_payment(array('client_acceptance_payments.id'=>(int)$id));
     if(!$item){
       send_answer(array('errors' => array('Объект не найден')));
@@ -653,6 +654,18 @@ class Acceptance_payments_admin extends CI_Component {
     if($item['client_admin_id'] != $this->admin_id && !$this->permits_model->check_access($this->admin_id, $this->component['name'], $method = 'permit_acceptance_payments_allClients')){
       send_answer(array('errors' => array('У вас нет прав на редактирование оплаты актов приемки для клиентов других менеджеров')));
     }
+
+    // если статус не оплачено спрашиваем дополнительно
+    if($item['status_id'] != 10 && !$force){
+      send_answer(array('confirm' => array(
+        'message' => 'Оплата не произведена. Вы действительно хотите удалить акт оплаты?',
+        'url'     => '',
+        'data'    => '{}',
+        'reaction'=> 'send_request',
+        'context' => $this->lang_prefix .'/admin'. $this->params['path'] .'delete_acceptance_payment/'.$item['id'].'/1/',
+        )));
+    }
+
     // если статус у акта "Отправлено в бухгалтерию" меняем на статус в обработке
     $acceptance = $this->acceptances_model->get_acceptance(array('client_acceptances.id'=>(int)$item['acceptance_id']));
     if($acceptance && $acceptance['status_id'] == 4){
@@ -673,7 +686,7 @@ class Acceptance_payments_admin extends CI_Component {
     // удаляем все родительские строки, у которых нет дочерних
     $this->acceptance_payments_model->delete_acceptances_empty();
 
-    send_answer();
+    send_answer(array('success' => array('function'=>'setAcceptancePaymentModal')));
   }
 
   function send_acceptances_payment_email(){

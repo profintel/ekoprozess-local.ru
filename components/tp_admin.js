@@ -1,4 +1,4 @@
-/*** Generated 26.02.2018 17:51:34 ***/
+/*** Generated 01.03.2018 22:55:19 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -3748,7 +3748,9 @@ function send_confirm(message, url, data, reaction, context, reactionCancel) {
           }
         }
       } else {
-        return send_request(url, data, reaction, context);
+        setTimeout(function(){
+          return send_request(url, data, reaction, context);
+        },200)
       }
     }, icon: 'glyphicon-ok'},
     {text: 'Отмена', handler: function(){
