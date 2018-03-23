@@ -11,9 +11,7 @@
   <link rel="stylesheet" type="text/css" href="/components/tp_admin.css?<?=time();?>" />
   
   <script type="text/javascript" src="/components/tp_admin.js?<?=time();?>"></script>
-  <? if(in_array('edit_client', $this->segments)) {?>
-    <script type="text/javascript" src="/adm/ckeditor/ckeditor.js"></script>
-  <?}?>
+  <script type="text/javascript" src="/adm/ckeditor/ckeditor.js"></script>
   <script type="text/javascript" src="/adm/chosen/chosen.jquery.min.js"></script> 
 
   <!--[if gte IE 9]>
