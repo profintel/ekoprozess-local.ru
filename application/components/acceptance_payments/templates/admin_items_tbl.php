@@ -75,7 +75,7 @@
                         <? if ($parent_items['card'][0]['status_id'] < 10) {?>
                           <li class="divider"></li>
                           <li>
-                            <form action="/admin/acceptance_payments/_set_status_acceptance_payment/<?=$parent_items['card'][0]['id'];?>/10/" onsubmit="return false;" >
+                            <form action="/admin/acceptance_payments/set_status_acceptance_payment/<?=$parent_items['card'][0]['id'];?>/10/" onsubmit="return false;" >
                               <a href="javascript:void(0)" onclick="submit_form(this)" title="Оплачено">
                                 <span class="glyphicon glyphicon-ruble"></span> Оплачено
                               </a>
@@ -149,7 +149,7 @@
                         <? if ($parent_items['cash'][0]['status_id'] < 10) {?>
                           <li class="divider"></li>
                           <li>
-                            <form action="/admin/acceptance_payments/_set_status_acceptance_payment/<?=$parent_items['cash'][0]['id'];?>/10/"  method="POST" target="_self" enctype="multipart/form-data" onsubmit="return false;" >
+                            <form action="/admin/acceptance_payments/set_status_acceptance_payment/<?=$parent_items['cash'][0]['id'];?>/10/"  method="POST" target="_self" enctype="multipart/form-data" onsubmit="return false;" >
                               <input type="hidden" name="method_pay_cash" value="plus">
                               <a href="javascript:void(0)" onclick="submit_form(this)" title="Оплачено">
                                 <span class="glyphicon glyphicon-ruble"></span> Оплачено ( + )
@@ -158,7 +158,7 @@
                           </li>
                           <li class="divider"></li>
                           <li>
-                            <form action="/admin/acceptance_payments/_set_status_acceptance_payment/<?=$parent_items['cash'][0]['id'];?>/10/" method="POST" target="_self" enctype="multipart/form-data" onsubmit="return false;" >
+                            <form action="/admin/acceptance_payments/set_status_acceptance_payment/<?=$parent_items['cash'][0]['id'];?>/10/" method="POST" target="_self" enctype="multipart/form-data" onsubmit="return false;" >
                               <input type="hidden" name="method_pay_cash" value="minus">
                               <a href="javascript:void(0)" onclick="submit_form(this)" title="Оплачено">
                                 <span class="glyphicon glyphicon-ruble"></span> Оплачено ( - )
@@ -243,7 +243,7 @@
                           <? if ($item['status_id'] < 10) {?>
                             <li class="divider"></li>
                             <li>
-                              <form action="/admin/acceptance_payments/_set_status_acceptance_payment/<?=$item['id'];?>/10/" onsubmit="return false;" >
+                              <form action="/admin/acceptance_payments/set_status_acceptance_payment/<?=$item['id'];?>/10/" onsubmit="return false;" >
                                 <a href="javascript:void(0)" onclick="submit_form(this)" title="Оплачено">
                                   <span class="glyphicon glyphicon-ruble"></span> Оплачено
                                 </a>
@@ -330,7 +330,7 @@
                           <? if ($item['status_id'] < 10) {?>
                             <li class="divider"></li>
                             <li>
-                              <form action="/admin/acceptance_payments/_set_status_acceptance_payment/<?=$item['id'];?>/10/" method="POST" target="_self" enctype="multipart/form-data" onsubmit="return false;" >
+                              <form action="/admin/acceptance_payments/set_status_acceptance_payment/<?=$item['id'];?>/10/" method="POST" target="_self" enctype="multipart/form-data" onsubmit="return false;" >
                                 <input type="hidden" name="method_pay_cash" value="plus">
                                 <a href="javascript:void(0)" onclick="submit_form(this)" title="Оплачено">
                                   <span class="glyphicon glyphicon-ruble"></span> Оплачено ( + )
@@ -339,7 +339,7 @@
                             </li>
                             <li class="divider"></li>
                             <li>
-                              <form action="/admin/acceptance_payments/_set_status_acceptance_payment/<?=$item['id'];?>/10/" method="POST" target="_self" enctype="multipart/form-data" onsubmit="return false;" >
+                              <form action="/admin/acceptance_payments/set_status_acceptance_payment/<?=$item['id'];?>/10/" method="POST" target="_self" enctype="multipart/form-data" onsubmit="return false;" >
                                 <input type="hidden" name="method_pay_cash" value="minus">
                                 <a href="javascript:void(0)" onclick="submit_form(this)" title="Оплачено">
                                   <span class="glyphicon glyphicon-ruble"></span> Оплачено ( - )

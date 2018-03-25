@@ -351,7 +351,14 @@ class Acceptance_payments_admin extends CI_Component {
                 'title'    => 'Сохранить',
                 'type'     => 'ajax',
                 'reaction' => ''
-              )
+              ),
+              array(
+                'view'     => 'fields/submit',
+                'title'    => 'Подробнее',
+                'class'    => 'btn-default',
+                'href'     => '/admin/acceptance_payments/edit_acceptance_payment/'.$acceptance_payment['parent_id'].'/',
+                'type'     => ''
+              ),
             )
           )
         )
@@ -493,6 +500,9 @@ class Acceptance_payments_admin extends CI_Component {
     ), TRUE);
   }
   
+  /**
+  *  Объединение строк в отчете по бухгалтерии
+  */
   function edit_acceptancePaymentParent(){
     $id = (int)$this->input->post('id');
     $parent_id = (int)$this->input->post('parent_id');
@@ -615,7 +625,7 @@ class Acceptance_payments_admin extends CI_Component {
   /**
   * Смена статуса оплаты и акта приемки
   */
-  function _set_status_acceptance_payment($id, $status_id){
+  function set_status_acceptance_payment($id, $status_id){
     $item = $this->acceptance_payments_model->get_acceptance_payment(array('client_acceptance_payments.id'=>$id));
     if(!$item){
       show_error('Объект не найден');
@@ -716,6 +726,9 @@ class Acceptance_payments_admin extends CI_Component {
     send_answer(array('success' => array('function'=>'setAcceptancePaymentModal')));
   }
 
+  /**
+  * Отправка по email таблицы по бухгалтерии
+  */
   function send_acceptances_payment_email(){
     $message = $this->index(true,true);
 
