@@ -79,12 +79,14 @@ CREATE TABLE IF NOT EXISTS `pr_client_acceptance_statuses` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
-INSERT INTO `pr_client_acceptance_statuses` (`id`,`title`,`color`) VALUES 
-  (1,'Новый','rgb(217,237,247)'),
-  (2,'В обработке',''),
-  (3,'Отправлен по email',''),
-  (4,'Отправлено в бухгалтерию','rgb(254,244,217)'),
-  (5,'Оплачено','rgb(208,241,220)');
+INSERT INTO `pr_client_acceptance_statuses` (`id`, `title`, `color`) VALUES
+(1, 'Новый', '#d9edf7'),
+(2, 'В обработке', ''),
+(3, 'Отправлен по email', '#dadada'),
+(4, 'Отправлено в бухгалтерию', '#ffcece'),
+(5, 'Установлена дата оплаты', '#ffff99'),
+(6, 'Получение документа на оплату', '#ffe6cc'),
+(10, 'Оплачено', '#d0f1dc');
 
 -- Акты приемки
 CREATE TABLE IF NOT EXISTS `pr_client_acceptances` (

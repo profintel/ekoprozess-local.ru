@@ -260,7 +260,7 @@ class Acceptance_payments_admin extends CI_Component {
         'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'_edit_acceptance_payment_process/'.$acceptance_payment['id'].'/',
         'blocks' => array(
           array(
-            'title'   => 'Акт приемки',
+            'title'   => 'Акт приемки. <small style="color:'.$acceptance_payment['status_color'].'">Статус: ' . $acceptance_payment['status'] .'</small>',
             'fields'  => array(array(
               'view'      => 'fields/readonly_value',
               'title'     => '',
@@ -316,6 +316,13 @@ class Acceptance_payments_admin extends CI_Component {
                 'name'     => 'sale_percent',
                 'disabled' => ($acceptance_payment['status_id'] == 10 ? true : false),
                 'value'    => $acceptance_payment['sale_percent'],
+              ),
+              array(
+                'view'     => 'fields/'.($acceptance_payment['status_id'] < 10 ? 'checkbox' : 'hidden'),
+                'title'    => 'Получение документа на оплату:',
+                'id'       => 'status_doc_'.$acceptance_payment['id'],
+                'name'     => 'status_doc',
+                'disabled' => ($acceptance_payment['status_id'] == 10 ? true : false),
               ),
               array(
                 'view'     => 'fields/'.($acceptance_payment['status_id'] < 10 ? 'checkbox' : 'hidden'),
@@ -524,8 +531,24 @@ class Acceptance_payments_admin extends CI_Component {
       'date_payment'  => ($this->input->post('date_payment') ? date('Y-m-d H:i:s', strtotime($this->input->post('date_payment'))) : null),
       'method'       => htmlspecialchars(trim($this->input->post('method'))),
       'sale_percent' => (int)$this->input->post('sale_percent'),
-      'comment'      => htmlspecialchars(trim($this->input->post('comment'))),
+      'comment'      => htmlspecialchars(trim($this->input->post('comment')))
     );
+
+    // определяем статус
+
+    // меняем статус у строки оплаты если не оплачено и указана дата оплаты
+    if(!$this->input->post('pay') && $params['date_payment']){
+      $params['status_id'] = 5;
+    }
+    // меняем статус у строки оплаты если не оплачено и указан параметр Получение документа на оплату
+    if(!$this->input->post('pay') && $this->input->post('status_doc')){
+      $params['status_id'] = 6;
+    }
+    // меняем статус у строки оплаты если оплачено
+    if($this->input->post('pay')){
+      $params['status_id'] = 10;
+    }
+
     if($params['method'] != 'cash' && $params['sale_percent']){
       send_answer(array('errors' => array('При безналичном расчете скидка не предоставляется')));
     }
@@ -564,16 +587,6 @@ class Acceptance_payments_admin extends CI_Component {
       }
     }
 
-    // меняем статус у строки оплаты если оплачено
-    if($this->input->post('pay') && !$this->acceptance_payments_model->update_acceptance_payment($id, array('status_id' => 10))){
-      send_answer(array('errors' => array('Ошибка при изменении статуса')));
-    }
-
-    // меняем статус у строки оплаты если не оплачено и указана дата оплаты
-    if(!$this->input->post('pay') && $params['date_payment'] && !$this->acceptance_payments_model->update_acceptance_payment($id, array('status_id' => 5))){
-      send_answer(array('errors' => array('Ошибка при изменении статуса')));
-    }
-
     // акт приемки
     $acceptance = $this->acceptances_model->get_acceptance(array('pr_client_acceptances.id'=>$item['acceptance_id'],'pr_client_acceptances.client_id'=>$item['client_id'],'pr_client_acceptances.client_child_id'=>$item['client_child_id']));
     if($acceptance){
@@ -582,14 +595,11 @@ class Acceptance_payments_admin extends CI_Component {
         send_answer(array('errors' => array('Ошибка при изменении статуса акта приемки')));
       }
 
-      // меняем статус у акта приемки если оплачено
-      if($this->input->post('pay') && !$this->acceptances_model->update_acceptance($acceptance['id'], array('status_id' => 10))){
-        send_answer(array('errors' => array('Ошибка при изменении статуса')));
-      }
-
-      // меняем статус у акта приемки если не оплачено и указана дата оплаты
-      if(!$this->input->post('pay') && $params['date_payment'] && !$this->acceptances_model->update_acceptance($acceptance['id'], array('status_id' => 5))){
-        send_answer(array('errors' => array('Ошибка при изменении статуса')));
+      // меняем статус у акта приемки
+      if(!empty($params['status_id'])){
+        if(!$this->acceptances_model->update_acceptance($acceptance['id'], array('status_id' => $params['status_id']))){
+          send_answer(array('errors' => array('Ошибка при изменении статуса у акта приемки')));
+        }
       }
     }
     

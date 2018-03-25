@@ -118,11 +118,15 @@ class Acceptance_payments_model extends CI_Model {
       ) as sum,
       client_childs.title_full as client_child_title,
       clients.title_full as client_title, 
-      clients.admin_id as client_admin_id');
+      clients.admin_id as client_admin_id,
+      status.color as status_color,
+      status.title as status');
       $this->db->join('clients','clients.id = client_acceptance_payments.client_id','left');
       // данные по компании, если указан client_child_id
       $this->db->join('clients as client_childs','client_childs.id = client_acceptance_payments.client_child_id','left');
       $this->db->join('client_acceptance_payments as client_acceptance_payment_childs','client_acceptance_payments.id = client_acceptance_payment_childs.parent_id','left');
+      // данные по статусу акта
+      $this->db->join('client_acceptance_statuses as status','status.id = client_acceptance_payments.status_id','left');
     }
     $this->db->limit(1);
     $this->db->group_by('client_acceptance_payments.id');
