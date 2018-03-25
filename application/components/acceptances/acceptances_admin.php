@@ -1178,8 +1178,8 @@ class Acceptances_admin extends CI_Component {
       return true;
     }
 
-    // проверяем, если акт не в бухгалтерии, показыаем popup
-    $payment = $this->acceptance_payments_model->get_acceptance_payment(array('pr_client_acceptance_payments.acceptance_id'=>$item['id'],'pr_client_acceptance_payments.client_id'=>$item['client_id'],'pr_client_acceptance_payments.client_child_id'=>$item['client_child_id']));
+    // проверяем, если акт в бухгалтерии, показыаем popup
+    $payment = $this->acceptance_payments_model->get_acceptance_payment(array('pr_client_acceptance_payments.acceptance_id'=>$item['id'],'pr_client_acceptance_payments.client_id'=>$main_params['client_id'],'pr_client_acceptance_payments.client_child_id'=>$main_params['client_child_id']));
     if($payment){
       send_answer(array('confirm' => array(
         'message' => 'Перейти в раздел бухгалтерия?',
