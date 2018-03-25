@@ -456,6 +456,13 @@ class Acceptance_payments_admin extends CI_Component {
               ),
               array(
                 'view'     => 'fields/'.($acceptance_payment['status_id'] < 10 ? 'checkbox' : 'hidden'),
+                'title'    => 'Получение документа на оплату:',
+                'id'       => 'status_doc_'.$acceptance_payment['id'],
+                'name'     => 'status_doc',
+                'disabled' => ($acceptance_payment['status_id'] == 10 ? true : false),
+              ),
+              array(
+                'view'     => 'fields/'.($acceptance_payment['status_id'] < 10 ? 'checkbox' : 'hidden'),
                 'title'    => 'Оплачено:',
                 'id'       => 'pay'.$acceptance_payment['id'],
                 'name'     => 'pay',
