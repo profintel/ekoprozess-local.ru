@@ -502,8 +502,8 @@ class Acceptances_admin extends CI_Component {
   }
 
   /**
-   *  Создание акта приемки по своим клиентам
-  **/  
+  *  Создание акта приемки по своим клиентам
+  */  
   function create_acceptance(){
     $client_id = ($this->uri->getParam('client_id') ? mysql_prepare($this->uri->getParam('client_id')) : 0);
     $productsFields = $this->renderProductsFields();

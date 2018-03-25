@@ -269,6 +269,15 @@ class Acceptance_payments_admin extends CI_Component {
             'aria-expanded' => true
           ),
           array(
+            'title'   => 'Примечания',
+            'fields'  => array(array(
+              'view'     => 'fields/textarea',
+              'title'    => 'Примечания',
+              'name'     => 'comment_parent',
+              'value'    => $acceptance_payment['comment_parent'],
+            )),
+          ),
+          array(
             'title'   => 'Параметры оплаты',
             'fields'   => array(
               array(
@@ -522,6 +531,14 @@ class Acceptance_payments_admin extends CI_Component {
     }
     
     if (!$this->acceptance_payments_model->update_acceptance_payment($id, $params)) {
+      send_answer(array('errors' => array('Ошибка при сохранении изменений')));
+    }
+    
+    //  если указан родительский комментарий, сохраняем
+    if ($this->input->post('comment_parent') && 
+      !$this->acceptance_payments_model->update_acceptance_payment($item['parent_id'], array(
+        'comment' => htmlspecialchars(trim($this->input->post('comment_parent'))),
+      ))) {
       send_answer(array('errors' => array('Ошибка при сохранении изменений')));
     }
 

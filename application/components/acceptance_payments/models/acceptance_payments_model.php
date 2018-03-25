@@ -90,7 +90,10 @@ class Acceptance_payments_model extends CI_Model {
   }
 
   function get_acceptance_payment($where = array(), $full = true) {
-    $this->db->select('client_acceptance_payments.*');
+    $this->db->select('
+      client_acceptance_payments.*,
+      client_acceptance_payment_parent.comment as comment_parent');
+    $this->db->join('client_acceptance_payments as client_acceptance_payment_parent','client_acceptance_payments.parent_id = client_acceptance_payment_parent.id','left');
     if($full){
       $this->db->select('
       SUM(client_acceptance_payment_childs.gross) as gross,
