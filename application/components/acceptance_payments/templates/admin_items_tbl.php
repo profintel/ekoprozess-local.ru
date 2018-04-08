@@ -82,7 +82,7 @@
                             </form>
                           </li>
                         <? } ?>
-                        <? if ($parent_items['cash'][0]['status_id'] != 6 && $parent_items['card'][0]['status_id'] < 10) {?>
+                        <? if ($parent_items['card'][0]['status_id'] != 6 && $parent_items['card'][0]['status_id'] < 10) {?>
                           <li class="divider"></li>
                           <li>
                             <form action="/admin/acceptance_payments/set_status_acceptance_payment/<?=$parent_items['card'][0]['id'];?>/6/" onsubmit="return false;" >
