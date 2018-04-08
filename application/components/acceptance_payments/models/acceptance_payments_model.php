@@ -13,19 +13,18 @@ class Acceptance_payments_model extends CI_Model {
     $this->db->select('
       client_acceptance_payments.*,
       client_acceptance_payment_parent.comment,
-      (SUM(client_acceptance_payment_childs.price * client_acceptance_payment_childs.net - pr_client_acceptance_payments.add_expenses)) as sumAcceptance,
-      (SUM(client_acceptance_payment_childs.price * client_acceptance_payment_childs.net) - pr_client_acceptance_payments.add_expenses) as sumAcceptance,
+      (SUM(client_acceptance_payment_childs.price * client_acceptance_payment_childs.net + pr_client_acceptance_payments.add_expenses)) as sumAcceptance,
       (
         (
           SUM(client_acceptance_payment_childs.price * client_acceptance_payment_childs.net)    
-            - 
+            + 
           pr_client_acceptance_payments.add_expenses
         )
       - 
         (
           (
             SUM(client_acceptance_payment_childs.price * client_acceptance_payment_childs.net)       
-              - 
+              + 
             pr_client_acceptance_payments.add_expenses
           )
           *
@@ -98,18 +97,18 @@ class Acceptance_payments_model extends CI_Model {
       $this->db->select('
       SUM(client_acceptance_payment_childs.gross) as gross,
       SUM(client_acceptance_payment_childs.net) as net,
-      (SUM(client_acceptance_payment_childs.price * client_acceptance_payment_childs.net) - pr_client_acceptance_payments.add_expenses) as sumAcceptance,
+      (SUM(client_acceptance_payment_childs.price * client_acceptance_payment_childs.net) + pr_client_acceptance_payments.add_expenses) as sumAcceptance,
       (
         (
           SUM(client_acceptance_payment_childs.price * client_acceptance_payment_childs.net)    
-            - 
+            + 
           pr_client_acceptance_payments.add_expenses
         )
       - 
         (
           (
             SUM(client_acceptance_payment_childs.price * client_acceptance_payment_childs.net)       
-              - 
+              + 
             pr_client_acceptance_payments.add_expenses
           )
           *

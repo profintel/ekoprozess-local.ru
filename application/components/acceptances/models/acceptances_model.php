@@ -92,7 +92,7 @@ class Acceptances_model extends CI_Model {
           $item['gross'] += $child['gross'];
           $item['net'] += $child['net'];
           $item['price'] += ($child['price']*$child['net']);
-          $item['sum'] = $item['price']-$item['add_expenses'];
+          $item['sum'] = $item['price']+$item['add_expenses'];
         }
         unset($child);
       }
@@ -135,7 +135,7 @@ class Acceptances_model extends CI_Model {
   }
   
   function get_acceptances_total($where = '', $product_id = array()) {
-    $this->db->select('SUM(client_acceptance_childs.price*client_acceptance_childs.net)-SUM(pr_client_acceptances.add_expenses) as sum_total');
+    $this->db->select('SUM(client_acceptance_childs.price*client_acceptance_childs.net)+SUM(pr_client_acceptances.add_expenses) as sum_total');
     $this->db->select('SUM(client_acceptance_childs.price*client_acceptance_childs.net) as sum');
     $this->db->select('SUM(pr_client_acceptances.add_expenses) as add_expenses');
     $this->db->select('SUM(client_acceptance_childs.gross) as gross');
@@ -210,7 +210,7 @@ class Acceptances_model extends CI_Model {
         $item['gross'] += $child['gross'];
         $item['net'] += $child['net'];
         $item['price'] += ($child['price']*$child['net']);
-        $item['sum'] = $item['price']-$item['add_expenses'];
+        $item['sum'] = $item['price']+$item['add_expenses'];
       }
       unset($child);
     }

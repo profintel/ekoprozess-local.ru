@@ -1,12 +1,3 @@
-<? 
-  $allSum=0-$item['add_expenses'];
-  $gross=$net=0;
-  foreach ($item['childs'] as $key => $child) {
-    $allSum+=$child['net']*$child['price'];
-    $gross+=$child['gross'];
-    $net+=$child['net'];
-  }
-?>
 <div style="background-color:#ffffff; padding:20px;">
   <h3 style="text-align:center;">Акт приемки</h3>
   <h4 style="text-align:right;"><?=rus_date($item['date'],'d m Y г.');?></h4>
@@ -35,7 +26,7 @@
     </tr>
     <tr>
       <th align="left">Вес брутто/нетто, кг</th>
-      <td><?=$gross;?> / <?=$net;?></td>
+      <td><?=$item['gross'];?> / <?=$item['net'];?></td>
     </tr>
   </table>
   <br/>
@@ -72,7 +63,7 @@
     <?}?>
     <tr>
       <th align="left" colspan="8">Итого к оплате</th>
-      <td colspan="" align="center"><?=number_format($allSum,2,'.','');?></td>
+      <td colspan="" align="center"><?=number_format($item['sum'],2,'.','');?></td>
     </tr>
   </table>
 </div>

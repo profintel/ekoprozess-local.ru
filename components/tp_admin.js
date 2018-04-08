@@ -1,4 +1,4 @@
-/*** Generated 01.03.2018 22:55:19 ***/
+/*** Generated 08.04.2018 19:06:14 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -4645,20 +4645,22 @@ function updateAcceptanceSumProduct(){
   var form            = $(document).find('form'),
       formBlockItems  = form.find('.form_block'),
       containerAllSum = form.find('.all_sum'),
-      add_expenses    = form.find('.add_expenses').val(),
+      add_expenses    = parseFloat(form.find('.add_expenses').val()),
       allSum  = 0;
   formBlockItems.each(function(key,item){
     var containerSum  = $(item).find('.sum_product'),
-        count         = $(item).find('.product_field_count').val(),
-        price         = $(item).find('.product_field_price').val(),
-        sum           = (count-0)*(price-0);
+        count         = parseFloat($(item).find('.product_field_count').val()),
+        price         = parseFloat($(item).find('.product_field_price').val()),
+        sum           = count*price;
     if(containerSum.length){
       containerSum.text($.number(sum,2,'.'));
-      allSum = allSum+(sum-0);
+      allSum = allSum+sum;
     }
   })
   //дополнительную стоимость вычитаем из общей суммы
-  allSum = allSum - add_expenses;
+  if(add_expenses){
+    allSum = allSum + add_expenses;
+  }
 
   containerAllSum.text($.number(allSum,2,'.'));
 }

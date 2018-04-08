@@ -30,6 +30,7 @@
           <?=(isset($vars['maxlength']) ? 'maxlength="'. $vars['maxlength'] .'"' : '');?>
           <?=(isset($vars['value']) && isset($vars['value'][$vars['name'] .'_'. $language['name']]) ? "value='". $vars['value'][$vars['name'] .'_'. $language['name']] ."'" : '');?>
           <?=(isset($vars['disabled']) && $vars['disabled'] ? 'disabled="disabled"' : '');?>
+          <?=(isset($vars['onclick']) && $vars['onclick'] ? 'onclick="'.$vars['onclick'].'"' : '');?>
           <?=(isset($vars['onkeyup']) && $vars['onkeyup'] ? 'onkeyup="'.$vars['onkeyup'].'"' : '');?>
         />
       <? } ?>
@@ -44,6 +45,7 @@
         <?=(isset($vars['value']) ? "value='". $vars['value'] ."'" : '');?>
         <?=(isset($vars['autofocus']) && $vars['autofocus'] ? 'autofocus="autofocus"' : '');?>
         <?=(isset($vars['disabled']) && $vars['disabled'] ? 'disabled="disabled"' : '');?>
+        <?=(isset($vars['onclick']) && $vars['onclick'] ? 'onclick="'.$vars['onclick'].'"' : '');?>
         <?=(isset($vars['onkeyup']) && $vars['onkeyup'] ? 'onkeyup="'.$vars['onkeyup'].'"' : '');?>
       />
     <? } ?>

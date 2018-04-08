@@ -810,17 +810,10 @@ class Acceptances_admin extends CI_Component {
       }
     }
 
-    $all_sum = 0;
     $productsFields = $this->renderProductsFields('array',$item['childs']);
     foreach ($productsFields as $key => $productField) {
       $blocks[] = $productField;
-      foreach($productField['fields'] as $product_field){
-        if(isset($product_field['class']) && $product_field['class'] == 'sum_product' && isset($product_field['num'])){
-          $all_sum += (float)$product_field['num'];
-        }
-      }
     }
-    $all_sum -= $item['add_expenses'];
     $blocks[] = array(
       'title'   => '&nbsp;',
       'collapse'=> false,
@@ -829,8 +822,9 @@ class Acceptances_admin extends CI_Component {
           'view'     => 'fields/text',
           'title'    => 'Дополнительные расходы:',
           'name'     => 'add_expenses',
-          'value'    => $item['add_expenses'],
+          'value'    => ($item['add_expenses'] ?: ''),
           'class'    => 'add_expenses number',
+          'onclick'  => "($(this).val() ? '' : $(this).val('-'));",
           'onkeyup'  => 'updateAcceptanceSumProduct()',
         )
       )
@@ -842,7 +836,7 @@ class Acceptances_admin extends CI_Component {
         array(
           'view'  => 'fields/readonly',
           'title' => 'ИТОГО:',
-          'value' => '<div class="all_sum">'.number_format($all_sum,2,'.',' ').'</div>',
+          'value' => '<div class="all_sum">'.number_format($item['sum'],2,'.',' ').'</div>',
         ),
         array(
           'view'     => 'fields/textarea',
