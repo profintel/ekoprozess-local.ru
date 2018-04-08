@@ -254,14 +254,19 @@ a.glyphicon:focus{
   font-size: 12px;
 }
 .dropdown-menu > li a {
+  display: flex;
+  align-items: flex-start;
   border-radius: 3px;
   color: inherit;
   font-weight: normal;
-  line-height: 25px;
+  line-height: 1.4;
   margin: 4px;
   padding: 5px 15px;
   text-align: left;
   text-decoration: none;
+}
+.dropdown-menu > li a .glyphicon {
+  margin-right: 4px;
 }
 .item-list-heading-title {
   font-size: 16px;

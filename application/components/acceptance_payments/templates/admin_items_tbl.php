@@ -82,6 +82,16 @@
                             </form>
                           </li>
                         <? } ?>
+                        <? if ($parent_items['cash'][0]['status_id'] != 6 && $parent_items['card'][0]['status_id'] < 10) {?>
+                          <li class="divider"></li>
+                          <li>
+                            <form action="/admin/acceptance_payments/set_status_acceptance_payment/<?=$parent_items['card'][0]['id'];?>/6/" onsubmit="return false;" >
+                              <a href="javascript:void(0)" onclick="submit_form(this)" title="Получение документа на оплату">
+                                <span class="glyphicon glyphicon-file"></span> Получение документа на оплату
+                              </a>
+                            </form>
+                          </li>
+                        <? } ?>
                         <li class="divider"></li>
                         <li>
                           <a href="/admin/acceptances/edit_acceptance/<?=$parent_items['card'][0]['acceptance_id'];?>/" target="_edit_acceptance_<?=$parent_items['card'][0]['acceptance_id'];?>" title="Акт приемки">
@@ -162,6 +172,16 @@
                               <input type="hidden" name="method_pay_cash" value="minus">
                               <a href="javascript:void(0)" onclick="submit_form(this)" title="Оплачено">
                                 <span class="glyphicon glyphicon-ruble"></span> Оплачено ( - )
+                              </a>
+                            </form>
+                          </li>
+                        <? } ?>
+                        <? if ($parent_items['cash'][0]['status_id'] != 6 && $parent_items['cash'][0]['status_id'] < 10) {?>
+                          <li class="divider"></li>
+                          <li>
+                            <form action="/admin/acceptance_payments/set_status_acceptance_payment/<?=$parent_items['cash'][0]['id'];?>/6/" onsubmit="return false;" >
+                              <a href="javascript:void(0)" onclick="submit_form(this)" title="Получение документа на оплату">
+                                <span class="glyphicon glyphicon-file"></span> Получение документа на оплату
                               </a>
                             </form>
                           </li>
