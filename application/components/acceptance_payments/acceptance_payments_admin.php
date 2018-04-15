@@ -621,7 +621,7 @@ class Acceptance_payments_admin extends CI_Component {
     }
     
     if($this->input->post('modal')){
-      send_answer(array('success' => array('function'=>'setAcceptancePaymentModal','item'=>$item)));
+      send_answer(array('success' => array('function'=>'setAcceptancePaymentModal')));
     }
     if($params['method'] == 'cash' && $params['sale_percent']){
       send_answer(array('success' => array('function'=>'setAcceptancePaymentSum','item'=>$item)));
@@ -681,7 +681,7 @@ class Acceptance_payments_admin extends CI_Component {
       }
     }
 
-    send_answer(array('success' => array('function'=>'setAcceptancePaymentModal','item'=>$item)));
+    send_answer(array('success' => array('function'=>'setAcceptancePaymentModal')));
   }
 
   /**

@@ -68,8 +68,8 @@ $(function() {
 * После измененеия параметров оплаты в модальном окне
 * перерендерим таблицу с отчетом
 */
-function setAcceptancePaymentModal(context,answer) {
-  console.log('setAcceptancePaymentModal');
+function setAcceptancePaymentModal(context) {
+  // console.log('setAcceptancePaymentModal');
   $('#acceptancePaymentEditModal').modal('hide');
   $('#btnFormAcceptance_payments_report').click();
 }

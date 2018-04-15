@@ -1,4 +1,4 @@
-/*** Generated 08.04.2018 20:11:00 ***/
+/*** Generated 15.04.2018 22:13:59 ***/
 
 /*** FILE /adm/js/_jquery-1.11.2.min.js ***/
 
@@ -4895,8 +4895,8 @@ $(function() {
 * После измененеия параметров оплаты в модальном окне
 * перерендерим таблицу с отчетом
 */
-function setAcceptancePaymentModal(context,answer) {
-  console.log('setAcceptancePaymentModal');
+function setAcceptancePaymentModal(context) {
+  // console.log('setAcceptancePaymentModal');
   $('#acceptancePaymentEditModal').modal('hide');
   $('#btnFormAcceptance_payments_report').click();
 }
