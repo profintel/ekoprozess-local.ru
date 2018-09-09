@@ -426,8 +426,9 @@ class Acceptances_admin extends CI_Component {
         'name'     => 'weight_defect[]',
         'value'    => ($item ? $item['weight_defect'] : ''),
         'class'    => 'number',
-        'disabled' => ($item && $item['store_coming_id'] ? true : false),
+        // 'disabled' => ($item && $item['store_coming_id'] ? true : false),
         'form_group_class' => 'form_group_product_field',
+        'onkeyup' => 'updateComingNet(this);updateAcceptanceSumProduct();',
       ),
       array(
         'view'     => 'fields/text',
@@ -447,7 +448,7 @@ class Acceptances_admin extends CI_Component {
         'value'     => ($item ? $item['net'] : ''),
         'onkeyup'   => 'updateAcceptanceSumProduct()',
         'class'     => 'product_field_count number',
-        'disabled' => ($item && $item['store_coming_id'] ? true : false),
+        // 'disabled' => ($item && $item['store_coming_id'] ? true : false),
         'form_group_class' => 'form_group_product_field',
       ),
       array(

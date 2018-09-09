@@ -263,14 +263,14 @@ class Store_admin extends CI_Component {
   /**
   * Добавление нескольких видов вторсырья
   */
-  function renderProductFields($return_type = 'array', $items = array(), $section = '', $type_id = 1) {
+  function renderProductFields($return_type = 'array', $items = array(), $section = '', $type_id = 1, $acceptance = array()) {
     $result = array();
     if ($items) {
       foreach ($items as $key => $item) {
-        $result[] = $this->_renderProductFields(($key==0?true:false), $item, $section, $type_id);
+        $result[] = $this->_renderProductFields(($key==0?true:false), $item, $section, $type_id, $acceptance);
       }
     } else {
-      $result[] = $this->_renderProductFields(($return_type=='array'?true:false),false,$section,$type_id);
+      $result[] = $this->_renderProductFields(($return_type=='array'?true:false),false,$section,$type_id, $acceptance);
     }
     $result[] = array(
       'title'   => '',
@@ -310,7 +310,24 @@ class Store_admin extends CI_Component {
   * $label - указывает нади ли формировать заголовок
   * $item - массив с данными по вторсырью
   */ 
-  function _renderProductFields($label = true, $item = array(), $section = '', $type_id = 1) {
+  function _renderProductFields($label = true, $item = array(), $section = '', $type_id = 1, $acceptance) {
+    $errors = array(
+      'weight_defect' => false,
+      'net'           => false,
+    );
+
+    // проверяем для прихода, если в акте другой % засора, подсвечиваем это поле
+    if(isset($acceptance['childs'])){
+      foreach ($acceptance['childs'] as $key => $acceptance_item) {
+        if($item['id'] == $acceptance_item['store_coming_id'] && $item['weight_defect'] != $acceptance_item['weight_defect']){
+          $errors['weight_defect'] = 'В акте приемки % засора отличается';
+        }
+        if($item['id'] == $acceptance_item['store_coming_id'] && $item['net'] != $acceptance_item['net']){
+          $errors['net'] = 'В акте приемки нетто отличается';
+        }
+      }
+    }
+
     $fields = array(
       array(
         'view'    => 'fields/hidden',
@@ -358,8 +375,9 @@ class Store_admin extends CI_Component {
         'name'  => 'weight_defect[]',
         'value' => ($item && $section == 'coming' ? $item['weight_defect'] : ''),
         'class' => 'number',
-        'form_group_class' => 'form_group_product_field',
+        'form_group_class' => 'form_group_product_field '.($errors['weight_defect'] ? ' has-warning el-tooltip' : ''),
         'onkeyup' => 'updateComingNet(this);',
+        'form_group_title' => $errors['weight_defect'],
       ),
       array(
         'view'     => 'fields/text',
@@ -369,7 +387,8 @@ class Store_admin extends CI_Component {
         'value'    => ($item ? $item['net'] : ''),
         'disabled' => ($type_id == 2 && $item && $item['active'] ? true : false),
         'class'    => 'number',
-        'form_group_class' => 'form_group_product_field'.($type_id == 2 ? ' form_group_w20' : ''),
+        'form_group_class' => 'form_group_product_field'.($type_id == 2 ? ' form_group_w20' : '').($errors['net'] ? ' has-warning el-tooltip' : ''),
+        'form_group_title' => $errors['net'],
       ),
       array(
         'view'  => 'fields/text',
@@ -816,7 +835,7 @@ class Store_admin extends CI_Component {
       )
     ));
 
-    $productsFields = $this->renderProductFields('array', $item['childs'], 'coming', $type['id']);
+    $productsFields = $this->renderProductFields('array', $item['childs'], 'coming', $type['id'], $item['acceptance']);
     foreach ($productsFields as $key => $productField) {
       $blocks[] = $productField;
     }
