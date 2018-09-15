@@ -1,4 +1,4 @@
-<div class="form-group <?=(isset($vars['form_group_class']) ? $vars['form_group_class'] : '');?>">
+<div class="form-group <?=(isset($vars['form_group_class']) ? $vars['form_group_class'] : '');?>" title="<?=(isset($vars['form_group_title']) ? $vars['form_group_title'] : '');?>">
   <div class="col-sm-2">
     <? if (isset($vars['title']) && $vars['title']) { ?>
       <label class="control-label" for="<?=(isset($vars['id']) ? $vars['id'] : (isset($vars['name']) ? $vars['name'] : ''));?>" >
