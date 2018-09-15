@@ -243,7 +243,7 @@ class Store_model extends CI_Model {
           }
         }
         // акт приемки
-        $item['acceptance'] = $this->acceptances_model->get_acceptance(array('client_acceptances.store_coming_id'=>$item['id']),false); 
+        $item['acceptance'] = $this->acceptances_model->get_acceptance(array('client_acceptances.store_coming_id'=>$item['id'])); 
       }
 
       if($item['parent_id']){
