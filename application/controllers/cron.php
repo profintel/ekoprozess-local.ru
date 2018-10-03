@@ -33,6 +33,9 @@ class Cron extends PR_Controller {
       LIMIT 10
       ')->result_array();
 
+    $expenditure_exc = array();
+    //приходы которые исключаем, если по ним остаток = 0
+    $movement_exc = array();
     foreach ($expenditures as $key => $expenditure) {
       // список приходов клиента по продукту с остатком > 0  
       $movement_products = $this->db->query('
@@ -86,37 +89,75 @@ class Cron extends PR_Controller {
           DATE_FORMAT(pr_movement.date,"%Y-%m-%d") <= "' . date('Y-m-d', strtotime($expenditure['date'])) . '"  
         GROUP BY pr_movement.coming_id 
         -- HAVING (sum_rest > 0) 
-        ORDER BY pr_movement.`date`, pr_movement.`order`, pr_movement.id
+        ORDER BY DATE_FORMAT(pr_movement.`date`,"%Y-%m-%d"), pr_movement.`order`, pr_movement.id
 
       ')->result_array();
 
 
-      echo '<br><br>';
+      echo '<br><br> expenditure <br><br>';
       // echo $this->db->last_query() . '<br><br>';
       var_dump($expenditure['id']);
       var_dump($expenditure['expenditure']);
       var_dump($expenditure['date']);
       echo '<br><br>';
-      var_dump($movement_products);
+      // var_dump($movement_products);
 
       foreach ($movement_products as $movement){
+        $movement_date_prev = null;
+        if(in_array($movement['id'], $movement_exc)) continue;
+        
         // считаем остаток на момент следующего прихода
         // чтобы понять из текущего прихода в этот расход что-то идет или нет
         $sum_exp = $this->db->query('
             SELECT SUM(expenditure) as `sum` FROM pr_store_movement_products pr_movement3
             WHERE 
-            DATE_FORMAT(pr_movement3.date,"%Y-%m-%d") >= "'.date('Y-m-d',strtotime($movement['date'])).'" AND 
+            DATE_FORMAT(pr_movement3.date,"%Y-%m-%d") >= "'.date('Y-m-d',strtotime((!empty($movement_date_prev) ? $movement_date_prev : $movement['date']))).'" AND 
             DATE_FORMAT(pr_movement3.date,"%Y-%m-%d") <= 
             "'.($movement['date2'] ? date('Y-m-d',strtotime($movement['date2'])) : date('Y-m-d',strtotime($expenditure['date'])) ).'" AND
             '.($movement['date2'] ? 'pr_movement3.id != '. $movement['id2'] . ' AND ' : '').'
             pr_movement3.id != '. $expenditure['id'] .' AND 
+            ' . ($expenditure_exc ? 'pr_movement3.id NOT IN ('. implode(',', $expenditure_exc) .') AND ' : '' ) . '
             pr_movement3.client_id = ' . $expenditure['client_id'] . ' AND 
             pr_movement3.store_type_id = ' . $expenditure['store_type_id'] . ' AND 
             pr_movement3.product_id = ' . $expenditure['product_id'] . ' AND
             pr_movement3.expenditure IS NOT NULL
           ')->row()->sum;
-echo '<br><br>';
-        var_dump($movement['rest'] - $sum_exp);
+
+        if($movement['date2']){
+          $movement_date_prev = $movement['date2'];
+        } else {
+          $movement_date_prev = $movement['date'];
+        }
+
+        $rest_commin = $movement['rest'] - $sum_exp;
+        if($rest_commin > 0){
+          // если остаток больше 0 определяем % засора для текущего расхода
+          if($rest_commin > $expenditure['expenditure']){
+            // записываем процент засора и нетто
+
+            // смотрим остаток по приходу
+            $rest_commin = $rest_commin - $expenditure['expenditure'];
+            $expenditure_exc[] = $expenditure['id'];
+          } else {
+            // высчитываем % засора для части расхода
+
+
+            // оставшаяся часть расхода
+            $expenditure['expenditure'] = $expenditure['expenditure'] - $rest_commin;
+            $rest_commin = 0;
+          }
+          
+        } 
+
+        if($rest_commin === 0) {
+          $movement_exc[] = $movement['id'];
+        }
+        
+
+        echo 'movement<br><br>';
+        var_dump($movement);
+        echo '<br><br>'.$this->db->last_query() . '<br><br>';
+        var_dump($movement['rest'], $sum_exp, $rest_commin);
         echo '<br><br>';
 
       
