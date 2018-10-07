@@ -547,7 +547,7 @@ class Acceptance_payments_admin extends CI_Component {
     $params = array(
       'date_payment'  => ($this->input->post('date_payment') ? date('Y-m-d H:i:s', strtotime($this->input->post('date_payment'))) : null),
       'method'       => htmlspecialchars(trim($this->input->post('method'))),
-      'sale_percent' => (int)$this->input->post('sale_percent'),
+      'sale_percent' => (float)str_replace(',', '.', $this->input->post('sale_percent')),
       'comment'      => htmlspecialchars(trim($this->input->post('comment')))
     );
 

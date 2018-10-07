@@ -356,7 +356,7 @@ class Store_admin extends CI_Component {
         'disabled' => ($item && $item['active'] ? true : false),
         'class'    => 'number',
         'form_group_class' => 'form_group_product_field',
-        'onkeyup' => 'updateComingNet(this);',
+        'onchange' => 'updateComingNet(this);',
       ),
       array(
         'view'  => 'fields/'.($type_id == 1 && $section == 'coming' ? 'text' : 'hidden'),
@@ -366,7 +366,7 @@ class Store_admin extends CI_Component {
         'value' => ($item && $section == 'coming' ? $item['weight_pack'] : ''),
         'class' => 'number',
         'form_group_class' => 'form_group_product_field',
-        'onkeyup' => 'updateComingNet(this);',
+        'onchange' => 'updateComingNet(this);',
       ),
       array(
         'view'  => 'fields/'.($type_id == 1 && $section == 'coming' ? 'text' : 'hidden'),
@@ -376,7 +376,7 @@ class Store_admin extends CI_Component {
         'value' => ($item && $section == 'coming' ? $item['weight_defect'] : ''),
         'class' => 'number',
         'form_group_class' => 'form_group_product_field '.($errors['weight_defect'] ? ' has-warning el-tooltip' : ''),
-        'onkeyup' => 'updateComingNet(this);',
+        'onchange' => 'updateComingNet(this);',
         'form_group_title' => $errors['weight_defect'],
       ),
       array(
@@ -739,8 +739,8 @@ class Store_admin extends CI_Component {
   }
 
   /**
-   *  Редактирование прихода.
-  **/
+  *  Редактирование прихода.
+  */
   function edit_coming($type_id, $id){
     $item = $this->store_model->get_coming(array('store_comings.id'=>$id));
     if(!$item){

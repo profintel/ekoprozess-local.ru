@@ -11,7 +11,7 @@ class Acceptances_admin extends CI_Component {
     $this->load->model('store/models/store_model');
   }
   
-  /** 
+  /**
   * Просмотр списка актов приемки по своим клиентам
   */
   function index($render_table = false) {
@@ -48,7 +48,7 @@ class Acceptances_admin extends CI_Component {
       'form' => $this->view->render_form(array(
         'method' => 'GET',
         'id'     => 'acceptances_report',
-        'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'?ajax=1' ,        
+        'action' => $this->lang_prefix .'/admin'. $this->params['path'] .'?ajax=1',
         'enctype' => '',
         'blocks' => array(
           array(
@@ -76,14 +76,14 @@ class Acceptances_admin extends CI_Component {
                 'title'       => 'Дата приемки (от):',
                 'name'        => 'date_start',
                 'value'       => ($get_params['date_start']? date('d.m.Y',strtotime($get_params['date_start'])) : ''),
-                'onchange1'    => "submit_form(this, handle_ajaxResultAllData);",
+                'onchange1'   => "submit_form(this, handle_ajaxResultAllData);",
               ),
               array(
                 'view'        => 'fields/date',
                 'title'       => 'Дата приемки (до):',
                 'name'        => 'date_end',
                 'value'       => ($get_params['date_end']? date('d.m.Y',strtotime($get_params['date_end'])) : ''),
-                'onchange1'    => "submit_form(this, handle_ajaxResultAllData);",
+                'onchange1'   => "submit_form(this, handle_ajaxResultAllData);",
               ),
               array(
                 'view'       => 'fields/select',
@@ -428,7 +428,7 @@ class Acceptances_admin extends CI_Component {
         'class'    => 'number',
         // 'disabled' => ($item && $item['store_coming_id'] ? true : false),
         'form_group_class' => 'form_group_product_field',
-        'onkeyup' => 'updateComingNet(this);updateAcceptanceSumProduct();',
+        'onchange' => 'updateComingNet(this);updateAcceptanceSumProduct();',
       ),
       array(
         'view'     => 'fields/text',
@@ -446,7 +446,7 @@ class Acceptances_admin extends CI_Component {
         'title'     => ($label ? 'Нетто, (кг)' : ''),
         'name'      => 'net[]',
         'value'     => ($item ? $item['net'] : ''),
-        'onkeyup'   => 'updateAcceptanceSumProduct()',
+        'onchange'   => 'updateAcceptanceSumProduct()',
         'class'     => 'product_field_count number',
         // 'disabled' => ($item && $item['store_coming_id'] ? true : false),
         'form_group_class' => 'form_group_product_field',
@@ -457,7 +457,7 @@ class Acceptances_admin extends CI_Component {
         'title'     => ($label ? 'Цена, (руб.)' : ''),
         'name'      => 'price[]',
         'value'     => ($item ? $item['price'] : ''),
-        'onkeyup'   => 'updateAcceptanceSumProduct()',
+        'onchange'   => 'updateAcceptanceSumProduct()',
         'class'     => 'product_field_price number_float',
         'form_group_class' => 'form_group_product_field',
       ),
@@ -990,7 +990,7 @@ class Acceptances_admin extends CI_Component {
         'product_id'    => array(),
         'gross'         => array(),
         'weight_pack'   => array(),
-        'weight_defect' => array(),
+        // 'weight_defect' => array(),
         'cnt_places'    => array(),
       );
       foreach ($store_coming['childs'] as $key => $child) {
@@ -1005,9 +1005,9 @@ class Acceptances_admin extends CI_Component {
         $params_products['product_id'][]     = $child['product_id'];
         $params_products['gross'][]          = $child['gross'];
         $params_products['weight_pack'][]    = $child['weight_pack'];
-        $params_products['weight_defect'][]  = $child['weight_defect'];
+        // $params_products['weight_defect'][]  = $child['weight_defect'];
         $params_products['cnt_places'][]     = $child['cnt_places'];
-        $params_products['net'][]            = ($child['net'] ? $child['net'] : round($child['gross'] - $child['weight_pack'] - $child['gross']*$child['weight_defect']/100));
+        // $params_products['net'][]            = ($child['net'] ? $child['net'] : round($child['gross'] - $child['weight_pack'] - $child['gross']*$child['weight_defect']/100));
         $params_products['order'][]          = $child['order'];
       }
     }
