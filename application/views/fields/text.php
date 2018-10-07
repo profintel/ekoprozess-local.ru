@@ -32,6 +32,7 @@
           <?=(isset($vars['disabled']) && $vars['disabled'] ? 'disabled="disabled"' : '');?>
           <?=(isset($vars['onclick']) && $vars['onclick'] ? 'onclick="'.$vars['onclick'].'"' : '');?>
           <?=(isset($vars['onkeyup']) && $vars['onkeyup'] ? 'onkeyup="'.$vars['onkeyup'].'"' : '');?>
+          <?=(isset($vars['onchange']) && $vars['onchange'] ? 'onchange="'.$vars['onchange'].'"' : '');?>
         />
       <? } ?>
     <? } else { ?>
@@ -47,6 +48,7 @@
         <?=(isset($vars['disabled']) && $vars['disabled'] ? 'disabled="disabled"' : '');?>
         <?=(isset($vars['onclick']) && $vars['onclick'] ? 'onclick="'.$vars['onclick'].'"' : '');?>
         <?=(isset($vars['onkeyup']) && $vars['onkeyup'] ? 'onkeyup="'.$vars['onkeyup'].'"' : '');?>
+        <?=(isset($vars['onchange']) && $vars['onchange'] ? 'onchange="'.$vars['onchange'].'"' : '');?>
       />
     <? } ?>
     
