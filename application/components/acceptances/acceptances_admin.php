@@ -990,7 +990,7 @@ class Acceptances_admin extends CI_Component {
         'product_id'    => array(),
         'gross'         => array(),
         'weight_pack'   => array(),
-        // 'weight_defect' => array(),
+        'weight_defect' => array(),
         'cnt_places'    => array(),
       );
       foreach ($store_coming['childs'] as $key => $child) {
@@ -1005,9 +1005,9 @@ class Acceptances_admin extends CI_Component {
         $params_products['product_id'][]     = $child['product_id'];
         $params_products['gross'][]          = $child['gross'];
         $params_products['weight_pack'][]    = $child['weight_pack'];
-        // $params_products['weight_defect'][]  = $child['weight_defect'];
+        $params_products['weight_defect'][]  = $child['weight_defect'];
         $params_products['cnt_places'][]     = $child['cnt_places'];
-        // $params_products['net'][]            = ($child['net'] ? $child['net'] : round($child['gross'] - $child['weight_pack'] - $child['gross']*$child['weight_defect']/100));
+        $params_products['net'][]            = ($child['net'] ? $child['net'] : round($child['gross'] - $child['weight_pack'] - $child['gross']*$child['weight_defect']/100));
         $params_products['order'][]          = $child['order'];
       }
     }
