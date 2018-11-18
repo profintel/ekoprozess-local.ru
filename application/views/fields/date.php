@@ -22,6 +22,7 @@
   <div class="col-sm-10">
     <input type="text"
       class="form-control input-sm input-datepicker multilanguage default-generated<?=(isset($vars['class']) ? ' '. $vars['class'] : '');?>"
+      autocomplete="off"
       <?=(isset($vars['tabindex']) ? 'tabindex="'. (int)$vars['tabindex'] .'"' : '');?>
       <?=(isset($vars['name']) ? 'name="'. $vars['name'] .'"' : '');?>
       <?=(isset($vars['id']) ? 'id="'. $vars['id'] .'"' : (isset($vars['name']) ? 'id="'. $vars['name'] .'"' : ''));?>
