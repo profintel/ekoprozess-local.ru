@@ -28,7 +28,7 @@ class Cron extends PR_Controller {
         store_type_id = 1  AND 
         expenditure_id IS NOT NULL AND 
         product_id = 7 AND 
-        client_id = 43 -- 43
+        client_id = 60 -- 43
       ORDER BY `date`, `order`, id
       LIMIT 10
       ')->result_array();
@@ -55,7 +55,7 @@ class Cron extends PR_Controller {
       // var_dump($expenditure);
       var_dump($expenditure['expenditure']);
       var_dump($expenditure['date']);
-      var_dump($expenditure['order']);
+      // var_dump($expenditure['order']);
       echo '<br><br>';
       // var_dump($movement_products);
 
@@ -88,7 +88,6 @@ class Cron extends PR_Controller {
                     }
                   }
                 }
-
               }
 
               if($movement_coming['rest_item'] >= $movement['expenditure']){
@@ -105,17 +104,14 @@ class Cron extends PR_Controller {
             }
           }
         }
-
-        // echo 'movement<br><br>';
-        // var_dump($movement);
-        // echo 'movement_comings<br><br>';
-        // var_dump($movement_comings);
-        // echo 'movement_expenditures<br>';
-        // var_dump($movement_expenditures);
       }
 
-      echo 'movement_comings<br>';
-      var_dump($movement_comings);
+      if($movement_expenditures){
+        echo 'ERROR расход превышает приход expenditureID=' . $expenditure['id'] . ' расход без прихода:' . serialize($movement_expenditures) .'<br>';
+      }
+
+      // echo 'movement_comings<br>';
+      // var_dump($movement_comings);
       // echo 'movement_expenditures<br><br>';
       // var_dump($movement_expenditures);
       echo 'expenditure<br>';
@@ -125,7 +121,6 @@ class Cron extends PR_Controller {
         if($movement_coming['rest_item'] > 0){
           // смотрим есть ли не учтенные расходы
           if($movement_expenditures){
-
             foreach ($movement_expenditures as $key => &$movement_expenditure) {
               if($movement_coming['rest_item'] >= $movement_expenditure['rest_item']){
                 $movement_coming['rest_item'] = $movement_coming['rest_item'] - $movement_expenditure['rest_item'];
@@ -135,7 +130,6 @@ class Cron extends PR_Controller {
                 $movement_coming['rest_item'] = 0;
               }
             }
-
           }
 
           if($movement_coming['rest_item'] >= $expenditure['expenditure']){
