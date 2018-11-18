@@ -1553,7 +1553,8 @@ class Acceptances_admin extends CI_Component {
       }
     }
 
-    if (!$this->acceptances_model->update_acceptance($acceptance_id, array('status_id' => $status_id))) {
+    // снимаем признак auto у акта приемки, чтобы цвет строки соответствовал статусу
+    if (!$this->acceptances_model->update_acceptance($acceptance_id, array('auto' => 0, 'status_id' => $status_id))) {
       if($return) return false;
       send_answer(array('errors' => array('Ошибка при изменении статуса')));
     }
