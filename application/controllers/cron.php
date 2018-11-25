@@ -126,6 +126,7 @@ class Cron extends PR_Controller {
       // остатков по расходам остаться не должно, иначе общие остатки уйдут в минус
       if($movement_expenditures){
         file_put_contents(FCPATH .'uploads/expendituresRest.txt',''."\n".'ERROR расход превышает приход expenditureID=' . $expenditure['id'] . ' расход без прихода:' . serialize($movement_expenditures) .''."\n".'',FILE_APPEND);
+        echo "ERROR";
         exit;
       }
 
@@ -176,6 +177,7 @@ class Cron extends PR_Controller {
       // остатков по расходу остаться не должно, иначе общие остатки уйдут в минус
       if($expenditure['expenditure'] > 0){
         file_put_contents(FCPATH .'uploads/expendituresRest.txt',''."\n".'ERROR расход превышает приход expenditure=' . serialize($expenditure) .''."\n".'',FILE_APPEND);
+        echo "ERROR";
         exit;
       }
       
