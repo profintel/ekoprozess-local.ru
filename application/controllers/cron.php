@@ -20,26 +20,29 @@ class Cron extends PR_Controller {
   * проставляет нетто в табл pr_store_movement_products
   */
   function expendituresRest(){
+    file_put_contents(FCPATH .'uploads/expendituresRest.txt', 'START SCRIPT '.date('d.m.Y H:i:s'));
+
+    // таблица движения с которой работаем
+    $table = 'pr_store_movement_products_copy';
+
     // получаем весь список расходов
     $expenditures = $this->db->query('
       SELECT id, store_type_id, client_id, product_id, expenditure, DATE_FORMAT(`date`,"%Y-%m-%d") as `date`, `order` 
-      FROM pr_store_movement_products 
+      FROM '.$table.' 
       WHERE 
         store_type_id = 1  AND 
-        expenditure_id IS NOT NULL AND 
-        product_id = 7 AND 
-        client_id = 60 -- 43
+        expenditure_id IS NOT NULL
       ORDER BY `date`, `order`, id
-      LIMIT 10
       ')->result_array();
 
     foreach ($expenditures as $key => $expenditure) {
-      // список приходов клиента по продукту с остатком > 0 
+      file_put_contents(FCPATH .'uploads/expendituresRest.txt',''."\n".'START client_id='.$expenditure['client_id'].' product_id='.$expenditure['product_id'].' expenditure='.$expenditure['expenditure'].' date: '.$expenditure['date'].' '."\n".''."\n".'',FILE_APPEND);
+
+      // полное движение товара до основного расхода с добавлением %засора по приходу, т.к. в движении этого параметра нет
       $movement_products = $this->db->query('
         SELECT pr_movement.*, comings.weight_defect
-        FROM pr_store_movement_products as pr_movement
+        FROM '.$table.' as pr_movement
         LEFT JOIN pr_store_comings comings ON comings.id = pr_movement.coming_child_id
-
         WHERE 
           pr_movement.client_id = ' . $expenditure['client_id'] . ' AND 
           pr_movement.store_type_id = ' . $expenditure['store_type_id'] . ' AND 
@@ -50,110 +53,138 @@ class Cron extends PR_Controller {
         ORDER BY DATE_FORMAT(pr_movement.`date`,"%Y-%m-%d"), pr_movement.`order`, pr_movement.expenditure
       ')->result_array();
 
-      echo '<br><br> START expenditure <br><br>';
-      // echo $this->db->last_query() . '<br><br>';
-      // var_dump($expenditure);
-      var_dump($expenditure['expenditure']);
-      var_dump($expenditure['date']);
-      // var_dump($expenditure['order']);
-      echo '<br><br>';
-      // var_dump($movement_products);
-
       $movement_comings = $movement_expenditures = array();
+      // проходим по всему движению товара, определяем из какого прихода был текущий основной расход
       foreach ($movement_products as $movement){
         // собираем приходы в массив и сохраняем остатки по каждому приходу в отдельное поле
         if($movement['coming']){
           $movement_comings[$movement['id']] = array_merge($movement, array('rest_item' => $movement['coming']));
         }
+        // если расход, перебираем приходы, которые были ранее по движению
         if($movement['expenditure']){
           foreach ($movement_comings as $id => &$movement_coming) {
+            // если остаток по приходу есть, вычитаем текущий расход
             if($movement_coming['rest_item'] > 0){
-              // смотрим есть ли не учтенные расходы
+              
+              // учитываем остатки по расходам, которые были ранее по движению
+              // вычитаем сначала остатки из текущего прихода
               if($movement_expenditures){
-
                 foreach ($movement_expenditures as $key => &$movement_expenditure) {
+                  // если остаток по приходу больше остатка по расходу
                   if($movement_coming['rest_item'] >= $movement_expenditure['rest_item']){
+                    file_put_contents(FCPATH .'uploads/expendituresRest.txt','action1 rest1 ' . $movement_coming['coming'] . ': ' . $movement_coming['rest_item'] . '-' . $movement_expenditure['rest_item'].''."\n".'',FILE_APPEND);
+                    // вычитаем из текущего прихода остаток по расходу
                     $movement_coming['rest_item'] = $movement_coming['rest_item'] - $movement_expenditure['rest_item'];
+                    // остаток по расходу учтен полностью
+                    // удаляем элемент из массива остатков по расходам
                     unset($movement_expenditures[$movement_expenditure['id']]);
 
+                    // записываем остаток по расходу в общем движении товара
                     if($movement_expenditure['id'] == $movement['id']){
                       $movement['expenditure'] = 0;
                     }
                   } else {
+                    file_put_contents(FCPATH .'uploads/expendituresRest.txt','action1 rest2 ' . $movement_coming['coming'] . ': ' . $movement_expenditure['rest_item'] . '-' . $movement_coming['rest_item'].''."\n".'',FILE_APPEND);
+                    // если остаток по приходу меньше остатка по расходу, учитываем остатки прихода и пересчитываем остаток по расходу
                     $movement_expenditure['rest_item'] = $movement_expenditure['rest_item'] - $movement_coming['rest_item'];
+                    // остаток по приходу учтен, обнуляем
                     $movement_coming['rest_item'] = 0;
 
+                    // записываем остаток по расходу в общем движении товара
                     if($movement_expenditure['id'] == $movement['id']){
                       $movement['expenditure'] = $movement_expenditure['rest_item'];
                     }
                   }
                 }
+                unset($movement_expenditure);
               }
 
-              if($movement_coming['rest_item'] >= $movement['expenditure']){
-                echo('action1 rest ' . $movement_coming['rest_item'] . '-' . $movement['expenditure'].'<br>');
-                $movement_coming['rest_item'] = $movement_coming['rest_item'] - $movement['expenditure'];
-                $movement['expenditure'] = 0;
-              } else {
-                echo('action1 rest ' . $movement['expenditure'] . '-' . $movement_coming['rest_item'].'<br>');
-                $movement['expenditure'] = $movement['expenditure'] - $movement_coming['rest_item'];
-                $movement_expenditures[$movement['id']] = array_merge($movement, array('rest_item' => $movement['expenditure']));
-                $movement_coming['rest_item'] = 0;
+              // считаем остатки по основному движению товара
+              if($movement['expenditure'] > 0){
+                if($movement_coming['rest_item'] >= $movement['expenditure']){
+                  file_put_contents(FCPATH .'uploads/expendituresRest.txt','action1 rest3 ' . $movement_coming['coming'] . ': ' . $movement_coming['rest_item'] . '-' . $movement['expenditure'].''."\n".'',FILE_APPEND);
+                  // вычитаем из текущего прихода расход
+                  $movement_coming['rest_item'] = $movement_coming['rest_item'] - $movement['expenditure'];
+                  // расход учтен, обнуляем в основном движении
+                  $movement['expenditure'] = 0;
+                } else {
+                  // расход превышает приход, сохраняем в массив остатков по расходам
+                  file_put_contents(FCPATH .'uploads/expendituresRest.txt','action1 rest4 ' . $movement_coming['coming'] . ': ' . $movement['expenditure'] . '-' . $movement_coming['rest_item'].''."\n".'',FILE_APPEND);
+                  $movement['expenditure'] = $movement['expenditure'] - $movement_coming['rest_item'];
+                  $movement_expenditures[$movement['id']] = array_merge($movement, array('rest_item' => $movement['expenditure']));
+                  // приход польностью учтен, обнуляем
+                  $movement_coming['rest_item'] = 0;
+                }
               }
 
             }
           }
+          unset($movement_coming);
         }
       }
 
+      // остатков по расходам остаться не должно, иначе общие остатки уйдут в минус
       if($movement_expenditures){
-        echo 'ERROR расход превышает приход expenditureID=' . $expenditure['id'] . ' расход без прихода:' . serialize($movement_expenditures) .'<br>';
+        file_put_contents(FCPATH .'uploads/expendituresRest.txt',''."\n".'ERROR расход превышает приход expenditureID=' . $expenditure['id'] . ' расход без прихода:' . serialize($movement_expenditures) .''."\n".'',FILE_APPEND);
+        exit;
       }
 
-      // echo 'movement_comings<br>';
-      // var_dump($movement_comings);
-      // echo 'movement_expenditures<br><br>';
-      // var_dump($movement_expenditures);
-      echo 'expenditure<br>';
-      var_dump($expenditure['expenditure']);
+      // массив с %засора по расходу
+      $expenditure_weight_defect = array();
+      // перебираем собранный массив приходов с высчитанными остатками по товару
+      foreach ($movement_comings as $id => $movement_coming) {        
+        if($movement_coming['rest_item'] == 0) continue;
 
-      foreach ($movement_comings as $id => &$movement_coming) {
-        if($movement_coming['rest_item'] > 0){
-          // смотрим есть ли не учтенные расходы
-          if($movement_expenditures){
-            foreach ($movement_expenditures as $key => &$movement_expenditure) {
-              if($movement_coming['rest_item'] >= $movement_expenditure['rest_item']){
-                $movement_coming['rest_item'] = $movement_coming['rest_item'] - $movement_expenditure['rest_item'];
-                unset($movement_expenditures[$movement_expenditure['id']]);
-              } else {
-                $movement_expenditure['rest_item'] = $movement_expenditure['rest_item'] - $movement_coming['rest_item'];
-                $movement_coming['rest_item'] = 0;
-              }
-            }
-          }
+        // если остаток по приходу больше расхода
+        if($movement_coming['rest_item'] >= $expenditure['expenditure']){
+          file_put_contents(FCPATH .'uploads/expendituresRest.txt','action2 rest1 ' . $movement_coming['coming'] . '('.$movement_coming['weight_defect'].'): ' . $movement_coming['rest_item'] . '-' . $expenditure['expenditure'].''."\n".'',FILE_APPEND);
 
-          if($movement_coming['rest_item'] >= $expenditure['expenditure']){
-            echo('action2 rest '. $movement_coming['rest_item'] . '-' . $expenditure['expenditure'].'<br>');
-            $movement_coming['rest_item'] = $movement_coming['rest_item'] - $expenditure['expenditure'];
-            $expenditure['expenditure'] = 0;
-          } else {
-            echo('action2 rest ' . $expenditure['expenditure'] . '-' . $movement_coming['rest_item'].'<br>');
-            $expenditure['expenditure'] = $expenditure['expenditure'] - $movement_coming['rest_item'];
+          // записываем % засора и к-во брутто
+          $expenditure_weight_defect[] = array(
+            'weight_defect' => $movement_coming['weight_defect'],
+            'gross' => $expenditure['expenditure']
+          );
 
-            // $movement_expenditures[$expenditure['id']] = array_merge($expenditure, array('rest_item' => $expenditure['expenditure']));
+          // расход полностью учтен
+          $expenditure['expenditure'] = 0;
+        } else {
+          // иначе берем часть прихода на данный расход и идем дальше по приходам
+          file_put_contents(FCPATH .'uploads/expendituresRest.txt','action2 rest2 ' . $movement_coming['coming'] . '('.$movement_coming['weight_defect'].'): '  . $expenditure['expenditure'] . '-' . $movement_coming['rest_item'].''."\n".'',FILE_APPEND);
 
-            $movement_coming['rest_item'] = 0;
-          }
+          // записываем % засора и к-во брутто
+          $expenditure_weight_defect[] = array(
+            'weight_defect' => $movement_coming['weight_defect'],
+            'gross' => $movement_coming['rest_item']
+          );
 
+          // записываем остаток по расходу
+          $expenditure['expenditure'] = $expenditure['expenditure'] - $movement_coming['rest_item'];
         }
-      }
 
-      echo '<br><br>EXP RESULT<br><br>';
-      echo 'movement_comings<br>';
-      var_dump($movement_comings);
-      echo 'movement_expenditures<br>';
-      var_dump($movement_expenditures);
+      }
+      // var_dump('expenditure_weight_defect', $expenditure_weight_defect);
+      
+      // считаем нетто по расходу
+      $expenditure_net = 0;
+      foreach ($expenditure_weight_defect as $key => $value) {
+        $expenditure_net += round($value['gross'] - $value['gross']*$value['weight_defect']/100);
+      }
+      file_put_contents(FCPATH .'uploads/expendituresRest.txt','expenditure_net = ' . $expenditure_net,FILE_APPEND);
+
+      $this->db->query("UPDATE ". $table . " SET expenditure_weight_defect = '". serialize($expenditure_weight_defect) ."', expenditure_net = ".$expenditure_net." WHERE id=".$expenditure['id'].";");
+
+      // остатков по расходу остаться не должно, иначе общие остатки уйдут в минус
+      if($expenditure['expenditure'] > 0){
+        file_put_contents(FCPATH .'uploads/expendituresRest.txt',''."\n".'ERROR расход превышает приход expenditure=' . serialize($expenditure) .''."\n".'',FILE_APPEND);
+        exit;
+      }
+      
+      file_put_contents(FCPATH .'uploads/expendituresRest.txt',''."\n".''."\n".'END client_id='.$expenditure['client_id'].' product_id='.$expenditure['product_id'].' expenditure='.$expenditure['expenditure'].' date: '.$expenditure['date'].' '."\n\n",FILE_APPEND);
+      
+      unset($movement_comings, $movement_expenditures);
     }
+
+    echo 'OK';
   }
 
 }
