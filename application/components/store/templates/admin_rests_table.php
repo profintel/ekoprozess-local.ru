@@ -38,11 +38,17 @@
           <tr>
             <th>Дата</th>
             <th>Цех</th>
-            <? if ($type_id == 1) {?><th width="40%">Поставщик</th><? } ?>
+            <? if ($type_id == 1) {?><th width="10%">Поставщик</th><? } ?>
             <th>Вид вторсырья</th>
             <th>Приход, кг</th>
             <th>Расход, кг</th>
             <th>Остаток</th>
+            <th>Приход, нетто</th>
+            <th>Приход, %засора</th>
+            <th>Расход, нетто</th>
+            <th>Остаток, нетто</th>
+            <th></th>
+            <th>order</th>
           </tr>
         </thead>
         <tbody>
@@ -55,6 +61,16 @@
               <td><span class="text-nowrap"><?=($item['coming'] ? '+ '.$item['coming'] : 0);?></span></td>
               <td><span class="text-nowrap"><?=($item['expenditure'] ? '- '.$item['expenditure'] : 0);?></span></td>
               <td><?=$item['rest'];?></td>
+              <td><?=$item['coming_net'];?></td>
+              <td><?=$item['coming_weight_defect'];?></td>
+              <td><?=$item['expenditure_net'];?></td>
+              <td><?=$item['rest_net'];?></td>
+              <td>
+                <? if($item['expenditure_weight_defect']){ ?>
+                  <?=var_dump(unserialize($item['expenditure_weight_defect']));?>
+                <?}?>
+              </td>
+              <td><?=$item['order'];?></td>
             </tr>
           <? } ?>
         </tbody>

@@ -312,6 +312,7 @@ class Store_model extends CI_Model {
   */
   function calculate_rest($params, $product_id = false, $rest_clients = false) {
     $this->db->select('(SUM(coming)-SUM(expenditure)) as sum');
+    $this->db->select('DATE_FORMAT(pr_store_movement_products.date,"%Y-%m-%d") as date_format', false);
     // join-им чтобы вывести отчет по группе продукции или подробные остатки
     if($product_id || $rest_clients){
       $this->db->join('products','pr_products.id = store_movement_products.product_id');
@@ -332,7 +333,49 @@ class Store_model extends CI_Model {
       $this->db->order_by('clients.title_full');
       $result = $this->db->get('store_movement_products')->result_array();
     } else {
-      $this->db->order_by('date');
+      $this->db->order_by('date_format');
+      $this->db->order_by('store_movement_products.order');
+      $result = $this->db->get('store_movement_products')->row()->sum;
+    }
+    
+    // echo "<br>calculate_rest<br>";
+    // echo $this->db->last_query();
+    return $result;
+  }
+  
+  /*
+  * Подсчитывает остаток сырья нетто на складе
+  * @param params - тип склада, вид вторсырья, ...
+  *        product_id - массив с id видов вторсырья
+  *        rest_clients - отметка, разбивать остатки по клиентам или нет
+  * @return array - если rest_clients=true возвращает массив остатков по клиентам
+  *         integer - если rest_clients=false возвращает общий остаток
+  */
+  function calculate_rest_net($params, $product_id = false, $rest_clients = false) {
+    $this->db->select('(SUM(coming_net)-SUM(expenditure_net)) as sum');
+    $this->db->select('DATE_FORMAT(pr_store_movement_products.date,"%Y-%m-%d") as date_format', false);
+    // join-им чтобы вывести отчет по группе продукции или подробные остатки
+    if($product_id || $rest_clients){
+      $this->db->join('products','pr_products.id = store_movement_products.product_id');
+    }
+    if($product_id){
+      if(!is_array($product_id)){
+        $product_id = array($product_id);
+      }
+      $this->db->where('(pr_products.id IN ('.implode(',', $product_id).') OR pr_products.parent_id IN ('.implode(',', $product_id).'))');
+    }
+    $this->db->where($params);
+    if($rest_clients){
+      $this->db->select('clients.title_full as client, products.title_full as product');
+      $this->db->join('clients','clients.id = store_movement_products.client_id');
+      $this->db->group_by('product_id');
+      $this->db->group_by('client_id');
+      $this->db->having('sum > 0');
+      $this->db->order_by('clients.title_full');
+      $result = $this->db->get('store_movement_products')->result_array();
+    } else {
+      $this->db->order_by('date_format');
+      $this->db->order_by('store_movement_products.order');
       $result = $this->db->get('store_movement_products')->row()->sum;
     }
     
@@ -465,11 +508,10 @@ class Store_model extends CI_Model {
     return $this->db->count_all_results('store_movement_products');
   }
 
-
   /** 
-  * Перезаписывает остатки на складе
+  * Перезаписывает остатки Брутто на складе
   */
-  function set_rests($where = array()){
+  function set_rests($where = array(), $cron = false){
     $this->db->select("store_movement_products.*");
     $this->db->select("DATE_FORMAT(date,'%Y-%m-%d') as date_new", false);
     $this->db->order_by("date_new",'asc');
@@ -481,8 +523,10 @@ class Store_model extends CI_Model {
 
     $items = $this->db->get('store_movement_products')->result_array();
     // echo $this->db->last_query();
-    
+    $cnt = count($items);
     foreach ($items as $key => $item) {
+      if($cron) echo $key * 100 / $cnt . "%\r";
+
       if(!$this->update_movement_products($item['id'], array(
           // считаем остатки по клиенту и вторсырью
           'rest'  => $this->calculate_rest(array(
@@ -510,10 +554,57 @@ class Store_model extends CI_Model {
     return true;
   }
 
+  /** 
+  * Перезаписывает остатки Нетто на складе
+  */
+  function set_rests_net($where = array(), $cron = false){
+    $this->db->select("store_movement_products.*");
+    $this->db->select("DATE_FORMAT(date,'%Y-%m-%d') as date_new", false);
+    $this->db->order_by("date_new",'asc');
+    $this->db->order_by('order','asc');
+    
+    if ($where) {
+      $this->db->where($where);
+    }
+
+    $items = $this->db->get('store_movement_products')->result_array();
+    // echo $this->db->last_query();
+    $cnt = count($items);
+    foreach ($items as $key => $item) {
+      if($cron) echo $key * 100 / $cnt . "%\r";
+
+      if(!$this->update_movement_products($item['id'], array(
+          // считаем остатки по клиенту и вторсырью
+          'rest_net'  => $this->calculate_rest_net(array(
+              'store_movement_products.store_type_id' => $item['store_type_id'],
+              'store_movement_products.client_id'     => $item['client_id'],
+              'store_movement_products.order <='      => $item['order']
+            ),
+            $item['product_id']),
+          // общие остатки по сырью
+          'rest_product_net'  => $this->calculate_rest_net(array(
+              'store_movement_products.store_type_id' => $item['store_type_id'],
+              'store_movement_products.order <='      => $item['order']
+            ),
+            $item['product_id']), 
+          // общие остатки всего сырья на складе
+          'rest_all_net' => $this->calculate_rest_net(array(
+            'store_movement_products.store_type_id' => $item['store_type_id'],
+            'store_movement_products.order <='      => $item['order']
+          ))
+        ))){
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   /*
   * Перезаписывает order в движении сырья
+  * $cron - запуск из cron
   */
-  function set_order_movement($where = array()){
+  function set_order_movement($where = array(), $cron = false){
     $order_max = 1;
     if ($where) {
       // если пересчитываем не для всей таблицы, учитываем максимальную цифру в order
@@ -529,7 +620,10 @@ class Store_model extends CI_Model {
     }
     $items = $this->db->get('store_movement_products')->result_array();
     // echo $this->db->last_query();
+    $cnt = count($items);
     foreach ($items as $key => $item) {
+      if($cron) echo $key * 100 / $cnt . "%\r";
+
       if(!$this->update_movement_products($item['id'],array('order'=>$key+$order_max))){
         return false;
       }

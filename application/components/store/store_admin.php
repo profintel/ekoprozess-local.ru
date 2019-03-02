@@ -1258,44 +1258,6 @@ class Store_admin extends CI_Component {
     send_answer();
   }
 
-  function test(){ 
-    // return false;
-
-    echo 'start set_order_movement<br>';
-    // перезаписывает все order
-    $this->store_model->set_order_movement();
-    echo 'end set_order_movement<br>';
-
-    echo 'start set_rests<br>';
-    // пересчитывает все остатки в движении сырья
-    $this->store_model->set_rests();
-    echo 'end set_rests<br>';
-
-    echo 'OK';
-
-/* Заполняет coming_child_id и expenditure_child_id
-
-    UPDATE `pr_store_movement_products` t1 SET 
-    coming_child_id = (SELECT id FROM `pr_store_comings` t2 WHERE t2.store_type_id = 1 AND t2.parent_id = t1.coming_id AND t2.product_id = t1.product_id AND t2.gross = t1.coming)
-    WHERE t1.store_type_id = 1;
-
-    UPDATE `pr_store_movement_products` t1 SET 
-    coming_child_id = (SELECT id FROM `pr_store_comings` t2 WHERE t2.store_type_id = 2 AND t2.parent_id = t1.coming_id AND t2.product_id = t1.product_id AND t2.net = t1.coming)
-    WHERE t1.store_type_id = 2;
-
-    UPDATE `pr_store_movement_products` t1 SET 
-    expenditure_child_id = (SELECT id FROM `pr_store_expenditures` t2 WHERE t2.store_type_id = 1 AND t2.parent_id = t1.expenditure_id AND t2.product_id = t1.product_id AND t2.gross = t1.expenditure)
-    WHERE t1.store_type_id = 1;
-
-
-    UPDATE `pr_store_movement_products` t1 SET 
-    expenditure_child_id = (SELECT id FROM `pr_store_expenditures` t2 WHERE t2.store_type_id = 2 AND t2.parent_id = t1.expenditure_id AND t2.product_id = t1.product_id AND t2.net = t1.expenditure)
-    WHERE t1.store_type_id = 2;
-    
-    */
-
-  }
-
   /**
   * Просмотр остатков на складе в карточке прихода / расхода
   */
