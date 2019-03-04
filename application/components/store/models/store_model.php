@@ -310,49 +310,12 @@ class Store_model extends CI_Model {
   * @return array - если rest_clients=true возвращает массив остатков по клиентам
   *         integer - если rest_clients=false возвращает общий остаток
   */
-  function calculate_rest($params, $product_id = false, $rest_clients = false) {
-    $this->db->select('(SUM(coming)-SUM(expenditure)) as sum');
-    $this->db->select('DATE_FORMAT(pr_store_movement_products.date,"%Y-%m-%d") as date_format', false);
-    // join-им чтобы вывести отчет по группе продукции или подробные остатки
-    if($product_id || $rest_clients){
-      $this->db->join('products','pr_products.id = store_movement_products.product_id');
-    }
-    if($product_id){
-      if(!is_array($product_id)){
-        $product_id = array($product_id);
-      }
-      $this->db->where('(pr_products.id IN ('.implode(',', $product_id).') OR pr_products.parent_id IN ('.implode(',', $product_id).'))');
-    }
-    $this->db->where($params);
-    if($rest_clients){
-      $this->db->select('clients.title_full as client, products.title_full as product');
-      $this->db->join('clients','clients.id = store_movement_products.client_id');
-      $this->db->group_by('product_id');
-      $this->db->group_by('client_id');
-      $this->db->having('sum > 0');
-      $this->db->order_by('clients.title_full');
-      $result = $this->db->get('store_movement_products')->result_array();
+  function calculate_rest($params, $product_id = false, $rest_clients = false, $net = false) {
+    if($net){
+      $this->db->select('(SUM(coming_net)-SUM(expenditure_net)) as sum');
     } else {
-      $this->db->order_by('date_format');
-      $this->db->order_by('store_movement_products.order');
-      $result = $this->db->get('store_movement_products')->row()->sum;
+      $this->db->select('(SUM(coming)-SUM(expenditure)) as sum');
     }
-    
-    // echo "<br>calculate_rest<br>";
-    // echo $this->db->last_query();
-    return $result;
-  }
-  
-  /*
-  * Подсчитывает остаток сырья нетто на складе
-  * @param params - тип склада, вид вторсырья, ...
-  *        product_id - массив с id видов вторсырья
-  *        rest_clients - отметка, разбивать остатки по клиентам или нет
-  * @return array - если rest_clients=true возвращает массив остатков по клиентам
-  *         integer - если rest_clients=false возвращает общий остаток
-  */
-  function calculate_rest_net($params, $product_id = false, $rest_clients = false) {
-    $this->db->select('(SUM(coming_net)-SUM(expenditure_net)) as sum');
     $this->db->select('DATE_FORMAT(pr_store_movement_products.date,"%Y-%m-%d") as date_format', false);
     // join-им чтобы вывести отчет по группе продукции или подробные остатки
     if($product_id || $rest_clients){
@@ -387,9 +350,15 @@ class Store_model extends CI_Model {
   /*
   * Подсчитывает приход сырья на складе
   * @param params - тип склада, вид вторсырья, ...
+  * $net - считать нетто
   */
-  function calculate_coming($params, $product_id = false) {
-    $this->db->select('SUM(coming) as sum');
+  function calculate_coming($params, $product_id = false, $net = false) {
+    if($net){
+      $this->db->select('SUM(coming_net) as sum');
+    } else {
+      $this->db->select('SUM(coming) as sum');
+    }
+    
     if($product_id){
       if(!is_array($product_id)){
         $product_id = array($product_id);
@@ -408,9 +377,15 @@ class Store_model extends CI_Model {
   /*
   * Подсчитывает расход сырья на складе
   * @param params - тип склада, вид вторсырья, ...
+  * $net - считать нетто
   */
-  function calculate_expenditure($params, $product_id = false) {
-    $this->db->select('SUM(expenditure) as sum');
+  function calculate_expenditure($params, $product_id = false, $net = false) {
+    if($net){
+      $this->db->select('SUM(expenditure_net) as sum');
+    } else {
+      $this->db->select('SUM(expenditure) as sum');
+    }
+    
     if($product_id){
       if(!is_array($product_id)){
         $product_id = array($product_id);
@@ -575,26 +550,34 @@ class Store_model extends CI_Model {
 
       if(!$this->update_movement_products($item['id'], array(
           // считаем остатки по клиенту и вторсырью
-          'rest_net'  => $this->calculate_rest_net(array(
+          'rest_net'  => $this->calculate_rest(array(
               'store_movement_products.store_type_id' => $item['store_type_id'],
               'store_movement_products.client_id'     => $item['client_id'],
               'store_movement_products.order <='      => $item['order']
             ),
-            $item['product_id']),
+            $item['product_id'],
+            false,
+            true),
           // общие остатки по сырью
-          'rest_product_net'  => $this->calculate_rest_net(array(
+          'rest_product_net'  => $this->calculate_rest(array(
               'store_movement_products.store_type_id' => $item['store_type_id'],
               'store_movement_products.order <='      => $item['order']
             ),
-            $item['product_id']), 
+            $item['product_id'],
+            false,
+            true), 
           // общие остатки всего сырья на складе
-          'rest_all_net' => $this->calculate_rest_net(array(
-            'store_movement_products.store_type_id' => $item['store_type_id'],
-            'store_movement_products.order <='      => $item['order']
-          ))
+          'rest_all_net' => $this->calculate_rest(array(
+              'store_movement_products.store_type_id' => $item['store_type_id'],
+              'store_movement_products.order <='      => $item['order']
+            ),
+            false,
+            false,
+            true)
         ))){
         return false;
       }
+      echo $this->db->last_query();
     }
 
     return true;

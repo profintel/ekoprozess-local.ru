@@ -43,12 +43,6 @@
             <th>Приход, кг</th>
             <th>Расход, кг</th>
             <th>Остаток</th>
-            <th>Приход, нетто</th>
-            <th>Приход, %засора</th>
-            <th>Расход, нетто</th>
-            <th>Остаток, нетто</th>
-            <th></th>
-            <th>order</th>
           </tr>
         </thead>
         <tbody>
@@ -58,19 +52,31 @@
               <td><?=(isset($item['workshop']) ? $item['workshop']['title'] : '');?></td>
               <? if ($type_id == 1) {?><td><?=$item['client']['title_full'];?></td><? } ?>
               <td><?=$item['product']['title_full'];?></td>
-              <td><span class="text-nowrap"><?=($item['coming'] ? '+ '.$item['coming'] : 0);?></span></td>
-              <td><span class="text-nowrap"><?=($item['expenditure'] ? '- '.$item['expenditure'] : 0);?></span></td>
-              <td><?=$item['rest'];?></td>
-              <td><?=$item['coming_net'];?></td>
-              <td><?=$item['coming_weight_defect'];?></td>
-              <td><?=$item['expenditure_net'];?></td>
-              <td><?=$item['rest_net'];?></td>
               <td>
-                <? if($item['expenditure_weight_defect']){ ?>
-                  <?=var_dump(unserialize($item['expenditure_weight_defect']));?>
+                <span class="text-nowrap">
+                  <? if($get_params['type'] == 'net') {?>
+                    <?=($item['coming_net'] ? '+ '.$item['coming_net'] : 0);?>
+                  <?} else {?>
+                    <?=($item['coming'] ? '+ '.$item['coming'] : 0);?>
+                  <?}?>
+                </span>
+              </td>
+              <td>
+                <span class="text-nowrap">
+                  <? if($get_params['type'] == 'net') {?>
+                    <?=($item['expenditure_net'] ? '- '.$item['expenditure_net'] : 0);?>
+                  <?} else {?>
+                    <?=($item['expenditure'] ? '- '.$item['expenditure'] : 0);?>
+                  <?}?>
+                </span>
+              </td>
+              <td>
+                <? if($get_params['type'] == 'net') {?>
+                  <?=$item['rest_net'];?>
+                <?} else {?>
+                  <?=$item['rest'];?>
                 <?}?>
               </td>
-              <td><?=$item['order'];?></td>
             </tr>
           <? } ?>
         </tbody>

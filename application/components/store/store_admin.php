@@ -1958,8 +1958,8 @@ class Store_admin extends CI_Component {
   }  
 
   /**
-   * Просмотр отчета остатков на складе
-  **/
+  * Просмотр отчета остатков на складе
+  */
   function rests($type_id, $render_table = false){
     $type = $this->store_model->get_store_type(array('id'=>(int)$type_id));
     if(!$type){
@@ -1967,6 +1967,7 @@ class Store_admin extends CI_Component {
     }
     $product_id = $this->uri->getParam('product_id');
     $get_params = array(
+      'type'              => ($this->uri->getParam('type') == 'net' ? 'net' : 'gross'),
       'date_start'        => ($this->uri->getParam('date_start') ? date('Y-m-d 00:00:00',strtotime($this->uri->getParam('date_start'))) : date('Y-m-1 00:00:00')),
       'date_end'          => ($this->uri->getParam('date_end') ? date('Y-m-d 00:00:00',strtotime($this->uri->getParam('date_end'))) : date('Y-m-d 00:00:00')),
       'client_id'         => ((int)$this->uri->getParam('client_id') ? (int)$this->uri->getParam('client_id') : ''),
@@ -1992,6 +1993,24 @@ class Store_admin extends CI_Component {
           array(
             'title'  => 'Расширенный поиск',
             'fields' => array(
+              array(
+                'view'    => 'fields/select',
+                'title'   => 'Тип:',
+                'name'    => 'type',
+                'value'   => $get_params['type'],
+                'options' => array(
+                  array(
+                    'id'    => 'gross',
+                    'title' => 'Брутто'
+                  ),
+                  array(
+                    'id'    => 'net',
+                    'title' => 'Нетто'
+                  )
+                ),
+                'empty'   => true,
+                'onchange'=> "submit_form(this, handle_ajaxResultAllData);",
+              ),
               array(
                 'view'        => 'fields/date',
                 'title'       => 'Дата от:',
@@ -2100,27 +2119,27 @@ class Store_admin extends CI_Component {
         $where_end .= ($where_end ? ' AND ' : '').'pr_store_movement_products.store_workshop_id = '. $get_params['store_workshop_id'];
       }
       // входящий остаток
-      $rest_start = $this->store_model->calculate_rest($where_start, $get_params['product_id']);
+      $rest_start = $this->store_model->calculate_rest($where_start, $get_params['product_id'], false, ($get_params['type'] == 'net' ? true : false));
       
       // если первичная продукция остатки по клиентам показываем
       if($type['id'] == 1){
         // исхдящий остаток по клиентам
-        $rest_end_clients = $this->store_model->calculate_rest($where_end, $get_params['product_id'], true);
+        $rest_end_clients = $this->store_model->calculate_rest($where_end, $get_params['product_id'], true, ($get_params['type'] == 'net' ? true : false));
         // считаем общий остаток
         $rest_end = 0;
         foreach ($rest_end_clients as $key => $value) {
           $rest_end += $value['sum'];
         }
       } else {
-        $rest_end = $this->store_model->calculate_rest($where_end, $get_params['product_id'], false);
+        $rest_end = $this->store_model->calculate_rest($where_end, $get_params['product_id'], false, ($get_params['type'] == 'net' ? true : false));
       }
 
       $rest = array(
         'start'             => $rest_start,
         'end'               => $rest_end,
         'end_clients'       => (isset($rest_end_clients) ? $rest_end_clients : array()),
-        'coming'            => $this->store_model->calculate_coming($where, $get_params['product_id']),
-        'expenditure'       => $this->store_model->calculate_expenditure($where, $get_params['product_id']),
+        'coming'            => $this->store_model->calculate_coming($where, $get_params['product_id'], ($get_params['type'] == 'net' ? true : false)),
+        'expenditure'       => $this->store_model->calculate_expenditure($where, $get_params['product_id'], ($get_params['type'] == 'net' ? true : false)),
       );
 
       // Если нужно отобразить движение товара
