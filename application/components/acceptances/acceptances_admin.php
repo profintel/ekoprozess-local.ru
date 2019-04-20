@@ -946,7 +946,11 @@ class Acceptances_admin extends CI_Component {
     }
 
     return $this->render_template('templates/admin_client_acceptance_inner', array(
-      'title' => 'Карточка акта приемки<br><small>(Статус: '.$item['status_title'].')</small>',
+      'title' => 
+        'Карточка акта приемки<br><small>'.
+        '(Статус: '.$item['status_title'].')'.
+        ($item['store_coming_id'] && $store_coming && !$store_coming['active'] ? '<br><span class="text-danger">Приход не отправлен а склад</span>' : '').
+        '</small>',
       'block_title_btn' => $block_title_btns,
       'html' => $this->view->render_form(array(
         'view'   => 'forms/default',
