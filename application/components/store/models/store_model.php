@@ -577,7 +577,7 @@ class Store_model extends CI_Model {
         ))){
         return false;
       }
-      echo $this->db->last_query();
+      // echo $this->db->last_query();
     }
 
     return true;

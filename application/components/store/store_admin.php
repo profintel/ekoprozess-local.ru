@@ -364,6 +364,7 @@ class Store_admin extends CI_Component {
         'title' => ($label ? 'Упаковка, (кг)' : ''),
         'name'  => 'weight_pack[]',
         'value' => ($item && $section == 'coming' ? $item['weight_pack'] : ''),
+        'disabled' => ($item && $item['active'] ? true : false),
         'class' => 'number',
         'form_group_class' => 'form_group_product_field',
         'onchange' => 'updateComingNet(this);',
@@ -374,6 +375,7 @@ class Store_admin extends CI_Component {
         'title' => ($label ? 'Засор, (%)' : ''),
         'name'  => 'weight_defect[]',
         'value' => ($item && $section == 'coming' ? $item['weight_defect'] : ''),
+        'disabled' => ($item && $item['active'] ? true : false),
         'class' => 'number',
         'form_group_class' => 'form_group_product_field '.($errors['weight_defect'] ? ' has-warning el-tooltip' : ''),
         'onchange' => 'updateComingNet(this);',
@@ -385,7 +387,7 @@ class Store_admin extends CI_Component {
         'title'    => ($label ? 'Нетто, (кг)' : ''),
         'name'     => 'net[]',
         'value'    => ($item ? $item['net'] : ''),
-        'disabled' => ($type_id == 2 && $item && $item['active'] ? true : false),
+        'disabled' => ($item && $item['active'] ? true : false),
         'class'    => 'number',
         'form_group_class' => 'form_group_product_field'.($type_id == 2 ? ' form_group_w20' : '').($errors['net'] ? ' has-warning el-tooltip' : ''),
         'form_group_title' => $errors['net'],
@@ -1004,8 +1006,6 @@ class Store_admin extends CI_Component {
         $params = array(
           'parent_id'         => $id,
           'product_id'        => (float)str_replace(' ', '', $params_products['product_id'][$key]),
-          'weight_pack'       => (float)str_replace(' ', '', $params_products['weight_pack'][$key]),
-          'weight_defect'     => (float)str_replace(' ', '', $params_products['weight_defect'][$key]),
           'cnt_places'        => (float)str_replace(' ', '', $params_products['cnt_places'][$key]),
           'order'             => $key
         );
@@ -1017,6 +1017,12 @@ class Store_admin extends CI_Component {
         }
         if(isset($params_products['gross'][$key]) && $params_products['gross'][$key]){
           $params['gross'] = (float)str_replace(' ', '', $params_products['gross'][$key]);
+        }
+        if(isset($params_products['weight_pack'][$key]) && $params_products['weight_pack'][$key]){
+          $params['weight_pack'] = (float)str_replace(' ', '', $params_products['weight_pack'][$key]);
+        }
+        if(isset($params_products['weight_defect'][$key]) && $params_products['weight_defect'][$key]){
+          $params['weight_defect'] = (float)str_replace(' ', '', $params_products['weight_defect'][$key]);
         }
         if(isset($params_products['net'][$key]) && $params_products['net'][$key]){
           $params['net'] = (float)str_replace(' ', '', $params_products['net'][$key]);
@@ -1211,16 +1217,20 @@ class Store_admin extends CI_Component {
     // в таблицу движения продукции
     foreach ($item['childs'] as $key => $child) {
       $params = array(
-        'store_type_id'     => $item['store_type_id'],
-        'store_workshop_id' => $item['store_workshop_id'],
-        'coming_id'         => $item['id'],
-        'coming_child_id'   => $child['id'],
-        'client_id'         => $item['client_id'],
-        'product_id'        => $child['product_id'],
-        'date'              => $item['date_second'],
+        'store_type_id'         => $item['store_type_id'],
+        'store_workshop_id'     => $item['store_workshop_id'],
+        'coming_id'             => $item['id'],
+        'coming_child_id'       => $child['id'],
+        'client_id'             => $item['client_id'],
+        'product_id'            => $child['product_id'],
+        'date'                  => $item['date_second'],
         // если первичая продукция берем брутто, иначе нетто
-        'coming'            => ($item['store_type_id'] == 1 ? $child['gross'] : $child['net']),
+        'coming'                => ($item['store_type_id'] == 1 ? $child['gross'] : $child['net']),
+        'coming_weight_defect'  => $child['weight_defect'],
+        'coming_weight_pack'    => $child['weight_pack'],
+        'coming_net'            => ($item['store_type_id'] == 1 ? $child['net'] : 0),
       );
+
       // записываем приход
       $id = $this->store_model->create_movement_products($params);
       if(!$id){
@@ -1240,6 +1250,14 @@ class Store_admin extends CI_Component {
     if(!$this->store_model->set_rests(array('store_type_id' => $item['store_type_id'], 'date >= ' => $item['date_second']))){
       $this->store_model->delete_movement_products(array('coming_id' => $item['id']));
       send_answer(array('errors' => array('Ошибка перезаписи остатков в движении сырья')));
+    }
+
+    // пересчитываем остатки нетто для $item['store_type_id'] == 1 для строк с более поздней датой
+    if($item['store_type_id'] == 1){
+      if(!$this->store_model->set_rests_net(array('store_type_id' => $item['store_type_id'], 'date >= ' => $item['date_second']))){
+        $this->store_model->delete_movement_products(array('coming_id' => $item['id']));
+        send_answer(array('errors' => array('Ошибка перезаписи остатков в движении сырья')));
+      }
     }
 
     // приходу и всем товарам прихода ставим статус "Отправлено на склад"
@@ -1967,7 +1985,7 @@ class Store_admin extends CI_Component {
     }
     $product_id = $this->uri->getParam('product_id');
     $get_params = array(
-      'type'              => ($this->uri->getParam('type') == 'net' ? 'net' : 'gross'),
+      'type'              => ($type['id'] == 1 && $this->uri->getParam('type') == 'net' ? 'net' : 'gross'),
       'date_start'        => ($this->uri->getParam('date_start') ? date('Y-m-d 00:00:00',strtotime($this->uri->getParam('date_start'))) : date('Y-m-1 00:00:00')),
       'date_end'          => ($this->uri->getParam('date_end') ? date('Y-m-d 00:00:00',strtotime($this->uri->getParam('date_end'))) : date('Y-m-d 00:00:00')),
       'client_id'         => ((int)$this->uri->getParam('client_id') ? (int)$this->uri->getParam('client_id') : ''),
@@ -1994,7 +2012,7 @@ class Store_admin extends CI_Component {
             'title'  => 'Расширенный поиск',
             'fields' => array(
               array(
-                'view'    => 'fields/select',
+                'view'    => 'fields/'.($type['id'] == 1 ? 'select' : 'hidden'),
                 'title'   => 'Тип:',
                 'name'    => 'type',
                 'value'   => $get_params['type'],
@@ -2135,11 +2153,11 @@ class Store_admin extends CI_Component {
       }
 
       $rest = array(
-        'start'             => $rest_start,
-        'end'               => $rest_end,
-        'end_clients'       => (isset($rest_end_clients) ? $rest_end_clients : array()),
-        'coming'            => $this->store_model->calculate_coming($where, $get_params['product_id'], ($get_params['type'] == 'net' ? true : false)),
-        'expenditure'       => $this->store_model->calculate_expenditure($where, $get_params['product_id'], ($get_params['type'] == 'net' ? true : false)),
+        'start'       => $rest_start,
+        'end'         => $rest_end,
+        'end_clients' => (isset($rest_end_clients) ? $rest_end_clients : array()),
+        'coming'      => $this->store_model->calculate_coming($where, $get_params['product_id'], ($get_params['type'] == 'net' ? true : false)),
+        'expenditure' => $this->store_model->calculate_expenditure($where, $get_params['product_id'], ($get_params['type'] == 'net' ? true : false)),
       );
 
       // Если нужно отобразить движение товара
