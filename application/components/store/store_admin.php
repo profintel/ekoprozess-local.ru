@@ -387,7 +387,7 @@ class Store_admin extends CI_Component {
         'title'    => ($label ? 'Нетто, (кг)' : ''),
         'name'     => 'net[]',
         'value'    => ($item ? $item['net'] : ''),
-        'disabled' => ($item && $item['active'] ? true : false),
+        'disabled' => (($type_id == 2 && $item && $item['active']) || $type_id == 1 ? true : false),
         'class'    => 'number',
         'form_group_class' => 'form_group_product_field'.($type_id == 2 ? ' form_group_w20' : '').($errors['net'] ? ' has-warning el-tooltip' : ''),
         'form_group_title' => $errors['net'],
@@ -707,6 +707,10 @@ class Store_admin extends CI_Component {
           'cnt_places'        => (float)str_replace(' ', '', $params_products['cnt_places'][$key]),
           'order'             => $key
         );
+        // если первичная продукция нетто считаем, т.к. ведем автом-ий подсчет остатков
+        if($params['store_type_id'] == 1){
+          $params['net'] = round($params['gross'] - $params['weight_pack'] - $params['gross']*$params['weight_defect']/100);
+        }
         if (!$this->store_model->create_coming($params)) {
           $this->delete_coming($id, true);
           send_answer(array('errors' => array('Ошибка при добавлении вторсырья')));
@@ -917,7 +921,7 @@ class Store_admin extends CI_Component {
       'active'    => $item['active'],
       'date_num'  => htmlspecialchars(trim($this->input->post('date_num'))),
       'transport' => htmlspecialchars(trim($this->input->post('transport'))),
-      'comment'           => htmlspecialchars(trim($this->input->post('comment'))),
+      'comment'   => htmlspecialchars(trim($this->input->post('comment'))),
     );
     if($this->input->post('date_primary') && !$item['active']){
       $main_params['date_primary'] = date('Y-m-d H:i:s', strtotime($this->input->post('date_primary')));
@@ -1024,8 +1028,12 @@ class Store_admin extends CI_Component {
         if(isset($params_products['weight_defect'][$key]) && $params_products['weight_defect'][$key]){
           $params['weight_defect'] = (float)str_replace(' ', '', $params_products['weight_defect'][$key]);
         }
-        if(isset($params_products['net'][$key]) && $params_products['net'][$key]){
+        if($item['store_type_id'] == 2 && isset($params_products['net'][$key]) && $params_products['net'][$key]){
           $params['net'] = (float)str_replace(' ', '', $params_products['net'][$key]);
+        }        
+        // если первичная продукция нетто считаем, т.к. ведем автом-ий подсчет остатков
+        if($item['store_type_id'] == 1){
+          $params['net'] = round($params['gross'] - $params['weight_pack'] - $params['gross']*$params['weight_defect']/100);
         }
         // если id указано, обновляем данные
         if((int)$params_products['item_id'][$key]){
@@ -1102,7 +1110,7 @@ class Store_admin extends CI_Component {
 
   /**
    * ПРоверка возможности удаления прихода
-  **/
+   */
   function _check_delete_coming($id) {
     $item = $this->store_model->get_coming(array('store_comings.id'=>$id));
     if(!$item){
@@ -1129,7 +1137,7 @@ class Store_admin extends CI_Component {
 
   /**
    * Удаление прихода
-  **/
+   */
   function delete_coming($id, $return = false) {
     $item = $this->store_model->get_coming(array('store_comings.id'=>$id));
     if(!$item){
@@ -1461,8 +1469,8 @@ class Store_admin extends CI_Component {
   }
 
   /**
-   *  Создание расхода.
-  **/
+  *  Создание расхода.
+  */
   function create_expenditure($type_id){
     $type = $this->store_model->get_store_type(array('id'=>(int)$type_id));
     if(!$type){
@@ -1616,8 +1624,8 @@ class Store_admin extends CI_Component {
     }
     foreach ($params_products['product_id'] as $key => $product_id) {
       if($product_id){
-        //по ключу собираем все параметры вторсырья
-        $params = array(
+        // по ключу собираем все параметры вторсырья
+        $child_params = array(
           'parent_id'         => $id,
           'client_id'         => $params['client_id'],
           'store_type_id'     => $params['store_type_id'],
@@ -1627,9 +1635,37 @@ class Store_admin extends CI_Component {
           'net'           => (float)str_replace(' ', '', $params_products['net'][$key]),
           'cnt_places'    => (float)str_replace(' ', '', $params_products['cnt_places'][$key])
         );
-        if (!$this->store_model->create_expenditure($params)) {
+        $child_id = $this->store_model->create_expenditure($child_params);
+        if (!$child_id) {
           $this->delete_expenditure($id, true);
           send_answer(array('errors' => array('Ошибка при добавлении вторсырья')));
+        }
+
+        // если первичная продукция нетто считаем, т.к. ведем автом-ий подсчет остатков
+        if ($child_params['store_type_id'] == 1) {
+          // параметры для подсчета
+          $movement_params = array(
+            'id' => $child_id,
+            'client_id'     => $child_params['client_id'],
+            'store_type_id' => $child_params['store_type_id'],
+            'product_id'    => $child_params['product_id'],
+            'date'          => $params['date'],
+            'expenditure'   => $child_params['gross']
+          );
+          $movement_params['order'] = $this->store_model->get_movement_max_order(array('date <= ' => $params['date']));
+          
+          $result = $this->store_model->calculate_expenditure_net($movement_params);
+          if(!$result || !isset($result['expenditure_net']) || !isset($result['expenditure_weight_defect'])){
+            $this->delete_expenditure($id, true);
+            send_answer(array('errors' => array('Ошибка при подсчете нетто')));
+          }
+          if (!$this->store_model->update_expenditure($child_id, array(
+              'net' => $result['expenditure_net'], 
+              'weight_defect' => serialize($result['expenditure_weight_defect'])
+            ))) {
+            $this->delete_expenditure($id, true);
+            send_answer(array('errors' => array('Ошибка при сохранении нетто')));
+          }
         }
       }
     }
@@ -1844,7 +1880,7 @@ class Store_admin extends CI_Component {
     foreach ($params_products['product_id'] as $key => $product_id) {
       if($product_id){
         //по ключу собираем все параметры вторсырья
-        $params = array(
+        $child_params = array(
           'parent_id'         => $id,
           'client_id'         => $params['client_id'],
           'store_type_id'     => $item['store_type_id'],
@@ -1855,8 +1891,36 @@ class Store_admin extends CI_Component {
           'cnt_places'        => (float)str_replace(' ', '', $params_products['cnt_places'][$key])
         );
 
-        if (!$this->store_model->create_expenditure($params)) {
+        $child_id = $this->store_model->create_expenditure($child_params);
+        if (!$child_id) {
           send_answer(array('errors' => array('Ошибка при добавлении вторсырья')));
+        }
+
+        // если первичная продукция нетто считаем, т.к. ведем автом-ий подсчет остатков
+        if ($child_params['store_type_id'] == 1) {
+          // параметры для подсчета
+          $movement_params = array(
+            'id' => $child_id,
+            'client_id'     => $child_params['client_id'],
+            'store_type_id' => $child_params['store_type_id'],
+            'product_id'    => $child_params['product_id'],
+            'date'          => $params['date'],
+            'expenditure'   => $child_params['gross']
+          );
+          $movement_params['order'] = $this->store_model->get_movement_max_order(array('date <= ' => $params['date']));
+          
+          $result = $this->store_model->calculate_expenditure_net($movement_params);
+          if(!$result || !isset($result['expenditure_net']) || !isset($result['expenditure_weight_defect'])){
+            $this->delete_expenditure($id, true);
+            send_answer(array('errors' => array('Ошибка при подсчете нетто')));
+          }
+          if (!$this->store_model->update_expenditure($child_id, array(
+              'net' => $result['expenditure_net'], 
+              'weight_defect' => serialize($result['expenditure_weight_defect'])
+            ))) {
+            $this->delete_expenditure($id, true);
+            send_answer(array('errors' => array('Ошибка при сохранении нетто')));
+          }
         }
       }
     }
@@ -1896,14 +1960,16 @@ class Store_admin extends CI_Component {
         'product_id'            => $child['product_id'],
         'date'                  => $item['date'],
         // если первичая продукция берем брутто, иначе нетто
-        'expenditure'           => ($item['store_type_id'] == 1 ? $child['gross'] : $child['net'])
+        'expenditure'           => ($item['store_type_id'] == 1 ? $child['gross'] : $child['net']),
+        'expenditure_weight_defect' => $child['weight_defect'],
+        'expenditure_net'           => $child['net']
       );
       // ошибка, если текущий остаток < 0
       $rest = $this->store_model->get_rest(array(
-          'store_type_id' => $item['store_type_id'],
-          'client_id'     => $item['client_id'],
-          'product_id'    => $child['product_id']
-        ));
+        'store_type_id' => $item['store_type_id'],
+        'client_id'     => $item['client_id'],
+        'product_id'    => $child['product_id']
+      ));
       if(!$rest || ($rest['rest'] - $params['expenditure']) < 0){
         $this->store_model->delete_movement_products(array('expenditure_id' => $item['id']));
         send_answer(array('errors' => array('Остаток на складе не может быть меньше 0. Проверьте расход вторсырья "'.$child['product']['title_full'].'"')));
@@ -1918,14 +1984,22 @@ class Store_admin extends CI_Component {
 
     // пересчитываем order для строк с более поздней датой
     if(!$this->store_model->set_order_movement(array('store_type_id' => $item['store_type_id'], 'date >= ' => $item['date']))){
-      $this->store_model->delete_movement_products(array('coming_id' => $item['id']));
+      $this->store_model->delete_movement_products(array('expenditure_id' => $item['id']));
       send_answer(array('errors' => array('Ошибка перезаписи order в движении сырья')));
     }
 
     // пересчитываем остатки для строк с более поздней датой
     if(!$this->store_model->set_rests(array('store_type_id' => $item['store_type_id'], 'date >= ' => $item['date']))){
-      $this->store_model->delete_movement_products(array('coming_id' => $item['id']));
+      $this->store_model->delete_movement_products(array('expenditure_id' => $item['id']));
       send_answer(array('errors' => array('Ошибка перезаписи остатков в движении сырья')));
+    }
+
+    // пересчитываем остатки нетто для $item['store_type_id'] == 1 для строк с более поздней датой
+    if($item['store_type_id'] == 1){
+      if(!$this->store_model->set_rests_net(array('store_type_id' => $item['store_type_id'], 'date >= ' => $item['date']))){
+        $this->store_model->delete_movement_products(array('expenditure_id' => $item['id']));
+        send_answer(array('errors' => array('Ошибка перезаписи остатков в движении сырья')));
+      }
     }
 
     // расходу и всем товарам расхода ставим статус "Отправлено на склад"
