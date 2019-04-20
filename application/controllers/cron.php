@@ -37,7 +37,7 @@ class Cron extends PR_Controller {
       echo round($key * 100 / $cnt) . "%\r";
       file_put_contents(FCPATH .'uploads/expendituresRest.txt',''."\n".'START client_id='.$expenditure['client_id'].' product_id='.$expenditure['product_id'].' expenditure='.$expenditure['expenditure'].' date: '.$expenditure['date'].' '."\n".''."\n".'',FILE_APPEND);
       // считаем нетто по расходу
-      $result = $this->store_model->calculate_expenditure_net($expenditure);
+      $result = $this->store_model->calculate_expenditure_net($expenditure, true);
       if(!$result){
         file_put_contents(FCPATH .'uploads/expendituresRest.txt',''."\n".''."\n".' error calculate_expenditure_net');
       }
