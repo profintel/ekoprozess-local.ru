@@ -949,7 +949,7 @@ class Acceptances_admin extends CI_Component {
       'title' => 
         'Карточка акта приемки<br><small>'.
         '(Статус: '.$item['status_title'].')'.
-        ($item['store_coming_id'] && $store_coming && !$store_coming['active'] ? '<br><span class="text-danger">Приход не отправлен а склад</span>' : '').
+        ($item['store_coming_id'] && $store_coming && !$store_coming['active'] ? '<br><span class="text-danger">Приход не отправлен на склад</span>' : '').
         '</small>',
       'block_title_btn' => $block_title_btns,
       'html' => $this->view->render_form(array(
@@ -1085,16 +1085,19 @@ class Acceptances_admin extends CI_Component {
         $params_products['price'] = $this->input->post('price');
       }
 
-      // 22.04.2017 если не указан засор предупреждаем 1 раз, потом сохраняем
-      // проверяем отдельным методом, т.к. в акте эти поля disabled и не передаются из формы
-      if(!$this->acceptances_model->check_acceptance_products($id,'weight_defect') && !$check_param){
-        send_answer(array('confirm' => array(
-          'message' => 'Засор составляет 0%. Продолжить?',
-          'url'     => '',
-          'data'    => '{}',
-          'reaction'=> 'submit_form',
-          'context' => "#submitAcceptance,".($redirect_url ? urldecode(base64_decode($redirect_url)) : null).",0/1/,json",
-          )));
+      // если не указан засор предупреждаем 1 раз, потом сохраняем
+      if (!$check_param) {
+        foreach ($params_products['weight_defect'] as $key => $value) {
+          if($value == 0){
+            send_answer(array('confirm' => array(
+              'message' => 'Засор составляет 0%. Продолжить?',
+              'url'     => '',
+              'data'    => '{}',
+              'reaction'=> 'submit_form',
+              'context' => "#submitAcceptance,".($redirect_url ? urldecode(base64_decode($redirect_url)) : null).",0/1/,json",
+            )));
+          }
+        }
       }
     }
 

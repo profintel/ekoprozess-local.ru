@@ -1022,17 +1022,17 @@ class Store_admin extends CI_Component {
         if(isset($params_products['gross'][$key]) && $params_products['gross'][$key]){
           $params['gross'] = (float)str_replace(' ', '', $params_products['gross'][$key]);
         }
-        if(isset($params_products['weight_pack'][$key]) && $params_products['weight_pack'][$key]){
+        if(isset($params_products['weight_pack'][$key])){
           $params['weight_pack'] = (float)str_replace(' ', '', $params_products['weight_pack'][$key]);
         }
-        if(isset($params_products['weight_defect'][$key]) && $params_products['weight_defect'][$key]){
+        if(isset($params_products['weight_defect'][$key])){
           $params['weight_defect'] = (float)str_replace(' ', '', $params_products['weight_defect'][$key]);
         }
         if($item['store_type_id'] == 2 && isset($params_products['net'][$key]) && $params_products['net'][$key]){
           $params['net'] = (float)str_replace(' ', '', $params_products['net'][$key]);
         }        
         // если первичная продукция нетто считаем, т.к. ведем автом-ий подсчет остатков
-        if($item['store_type_id'] == 1){
+        if($item['store_type_id'] == 1 && isset($params['gross']) && isset($params['weight_pack'])){
           $params['net'] = round($params['gross'] - $params['weight_pack'] - $params['gross']*$params['weight_defect']/100);
         }
         // если id указано, обновляем данные

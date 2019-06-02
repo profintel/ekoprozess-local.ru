@@ -62,7 +62,7 @@ class Clients_model extends CI_Model {
       $item['blue_events_cnt'] = $this->calendar_model->get_events_cnt(array('client_id'=>$item['id'], 'check'=>0, 'start >='=>date('Y-m-d H:i:s')));
       //параметры для добавления события
       $item['event_params'] = json_encode(array(
-        'start'       => date("Y-m-d H:i:s", mktime(0,0,0,date("m"),date("d")+1,date("Y"))),
+        'start'       => date("Y-m-d H:i:s"),
         'client_id'   => $item['id'],
         'title'       => @$item['city_title'].' '.$item['title'],
         //1 параметр - описание с телефонами, добавляем в событие по умолчанию

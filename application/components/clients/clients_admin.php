@@ -785,7 +785,7 @@ class Clients_admin extends CI_Component {
     );
     //параметры для добавления события
     $event_params = json_encode(array(
-      'start'       => date("Y-m-d H:i:s", mktime(0,0,0,date("m"),date("d")+1,date("Y"))),
+      'start'       => date("Y-m-d H:i:s"),
       'client_id'   => $item['id'],
       'title'       => $item['title_full'],
       'description' => str_replace('"', '', trim(strip_tags(htmlspecialchars_decode(@$event_desc)))),
