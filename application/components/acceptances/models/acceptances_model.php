@@ -17,12 +17,14 @@ class Acceptances_model extends CI_Model {
       client_childs.title_full as client_child_title, 
       status.color as status_color,
       payment.parent_id as payment_id,
-      client_acceptance_emails.id as email');
+      client_acceptance_emails.id as email
+      ');
     $this->db->join('clients','clients.id = client_acceptances.client_id');
     $this->db->join('clients as client_childs','client_childs.id = client_acceptances.client_child_id','left');
     $this->db->join('client_acceptance_statuses as status','status.id = client_acceptances.status_id','left');
     $this->db->join('client_acceptance_payments as payment','payment.acceptance_id = pr_client_acceptances.id  AND payment.client_id = pr_client_acceptances.client_id AND (payment.client_child_id = pr_client_acceptances.client_child_id OR payment.client_child_id IS NULL)', 'left');
     $this->db->join('client_acceptance_emails','client_acceptance_emails.acceptance_id = client_acceptances.id','left');
+
     if ($where) {
       $this->db->where($where);
     }
@@ -65,9 +67,15 @@ class Acceptances_model extends CI_Model {
     unset($where);
     foreach ($items as $key => &$item) {
       if(is_null($item['parent_id'])){
-        $this->db->select('client_acceptances.*,t2.title_full as product_title');
+        $this->db->select('
+          client_acceptances.*,
+          t2.title_full as product_title,
+          store_comings.weight_defect as coming_weight_defect
+        ');
         // join-им чтобы вывести название товара и отчет по группе продукции
         $this->db->join('products t2','t2.id = client_acceptances.product_id');
+        // приход, чтобы вывести в таблице актов %засора прихода
+        $this->db->join('store_comings','store_comings.id = client_acceptances.store_coming_id','left');
         // Делаем запрос на дочерние акты, для отображения видов сырья в акте
         $where = 'client_acceptances.parent_id = '.$item['id'];
         if ($product_id) {          

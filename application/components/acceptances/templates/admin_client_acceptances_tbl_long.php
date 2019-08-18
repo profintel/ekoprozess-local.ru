@@ -21,7 +21,7 @@
             <th width="20%">Поставщик</th>
             <th>Брутто, кг</th>
             <th>Нетто, кг</th>
-            <th>Засор, %</th>
+            <th>Засор, % <br> акт / приход</th>
             <th>Вид вторсырья</th>
             <th>Цена, руб.</th>
             <th>Стоимость, руб.</th>
@@ -115,7 +115,13 @@
                 <span class="text-nowrap"><?=number_format(@$item['childs'][0]['net'],0,'.',' ');?></span>
               </td>
               <td>
-                <span class="text-nowrap"><?=number_format(@$item['childs'][0]['weight_defect'],0,'.',' ');?></span>
+                <span class="text-nowrap">
+                  <?=number_format(@$item['childs'][0]['weight_defect'],0,'.',' ');?>
+                  <? if (!is_null($item['childs'][0]['coming_weight_defect']) && 
+                        $item['childs'][0]['weight_defect'] != $item['childs'][0]['coming_weight_defect']) { ?>
+                   / <?=number_format(@$item['childs'][0]['coming_weight_defect'],0,'.',' ');?>
+                  <? } ?>
+                </span>
               </td>
               <td><?=@$item['childs'][0]['product_title'];?></td>
               <td>
@@ -145,7 +151,12 @@
                   <span class="text-nowrap"><?=number_format($child['net'],0,'.',' ');?></span>
                 </td>
                 <td>
-                  <span class="text-nowrap"><?=number_format($child['weight_defect'],0,'.',' ');?></span>
+                  <span class="text-nowrap">
+                    <?=number_format($child['weight_defect'],0,'.',' ');?>
+                    <? if ($child['weight_defect'] != $child['coming_weight_defect']) { ?>
+                    / <?=number_format(@$child['coming_weight_defect'],0,'.',' ');?>
+                    <? } ?>
+                  </span>
                 </td>
                 <td><?=$child['product_title'];?></td>
                 <td>
