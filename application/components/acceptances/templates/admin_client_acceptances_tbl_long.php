@@ -153,7 +153,8 @@
                 <td>
                   <span class="text-nowrap">
                     <?=number_format($child['weight_defect'],0,'.',' ');?>
-                    <? if ($child['weight_defect'] != $child['coming_weight_defect']) { ?>
+                    <? if (!is_null($child['coming_weight_defect']) && 
+                           $child['weight_defect'] != $child['coming_weight_defect']) { ?>
                     / <?=number_format(@$child['coming_weight_defect'],0,'.',' ');?>
                     <? } ?>
                   </span>
