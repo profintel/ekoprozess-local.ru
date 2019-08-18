@@ -319,15 +319,18 @@ class Acceptances_admin extends CI_Component {
     );
     return $this->render_template('admin/inner', $data);
   }
-   
+  
   /**
-  * Добавление нескольких видов вторсырья в акт приемки
+  * Добавление нескольких полей вторсырья в форму акта приемки
+  * @param $return_type - тип данных в результате
+  *        $items - массив с данными по вторсырью
+  *        $store_coming - массив с данными по приходу
   */ 
-  function renderProductsFields($return_type = 'array',$items = array()) {
+  function renderProductsFields($return_type = 'array', $items = array(), $store_coming) {
     $result = array();
     if ($items) {
       foreach ($items as $key => $item) {
-        $result[] = $this->_renderProductsField(($key==0?true:false), $item);
+        $result[] = $this->_renderProductsField(($key==0?true:false), $item, $store_coming);
       }
     } else {
       $result[] = $this->_renderProductsField(($return_type=='array'?true:false));
@@ -347,8 +350,8 @@ class Acceptances_admin extends CI_Component {
         )
       )
     );
-    // var_dump($result);
-    //$return_type - тип данных в результате
+
+    // $return_type - тип данных в результате
     if($return_type == 'html' && !$items){
       $html = '<div class="form_block">
         <div class="panel-heading clearfix">
@@ -368,10 +371,28 @@ class Acceptances_admin extends CI_Component {
   /**
   * Формирует поля блока с вторсырьем
   * для формы акта приемки
-  * $label - указывает нади ли формировать заголовик
-  * $item - массив с данными по вторсырью
+  * @param $label - указывает нади ли формировать заголовик
+  *       $item - массив с данными по вторсырью
+  *       $store_coming - массив с данными по приходу
   */ 
-  function _renderProductsField($label = true, $item = array()) {
+  function _renderProductsField($label = true, $item = array(), $store_coming) {
+    $errors = array(
+      'weight_defect' => false,
+      'net'           => false,
+    );
+
+    // проверяем для прихода, если в акте другой % засора, подсвечиваем это поле
+    if(isset($store_coming['childs'])){
+      foreach ($store_coming['childs'] as $key => $coming_item) {
+        if($item['store_coming_id'] == $coming_item['id'] && $item['weight_defect'] != $coming_item['weight_defect']){
+          $errors['weight_defect'] = 'В приходе засор = ' . $coming_item['weight_defect'] . '%';
+        }
+        if($item['store_coming_id'] == $coming_item['id'] && $item['net'] != $coming_item['net']){
+          $errors['net'] = 'В приходе нетто = ' . $coming_item['net'] . 'кг';
+        }
+      }
+    }
+
     $fields = array(
       array(
         'view'    => 'fields/hidden',
@@ -426,8 +447,8 @@ class Acceptances_admin extends CI_Component {
         'name'     => 'weight_defect[]',
         'value'    => ($item ? $item['weight_defect'] : ''),
         'class'    => 'number',
-        // 'disabled' => ($item && $item['store_coming_id'] ? true : false),
-        'form_group_class' => 'form_group_product_field',
+        'form_group_class' => 'form_group_product_field '.($errors['weight_defect'] ? ' has-warning el-tooltip' : ''),
+        'form_group_title' => $errors['weight_defect'],
         'onchange' => 'updateComingNet(this);updateAcceptanceSumProduct();',
       ),
       array(
@@ -448,8 +469,8 @@ class Acceptances_admin extends CI_Component {
         'value'     => ($item ? $item['net'] : ''),
         'onchange'   => 'updateAcceptanceSumProduct()',
         'class'     => 'product_field_count number',
-        // 'disabled' => ($item && $item['store_coming_id'] ? true : false),
-        'form_group_class' => 'form_group_product_field',
+        'form_group_class' => 'form_group_product_field '.($errors['net'] ? ' has-warning el-tooltip' : ''),
+        'form_group_title' => $errors['net'],
       ),
       array(
         'view'      => 'fields/text',
@@ -791,6 +812,7 @@ class Acceptances_admin extends CI_Component {
       )
     ));
 
+    // приход по акту приемки
     if($item['store_coming_id']){
       $store_coming = $this->store_model->get_coming(array('store_comings.id'=>$item['store_coming_id']));
       // Блок с фото прихода
@@ -811,7 +833,7 @@ class Acceptances_admin extends CI_Component {
       }
     }
 
-    $productsFields = $this->renderProductsFields('array',$item['childs']);
+    $productsFields = $this->renderProductsFields('array', $item['childs'], ($item['store_coming_id'] ? $store_coming : false));
     foreach ($productsFields as $key => $productField) {
       $blocks[] = $productField;
     }
