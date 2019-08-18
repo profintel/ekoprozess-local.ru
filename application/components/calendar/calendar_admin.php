@@ -161,7 +161,7 @@ class Calendar_admin extends CI_Component {
             'fields'   => array(
               array(
                 'view'     => 'fields/' . ($item['client_id'] ? 'readonly' : 'hidden'),
-                'value'    => '<a href="/admin/clients/edit_client/'. $item['client_id'] .'/" class="btn btn-xs btn-info m-a-0"><span class="glyphicon glyphicon-list-alt"></span> Карточка клиента</a>',
+                'value'    => '<a href="/admin/clients/edit_client/'. $item['client_id'] .'/" target="_blank" class="btn btn-xs btn-info m-a-0"><span class="glyphicon glyphicon-list-alt"></span> Карточка клиента</a>',
                 'type'     => '',
                 'reaction' => ''
               ),
