@@ -6,8 +6,20 @@
     </div>
   <? } else { ?>
   <div class="panel">
-    <h3 class="text-center m-b-0">"<?=$type['title'];?>"</h3>
-    <h3 class="text-center m-t-0">Отчет по остаткам вторсырья на складе</h3>
+    <h3 class="text-center m-b-0">
+      "
+        <?=$type['title'];?>.
+        <? if($get_params['type'] == "gross") {?>
+          Брутто.
+        <? } ?>
+        <? if($get_params['type'] == "net") {?>
+          Нетто.
+        <? } ?>
+      "
+    </h3>
+    <h3 class="text-center m-t-0">
+      Отчет по остаткам вторсырья на складе.
+    </h3>
     <? //если отчет за 1 день ?>
     <h5 class="m-t-lg">
       <? if($get_params['date_start'] == $get_params['date_end']) { ?>
