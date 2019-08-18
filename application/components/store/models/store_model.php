@@ -406,11 +406,10 @@ class Store_model extends CI_Model {
   * @param expenditure - расход, по которому считаем нетто
   */
   function calculate_expenditure_net($expenditure, $cron = false) {
-    // полное движение товара до основного расхода с добавлением %засора по приходу, т.к. в движении этого параметра нет
+    $expenditure_expenditure = $expenditure['expenditure'];
     $movement_products = $this->db->query('
-      SELECT pr_movement.*, comings.weight_defect
+      SELECT pr_movement.*
       FROM pr_store_movement_products as pr_movement
-      LEFT JOIN pr_store_comings comings ON comings.id = pr_movement.coming_child_id
       WHERE 
         pr_movement.client_id = ' . $expenditure['client_id'] . ' AND 
         pr_movement.store_type_id = ' . $expenditure['store_type_id'] . ' AND 
@@ -527,6 +526,7 @@ class Store_model extends CI_Model {
             }
             // вычитаем из текущего прихода остаток по расходу
             $movement_coming['rest_item'] = $movement_coming['rest_item'] - $movement_expenditure['rest_item'];
+            
             // остаток по расходу учтен полностью
             // удаляем элемент из массива остатков по расходам
             unset($movement_expenditures[$movement_expenditure['id']]);
@@ -553,12 +553,13 @@ class Store_model extends CI_Model {
       // если остаток по приходу больше расхода
       if($movement_coming['rest_item'] >= $expenditure['expenditure']){
         if($cron){
-          file_put_contents(FCPATH .'uploads/expendituresRest.txt','action2 rest1 ' . $movement_coming['coming'] . '('.$movement_coming['weight_defect'].'): ' . $movement_coming['rest_item'] . '-' . $expenditure['expenditure'].''."\n".'',FILE_APPEND);
+          file_put_contents(FCPATH .'uploads/expendituresRest.txt','action2 rest1 ' . $movement_coming['coming'] . '('.$movement_coming['coming_weight_defect'].'): ' . $movement_coming['rest_item'] . '-' . $expenditure['expenditure'].''."\n".'',FILE_APPEND);
         }
 
         // записываем % засора и к-во брутто
         $expenditure_weight_defect[] = array(
-          'weight_defect' => $movement_coming['weight_defect'],
+          'weight_defect' => $movement_coming['coming_weight_defect'],
+          'weight_pack' => $movement_coming['coming_weight_pack'],
           'gross' => $expenditure['expenditure']
         );
 
@@ -567,12 +568,13 @@ class Store_model extends CI_Model {
       } else {
         // иначе берем часть прихода на данный расход и идем дальше по приходам
         if($cron){
-          file_put_contents(FCPATH .'uploads/expendituresRest.txt','action2 rest2 ' . $movement_coming['coming'] . '('.$movement_coming['weight_defect'].'): '  . $expenditure['expenditure'] . '-' . $movement_coming['rest_item'].''."\n".'',FILE_APPEND);
+          file_put_contents(FCPATH .'uploads/expendituresRest.txt','action2 rest2 ' . $movement_coming['coming'] . '('.$movement_coming['coming_weight_defect'].'): '  . $expenditure['expenditure'] . '-' . $movement_coming['rest_item'].''."\n".'',FILE_APPEND);
         }
 
         // записываем % засора и к-во брутто
         $expenditure_weight_defect[] = array(
-          'weight_defect' => $movement_coming['weight_defect'],
+          'weight_defect' => $movement_coming['coming_weight_defect'],
+          'weight_pack' => $movement_coming['coming_weight_pack'],
           'gross' => $movement_coming['rest_item']
         );
 
@@ -586,8 +588,8 @@ class Store_model extends CI_Model {
     // считаем нетто по расходу
     $expenditure_net = 0;
     foreach ($expenditure_weight_defect as $key => $value) {
-      // упаковку не учитываем, т.к. расход идет уже продукции без упаковки
-      $expenditure_net += round($value['gross'] - $value['gross']*$value['weight_defect']/100);
+      // учитываем упаковку
+      $expenditure_net += round($value['gross'] - $value['weight_pack'] - $value['gross']*$value['weight_defect']/100);
     }
     if($cron){
       file_put_contents(FCPATH .'uploads/expendituresRest.txt','expenditure_net = ' . $expenditure_net,FILE_APPEND);
@@ -598,6 +600,33 @@ class Store_model extends CI_Model {
       file_put_contents(FCPATH .'uploads/expendituresRest.txt',"\n".'ERROR расход превышает приход expenditure=' . serialize($expenditure) ."\n",FILE_APPEND);
       echo 'ERROR расход превышает приход expenditure=' . serialize($expenditure) ."\n";
       // var_dump($expenditure);
+    }
+
+    // корректировка нетто
+    // считаем остаток нетто, если брутто 0 а нетто нет, то корректируем нетто
+    $rest_net = $this->store_model->calculate_rest(
+      'id != ' . $expenditure['id'] . ' AND ' .
+      'client_id = ' . $expenditure['client_id'] . ' AND ' .
+      'store_type_id = ' . $expenditure['store_type_id'] . ' AND ' .
+      'product_id = ' . $expenditure['product_id'] . ' AND ' .
+      'DATE_FORMAT(pr_store_movement_products.date,"%Y-%m-%d") <= "' . date('Y-m-d', strtotime($expenditure['date'])) . '" AND ' .
+      'pr_store_movement_products.order < ' . $expenditure['order'] . ' ', 
+      false, 
+      false, 
+      true
+    );
+    if ($expenditure['rest'] == 0 && $rest_net != $expenditure_net) {
+      // if($cron){
+      //   echo 'rest ' . $expenditure['rest'] . ' rest_net ' . $rest_net . 
+      //   ' product_id ' . $expenditure['product_id'] . 
+      //   ' expenditure ' . $expenditure_expenditure . 
+      //   ' expenditure_net ' . $expenditure_net ."\n";
+      // }
+      // из нетто вычитаем разницу в остатках
+      $expenditure_net += $rest_net - $expenditure_net;
+      // if($cron){
+      //   echo '!!!!!!!!!! expenditure_net ' . $expenditure_net ."\n";
+      // }
     }
 
     return array(

@@ -25,7 +25,7 @@ class Cron extends PR_Controller {
     file_put_contents(FCPATH .'uploads/expendituresRest.txt', 'START SCRIPT '.date('d.m.Y H:i:s'));
     // получаем весь список расходов
     $expenditures = $this->db->query('
-      SELECT id, store_type_id, client_id, product_id, expenditure, DATE_FORMAT(`date`,"%Y-%m-%d") as `date`, `order` 
+      SELECT id, store_type_id, client_id, product_id, expenditure, DATE_FORMAT(`date`,"%Y-%m-%d") as `date`, `order`, rest
       FROM pr_store_movement_products
       WHERE 
         store_type_id = 1 AND 
@@ -43,7 +43,7 @@ class Cron extends PR_Controller {
       }
 
       $this->db->query("UPDATE pr_store_movement_products SET expenditure_weight_defect = '". serialize($result['expenditure_weight_defect']) ."', expenditure_net = ".$result['expenditure_net']." WHERE id=".$expenditure['id'].";");
-      
+
       file_put_contents(FCPATH .'uploads/expendituresRest.txt',''."\n".''."\n".'END client_id='.$expenditure['client_id'].' product_id='.$expenditure['product_id'].' expenditure='.$expenditure['expenditure'].' date: '.$expenditure['date'].' '."\n\n",FILE_APPEND);
       unset($movement_comings, $movement_expenditures);
     }
@@ -88,7 +88,7 @@ class Cron extends PR_Controller {
   }
   
   /**
-  * Пересчитывает все остатки брутто в движении сырья
+  * Пересчитывает все остатки нетто в движении сырья
   */
   function set_rests_net(){ 
     echo 'start set_rests_net'."\n";
