@@ -1601,9 +1601,10 @@ class Store_admin extends CI_Component {
       $this->delete_expenditure($id, true);
       send_answer(array('errors' => array('Не указаны параметры вторсырья')));
     }
-    // перед добавлением проверяем указаны ли все необходимые параметры
+    
     foreach ($params_products['product_id'] as $key => $product_id) {
       if($product_id){
+        // перед добавлением проверяем указаны ли все необходимые параметры
         if($params['store_type_id'] == 1){
           $expenditure = (float)str_replace(' ', '', $params_products['gross'][$key]);
         } else {
@@ -1620,10 +1621,8 @@ class Store_admin extends CI_Component {
           $this->delete_expenditure($id, true);
           send_answer(array('errors' => array('Остаток на складе не может быть меньше 0. Возможно расход по данному вторсырью уже заведен в базу более поздней датой. Проверьте остатки в движении вторсырья.')));
         }
-      }
-    }
-    foreach ($params_products['product_id'] as $key => $product_id) {
-      if($product_id){
+
+
         // по ключу собираем все параметры вторсырья
         $child_params = array(
           'parent_id'         => $id,
@@ -1650,7 +1649,8 @@ class Store_admin extends CI_Component {
             'store_type_id' => $child_params['store_type_id'],
             'product_id'    => $child_params['product_id'],
             'date'          => $params['date'],
-            'expenditure'   => $child_params['gross']
+            'expenditure'   => $child_params['gross'],
+            'rest'          => $rest
           );
           $movement_params['order'] = $this->store_model->get_movement_max_order(array('date <= ' => $params['date']));
           
@@ -1782,7 +1782,7 @@ class Store_admin extends CI_Component {
             'view'     => 'fields/submit',
             'title'    => 'Сохранить',
             'type'     => 'ajax',
-            'reaction' => ''
+            'reaction' => 'reload'
           ),
           array(
             'view'     => 'fields/submit',
@@ -1830,13 +1830,16 @@ class Store_admin extends CI_Component {
       'date'              => ($this->input->post('date') ? date('Y-m-d H:i:s', strtotime($this->input->post('date'))) : NULL),
       'client_id'         => ((int)$this->input->post('client_id') ? (int)$this->input->post('client_id') : NULL),
       'store_workshop_id' => ((int)$this->input->post('store_workshop_id') ? (int)$this->input->post('store_workshop_id') : NULL),
-      'comment'           => htmlspecialchars(trim($this->input->post('comment'))),
-
+      'comment'           => htmlspecialchars(trim($this->input->post('comment')))
     );
 
     $errors = $this->_validate_expenditure_params($item['store_type_id'], $params);
     if ($errors) {
       send_answer(array('errors' => $errors));
+    }
+    
+    if (!$this->store_model->update_expenditure($id, $params)) {
+      send_answer(array('errors' => array('Ошибка при сохранении изменений')));
     }
 
     //редактируем/добавляем вторсырье
@@ -1849,9 +1852,14 @@ class Store_admin extends CI_Component {
     if(!is_array($params_products['product_id']) || !@$params_products['product_id'][0]){
       send_answer(array('errors' => array('Не указаны параметры вторсырья')));
     }
-    // проверяем указаны ли все необходимые параметры
+
+    //удаляем все параметры вторсырья по приходу и добавляем заново указанные
+    if (!$this->store_model->delete_expenditure(array('parent_id'=>$item['id']))) {
+      send_answer(array('errors' => array('Ошибка при удалении вторсырья')));
+    }
     foreach ($params_products['product_id'] as $key => $product_id) {
       if($product_id){
+        // проверяем указаны ли все необходимые параметры
         if($item['store_type_id'] == 1){
           $expenditure = (float)str_replace(' ', '', $params_products['gross'][$key]);
         } else {
@@ -1866,19 +1874,7 @@ class Store_admin extends CI_Component {
         if(!$rest || ($rest['rest'] - $expenditure) < 0){
           send_answer(array('errors' => array('Остаток на складе не может быть меньше 0. Возможно расход по данному вторсырью уже заведен в базу более поздней датой. Проверьте остатки в движении вторсырья.')));
         }
-      }
-    }
-    
-    if (!$this->store_model->update_expenditure($id, $params)) {
-      send_answer(array('errors' => array('Ошибка при сохранении изменений')));
-    }
 
-    //удаляем все параметры вторсырья по приходу и добавляем заново указанные
-    if (!$this->store_model->delete_expenditure(array('parent_id'=>$item['id']))) {
-      send_answer(array('errors' => array('Ошибка при удалении вторсырья')));
-    }
-    foreach ($params_products['product_id'] as $key => $product_id) {
-      if($product_id){
         //по ключу собираем все параметры вторсырья
         $child_params = array(
           'parent_id'         => $id,
@@ -1905,7 +1901,8 @@ class Store_admin extends CI_Component {
             'store_type_id' => $child_params['store_type_id'],
             'product_id'    => $child_params['product_id'],
             'date'          => $params['date'],
-            'expenditure'   => $child_params['gross']
+            'expenditure'   => $child_params['gross'],
+            'rest'          => $rest
           );
           $movement_params['order'] = $this->store_model->get_movement_max_order(array('date <= ' => $params['date']));
           

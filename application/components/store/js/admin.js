@@ -55,9 +55,9 @@ function updateRestProduct(obj){
           function(result){
             form_block = $(item).parents('.form_block');
             // Обнуляем остатки
-            form_block.find('.rest, .rest_product').text('0.00');
+            form_block.find('.rest, .rest_product').text('0.00').val(0);
             if(result){
-              form_block.find('.rest').text(result.rest);
+              form_block.find('.rest').text(result.rest).val(result.rest);;
               form_block.find('.rest_product').text(result.rest_product);
             }
           },
