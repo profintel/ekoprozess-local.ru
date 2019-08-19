@@ -326,7 +326,7 @@ class Acceptances_admin extends CI_Component {
   *        $items - массив с данными по вторсырью
   *        $store_coming - массив с данными по приходу
   */ 
-  function renderProductsFields($return_type = 'array', $items = array(), $store_coming) {
+  function renderProductsFields($return_type = 'array', $items = array(), $store_coming = 'array') {
     $result = array();
     if ($items) {
       foreach ($items as $key => $item) {
@@ -375,7 +375,7 @@ class Acceptances_admin extends CI_Component {
   *       $item - массив с данными по вторсырью
   *       $store_coming - массив с данными по приходу
   */ 
-  function _renderProductsField($label = true, $item = array(), $store_coming) {
+  function _renderProductsField($label = true, $item = array(), $store_coming = 'array') {
     $errors = array(
       'weight_defect' => false,
       'net'           => false,
