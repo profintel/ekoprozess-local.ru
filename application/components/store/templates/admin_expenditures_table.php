@@ -85,7 +85,7 @@
                   </td>
                 <? } ?>
                 <? if ($type_id == 2) {?>
-                  <td rowspan="<?=count($item['childs']);?>>
+                  <td rowspan="<?=count($item['childs']);?>">
                     <?=$item['customer'];?>
                   </td>
                 <? } ?>
