@@ -425,7 +425,8 @@ class Store_model extends CI_Model {
     foreach ($movement_products as $movement){
       // собираем приходы в массив и сохраняем остатки по каждому приходу в отдельное поле
       if($movement['coming']){
-        $movement_comings[$movement['id']] = array_merge($movement, array('rest_item' => $movement['coming']));
+        // вычитаем сразу вес упаковки
+        $movement_comings[$movement['id']] = array_merge($movement, array('rest_item' => $movement['coming'] - $movement['coming_weight_pack']));
       }
       // если расход, перебираем приходы, которые были ранее по движению
       if($movement['expenditure']){
@@ -515,7 +516,7 @@ class Store_model extends CI_Model {
     foreach ($movement_comings as $id => &$movement_coming) {        
       if($movement_coming['rest_item'] == 0) continue;
 
-      // учитываем остатки по расходам, которые были ранее по движению              
+      // учитываем остатки по расходам, которые были ранее по движению
       // вычитаем сначала остатки из текущего прихода
       if($movement_expenditures){
         foreach ($movement_expenditures as $key => &$movement_expenditure) {
@@ -559,7 +560,6 @@ class Store_model extends CI_Model {
         // записываем % засора и к-во брутто
         $expenditure_weight_defect[] = array(
           'weight_defect' => $movement_coming['coming_weight_defect'],
-          'weight_pack' => $movement_coming['coming_weight_pack'],
           'gross' => $expenditure['expenditure']
         );
 
@@ -574,7 +574,6 @@ class Store_model extends CI_Model {
         // записываем % засора и к-во брутто
         $expenditure_weight_defect[] = array(
           'weight_defect' => $movement_coming['coming_weight_defect'],
-          'weight_pack' => $movement_coming['coming_weight_pack'],
           'gross' => $movement_coming['rest_item']
         );
 
@@ -588,8 +587,8 @@ class Store_model extends CI_Model {
     // считаем нетто по расходу
     $expenditure_net = 0;
     foreach ($expenditure_weight_defect as $key => $value) {
-      // учитываем упаковку
-      $expenditure_net += round($value['gross'] - $value['weight_pack'] - $value['gross']*$value['weight_defect']/100);
+      // считаем без упаковки, т.к. упаковку учли ранее
+      $expenditure_net += round($value['gross'] - $value['gross']*$value['weight_defect']/100);
     }
     if($cron){
       file_put_contents(FCPATH .'uploads/expendituresRest.txt','expenditure_net = ' . $expenditure_net,FILE_APPEND);
