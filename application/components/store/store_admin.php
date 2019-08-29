@@ -345,7 +345,16 @@ class Store_admin extends CI_Component {
         'value'    => ($item ? $item['product_id'] : ''),
         'disabled' => ($item && $item['active'] ? true : false),
         'onchange' => 'updateRestProduct(this);'.($section == 'expenditure' ? 'updateClientsRests(this);' : ''),
-        'form_group_class' => 'form_group_product_field form_group_w30',
+        'form_group_class' => 'form_group_product_field form_group_w20',
+      ),
+      array(
+        'view'  => 'fields/'.($type_id == 1 && $section == 'coming' ? 'text' : 'hidden'),
+        'type'  => 'number',
+        'title' => ($label ? 'Вес в ТТН Поставщика,&nbsp;(кг)' : ''),
+        'name'  => 'weight_ttn[]',
+        'value' => ($item && $section == 'coming' ? $item['weight_ttn'] : ''),
+        'class' => 'number',
+        'form_group_class' => 'form_group_product_field',
       ),
       array(
         'view'     => 'fields/'.($type_id == 1 ? 'text' : 'hidden'),
@@ -673,6 +682,7 @@ class Store_admin extends CI_Component {
       'product_id'    => $this->input->post('product_id'),
       'gross'         => $this->input->post('gross'),
       'net'           => $this->input->post('net'),
+      'weight_ttn'    => $this->input->post('weight_ttn'),
       'weight_pack'   => $this->input->post('weight_pack'),
       'weight_defect' => $this->input->post('weight_defect'),
       'cnt_places'    => $this->input->post('cnt_places'),
@@ -702,6 +712,7 @@ class Store_admin extends CI_Component {
           'product_id'        => (float)str_replace(' ', '', $params_products['product_id'][$key]),
           'gross'             => (float)str_replace(' ', '', $params_products['gross'][$key]),
           'net'               => (float)str_replace(' ', '', $params_products['net'][$key]),
+          'weight_ttn'        => (float)str_replace(' ', '', $params_products['weight_ttn'][$key]),
           'weight_pack'       => (float)str_replace(' ', '', $params_products['weight_pack'][$key]),
           'weight_defect'     => (float)str_replace(' ', '', $params_products['weight_defect'][$key]),
           'cnt_places'        => (float)str_replace(' ', '', $params_products['cnt_places'][$key]),
@@ -981,6 +992,7 @@ class Store_admin extends CI_Component {
       'product_id'    => $this->input->post('product_id'),
       'gross'         => $this->input->post('gross'),
       'net'           => $this->input->post('net'),
+      'weight_ttn'    => $this->input->post('weight_ttn'),
       'weight_pack'   => $this->input->post('weight_pack'),
       'weight_defect' => $this->input->post('weight_defect'),
       'cnt_places'    => $this->input->post('cnt_places'),
@@ -1021,6 +1033,9 @@ class Store_admin extends CI_Component {
         }
         if(isset($params_products['gross'][$key]) && $params_products['gross'][$key]){
           $params['gross'] = (float)str_replace(' ', '', $params_products['gross'][$key]);
+        }
+        if(isset($params_products['weight_ttn'][$key])){
+          $params['weight_ttn'] = (float)str_replace(' ', '', $params_products['weight_ttn'][$key]);
         }
         if(isset($params_products['weight_pack'][$key])){
           $params['weight_pack'] = (float)str_replace(' ', '', $params_products['weight_pack'][$key]);
@@ -1335,6 +1350,7 @@ class Store_admin extends CI_Component {
       'date_end'    => ($this->uri->getParam('date_end') ? date('Y-m-d',strtotime($this->uri->getParam('date_end'))) : ''),
       'client_id'   => ((int)$this->uri->getParam('client_id') ? (int)$this->uri->getParam('client_id') : ''),
       'product_id'  => ($product_id && @$product_id[0] ? $product_id : array()),
+      'customer'    => htmlspecialchars(trim($this->uri->getParam('customer'))),
     );
 
     $data = array(
@@ -1370,13 +1386,20 @@ class Store_admin extends CI_Component {
                 'onchange1'    => "submit_form(this, handle_ajaxResultAllData);",
               ),
               array(
-                'view'       => 'fields/select',
+                'view'       => 'fields/'.($type_id == 1 ? 'select' : 'hidden'),
                 'title'      => 'Поставщик:',
                 'name'       => 'client_id',
                 'text_field' => 'title_full',
                 'value'      => $get_params['client_id'],
                 'options'    => $this->clients_model->get_clients(),
                 'empty'      => true,
+                'onchange' => "submit_form(this, handle_ajaxResultAllData);",
+              ),
+              array(
+                'view'   => 'fields/'.($type_id == 1 ? 'hidden' : 'text'),
+                'title'  => 'Покупатель:',
+                'name'   => 'customer',
+                'value'  => $get_params['customer'],
                 'onchange' => "submit_form(this, handle_ajaxResultAllData);",
               ),
               array(
@@ -1421,6 +1444,9 @@ class Store_admin extends CI_Component {
       }
       if($get_params['client_id']){
         $where['store_expenditures.client_id'] = $get_params['client_id'];
+      }
+      if($get_params['customer']){
+        $where["store_expenditures.customer LIKE '%".$get_params['customer']."%'"] = null;
       }
 
       $page = ($this->uri->getParam('page') ? $this->uri->getParam('page') : 1);
@@ -1530,6 +1556,11 @@ class Store_admin extends CI_Component {
         'options' => $this->workshops_model->get_workshops(),
       ),
       array(
+        'view'    => 'fields/'.($type_id == 1 ? 'hidden' : 'text'),
+        'title' => 'Покупатель:',
+        'name'  => 'customer'
+      ),
+      array(
         'view'    => 'fields/'.($type_id == 1 ? 'hidden' : 'textarea'),
         'title'   => 'Примечания',
         'name'    => 'comment',
@@ -1577,6 +1608,7 @@ class Store_admin extends CI_Component {
       'client_id'         => ((int)$this->input->post('client_id') ? (int)$this->input->post('client_id') : NULL),
       'store_workshop_id' => ((int)$this->input->post('store_workshop_id') ? (int)$this->input->post('store_workshop_id') : NULL),
       'date'              => ($this->input->post('date') ? date('Y-m-d H:i:s', strtotime($this->input->post('date'))) : NULL),
+      'customer'          => htmlspecialchars(trim($this->input->post('customer'))),
       'comment'           => htmlspecialchars(trim($this->input->post('comment'))),
     );
 
@@ -1759,6 +1791,12 @@ class Store_admin extends CI_Component {
         'empty'    => true,
       ),
       array(
+        'view'    => 'fields/'.($type_id == 1 ? 'hidden' : 'text'),
+        'title'   => 'Покупатель:',
+        'name'    => 'customer',
+        'value'   => $item['customer']
+      ),
+      array(
         'view'    => 'fields/'.($type_id == 1 ? 'hidden' : 'textarea'),
         'title'   => 'Примечания',
         'name'    => 'comment',
@@ -1830,6 +1868,7 @@ class Store_admin extends CI_Component {
       'date'              => ($this->input->post('date') ? date('Y-m-d H:i:s', strtotime($this->input->post('date'))) : NULL),
       'client_id'         => ((int)$this->input->post('client_id') ? (int)$this->input->post('client_id') : NULL),
       'store_workshop_id' => ((int)$this->input->post('store_workshop_id') ? (int)$this->input->post('store_workshop_id') : NULL),
+      'customer'          => htmlspecialchars(trim($this->input->post('customer'))),
       'comment'           => htmlspecialchars(trim($this->input->post('comment')))
     );
 

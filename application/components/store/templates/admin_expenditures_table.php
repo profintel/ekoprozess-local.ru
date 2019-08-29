@@ -15,6 +15,7 @@
             <? if ($type_id == 1) {?><th>Цех</th><? } ?>
             <? if ($type_id == 1) {?><th width="40%">Поставщик</th><? } ?>
             <? if ($type_id == 1) {?><th>Брутто, кг</th><? } ?>
+            <? if ($type_id == 2) {?><th>Покупатель</th><? } ?>
             <? if ($type_id == 2) {?><th>Нетто, кг</th><? } ?>
             <th>Кол-во мест</th>
             <th>Вид вторсырья</th>
@@ -65,15 +66,14 @@
                   </div>
                 </td>
                 <?//если active==1 значит расход отправлен в учет движения товара на складе?>
-                <td class="text-center hidden-print" rowspan="<?=count($item['childs']);?>">
+                <td width="1%" class="text-center hidden-print" rowspan="<?=count($item['childs']);?>">
                   <? if ($item['active']) { ?>
                     <span class="glyphicon glyphicon-ok text-success el-tooltip" data-toggle="tooltip" data-placement="right" title="Учтено в остатках"></span>
                   <? } else { ?>
                     <span class="glyphicon glyphicon-pencil el-tooltip" data-toggle="tooltip" data-placement="right" title="Черновик. Не учитывается в остатках."></span>
                   <? } ?>
                 </td>
-                <td rowspan="<?=count($item['childs']);?>"><?=date('d.m.Y',strtotime($item['date']));?>
-                </td>
+                <td width="10%" rowspan="<?=count($item['childs']);?>"><?=date('d.m.Y',strtotime($item['date']));?></td>
                 <? if ($type_id == 1) {?>
                   <td rowspan="<?=count($item['childs']);?>">
                     <?=$item['workshop']['title'];?>
@@ -82,6 +82,11 @@
                 <? if ($type_id == 1) {?>
                   <td rowspan="<?=count($item['childs']);?>">
                     <?=$item['client_title'];?>
+                  </td>
+                <? } ?>
+                <? if ($type_id == 2) {?>
+                  <td>
+                    <?=$item['customer'];?>
                   </td>
                 <? } ?>
                 <td>
@@ -125,7 +130,7 @@
             </tr>
           <? } ?>
           <tr>
-            <td colspan="<?=($type_id == 1 ? 5 : 3);?>" class="text-right"><h4>ИТОГО <small>за период  с <?=rus_date($get_params['date_start'],'j m Yг.');?> по <?=rus_date($get_params['date_end'],'j m Yг.');?></small></h4></td>
+            <td colspan="<?=($type_id == 1 ? 5 : 4);?>" class="text-right"><h4>ИТОГО <small>за период  с <?=rus_date($get_params['date_start'],'j m Yг.');?> по <?=rus_date($get_params['date_end'],'j m Yг.');?></small></h4></td>
             <td colspan="4"><h4><?=($type_id == 1 ? number_format($all_gross,0,'.',' ') : number_format($all_net,0,'.',' '));?> кг</h4></td>
           </tr>
         </tfoot>

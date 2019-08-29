@@ -666,7 +666,7 @@ class Acceptances_admin extends CI_Component {
       foreach ($store_coming['childs'] as $key => $child) {
         $params_products['store_coming_id'][]= $child['id'];
         $params_products['product_id'][]     = $child['product_id'];
-        $params_products['weight_ttn'][]     = 0;
+        $params_products['weight_ttn'][]     = $child['weight_ttn'];
         $params_products['gross'][]          = $child['gross'];
         $params_products['weight_pack'][]    = $child['weight_pack'];
         $params_products['weight_defect'][]  = $child['weight_defect'];
