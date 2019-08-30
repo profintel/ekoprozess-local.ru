@@ -1015,6 +1015,7 @@ class Acceptances_admin extends CI_Component {
         'item_id'       => array(),
         'product_id'    => array(),
         'gross'         => array(),
+        'weight_ttn'    => array(),
         'weight_pack'   => array(),
         'weight_defect' => array(),
         'cnt_places'    => array(),
@@ -1030,6 +1031,7 @@ class Acceptances_admin extends CI_Component {
         $params_products['store_coming_id'][]= $child['id'];
         $params_products['product_id'][]     = $child['product_id'];
         $params_products['gross'][]          = $child['gross'];
+        $params_products['weight_ttn'][]    = $child['weight_ttn'];
         $params_products['weight_pack'][]    = $child['weight_pack'];
         $params_products['weight_defect'][]  = $child['weight_defect'];
         $params_products['cnt_places'][]     = $child['cnt_places'];
