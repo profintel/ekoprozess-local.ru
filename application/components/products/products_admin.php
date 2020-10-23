@@ -193,6 +193,8 @@ class Products_admin extends CI_Component {
    * @param $id - id вида вторсырья
    */      
   function delete_product($id) {
+    send_answer(array('errors' => array('Удалять вид вторсырья запрещено')));
+
     $this->gallery_model->delete_gallery_images(array('path' => '/gallery_system/clients/products/'.$id.'/'));
     $this->main_model->delete_params('products', $id);
     $this->products_model->delete_product((int)$id);

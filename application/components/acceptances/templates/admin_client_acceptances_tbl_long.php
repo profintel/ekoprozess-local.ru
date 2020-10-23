@@ -117,7 +117,7 @@
               <td>
                 <span class="text-nowrap">
                   <?=number_format(@$item['childs'][0]['weight_defect'],0,'.',' ');?>
-                  <? if (!is_null($item['childs'][0]['coming_weight_defect']) && 
+                  <? if (!empty($item['childs'][0]) && !is_null($item['childs'][0]['coming_weight_defect']) && 
                         $item['childs'][0]['weight_defect'] != $item['childs'][0]['coming_weight_defect']) { ?>
                    / <?=number_format(@$item['childs'][0]['coming_weight_defect'],0,'.',' ');?>
                   <? } ?>
