@@ -296,7 +296,7 @@ function submit_form(context, reaction, uri_postfix, data_type) {
       // get параметры из формы
       var queryString = form.formSerialize();
       //меняем путь и сохраняем в историю браузера ссылку
-      var pathLocation = 'http://' + window.location.hostname + window.location.pathname+'?'+queryString;
+      var pathLocation = window.location.protocol + '//' + window.location.hostname + window.location.pathname+'?'+queryString;
       window.history.pushState({}, document.title, pathLocation);
     } else {
       submit_form_sync(context);

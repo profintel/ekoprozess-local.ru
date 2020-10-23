@@ -8,9 +8,9 @@
   <title>ЭКО-процессинг - Панель администратора</title>
   
   <link rel="stylesheet" type="text/css" href="/adm/chosen/chosen.min.css" />
-  <link rel="stylesheet" type="text/css" href="/components/tp_admin.css?<?=time();?>" />
+  <link rel="stylesheet" type="text/css" href="/components/tp_admin.css?up=1" />
   
-  <script type="text/javascript" src="/components/tp_admin.js?<?=time();?>"></script>
+  <script type="text/javascript" src="/components/tp_admin.js?up=1"></script>
   <script type="text/javascript" src="/adm/ckeditor/ckeditor.js"></script>
   <script type="text/javascript" src="/adm/chosen/chosen.jquery.min.js"></script> 
 
