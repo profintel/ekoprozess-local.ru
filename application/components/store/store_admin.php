@@ -125,6 +125,7 @@ class Store_admin extends CI_Component {
       'date_start'  => ($this->uri->getParam('date_start') ? date('Y-m-d',strtotime($this->uri->getParam('date_start'))) : date('Y-m-1')),
       'date_end'    => ($this->uri->getParam('date_end') ? date('Y-m-d',strtotime($this->uri->getParam('date_end'))) : ''),
       'client_id'   => ((int)$this->uri->getParam('client_id') ? (int)$this->uri->getParam('client_id') : ''),
+      'store_workshop_id'   => ((int)$this->uri->getParam('store_workshop_id') ? (int)$this->uri->getParam('store_workshop_id') : ''),
       'product_id'  => ($product_id && @$product_id[0] ? $product_id : array()),
     );
 
@@ -182,6 +183,16 @@ class Store_admin extends CI_Component {
                 'onchange' => "submit_form(this, handle_ajaxResultAllData);",
               ),
               array(
+                'view'       => 'fields/' . ($type_id == 2 ? 'select' : 'hidden'),
+                'title'      => 'Цех:',
+                'name'       => 'store_workshop_id',
+                'text_field' => 'title',
+                'value'      => $get_params['store_workshop_id'],
+                'options'    => $this->workshops_model->get_workshops(),
+                'empty'      => true,
+                'onchange'   => "submit_form(this, handle_ajaxResultAllData);",
+              ),
+              array(
                 'view'          => 'fields/submit',
                 'title'         => 'Сформировать',
                 'type'          => 'ajax',
@@ -212,6 +223,9 @@ class Store_admin extends CI_Component {
       }
       if($get_params['client_id']){
         $where['store_comings.client_id'] = $get_params['client_id'];
+      }
+      if($get_params['store_workshop_id']){
+        $where['store_comings.store_workshop_id'] = $get_params['store_workshop_id'];
       }
 
       $page = ($this->uri->getParam('page') ? $this->uri->getParam('page') : 1);

@@ -21,6 +21,7 @@
             <th width="20%">Поставщик</th>
             <th>Брутто, кг</th>
             <th>Нетто, кг</th>
+            <th>Кол-во мест</th>
             <th>Засор, % <br> акт / приход</th>
             <th>Вид вторсырья</th>
             <th>Цена, руб.</th>
@@ -115,6 +116,9 @@
                 <span class="text-nowrap"><?=number_format(@$item['childs'][0]['net'],0,'.',' ');?></span>
               </td>
               <td>
+                <span class="text-nowrap"><?=number_format(@$item['childs'][0]['cnt_places'],0,'.',' ');?></span>
+              </td>
+              <td>
                 <span class="text-nowrap">
                   <?=number_format(@$item['childs'][0]['weight_defect'],0,'.',' ');?>
                   <? if (!empty($item['childs'][0]) && !is_null($item['childs'][0]['coming_weight_defect']) && 
@@ -149,6 +153,9 @@
                 </td>
                 <td>
                   <span class="text-nowrap"><?=number_format($child['net'],0,'.',' ');?></span>
+                </td>
+                <td>
+                  <span class="text-nowrap"><?=number_format($child['cnt_places'],0,'.',' ');?></span>
                 </td>
                 <td>
                   <span class="text-nowrap">
