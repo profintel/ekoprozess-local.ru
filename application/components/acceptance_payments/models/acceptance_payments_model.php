@@ -83,6 +83,7 @@ class Acceptance_payments_model extends CI_Model {
     $this->db->select('COUNT(DISTINCT(pr_client_acceptance_payments.id)) as cnt');
 
     if ($where) {
+      $this->db->join('clients','clients.id = client_acceptance_payments.client_id');
       $this->db->where($where);
     }
     return $this->db->get('client_acceptance_payments')->row()->cnt;
